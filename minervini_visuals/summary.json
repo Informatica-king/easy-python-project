@@ -1,0 +1,83 @@
+[
+  {
+    "symbol": "NBIS",
+    "name": "Nebius Group",
+    "file": "/workspace/minervini_visuals/NBIS_minervini.png",
+    "date": "2026-07-02",
+    "price": 215.6199951171875,
+    "currency": "USD",
+    "pass_count": 5,
+    "criteria_total": 6,
+    "criteria": {
+      "Price > 50/150/200 SMA": true,
+      "SMA stack: 50 > 150 > 200": true,
+      "200 SMA rising vs ~1M ago": true,
+      "Price >= 30% above 52W low": true,
+      "Price within 25% of 52W high": false,
+      "RS proxy beats SPY": true
+    },
+    "from_52w_high_pct": -28.09310823370119,
+    "from_52w_low_pct": 391.27363434878976,
+    "sma50": 215.09100036621095,
+    "sma150": 140.5385004679362,
+    "sma200": 132.93607555389406,
+    "stock_6m_return_pct": 153.16425942557652,
+    "bench_6m_return_pct": 8.408905068349505,
+    "stock_12m_return_pct": 328.582765318026,
+    "bench_12m_return_pct": 20.582854344321476
+  },
+  {
+    "symbol": "SNDK",
+    "name": "SanDisk",
+    "file": "/workspace/minervini_visuals/SNDK_minervini.png",
+    "date": "2026-07-02",
+    "price": 1745.0,
+    "currency": "USD",
+    "pass_count": 5,
+    "criteria_total": 6,
+    "criteria": {
+      "Price > 50/150/200 SMA": true,
+      "SMA stack: 50 > 150 > 200": true,
+      "200 SMA rising vs ~1M ago": true,
+      "Price >= 30% above 52W low": true,
+      "Price within 25% of 52W high": false,
+      "RS proxy beats SPY": true
+    },
+    "from_52w_high_pct": -25.883134076439028,
+    "from_52w_low_pct": 4251.621113218126,
+    "sma50": 1610.4527954101563,
+    "sma150": 882.3931326293946,
+    "sma200": 703.356549797058,
+    "stock_6m_return_pct": 626.4174469788525,
+    "bench_6m_return_pct": 8.408905068349505,
+    "stock_12m_return_pct": 3781.2278370411527,
+    "bench_12m_return_pct": 20.582854344321476
+  },
+  {
+    "symbol": "005930.KS",
+    "name": "Samsung Electronics",
+    "file": "/workspace/minervini_visuals/005930_KS_minervini.png",
+    "date": "2026-07-06",
+    "price": 318000.0,
+    "currency": "KRW",
+    "pass_count": 6,
+    "criteria_total": 6,
+    "criteria": {
+      "Price > 50/150/200 SMA": true,
+      "SMA stack: 50 > 150 > 200": true,
+      "200 SMA rising vs ~1M ago": true,
+      "Price >= 30% above 52W low": true,
+      "Price within 25% of 52W high": true,
+      "RS proxy beats KOSPI": true
+    },
+    "from_52w_high_pct": -15.086782376502006,
+    "from_52w_low_pct": 436.25632377740305,
+    "sma50": 298330.0,
+    "sma150": 205567.66666666666,
+    "sma200": 177165.5,
+    "stock_6m_return_pct": 171.7948717948718,
+    "bench_6m_return_pct": 94.9625572784666,
+    "stock_12m_return_pct": 448.27586206896547,
+    "bench_12m_return_pct": 159.41572981383928
+  }
+]
