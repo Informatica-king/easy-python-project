@@ -11,6 +11,7 @@ venv/
 # Data artifacts
 data/raw/
 data/processed/
+reports/
 
 # OS / editor
 .DS_Store

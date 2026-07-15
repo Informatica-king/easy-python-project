@@ -267,12 +267,26 @@ sepa-bot/
 | 2026-07-15 | D2: 봇 역할 = 스크리너 | 자동 매매가 아닌 Stage 2 + VCP 셋업 종목 추천기. 최종 판단은 사용자가 수행 |
 | 2026-07-15 | D3: VCP 알고리즘 | 스윙 포인트 기반 수축 분석 채택 (상세: `docs/strategy_spec.md` §4). 파라미터 수치는 사용자 확정 대기 |
 | 2026-07-15 | D4: 데이터 소스 | 무료 소스: yfinance(1순위) + Stooq(백업), 유니버스는 Nasdaq Trader 심볼 파일 (상세: `docs/strategy_spec.md` §6) |
+| 2026-07-15 | D5: 비상업 용도 | 개인 투자 참고용으로만 사용. 상업적 사용 배제 → 무료 데이터 소스 라이선스 리스크 해소 |
+| 2026-07-15 | D6: 파라미터 확정 | VCP·Trend Template 파라미터를 권장 기본값으로 확정. Phase 5 백테스트에서 조정 예정 |
+| 2026-07-15 | D7: 소수축 병합 | 실데이터 검증 중 ZigZag 수축 과다 집계 문제 발견 → `contraction_min_retrace`(0.5) 병합 규칙 추가 (상세: `docs/strategy_spec.md` §4.2) |
 
-## 6. 다음 액션
+## 6. 진행 현황
 
-1. 사용자: `docs/strategy_spec.md` §4.4 VCP 파라미터 확정값 입력 (미입력 시 권장값으로 진행)
-2. 개발: Phase 0(리포지토리 골격) + Phase 2(데이터 파이프라인) 착수 — Phase 1 산출물(전략 명세서)은 초안 완료
-3. 이후 Phase 순서대로 진행하되, 각 Phase 완료 시 본 문서의 해당 섹션을 갱신 (living document)
+| Phase | 상태 | 산출물 |
+|---|---|---|
+| Phase 0 (기반 구축) | **완료** | `pyproject.toml`, `config/`, `src/sepa/` 패키지 구조 |
+| Phase 1 (전략 정량화) | **완료** | `docs/strategy_spec.md` |
+| Phase 2 (파일럿 데이터 파이프라인) | **완료** | `src/sepa/data/` — yfinance/Stooq 폴백, 종목별 Parquet 캐시, 증분 업데이트 |
+| Phase 3 (시그널 모델) | **완료** | `src/sepa/trend_template.py`, `src/sepa/vcp.py`, `src/sepa/screener.py` + 단위 테스트 15개 |
+| Phase 4 (전체 유니버스) | 준비됨 | `src/sepa/data/universe.py` (Nasdaq Trader 파싱·ETF 필터 구현 완료, 전 종목 수집 미실행) |
+| Phase 5 (백테스트·최적화) | 미착수 | — |
+
+## 7. 다음 액션
+
+1. Phase 4: 나스닥 전 종목(~3,300개) 데이터 수집 실행 및 품질 검사
+2. Phase 5: 백테스트 엔진 구축 (T+1 체결, 손절/청산 규칙, 워크포워드 파라미터 탐색)
+3. 운용 편의: 셋업 종목 차트 이미지 자동 생성, 일일 실행 자동화
 
 ---
 

@@ -1,0 +1,37 @@
+# SEPA 스크리너 파라미터 (docs/strategy_spec.md 참조)
+# 현재 값 = 권장 기본값 (2026-07-15 사용자 승인). Phase 5 백테스트에서 조정 예정.
+
+data:
+  lookback_years: 3        # 최초 수집 기간 (200일 SMA 웜업 + 여유)
+  cache_dir: data/raw
+  min_history_days: 280    # 이보다 짧은 종목은 스크리닝 제외 (252일 지표 + trend_days)
+
+trend_template:
+  sma_short: 50
+  sma_mid: 150
+  sma_long: 200
+  trend_days: 21           # 200일 SMA 상승 판정 기간 (거래일)
+  low_52w_min_pct: 0.30    # 52주 저점 대비 최소 +30%
+  high_52w_max_pct: 0.25   # 52주 고점 대비 -25% 이내
+  rs_enabled: true
+  rs_rank_min: 80          # RS 백분위 순위 하한
+
+vcp:
+  base_min_weeks: 5
+  base_max_weeks: 26
+  max_base_depth: 0.35     # 베이스 전체 최대 낙폭
+  swing_threshold: 0.03    # ZigZag 스윙 인정 최소 반전폭
+  min_contractions: 2
+  max_contractions: 6
+  contraction_decay: 0.75  # 각 수축 깊이 <= 직전 수축 x 0.75
+  contraction_min_retrace: 0.5  # 직전 하락폭의 50% 이상 반등해야 별개 수축으로 인정 (노이즈 병합)
+  final_contraction_max: 0.10
+  dryup_days: 5
+  dryup_ratio: 0.6         # 최근 평균 거래량 <= 50일 평균 x 0.6
+  pivot_buffer: 0.001      # 돌파 인정 여유폭 (+0.1%)
+  breakout_vol_mult: 1.5   # 돌파일 거래량 >= 50일 평균 x 1.5
+  watch_zone_pct: 0.05     # 피벗 아래 5% 이내면 WATCHLIST
+  max_extension: 0.05      # 피벗 위 5% 초과면 EXTENDED (추격 금지)
+
+report:
+  output_dir: reports
