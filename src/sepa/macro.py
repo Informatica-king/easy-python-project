@@ -182,6 +182,17 @@ def _tool_chart(args: list, kwargs: dict) -> None:
     chart.main(argv)
 
 
+def _tool_backtest(args: list, kwargs: dict) -> None:
+    from sepa import backtest
+
+    argv = []
+    if kwargs.get("recompute"):
+        argv.append("--recompute-signals")
+    if kwargs.get("start"):
+        argv += ["--start", str(kwargs["start"])]
+    backtest.main(argv)
+
+
 def _tool_update(args: list, kwargs: dict) -> None:
     from sepa.data import store, universe
 
@@ -221,6 +232,11 @@ REGISTRY: list[MacroSpec] = [
         "sepa.chart", '!sepa.chart("SNDK")  |  !sepa.chart(sandisk, months=12)',
         "SEPA 일봉 분석 차트 — 추세선(SMA 50/150/200, 52주 고저) + Trend Template 스코어카드 + VCP 구조",
         _tool_chart, aliases=("chart",),
+    ),
+    MacroSpec(
+        "sepa.backtest", "!sepa.backtest()  |  !sepa.backtest(recompute=True)",
+        "가상투자 백테스트 — 진입 변형 3종 × 청산 그리드 36조합 탐색 후 수익률/샤프/MDD별 최적 모델 리포트",
+        _tool_backtest, aliases=("backtest",),
     ),
     MacroSpec(
         "sepa.update", "!sepa.update()",
