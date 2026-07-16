@@ -24,6 +24,7 @@ from matplotlib import font_manager as fm  # noqa: E402
 import pandas as pd
 
 from sepa.config import load_params
+from sepa.artifacts import publish_many
 
 logger = logging.getLogger(__name__)
 
@@ -315,9 +316,15 @@ def main(argv: list[str] | None = None) -> int:
 
     print_sector_sections(enriched)
     print(f"중심값(산점도 원점): RS mean={cx:.1f}, Fund mean={cy:.1f}")
-    print(f"charts: {bar_path}")
-    print(f"        {scatter_path}")
-    print(f"report: {csv_path}")
+    print(f"charts: {bar_path.resolve()}")
+    print(f"        {scatter_path.resolve()}")
+    print(f"report: {csv_path.resolve()}")
+
+    downloads = publish_many([bar_path, scatter_path, csv_path])
+    if downloads:
+        print("\n=== 다운로드 ===")
+        for p in downloads:
+            print(f"  {p}")
     return 0
 
 
