@@ -203,8 +203,8 @@ def plot_rs_fund_scatter(df: pd.DataFrame, out_path: Path) -> tuple[Path, float,
     y = df["fund_score"].astype(float)
     cx, cy = float(x.mean()), float(y.mean())
 
-    fig, ax = plt.subplots(figsize=(10, 8))
-    # color by primary tag
+    # Larger canvas so dense ticker labels remain readable even when overlapping
+    fig, ax = plt.subplots(figsize=(14, 11))
     tags = df["primary_tag"].fillna("기타")
     uniq = sorted(tags.unique())
     cmap = plt.get_cmap("tab20", max(len(uniq), 1))
@@ -222,20 +222,16 @@ def plot_rs_fund_scatter(df: pd.DataFrame, out_path: Path) -> tuple[Path, float,
     ax.axhline(cy, color="#444", ls="--", lw=1.0, alpha=0.8)
     ax.scatter([cx], [cy], c="black", s=60, zorder=5, marker="x")
 
-    # annotate a few extremes (top fund / top rs)
-    label_idx = set()
-    for col, ascending in (("fund_score", False), ("rs_rank", False)):
-        for i in df.sort_values(col, ascending=ascending).head(8).index:
-            label_idx.add(i)
-    for i in label_idx:
-        row = df.loc[i]
+    # Label every ticker (overlap allowed — user preference)
+    for _, row in df.iterrows():
         ax.annotate(
-            row["ticker"],
-            (row["rs_rank"], row["fund_score"]),
+            str(row["ticker"]),
+            (float(row["rs_rank"]), float(row["fund_score"])),
             textcoords="offset points",
-            xytext=(4, 4),
-            fontsize=7,
-            alpha=0.9,
+            xytext=(3, 3),
+            fontsize=6,
+            alpha=0.95,
+            clip_on=False,
         )
 
     ax.set_xlabel("RS rank")
@@ -244,7 +240,6 @@ def plot_rs_fund_scatter(df: pd.DataFrame, out_path: Path) -> tuple[Path, float,
         f"SEPA Analyze — RS × Fund  (origin @ mean RS={cx:.1f}, Fund={cy:.1f})"
     )
     ax.grid(alpha=0.25)
-    # quadrant hints
     xmin, xmax = ax.get_xlim()
     ymin, ymax = ax.get_ylim()
     ax.text(xmax, ymax, "강모멘텀·강펀더", ha="right", va="top", fontsize=8, color="#1a5", alpha=0.7)
@@ -255,7 +250,7 @@ def plot_rs_fund_scatter(df: pd.DataFrame, out_path: Path) -> tuple[Path, float,
     ax.legend(loc="center left", bbox_to_anchor=(1.01, 0.5), fontsize=7, frameon=False)
     fig.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=140, bbox_inches="tight")
+    fig.savefig(out_path, dpi=160, bbox_inches="tight")
     plt.close(fig)
     return out_path, cx, cy
 
