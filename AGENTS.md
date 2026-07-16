@@ -15,7 +15,8 @@
 ## `!` 매크로 컨벤션 (중요)
 
 사용자가 채팅에 `!`로 시작하는 명령을 입력하면 (예: `!tools`,
-`!sepa.chart("SNDK")`, `!sepa.screener(full)`), 별도 설명 없이 즉시 아래처럼
+`!sepa.scan(full)`, `!sepa.fund()`, `!sepa.anal()`,
+`!sepa.chart("SNDK")`), 별도 설명 없이 즉시 아래처럼
 실행하고 결과를 보여줄 것:
 
 ```bash
@@ -24,9 +25,10 @@
 
 - 도구 목록·사용법: `.venv/bin/sepa '!tools'`
 - 매크로 정의·파서·티커/기업명 해석기: `src/sepa/macro.py` (`REGISTRY`)
+- 짧은 별칭: `sepa.scan`(=screener), `sepa.fund`(=fundamental), `sepa.anal`(=analyze)
 - 새 도구를 추가하면 `REGISTRY`에 등록해 `!tools`에 노출시킬 것
 - 차트 등 이미지 산출물이 생기면 사용자에게 보여줄 것 (`reports/charts/`)
-- 펀더멘털 점수 스펙: `docs/fundamental_spec.md` (`!sepa.fundamental`)
+- 펀더멘털 점수 스펙: `docs/fundamental_spec.md` (`!sepa.fund`)
 
 ## 결과 제시 규칙 (사용자 지정)
 

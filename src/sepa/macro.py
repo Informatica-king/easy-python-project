@@ -205,8 +205,8 @@ def _tool_fundamental(args: list, kwargs: dict) -> None:
             argv = ["--from-stage2", a]
         else:
             raise MacroError(
-                f"알 수 없는 인자: {a!r} — !sepa.fundamental() 또는 "
-                f'!sepa.fundamental("reports/stage2_20260716.csv")'
+                f"알 수 없는 인자: {a!r} — !sepa.fund() 또는 "
+                f'!sepa.fund("reports/stage2_20260716.csv")'
             )
     if kwargs.get("as_of"):
         argv += ["--as-of", str(kwargs["as_of"])]
@@ -215,6 +215,24 @@ def _tool_fundamental(args: list, kwargs: dict) -> None:
     if kwargs.get("refresh"):
         argv.append("--refresh-fundamentals")
     fundamental.main(argv)
+
+
+def _tool_analyze(args: list, kwargs: dict) -> None:
+    from sepa import analyze
+
+    argv: list[str] = []
+    for a in args:
+        a = str(a)
+        if a.endswith(".csv"):
+            argv += ["--from-fundamental", a]
+        else:
+            raise MacroError(
+                f"알 수 없는 인자: {a!r} — !sepa.anal() 또는 "
+                f'!sepa.anal("reports/fundamental_20260716.csv")'
+            )
+    if kwargs.get("refresh"):
+        argv.append("--refresh-sectors")
+    analyze.main(argv)
 
 
 @dataclass(frozen=True)
@@ -232,30 +250,40 @@ REGISTRY: list[MacroSpec] = [
         "사용 가능한 도구 목록과 사용법 출력", _tool_tools, aliases=("help",),
     ),
     MacroSpec(
-        "sepa.screener", '!sepa.screener()  |  !sepa.screener("full")  |  !sepa.screener(full, as_of=2025-02-18)',
-        "Stage 2 스크리너 — 인자 없으면 파일럿 유니버스, 'full'이면 나스닥 전 종목. 결과: 회사명-티커 리스트",
-        _tool_screener, aliases=("screener", "sepa.stage2"),
+        "sepa.screener",
+        '!sepa.scan()  |  !sepa.scan(full)  |  !sepa.screener(full, as_of=2025-02-18)',
+        "Stage 2 스크리너 — 인자 없으면 파일럿, 'full'이면 나스닥 전 종목",
+        _tool_screener,
+        aliases=("screener", "sepa.stage2", "sepa.scan", "scan"),
     ),
     MacroSpec(
         "sepa.vcp", '!sepa.vcp("NVDA,MSFT")  |  !sepa.vcp(sandisk, as_of=2025-02-18)',
-        "shortlist VCP 진입 타이밍 — BREAKOUT/WATCHLIST/FORMING/EXTENDED 시그널. 기업 이름도 인식",
+        "shortlist VCP 진입 타이밍 — BREAKOUT/WATCHLIST/FORMING/EXTENDED",
         _tool_vcp, aliases=("vcp", "sepa.vcp_timing"),
     ),
     MacroSpec(
         "sepa.chart", '!sepa.chart("SNDK")  |  !sepa.chart(sandisk, months=12)',
-        "SEPA 일봉 분석 차트 — 추세선(SMA 50/150/200, 52주 고저) + Trend Template 스코어카드 + VCP 구조",
+        "SEPA 일봉 분석 차트 — SMA·52주·ZigZag·Trend Template 스코어카드",
         _tool_chart, aliases=("chart",),
     ),
     MacroSpec(
         "sepa.update", "!sepa.update()",
-        "나스닥 전 종목 가격 데이터 증분 업데이트 (스크리너 실행 없이 데이터만)",
+        "나스닥 전 종목 가격 데이터 증분 업데이트",
         _tool_update, aliases=("update",),
     ),
     MacroSpec(
         "sepa.fundamental",
-        '!sepa.fundamental()  |  !sepa.fundamental("reports/stage2_20260716.csv")',
-        "Stage 2·RS≥80 정량 펀더멘털 점수 (EPS/매출/마진/ROE) — fund_score 내림차순, RS 병기",
-        _tool_fundamental, aliases=("fundamental", "sepa.fund"),
+        '!sepa.fund()  |  !sepa.fund("reports/stage2_20260716.csv")  |  !sepa.fundamental()',
+        "Stage 2·RS≥80 정량 펀더멘털 점수 — fund_score 내림차순, RS 병기",
+        _tool_fundamental,
+        aliases=("fundamental", "sepa.fund", "fund"),
+    ),
+    MacroSpec(
+        "sepa.analyze",
+        '!sepa.anal()  |  !sepa.anal("reports/fundamental_20260716.csv")  |  !sepa.analyze()',
+        "섹터/테마 분류·시각화 + RS×펀더멘털 산점도 (원점=각 평균)",
+        _tool_analyze,
+        aliases=("analyze", "sepa.anal", "anal"),
     ),
 ]
 

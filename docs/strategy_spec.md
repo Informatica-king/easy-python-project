@@ -19,11 +19,13 @@
 
 **운용 워크플로우 (D8, 2026-07-15 확정 · D11 펀더멘털 봇 추가 2026-07-16)**:
 
-1. **Stage 2 스크리너** (`!sepa.screener(full)`): Trend Template 8조건 → **"회사명-티커"** + RS
-2. **정량 펀더멘털** (`!sepa.fundamental()`): Stage 2 · RS≥80 → fund_score 내림차순
-3. **(예정) 분석·시각화** (`sepa.analyze`): 섹터 분류 + RS×펀더멘털 산점도
+1. **Stage 2 스크리너** (`!sepa.scan(full)`): Trend Template 8조건 → **"회사명-티커"** + RS
+2. **정량 펀더멘털** (`!sepa.fund()`): Stage 2 · RS≥80 → fund_score 내림차순
+3. **분석·시각화** (`!sepa.anal()`): 섹터/테마 분류 + RS×펀더멘털 산점도 (원점=평균)
 4. **사용자 최종 숏리스트** 확정
 5. **VCP 타이밍** (`!sepa.vcp(...)`) / 차트 (`!sepa.chart(...)`)
+
+짧은 별칭: `sepa.scan`(=screener), `sepa.fund`(=fundamental), `sepa.anal`(=analyze)
 
 ---
 

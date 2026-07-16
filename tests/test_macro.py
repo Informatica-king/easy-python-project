@@ -50,3 +50,14 @@ def test_resolve_same_company_prefers_short_ticker():
 def test_resolve_unknown_raises():
     with pytest.raises(MacroError):
         resolve_ticker("does-not-exist", NAMES)
+
+
+def test_short_aliases_resolve():
+    from sepa.macro import _LOOKUP
+
+    assert _LOOKUP["sepa.scan"] is _LOOKUP["sepa.screener"]
+    assert _LOOKUP["scan"] is _LOOKUP["sepa.screener"]
+    assert _LOOKUP["sepa.fund"] is _LOOKUP["sepa.fundamental"]
+    assert _LOOKUP["fund"] is _LOOKUP["sepa.fundamental"]
+    assert _LOOKUP["sepa.anal"] is _LOOKUP["sepa.analyze"]
+    assert _LOOKUP["anal"] is _LOOKUP["sepa.analyze"]

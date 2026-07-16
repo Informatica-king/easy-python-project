@@ -19,7 +19,12 @@ reports/                           # 실행 결과 (.gitignore — 실행일별 
 ├── stage2_YYYYMMDD.csv            # [도구1] Stage 2 "회사명-티커" 리스트
 ├── diagnostics_YYYYMMDD.csv       # [도구1] 전 종목 조건별 진단
 ├── fundamental_YYYYMMDD.csv       # [도구] Stage 2·RS≥80 펀더멘털 점수
+├── analyze_YYYYMMDD.csv           # [도구] 섹터 태그 포함 분석 테이블
 └── vcp_YYYYMMDD.csv               # [도구2] shortlist VCP 시그널
+
+reports/charts/
+├── analyze_sectors_YYYYMMDD.png   # 섹터/테마 막대 차트
+└── analyze_scatter_YYYYMMDD.png   # RS×Fund 산점도 (원점=평균)
 
 data/fundamentals/                 # 분기 재무 캐시 (.gitignore)
 ├── _sec_tickers.json              # SEC 티커→CIK 맵
