@@ -193,6 +193,30 @@ def _tool_update(args: list, kwargs: dict) -> None:
     print(f"완료: 성공 {len(ok)} / 실패 {len(failed)}")
 
 
+def _tool_fundamental(args: list, kwargs: dict) -> None:
+    from sepa import fundamental
+
+    argv = ["--full"]
+    for a in args:
+        a = str(a)
+        if a.lower() == "full":
+            continue
+        if a.endswith((".csv",)):
+            argv = ["--from-stage2", a]
+        else:
+            raise MacroError(
+                f"알 수 없는 인자: {a!r} — !sepa.fundamental() 또는 "
+                f'!sepa.fundamental("reports/stage2_20260716.csv")'
+            )
+    if kwargs.get("as_of"):
+        argv += ["--as-of", str(kwargs["as_of"])]
+    if kwargs.get("no_update"):
+        argv.append("--no-update")
+    if kwargs.get("refresh"):
+        argv.append("--refresh-fundamentals")
+    fundamental.main(argv)
+
+
 @dataclass(frozen=True)
 class MacroSpec:
     name: str
@@ -226,6 +250,12 @@ REGISTRY: list[MacroSpec] = [
         "sepa.update", "!sepa.update()",
         "나스닥 전 종목 가격 데이터 증분 업데이트 (스크리너 실행 없이 데이터만)",
         _tool_update, aliases=("update",),
+    ),
+    MacroSpec(
+        "sepa.fundamental",
+        '!sepa.fundamental()  |  !sepa.fundamental("reports/stage2_20260716.csv")',
+        "Stage 2·RS≥80 정량 펀더멘털 점수 (EPS/매출/마진/ROE) — fund_score 내림차순, RS 병기",
+        _tool_fundamental, aliases=("fundamental", "sepa.fund"),
     ),
 ]
 

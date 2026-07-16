@@ -11,6 +11,7 @@ venv/
 # Data artifacts
 data/raw/
 data/processed/
+data/fundamentals/
 reports/
 
 # OS / editor

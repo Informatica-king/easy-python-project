@@ -273,6 +273,7 @@ sepa-bot/
 | 2026-07-15 | D8: Stage 2 / VCP 분리 | 메인 봇(`sepa.screener`)은 Stage 2 진입 기업을 "회사명-티커" 리스트로만 리턴. 사용자가 펀더멘털을 직접 확인·순위화한 상위권 shortlist에 대해서만 별도 도구(`sepa.vcp_timing`)로 VCP 진입 타이밍 계산 |
 | 2026-07-16 | D9: 유동성 필터 기본값 | 전 종목 스크리닝 전 사전 필터: 주가 $10 이상, 50일 평균 거래대금 $10M 이상 (`universe_filter`, 조정 가능). 미너비니의 저가주 회피 원칙 반영 |
 | 2026-07-16 | D10: `!` 매크로 콘솔 | 모든 도구를 `sepa` 콘솔에서 `!명령어(...)` 한 줄로 실행 (`src/sepa/macro.py`). `!tools`가 도구 목록·사용법 출력, 티커 대신 기업 이름 인식. 채팅에서도 동일 컨벤션 적용 (AGENTS.md) |
+| 2026-07-16 | D11: 펀더멘털 점수 | `!sepa.fundamental()` — Stage 2·RS≥80 대상. 가중치 A25/B20/C15/D10/E15/G5 (F 제외). 가속 만점=연속 2분기. 데이터: SEC EDGAR + yfinance. 상세: `docs/fundamental_spec.md` |
 
 ## 6. 진행 현황
 
@@ -283,7 +284,9 @@ sepa-bot/
 | Phase 2 (파일럿 데이터 파이프라인) | **완료** | `src/sepa/data/` — yfinance/Stooq 폴백, 종목별 Parquet 캐시, 증분 업데이트 |
 | Phase 3 (시그널 모델) | **완료** | `src/sepa/trend_template.py` + `src/sepa/screener.py`(Stage 2 리스트), `src/sepa/vcp.py` + `src/sepa/vcp_timing.py`(shortlist 타이밍) + 단위 테스트 18개 |
 | Phase 4 (전체 유니버스) | **완료** | `store.bulk_update`(청크 배치 수집), `--full` 플래그, 유동성 필터. 3,277/3,279 종목 수집(99.9%), 품질 검사 통과 |
-| Phase 5 (백테스트·최적화) | 미착수 | — |
+| Phase 5 (백테스트·최적화) | 보류 | 구현 후 사용자 요청으로 롤백 (revert) |
+| 펀더멘털 봇 | **완료** | `!sepa.fundamental` — SEC 분기 재무 + 점수 엔진 (`docs/fundamental_spec.md`) |
+| 분석 봇 (`sepa.analyze`) | 미착수 | 섹터 분류 + RS×펀더멘털 산점도 |
 
 ### Phase 4 실행 기록 (2026-07-16)
 

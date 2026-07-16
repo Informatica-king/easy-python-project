@@ -18,7 +18,14 @@ data/raw/                          # 가격 데이터 캐시 (.gitignore — 재
 reports/                           # 실행 결과 (.gitignore — 실행일별 생성)
 ├── stage2_YYYYMMDD.csv            # [도구1] Stage 2 "회사명-티커" 리스트
 ├── diagnostics_YYYYMMDD.csv       # [도구1] 전 종목 조건별 진단
+├── fundamental_YYYYMMDD.csv       # [도구] Stage 2·RS≥80 펀더멘털 점수
 └── vcp_YYYYMMDD.csv               # [도구2] shortlist VCP 시그널
+
+data/fundamentals/                 # 분기 재무 캐시 (.gitignore)
+├── _sec_tickers.json              # SEC 티커→CIK 맵
+├── AAPL.parquet                   # 분기 eps/revenue/net_income/npm (프레임 인덱스)
+└── AAPL.meta.json                 # roe, source(sec|yfinance)
+
 
 config/
 ├── params.yaml                    # 전략·필터 파라미터 (버전 관리 대상)

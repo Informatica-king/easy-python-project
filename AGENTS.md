@@ -26,6 +26,7 @@
 - 매크로 정의·파서·티커/기업명 해석기: `src/sepa/macro.py` (`REGISTRY`)
 - 새 도구를 추가하면 `REGISTRY`에 등록해 `!tools`에 노출시킬 것
 - 차트 등 이미지 산출물이 생기면 사용자에게 보여줄 것 (`reports/charts/`)
+- 펀더멘털 점수 스펙: `docs/fundamental_spec.md` (`!sepa.fundamental`)
 
 ## 결과 제시 규칙 (사용자 지정)
 

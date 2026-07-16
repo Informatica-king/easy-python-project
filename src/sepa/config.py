@@ -58,11 +58,30 @@ class VCPParams:
 
 
 @dataclass(frozen=True)
+class FundamentalParams:
+    """Quantitative fundamental score weights (docs/fundamental_spec.md).
+
+    Sum of weights is 90; displayed fund_score = raw/90*100.
+    Annual EPS component (F) intentionally omitted — quarterly focus only.
+    """
+
+    rs_min: float = 80.0
+    eps_yoy: float = 25.0
+    eps_accel: float = 20.0
+    sales_yoy: float = 15.0
+    sales_accel: float = 10.0
+    margin_improve: float = 15.0
+    roe: float = 5.0
+    roe_target: float = 0.17
+
+
+@dataclass(frozen=True)
 class Params:
     data: DataParams
     trend_template: TrendTemplateParams
     vcp: VCPParams
     universe_filter: UniverseFilterParams = UniverseFilterParams()
+    fundamental: FundamentalParams = FundamentalParams()
     report_dir: str = "reports"
 
 
@@ -73,6 +92,7 @@ def load_params(path: str | Path) -> Params:
         trend_template=TrendTemplateParams(**raw.get("trend_template", {})),
         vcp=VCPParams(**raw.get("vcp", {})),
         universe_filter=UniverseFilterParams(**raw.get("universe_filter", {})),
+        fundamental=FundamentalParams(**raw.get("fundamental", {})),
         report_dir=raw.get("report", {}).get("output_dir", "reports"),
     )
 
