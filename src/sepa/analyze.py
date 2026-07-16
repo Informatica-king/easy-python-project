@@ -8,6 +8,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import glob
 import json
 import logging
 import re
@@ -19,11 +20,21 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib import font_manager as fm  # noqa: E402
 import pandas as pd
 
 from sepa.config import load_params
 
 logger = logging.getLogger(__name__)
+
+
+def _setup_korean_font() -> None:
+    for path in glob.glob("/usr/share/fonts/truetype/nanum/NanumGothic*.ttf"):
+        fm.fontManager.addfont(path)
+    if any(f.name == "NanumGothic" for f in fm.fontManager.ttflist):
+        plt.rcParams["font.family"] = "NanumGothic"
+        plt.rcParams["axes.unicode_minus"] = False
+
 
 # (표시 태그, 매칭 키워드) — sector/industry 문자열에 대해 복수 매칭 가능
 TAG_RULES: list[tuple[str, tuple[str, ...]]] = [
@@ -171,6 +182,7 @@ def print_sector_sections(df: pd.DataFrame) -> None:
 
 
 def plot_sector_bars(counts: pd.Series, out_path: Path) -> Path:
+    _setup_korean_font()
     fig, ax = plt.subplots(figsize=(9, max(4.0, 0.35 * len(counts) + 1)))
     counts.plot(kind="barh", ax=ax, color="#2c5f7c")
     ax.set_xlabel("종목 수 (복수 태그 중복 집계)")
@@ -185,6 +197,7 @@ def plot_sector_bars(counts: pd.Series, out_path: Path) -> Path:
 
 def plot_rs_fund_scatter(df: pd.DataFrame, out_path: Path) -> tuple[Path, float, float]:
     """Scatter RS (x) vs Fund (y) with origin at mean of each axis."""
+    _setup_korean_font()
     x = df["rs_rank"].astype(float)
     y = df["fund_score"].astype(float)
     cx, cy = float(x.mean()), float(y.mean())
