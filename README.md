@@ -25,10 +25,16 @@ python -m venv .venv
 
 ```bash
 python -m sepa.screener                                   # 파일럿 유니버스(10종목)
+python -m sepa.screener --full                            # 나스닥 전 종목 (ETF 제외, ~3,300개)
 python -m sepa.screener --universe config/universe.yaml   # 유니버스 파일 지정
 python -m sepa.screener --as-of 2025-02-18                # 과거 시점 기준 (검증용)
 python -m sepa.screener --no-update                       # 캐시만 사용
 ```
+
+`--full`은 Nasdaq Trader 심볼 파일에서 전 종목을 받아 청크 배치로 수집한 뒤
+(최초 약 3분, 이후 증분 업데이트), 유동성 필터(주가 $10 이상 · 50일 평균
+거래대금 $10M 이상, `config/params.yaml`의 `universe_filter`)를 거쳐
+스크리닝합니다.
 
 출력: "회사명-티커" 리스트(RS 순위 내림차순) + `reports/stage2_YYYYMMDD.csv`,
 `reports/diagnostics_YYYYMMDD.csv`(전 종목 조건별 진단).

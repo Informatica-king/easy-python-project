@@ -28,7 +28,7 @@ class DataFetchError(RuntimeError):
     pass
 
 
-def _normalize(df: pd.DataFrame) -> pd.DataFrame:
+def normalize_ohlcv(df: pd.DataFrame) -> pd.DataFrame:
     if isinstance(df.columns, pd.MultiIndex):
         df.columns = df.columns.get_level_values(0)
     df = df.rename(columns=lambda c: str(c).lower())
@@ -55,7 +55,7 @@ def fetch_yfinance(ticker: str, start: date | None = None, end: date | None = No
     )
     if df is None or df.empty:
         raise DataFetchError(f"yfinance returned no data for {ticker}")
-    return _normalize(df)
+    return normalize_ohlcv(df)
 
 
 def fetch_stooq(ticker: str, start: date | None = None, end: date | None = None) -> pd.DataFrame:
@@ -70,7 +70,7 @@ def fetch_stooq(ticker: str, start: date | None = None, end: date | None = None)
     df = pd.read_csv(io.StringIO(resp.text), parse_dates=["Date"]).set_index("Date")
     if df.empty:
         raise DataFetchError(f"stooq returned empty data for {ticker}")
-    return _normalize(df)
+    return normalize_ohlcv(df)
 
 
 def fetch_daily(ticker: str, start: date | None = None, end: date | None = None) -> pd.DataFrame:

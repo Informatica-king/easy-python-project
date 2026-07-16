@@ -23,10 +23,18 @@ from pathlib import Path
 import pandas as pd
 
 from sepa import indicators, trend_template
-from sepa.config import Params, load_params, load_universe
+from sepa.config import Params, UniverseFilterParams, load_params, load_universe
 from sepa.data import store, universe
 
 logger = logging.getLogger(__name__)
+
+
+def passes_liquidity(df: pd.DataFrame, uf: UniverseFilterParams) -> bool:
+    """Liquidity pre-filter: minimum price and 50-day average dollar volume."""
+    if float(df["close"].iloc[-1]) < uf.min_price:
+        return False
+    dollar_volume = (df["close"] * df["volume"]).tail(50).mean()
+    return float(dollar_volume) >= uf.min_avg_dollar_volume
 
 
 def screen_stage2(
@@ -53,7 +61,14 @@ def screen_stage2(
         cutoff = pd.Timestamp(as_of)
         data = {t: df.loc[:cutoff] for t, df in data.items()}
 
+    n_loaded = len(data)
     data = {t: df for t, df in data.items() if len(df) >= params.data.min_history_days}
+    n_history = len(data)
+    data = {t: df for t, df in data.items() if passes_liquidity(df, params.universe_filter)}
+    logger.info(
+        "universe funnel: loaded=%d -> history>=%dd: %d -> liquidity: %d",
+        n_loaded, params.data.min_history_days, n_history, len(data),
+    )
     rs_ranks = indicators.compute_rs_ranks(data)
     names = names or {}
 
@@ -108,6 +123,10 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="SEPA Stage 2 screener")
     parser.add_argument("--config", default="config/params.yaml")
     parser.add_argument("--universe", default="config/universe.yaml")
+    parser.add_argument(
+        "--full", action="store_true",
+        help="screen the full Nasdaq universe (ETFs excluded) instead of --universe",
+    )
     parser.add_argument("--as-of", default=None, help="screen as of date YYYY-MM-DD (for validation)")
     parser.add_argument("--no-update", action="store_true", help="use cache only, skip downloads")
     args = parser.parse_args(argv)
@@ -115,7 +134,6 @@ def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 
     params = load_params(args.config)
-    tickers = load_universe(args.universe)
 
     try:
         names = universe.security_names(cache_dir=params.data.cache_dir)
@@ -123,8 +141,22 @@ def main(argv: list[str] | None = None) -> int:
         logger.warning("could not load company names: %s", exc)
         names = {}
 
+    update = not args.no_update
+    if args.full:
+        listed = universe.fetch_nasdaq_listed(cache_dir=params.data.cache_dir)
+        tickers = universe.common_stock_tickers(listed)
+        logger.info("full Nasdaq universe: %d tickers", len(tickers))
+        if update:
+            tickers, failed = store.bulk_update(
+                tickers, params.data.cache_dir, params.data.lookback_years
+            )
+            logger.info("bulk update done: ok=%d failed=%d", len(tickers), len(failed))
+        update = False  # per-ticker fetch already covered by bulk_update
+    else:
+        tickers = load_universe(args.universe)
+
     stage2, diagnostics = screen_stage2(
-        params, tickers, as_of=args.as_of, update=not args.no_update, names=names
+        params, tickers, as_of=args.as_of, update=update, names=names
     )
 
     stamp = (args.as_of or datetime.now().strftime("%Y-%m-%d")).replace("-", "")

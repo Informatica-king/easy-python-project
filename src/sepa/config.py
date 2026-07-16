@@ -19,6 +19,14 @@ class DataParams:
 
 
 @dataclass(frozen=True)
+class UniverseFilterParams:
+    """Liquidity pre-filter applied before screening (full-universe runs)."""
+
+    min_price: float = 10.0
+    min_avg_dollar_volume: float = 10_000_000.0  # 50-day average, USD
+
+
+@dataclass(frozen=True)
 class TrendTemplateParams:
     sma_short: int = 50
     sma_mid: int = 150
@@ -54,6 +62,7 @@ class Params:
     data: DataParams
     trend_template: TrendTemplateParams
     vcp: VCPParams
+    universe_filter: UniverseFilterParams = UniverseFilterParams()
     report_dir: str = "reports"
 
 
@@ -63,6 +72,7 @@ def load_params(path: str | Path) -> Params:
         data=DataParams(**raw.get("data", {})),
         trend_template=TrendTemplateParams(**raw.get("trend_template", {})),
         vcp=VCPParams(**raw.get("vcp", {})),
+        universe_filter=UniverseFilterParams(**raw.get("universe_filter", {})),
         report_dir=raw.get("report", {}).get("output_dir", "reports"),
     )
 
