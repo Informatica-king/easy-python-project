@@ -20,3 +20,10 @@ def test_format_stage2_list_name_dash_ticker():
 
 def test_format_stage2_list_empty():
     assert format_stage2_list(pd.DataFrame(columns=["ticker", "name", "close", "rs_rank"])) == []
+
+
+def test_format_stage2_list_with_rs_score():
+    stage2 = pd.DataFrame([
+        {"ticker": "NVDA", "name": "NVIDIA Corporation", "close": 200.0, "rs_rank": 99.0},
+    ])
+    assert format_stage2_list(stage2, with_rs=True) == ["NVIDIA Corporation-NVDA  (RS 99.0)"]

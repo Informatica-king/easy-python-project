@@ -98,13 +98,35 @@ def screen_stage2(
     return stage2, pd.DataFrame(diag_rows)
 
 
-def format_stage2_list(stage2: pd.DataFrame) -> list[str]:
+RS_HIGHLIGHT_MIN = 90.0  # 결과 제시 시 이 점수 이상은 항상 전부 나열 (사용자 지정 기준)
+
+
+def format_stage2_list(stage2: pd.DataFrame, with_rs: bool = False) -> list[str]:
     """Format Stage 2 rows as '회사명-티커' strings (name falls back to ticker)."""
     out = []
     for _, row in stage2.iterrows():
         name = row["name"] or row["ticker"]
-        out.append(f"{name}-{row['ticker']}")
+        entry = f"{name}-{row['ticker']}"
+        if with_rs and row["rs_rank"] is not None and not pd.isna(row["rs_rank"]):
+            entry += f"  (RS {row['rs_rank']:.1f})"
+        out.append(entry)
     return out
+
+
+def print_stage2_sections(stage2: pd.DataFrame) -> None:
+    """RS 90+ 섹션(전부 나열) + 나머지 섹션, 모두 RS 점수 포함 내림차순."""
+    if stage2.empty:
+        print("(none)")
+        return
+    top = stage2[stage2["rs_rank"] >= RS_HIGHLIGHT_MIN]
+    rest = stage2[stage2["rs_rank"] < RS_HIGHLIGHT_MIN]
+    print(f"◆ RS {RS_HIGHLIGHT_MIN:.0f} 이상 ({len(top)})")
+    for entry in format_stage2_list(top, with_rs=True):
+        print(f"  {entry}")
+    if not rest.empty:
+        print(f"\n◆ 그 외 Stage 2 기업 ({len(rest)})")
+        for entry in format_stage2_list(rest, with_rs=True):
+            print(f"  {entry}")
 
 
 def stage2_list(
@@ -168,18 +190,8 @@ def main(argv: list[str] | None = None) -> int:
     diagnostics.to_csv(diag_path, index=False)
 
     print(f"\n=== SEPA Stage 2 screen ({args.as_of or 'latest'}) — universe: {len(tickers)} tickers ===\n")
-    entries = format_stage2_list(stage2)
-    print(f"--- Stage 2 진입 기업 ({len(entries)}) — RS 순위 내림차순 ---")
-    if not entries:
-        print("(none)")
-    for entry in entries:
-        print(entry)
-    print("\n--- details ---")
-    with pd.option_context("display.width", 200, "display.max_columns", None):
-        if stage2.empty:
-            print("(no Stage 2 companies)")
-        else:
-            print(stage2.to_string(index=False))
+    print(f"--- Stage 2 진입 기업 ({len(stage2)}) — RS 순위 내림차순 ---")
+    print_stage2_sections(stage2)
     print(f"\nreports: {stage2_path}, {diag_path}")
     return 0
 
