@@ -270,6 +270,7 @@ sepa-bot/
 | 2026-07-15 | D5: 비상업 용도 | 개인 투자 참고용으로만 사용. 상업적 사용 배제 → 무료 데이터 소스 라이선스 리스크 해소 |
 | 2026-07-15 | D6: 파라미터 확정 | VCP·Trend Template 파라미터를 권장 기본값으로 확정. Phase 5 백테스트에서 조정 예정 |
 | 2026-07-15 | D7: 소수축 병합 | 실데이터 검증 중 ZigZag 수축 과다 집계 문제 발견 → `contraction_min_retrace`(0.5) 병합 규칙 추가 (상세: `docs/strategy_spec.md` §4.2) |
+| 2026-07-15 | D8: Stage 2 / VCP 분리 | 메인 봇(`sepa.screener`)은 Stage 2 진입 기업을 "회사명-티커" 리스트로만 리턴. 사용자가 펀더멘털을 직접 확인·순위화한 상위권 shortlist에 대해서만 별도 도구(`sepa.vcp_timing`)로 VCP 진입 타이밍 계산 |
 
 ## 6. 진행 현황
 
@@ -278,7 +279,7 @@ sepa-bot/
 | Phase 0 (기반 구축) | **완료** | `pyproject.toml`, `config/`, `src/sepa/` 패키지 구조 |
 | Phase 1 (전략 정량화) | **완료** | `docs/strategy_spec.md` |
 | Phase 2 (파일럿 데이터 파이프라인) | **완료** | `src/sepa/data/` — yfinance/Stooq 폴백, 종목별 Parquet 캐시, 증분 업데이트 |
-| Phase 3 (시그널 모델) | **완료** | `src/sepa/trend_template.py`, `src/sepa/vcp.py`, `src/sepa/screener.py` + 단위 테스트 15개 |
+| Phase 3 (시그널 모델) | **완료** | `src/sepa/trend_template.py` + `src/sepa/screener.py`(Stage 2 리스트), `src/sepa/vcp.py` + `src/sepa/vcp_timing.py`(shortlist 타이밍) + 단위 테스트 18개 |
 | Phase 4 (전체 유니버스) | 준비됨 | `src/sepa/data/universe.py` (Nasdaq Trader 파싱·ETF 필터 구현 완료, 전 종목 수집 미실행) |
 | Phase 5 (백테스트·최적화) | 미착수 | — |
 

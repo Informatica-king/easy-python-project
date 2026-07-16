@@ -1,7 +1,11 @@
-"""SEPA screener CLI.
+"""Stage 2 screener CLI.
 
-Runs the full pipeline: load universe -> update price cache -> RS ranks ->
-Trend Template filter -> VCP detection -> report.
+Pipeline: load universe -> update price cache -> RS ranks -> Trend Template
+(8 conditions) -> list of Stage 2 companies as "회사명-티커" strings.
+
+VCP entry timing is intentionally NOT part of this screener: the workflow is
+to review this Stage 2 list manually (fundamentals, ranking) and then run
+`python -m sepa.vcp_timing` on the chosen shortlist.
 
 Usage:
     python -m sepa.screener [--config config/params.yaml]
@@ -18,29 +22,27 @@ from pathlib import Path
 
 import pandas as pd
 
-from sepa import indicators, trend_template, vcp
+from sepa import indicators, trend_template
 from sepa.config import Params, load_params, load_universe
-from sepa.data import store
+from sepa.data import store, universe
 
 logger = logging.getLogger(__name__)
 
-REPORT_COLUMNS = [
-    "ticker", "signal", "close", "pivot", "dist_to_pivot_pct", "rs_rank",
-    "base_weeks", "footprint", "final_depth_pct", "dryup_ratio", "volume_vs_avg", "note",
-]
 
-SIGNAL_ORDER = {s.value: i for i, s in enumerate(
-    [vcp.Signal.BREAKOUT, vcp.Signal.WATCHLIST, vcp.Signal.FORMING, vcp.Signal.EXTENDED]
-)}
-
-
-def screen(
+def screen_stage2(
     params: Params,
     tickers: list[str],
     as_of: str | None = None,
     update: bool = True,
+    names: dict[str, str] | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Run the screen; returns (setups, diagnostics) DataFrames."""
+    """Run the Stage 2 screen.
+
+    Returns (stage2, diagnostics):
+      stage2      — rows for tickers passing all Trend Template conditions,
+                    sorted by RS rank (desc), with company names attached.
+      diagnostics — one row per screened ticker with failed conditions.
+    """
     data, failed = store.load_universe_history(
         tickers, params.data.cache_dir, params.data.lookback_years, update
     )
@@ -53,52 +55,57 @@ def screen(
 
     data = {t: df for t, df in data.items() if len(df) >= params.data.min_history_days}
     rs_ranks = indicators.compute_rs_ranks(data)
+    names = names or {}
 
-    setups, diagnostics = [], []
+    stage2_rows, diag_rows = [], []
     for ticker, df in sorted(data.items()):
         enriched = indicators.add_indicators(df, params.trend_template)
         rs_rank = rs_ranks.get(ticker)
         tt = trend_template.evaluate(enriched, params.trend_template, rs_rank)
 
-        diag = {
+        row = {
             "ticker": ticker,
+            "name": names.get(ticker, ""),
             "close": round(float(df["close"].iloc[-1]), 2),
             "rs_rank": round(rs_rank, 1) if rs_rank is not None else None,
-            "tt_passed": tt.passed,
-            "tt_failed_conditions": ",".join(k for k, v in tt.conditions.items() if not v),
-            "vcp_status": "",
         }
-
+        diag_rows.append({
+            **row,
+            "stage2": tt.passed,
+            "failed_conditions": ",".join(k for k, v in tt.conditions.items() if not v),
+        })
         if tt.passed:
-            res = vcp.detect_vcp(enriched, params.vcp)
-            diag["vcp_status"] = res.signal.value if res.valid else f"invalid: {res.reason}"
-            if res.valid:
-                setups.append({
-                    "ticker": ticker,
-                    "signal": res.signal.value,
-                    "close": diag["close"],
-                    "pivot": res.pivot,
-                    "dist_to_pivot_pct": res.dist_to_pivot_pct,
-                    "rs_rank": diag["rs_rank"],
-                    "base_weeks": res.base_weeks,
-                    "footprint": res.footprint,
-                    "final_depth_pct": round(res.final_depth * 100, 1),
-                    "dryup_ratio": res.dryup_ratio_actual,
-                    "volume_vs_avg": res.volume_vs_avg,
-                    "note": res.reason,
-                })
-        diagnostics.append(diag)
+            stage2_rows.append(row)
 
-    setups_df = pd.DataFrame(setups, columns=REPORT_COLUMNS)
-    if not setups_df.empty:
-        setups_df = setups_df.sort_values(
-            by="signal", key=lambda s: s.map(SIGNAL_ORDER)
-        ).reset_index(drop=True)
-    return setups_df, pd.DataFrame(diagnostics)
+    stage2 = pd.DataFrame(stage2_rows, columns=["ticker", "name", "close", "rs_rank"])
+    if not stage2.empty:
+        stage2 = stage2.sort_values("rs_rank", ascending=False).reset_index(drop=True)
+    return stage2, pd.DataFrame(diag_rows)
+
+
+def format_stage2_list(stage2: pd.DataFrame) -> list[str]:
+    """Format Stage 2 rows as '회사명-티커' strings (name falls back to ticker)."""
+    out = []
+    for _, row in stage2.iterrows():
+        name = row["name"] or row["ticker"]
+        out.append(f"{name}-{row['ticker']}")
+    return out
+
+
+def stage2_list(
+    params: Params,
+    tickers: list[str],
+    as_of: str | None = None,
+    update: bool = True,
+    names: dict[str, str] | None = None,
+) -> list[str]:
+    """Convenience wrapper: Stage 2 companies as '회사명-티커' strings."""
+    stage2, _ = screen_stage2(params, tickers, as_of=as_of, update=update, names=names)
+    return format_stage2_list(stage2)
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="SEPA Stage2 + VCP screener")
+    parser = argparse.ArgumentParser(description="SEPA Stage 2 screener")
     parser.add_argument("--config", default="config/params.yaml")
     parser.add_argument("--universe", default="config/universe.yaml")
     parser.add_argument("--as-of", default=None, help="screen as of date YYYY-MM-DD (for validation)")
@@ -109,26 +116,39 @@ def main(argv: list[str] | None = None) -> int:
 
     params = load_params(args.config)
     tickers = load_universe(args.universe)
-    setups, diagnostics = screen(params, tickers, as_of=args.as_of, update=not args.no_update)
+
+    try:
+        names = universe.security_names(cache_dir=params.data.cache_dir)
+    except Exception as exc:  # noqa: BLE001 - names are cosmetic, never fatal
+        logger.warning("could not load company names: %s", exc)
+        names = {}
+
+    stage2, diagnostics = screen_stage2(
+        params, tickers, as_of=args.as_of, update=not args.no_update, names=names
+    )
 
     stamp = (args.as_of or datetime.now().strftime("%Y-%m-%d")).replace("-", "")
     out_dir = Path(params.report_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    setups_path = out_dir / f"screen_{stamp}.csv"
+    stage2_path = out_dir / f"stage2_{stamp}.csv"
     diag_path = out_dir / f"diagnostics_{stamp}.csv"
-    setups.to_csv(setups_path, index=False)
+    stage2.to_csv(stage2_path, index=False)
     diagnostics.to_csv(diag_path, index=False)
 
-    print(f"\n=== SEPA screen ({args.as_of or 'latest'}) — universe: {len(tickers)} tickers ===\n")
-    print("--- Trend Template (Stage 2) ---")
+    print(f"\n=== SEPA Stage 2 screen ({args.as_of or 'latest'}) — universe: {len(tickers)} tickers ===\n")
+    entries = format_stage2_list(stage2)
+    print(f"--- Stage 2 진입 기업 ({len(entries)}) — RS 순위 내림차순 ---")
+    if not entries:
+        print("(none)")
+    for entry in entries:
+        print(entry)
+    print("\n--- details ---")
     with pd.option_context("display.width", 200, "display.max_columns", None):
-        print(diagnostics.to_string(index=False))
-        print("\n--- VCP setups ---")
-        if setups.empty:
-            print("(no setups today)")
+        if stage2.empty:
+            print("(no Stage 2 companies)")
         else:
-            print(setups.to_string(index=False))
-    print(f"\nreports: {setups_path}, {diag_path}")
+            print(stage2.to_string(index=False))
+    print(f"\nreports: {stage2_path}, {diag_path}")
     return 0
 
 

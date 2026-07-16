@@ -16,33 +16,38 @@
 | D3 | VCP 알고리즘 | 본 문서 §4의 알고리즘 채택. 파라미터 수치는 사용자가 확정 |
 | D4 | 데이터 소스 | 무료 소스 사용: yfinance(1순위) + Stooq(백업), 유니버스는 Nasdaq Trader 공식 심볼 파일 |
 
-**봇의 최종 출력**: 매일 장 마감 후 실행 시, 두 종류의 종목 리스트를 생성한다.
+**운용 워크플로우 (D8, 2026-07-15 확정)**: Stage 2 탐지와 VCP 타이밍은 별도 도구로 분리 운용한다.
 
-1. **Watchlist (셋업 감지)**: Trend Template 통과 + VCP 형성 완료, 피벗 돌파 대기 중인 종목
-2. **Breakout (돌파 확인)**: Watchlist 종목 중 당일 피벗을 거래량 조건과 함께 돌파한 종목
+1. **Stage 2 스크리너** (`python -m sepa.screener`): Trend Template 8조건을 통과한 기업을 **"회사명-티커"** 리스트로 출력 (RS 순위 내림차순)
+2. **사용자 수동 검토**: Stage 2 리스트의 펀더멘털을 직접 확인하고 순위화 → 상위권 shortlist 확정
+3. **VCP 타이밍 도구** (`python -m sepa.vcp_timing --tickers ...`): shortlist에 대해서만 VCP 셋업/피벗 돌파 시그널(`BREAKOUT`/`WATCHLIST`/`FORMING`/`EXTENDED`) 계산
 
 ---
 
 ## 2. 파이프라인 개요
 
 ```
-나스닥 심볼 목록 (ETF 제외)
+[도구 1] Stage 2 스크리너 (sepa.screener)
+  나스닥 심볼 목록 (ETF 제외)
         │
         ▼
-[1] 일봉 OHLCV 수집·정제
+  일봉 OHLCV 수집·정제 → 지표 계산 (SMA, 52주 고저, RS 순위)
         │
         ▼
-[2] 지표 계산 (SMA 50/150/200, 52주 고저, RS 순위)
+  Trend Template 필터 (8조건 전부 통과)
         │
         ▼
-[3] Trend Template 필터 (8조건 전부 통과 → Stage 2 후보)
+  "회사명-티커" 리스트 출력  ──►  [사용자] 펀더멘털 검토·순위화
+                                        │
+                                        ▼
+[도구 2] VCP 타이밍 (sepa.vcp_timing)   상위권 shortlist
+  VCP 탐지기 (수축 구조 + 거래량 고갈)
         │
         ▼
-[4] VCP 탐지기 (수축 구조 + 거래량 고갈 → 셋업 판정)
-        │
-        ▼
-[5] 피벗 돌파 감시 → Watchlist / Breakout 리포트 출력
+  피벗 돌파 감시 → BREAKOUT / WATCHLIST / FORMING / EXTENDED
 ```
+
+주: VCP 타이밍 도구는 Trend Template을 게이트로 쓰지 않는다(입력이 이미 검토된 shortlist이므로). 참고용 `trend_ok` 컬럼만 제공하며, RS 순위는 유니버스 상대값이라 소수 shortlist에서는 무의미하므로 이 도구의 추세 확인에서는 조건 8을 생략한다.
 
 ---
 
@@ -178,17 +183,27 @@ def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
 
 ---
 
-## 5. 출력 명세 (일일 리포트)
+## 5. 출력 명세
+
+### 5.1 Stage 2 스크리너 (`sepa.screener`)
+
+- **콘솔**: "회사명-티커" 리스트 (RS 순위 내림차순), 예: `NVIDIA Corporation-NVDA`
+- **`reports/stage2_YYYYMMDD.csv`**: `ticker, name, close, rs_rank`
+- **`reports/diagnostics_YYYYMMDD.csv`**: 전 종목의 조건별 통과/실패 내역
+- 회사명은 Nasdaq Trader 심볼 파일의 Security Name에서 증권 유형 접미사(" - Common Stock" 등)를 제거해 사용. 오프라인 실행을 위해 로컬 캐시 유지
+
+### 5.2 VCP 타이밍 (`sepa.vcp_timing`) — `reports/vcp_YYYYMMDD.csv`
 
 | 필드 | 설명 |
 |---|---|
-| `ticker`, `name` | 종목 식별 |
-| `signal` | `WATCHLIST` / `BREAKOUT` / `EXTENDED` |
+| `ticker` | 종목 식별 |
+| `signal` | `BREAKOUT` / `WATCHLIST` / `FORMING` / `EXTENDED` / `NONE` |
 | `close`, `pivot`, `dist_to_pivot_pct` | 현재가, 피벗 가격, 피벗까지 거리 |
-| `rs_rank` | RS 백분위 순위 |
-| `base_weeks`, `contractions`, `footprint` | 베이스 기간, 수축 횟수, 미너비니식 표기 (예: `12W 18/9/4 3T`) |
-| `final_depth`, `dryup_ratio_actual` | 마지막 수축 깊이, 실제 거래량 고갈 비율 |
+| `trend_ok` | Trend Template(조건 8 제외) 통과 여부 — 참고용 |
+| `base_weeks`, `footprint` | 베이스 기간, 미너비니식 표기 (예: `12W 18/9/4 3T`) |
+| `final_depth_pct`, `dryup_ratio` | 마지막 수축 깊이, 실제 거래량 고갈 비율 |
 | `volume_vs_avg` | 당일 거래량 / 50일 평균 (돌파 확인용) |
+| `note` | 시그널 근거 또는 셋업 불성립 사유 |
 
 형식: CSV + 콘솔 요약 테이블 (추후 차트 이미지 자동 생성 확장 가능)
 
