@@ -27,9 +27,10 @@
 - 매크로 정의·파서·티커/기업명 해석기: `src/sepa/macro.py` (`REGISTRY`)
 - 짧은 별칭: `sepa.scan`(=screener), `sepa.fund`(=fundamental), `sepa.anal`(=analyze)
 - 새 도구를 추가하면 `REGISTRY`에 등록해 `!tools`에 노출시킬 것
-- 차트 등 이미지 산출물이 생기면 사용자에게 보여줄 것 (`reports/charts/`)
-- `!sepa.anal()` 실행 후 출력의 `=== 다운로드 ===` 경로(보통 `/opt/cursor/artifacts/…`)를
-  **Read로 이미지를 열어 채팅에 표시**하고, 다운로드 링크/경로를 그대로 안내할 것
+- 차트 등 이미지 산출물이 생기면 **다운로드 경로만 나열하지 말고**,
+  `Read` 도구로 PNG를 읽어 **채팅에 이미지를 바로 표시**할 것
+  (`reports/charts/…` 또는 `/opt/cursor/artifacts/…`)
+- `!sepa.anal()` 실행 직후 섹터 막대·RS×Fund 산점도 **둘 다** 이미지를 띄울 것
 - 펀더멘털 점수 스펙: `docs/fundamental_spec.md` (`!sepa.fund`)
 
 ## 결과 제시 규칙 (사용자 지정)

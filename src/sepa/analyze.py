@@ -320,11 +320,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"        {scatter_path.resolve()}")
     print(f"report: {csv_path.resolve()}")
 
-    downloads = publish_many([bar_path, scatter_path, csv_path])
-    if downloads:
-        print("\n=== 다운로드 ===")
-        for p in downloads:
-            print(f"  {p}")
+    # Cursor 채팅에서 바로 볼 수 있도록 artifacts에도 복사 (에이전트가 Read로 표시)
+    publish_many([bar_path, scatter_path, csv_path])
     return 0
 
 
