@@ -21,6 +21,23 @@ python -m venv .venv
 
 ## 사용법
 
+### 매크로 콘솔 (가장 간단한 방법)
+
+`sepa` 명령으로 대화형 콘솔을 열고 `!명령어` 형식으로 모든 도구를 실행할 수
+있습니다. 인자는 따옴표 없이도 되고, 티커 대신 **기업 이름**도 인식합니다.
+
+```bash
+$ sepa
+sepa> !tools                        # 도구 목록과 사용법
+sepa> !sepa.screener(full)          # 나스닥 전 종목 Stage 2 스크리닝
+sepa> !sepa.vcp("NVDA,MSFT")        # shortlist VCP 타이밍
+sepa> !sepa.chart(sandisk)          # 기업 이름으로 SEPA 분석 차트
+sepa> !sepa.update()                # 전 종목 데이터만 증분 업데이트
+sepa> !exit
+
+$ sepa '!sepa.chart("SNDK")'        # 일회성 실행도 지원
+```
+
 ### 1단계 — Stage 2 스크리닝
 
 ```bash

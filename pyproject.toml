@@ -12,6 +12,9 @@ dependencies = [
     "requests>=2.31",
 ]
 
+[project.scripts]
+sepa = "sepa.macro:main"
+
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
