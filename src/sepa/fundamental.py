@@ -16,6 +16,8 @@ from pathlib import Path
 import pandas as pd
 
 from sepa import screener
+from sepa.analyze import enrich_with_sectors
+from sepa.candidates import apply_candidate_filters, summarize_drops
 from sepa.config import Params, load_params, load_universe
 from sepa.data import fundamentals as fund_data
 from sepa.data import store, universe
@@ -175,6 +177,18 @@ def main(argv: list[str] | None = None) -> int:
         candidates, params, refresh=args.refresh_fundamentals
     )
 
+    # Attach market cap then drop Fund=0 / sub-$1B names from the candidate list
+    if not scored.empty:
+        scored = enrich_with_sectors(
+            scored, params.data.cache_dir, refresh=False
+        )
+        before_n = len(scored)
+        scored, dropped = apply_candidate_filters(scored)
+        print(
+            f"\n후보 필터: {before_n} → {len(scored)}  "
+            f"({summarize_drops(dropped)}; Fund=0 또는 시총 <$1B 제외)"
+        )
+
     stamp = (args.as_of or datetime.now().strftime("%Y-%m-%d")).replace("-", "")
     out_dir = Path(params.report_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -183,7 +197,8 @@ def main(argv: list[str] | None = None) -> int:
 
     print(
         f"\n=== SEPA Fundamental scores "
-        f"(Stage 2 · RS≥{rs_min:.0f}, n={len(scored)}) — fund_score desc ===\n"
+        f"(Stage 2 · RS≥{rs_min:.0f} · 후보필터 적용, n={len(scored)}) "
+        f"— fund_score desc ===\n"
     )
     print_fundamental_list(scored)
     print(f"\nreport: {out_path}")

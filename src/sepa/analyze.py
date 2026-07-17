@@ -25,6 +25,7 @@ import pandas as pd
 
 from sepa.config import load_params
 from sepa.artifacts import publish_many
+from sepa.candidates import apply_candidate_filters, summarize_drops
 
 logger = logging.getLogger(__name__)
 
@@ -431,6 +432,12 @@ def main(argv: list[str] | None = None) -> int:
     logger.info("loading %s (%d rows)", src, len(df))
     enriched = enrich_with_sectors(
         df, params.data.cache_dir, refresh=args.refresh_sectors
+    )
+    before_n = len(enriched)
+    enriched, dropped = apply_candidate_filters(enriched)
+    print(
+        f"\n후보 필터: {before_n} → {len(enriched)}  "
+        f"({summarize_drops(dropped)}; Fund=0 또는 시총 <$1B 제외)"
     )
 
     stamp = datetime.now().strftime("%Y%m%d")

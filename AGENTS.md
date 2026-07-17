@@ -37,7 +37,7 @@
   `analyze_fund_hist_*.png` / `analyze_mcap_hist_*.png` 를 열어보라고 안내할 것.
   가능하면 PR 본문에 `<img src="/opt/cursor/artifacts/...">` 로도 올려
   공개 미리보기 URL을 확보할 것.
-- `!sepa.anal()` 실행 직후 위 안내 + (데스크톱이면) 이미지 표시
+- `!sepa.anal()` / `!sepa.fund()` 후보 필터: **Fund=0** 또는 **시총 <$1B**(미확인 포함) 제외
 - 펀더멘털 점수 스펙: `docs/fundamental_spec.md` (`!sepa.fund`)
 
 ## 결과 제시 규칙 (사용자 지정)

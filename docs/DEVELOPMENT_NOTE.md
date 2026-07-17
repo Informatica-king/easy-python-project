@@ -277,6 +277,7 @@ sepa-bot/
 | 2026-07-16 | D12: 매크로 짧은 별칭 | `sepa.scan`(=screener), `sepa.fund`(=fundamental), `sepa.anal`(=analyze) |
 | 2026-07-16 | D13: 분석 봇 | `!sepa.anal()` — 섹터/테마 복수 태그 분류·막대 차트 + RS×Fund 산점도(원점=각 평균) |
 | 2026-07-17 | D14: `!sepa.go` | 일일 원샷 파이프라인 — `scan(full)` → `fund` → `anal` 순서 실행 |
+| 2026-07-17 | D15: 후보 필터 | Fund=0 또는 시가총액 <$1B(미확인 포함) 이면 fund/anal 후보에서 제외 |
 
 ## 6. 진행 현황
 
