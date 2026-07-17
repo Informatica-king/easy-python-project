@@ -33,7 +33,8 @@
   **Android/모바일 앱에서는 인라인 이미지가 안 보이는 경우가 많음** →
   반드시 `/opt/cursor/artifacts/`에 복사하고, 사용자에게
   **이 에이전트 실행 화면의 Artifacts(첨부/산출물)** 에서
-  `analyze_sectors_*.png` / `analyze_scatter_*.png` 를 열어보라고 안내할 것.
+  `analyze_sectors_*.png` / `analyze_scatter_*.png` /
+  `analyze_fund_hist_*.png` / `analyze_mcap_hist_*.png` 를 열어보라고 안내할 것.
   가능하면 PR 본문에 `<img src="/opt/cursor/artifacts/...">` 로도 올려
   공개 미리보기 URL을 확보할 것.
 - `!sepa.anal()` 실행 직후 위 안내 + (데스크톱이면) 이미지 표시
