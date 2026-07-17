@@ -21,6 +21,7 @@ import logging
 import re
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Callable
 
 from sepa.config import load_params
@@ -235,6 +236,86 @@ def _tool_analyze(args: list, kwargs: dict) -> None:
     analyze.main(argv)
 
 
+def _latest_report(pattern: str) -> Path | None:
+    paths = sorted(Path("reports").glob(pattern))
+    return paths[-1] if paths else None
+
+
+def _tool_go(args: list, kwargs: dict) -> None:
+    """Run scan(full) → fund → anal in order with clear section banners."""
+    from datetime import datetime
+
+    from sepa import analyze, fundamental, screener
+
+    if args:
+        raise MacroError("!sepa.go() 는 인자가 없습니다 — !sepa.go() 또는 !sepa.go")
+
+    stamp = (kwargs.get("as_of") or datetime.now().strftime("%Y-%m-%d")).replace("-", "")
+    no_update = bool(kwargs.get("no_update"))
+
+    def banner(step: int, total: int, title: str) -> None:
+        print("\n" + "=" * 64)
+        print(f"  SEPA GO  [{step}/{total}]  {title}")
+        print("=" * 64 + "\n")
+
+    print("\n" + "#" * 64)
+    print("  SEPA GO — scan(full) → fund → anal")
+    print("#" * 64)
+
+    # 1) Stage 2 scan (full Nasdaq) — includes incremental price update unless no_update
+    banner(1, 3, "!sepa.scan(full)")
+    scan_argv = ["--full"]
+    if kwargs.get("as_of"):
+        scan_argv += ["--as-of", str(kwargs["as_of"])]
+    if no_update:
+        scan_argv.append("--no-update")
+    screener.main(scan_argv)
+
+    stage2 = Path(f"reports/stage2_{stamp}.csv")
+    if not stage2.exists():
+        stage2 = _latest_report("stage2_*.csv")
+    if stage2 is None or not stage2.exists():
+        raise MacroError("scan 후 stage2 리포트가 없습니다 — reports/stage2_*.csv 확인")
+
+    # 2) Fundamental scores from that Stage 2 list (skip re-download / re-screen)
+    banner(2, 3, "!sepa.fund()  ← Stage 2 결과 재사용")
+    fund_argv = ["--from-stage2", str(stage2), "--no-update"]
+    if kwargs.get("refresh"):
+        fund_argv.append("--refresh-fundamentals")
+    fundamental.main(fund_argv)
+
+    fund_csv = Path(f"reports/fundamental_{stamp}.csv")
+    if not fund_csv.exists():
+        fund_csv = _latest_report("fundamental_*.csv")
+    if fund_csv is None or not fund_csv.exists():
+        raise MacroError("fund 후 fundamental 리포트가 없습니다 — reports/fundamental_*.csv 확인")
+
+    # 3) Sector + RS×Fund analysis
+    banner(3, 3, "!sepa.anal()")
+    anal_argv = ["--from-fundamental", str(fund_csv)]
+    if kwargs.get("refresh"):
+        anal_argv.append("--refresh-sectors")
+    analyze.main(anal_argv)
+
+    print("\n" + "#" * 64)
+    print("  SEPA GO 완료")
+    print(f"  stage2 : {stage2}")
+    print(f"  fund   : {fund_csv}")
+    scatter = Path(f"reports/charts/analyze_scatter_{stamp}.png")
+    sectors = Path(f"reports/charts/analyze_sectors_{stamp}.png")
+    if not scatter.exists():
+        found = _latest_report("charts/analyze_scatter_*.png")
+        if found is not None:
+            scatter = found
+    if not sectors.exists():
+        found = _latest_report("charts/analyze_sectors_*.png")
+        if found is not None:
+            sectors = found
+    print(f"  charts : {sectors}")
+    print(f"           {scatter}")
+    print("#" * 64 + "\n")
+
+
 @dataclass(frozen=True)
 class MacroSpec:
     name: str
@@ -284,6 +365,13 @@ REGISTRY: list[MacroSpec] = [
         "섹터/테마 분류·시각화 + RS×펀더멘털 산점도 (원점=각 평균)",
         _tool_analyze,
         aliases=("analyze", "sepa.anal", "anal"),
+    ),
+    MacroSpec(
+        "sepa.go",
+        "!sepa.go()  |  !sepa.go",
+        "일일 파이프라인 — scan(full) → fund → anal 을 순서대로 실행·출력",
+        _tool_go,
+        aliases=("go",),
     ),
 ]
 

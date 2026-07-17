@@ -276,6 +276,7 @@ sepa-bot/
 | 2026-07-16 | D11: 펀더멘털 점수 | `!sepa.fundamental()` — Stage 2·RS≥80 대상. 가중치 A25/B20/C15/D10/E15/G5 (F 제외). 가속 만점=연속 2분기. 데이터: SEC EDGAR + yfinance. 상세: `docs/fundamental_spec.md` |
 | 2026-07-16 | D12: 매크로 짧은 별칭 | `sepa.scan`(=screener), `sepa.fund`(=fundamental), `sepa.anal`(=analyze) |
 | 2026-07-16 | D13: 분석 봇 | `!sepa.anal()` — 섹터/테마 복수 태그 분류·막대 차트 + RS×Fund 산점도(원점=각 평균) |
+| 2026-07-17 | D14: `!sepa.go` | 일일 원샷 파이프라인 — `scan(full)` → `fund` → `anal` 순서 실행 |
 
 ## 6. 진행 현황
 

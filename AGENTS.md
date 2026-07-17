@@ -15,7 +15,7 @@
 ## `!` 매크로 컨벤션 (중요)
 
 사용자가 채팅에 `!`로 시작하는 명령을 입력하면 (예: `!tools`,
-`!sepa.scan(full)`, `!sepa.fund()`, `!sepa.anal()`,
+`!sepa.go()`, `!sepa.scan(full)`, `!sepa.fund()`, `!sepa.anal()`,
 `!sepa.chart("SNDK")`), 별도 설명 없이 즉시 아래처럼
 실행하고 결과를 보여줄 것:
 
@@ -25,7 +25,9 @@
 
 - 도구 목록·사용법: `.venv/bin/sepa '!tools'`
 - 매크로 정의·파서·티커/기업명 해석기: `src/sepa/macro.py` (`REGISTRY`)
-- 짧은 별칭: `sepa.scan`(=screener), `sepa.fund`(=fundamental), `sepa.anal`(=analyze)
+- 짧은 별칭: `sepa.scan`(=screener), `sepa.fund`(=fundamental), `sepa.anal`(=analyze), `sepa.go`(scan→fund→anal)
+- `!sepa.go()` = 나스닥 full scan → fund → anal 일괄 실행. 구간별 배너로 구분된 출력을 그대로 보여 줄 것.
+  끝나면 Artifacts 차트 링크도 안내할 것.
 - 새 도구를 추가하면 `REGISTRY`에 등록해 `!tools`에 노출시킬 것
 - 차트 이미지: 데스크톱에서는 `Read`로 PNG를 열어 채팅에 표시 시도.
   **Android/모바일 앱에서는 인라인 이미지가 안 보이는 경우가 많음** →

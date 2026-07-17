@@ -61,3 +61,10 @@ def test_short_aliases_resolve():
     assert _LOOKUP["fund"] is _LOOKUP["sepa.fundamental"]
     assert _LOOKUP["sepa.anal"] is _LOOKUP["sepa.analyze"]
     assert _LOOKUP["anal"] is _LOOKUP["sepa.analyze"]
+    assert _LOOKUP["go"] is _LOOKUP["sepa.go"]
+
+
+def test_parse_go():
+    assert parse_command("!sepa.go()") == ("sepa.go", [], {})
+    assert parse_command("!sepa.go") == ("sepa.go", [], {})
+    assert parse_command("!go") == ("go", [], {})
