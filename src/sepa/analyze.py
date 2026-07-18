@@ -163,6 +163,10 @@ def enrich_with_sectors(
     meta_df = pd.DataFrame(rows)
     out = df.copy()
     out["ticker"] = out["ticker"].astype(str).str.upper()
+    # Avoid market_cap_x/y (and similar) when CSV already has meta columns
+    overlap = [c for c in meta_df.columns if c != "ticker" and c in out.columns]
+    if overlap:
+        out = out.drop(columns=overlap)
     return out.merge(meta_df, on="ticker", how="left")
 
 
@@ -439,6 +443,9 @@ def main(argv: list[str] | None = None) -> int:
         f"\n후보 필터: {before_n} → {len(enriched)}  "
         f"({summarize_drops(dropped)}; Fund=0 또는 시총 <$1B 제외)"
     )
+    if enriched.empty:
+        print("[오류] 필터 후 후보가 없습니다.")
+        return 1
 
     stamp = datetime.now().strftime("%Y%m%d")
     m = re.search(r"fundamental_(\d{8})", src.name)
