@@ -12,6 +12,7 @@ venv/
 data/raw/
 data/processed/
 data/fundamentals/
+data/sepatop/
 reports/
 
 # OS / editor

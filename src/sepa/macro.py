@@ -233,7 +233,29 @@ def _tool_analyze(args: list, kwargs: dict) -> None:
             )
     if kwargs.get("refresh"):
         argv.append("--refresh-sectors")
+    if kwargs.get("skip_sepatop"):
+        argv.append("--skip-sepatop")
+    if kwargs.get("sepatop_days"):
+        argv += ["--sepatop-days", str(kwargs["sepatop_days"])]
     analyze.main(argv)
+
+
+def _tool_sepatop(args: list, kwargs: dict) -> None:
+    from sepa import sepatop
+
+    argv: list[str] = []
+    for a in args:
+        a = str(a)
+        if a.endswith(".csv"):
+            argv += ["--from-fundamental", a]
+        else:
+            raise MacroError(
+                f"알 수 없는 인자: {a!r} — !sepa.sepaTop() 또는 "
+                f'!sepa.sepaTop("reports/fundamental_20260718.csv")'
+            )
+    if kwargs.get("lookback_days") or kwargs.get("days"):
+        argv += ["--lookback-days", str(kwargs.get("lookback_days") or kwargs.get("days"))]
+    sepatop.main(argv)
 
 
 def _latest_report(pattern: str) -> Path | None:
@@ -362,14 +384,21 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.analyze",
         '!sepa.anal()  |  !sepa.anal("reports/fundamental_20260716.csv")  |  !sepa.analyze()',
-        "섹터/테마·Fund·시가총액 분포 + RS×Fund 산점도. Fund≥40 티커 쉼표 출력",
+        "섹터/테마·Fund·시가총액 분포 + RS×Fund 산점도 + sepaTop 지수. Fund≥40 티커 쉼표 출력",
         _tool_analyze,
         aliases=("analyze", "sepa.anal", "anal"),
     ),
     MacroSpec(
+        "sepa.sepatop",
+        '!sepa.sepaTop()  |  !sepa.sepatop()  |  !sepa.sepaTop("reports/fundamental_20260718.csv")',
+        "sepaTop 시총가중 지수 vs NASDAQ/S&P/SOX 등 + 편입·편출·체류기간",
+        _tool_sepatop,
+        aliases=("sepatop", "sepa.sepaTop", "sepa.top", "top"),
+    ),
+    MacroSpec(
         "sepa.go",
         "!sepa.go()  |  !sepa.go",
-        "일일 파이프라인 — scan(full) → fund → anal 을 순서대로 실행·출력",
+        "일일 파이프라인 — scan(full) → fund → anal(+sepaTop) 을 순서대로 실행·출력",
         _tool_go,
         aliases=("go",),
     ),

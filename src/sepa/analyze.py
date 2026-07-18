@@ -413,6 +413,17 @@ def main(argv: list[str] | None = None) -> int:
         "--fund-min", type=float, default=FUND_COPY_MIN_DEFAULT,
         help="Fund score threshold for comma-separated ticker copy list (default 40)",
     )
+    parser.add_argument(
+        "--skip-sepatop",
+        action="store_true",
+        help="Skip sepaTop index build (default: run with anal)",
+    )
+    parser.add_argument(
+        "--sepatop-days",
+        type=int,
+        default=252,
+        help="Lookback trading days for sepaTop vs benchmarks (default 252)",
+    )
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
@@ -485,6 +496,26 @@ def main(argv: list[str] | None = None) -> int:
     print(f"report: {csv_path.resolve()}")
 
     publish_many([bar_path, scatter_path, fund_hist_path, mcap_hist_path, csv_path])
+
+    if not args.skip_sepatop:
+        from sepa.sepatop import run_from_fundamental_df
+
+        as_of = f"{stamp[:4]}-{stamp[4:6]}-{stamp[6:8]}"
+        print("\n" + "=" * 64)
+        print("  sepaTop (cap-weighted) — auto from anal")
+        print("=" * 64)
+        try:
+            run_from_fundamental_df(
+                enriched,
+                params=params,
+                stamp=stamp,
+                as_of=as_of,
+                lookback_days=args.sepatop_days,
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("sepaTop failed")
+            print(f"[경고] sepaTop 실행 실패: {exc}")
+
     return 0
 
 

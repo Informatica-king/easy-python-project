@@ -62,6 +62,15 @@ def test_short_aliases_resolve():
     assert _LOOKUP["sepa.anal"] is _LOOKUP["sepa.analyze"]
     assert _LOOKUP["anal"] is _LOOKUP["sepa.analyze"]
     assert _LOOKUP["go"] is _LOOKUP["sepa.go"]
+    assert _LOOKUP["sepa.sepatop"] is _LOOKUP["top"]
+    assert _LOOKUP["sepatop"] is _LOOKUP["sepa.sepatop"]
+    assert _LOOKUP["sepa.top"] is _LOOKUP["sepa.sepatop"]
+
+
+def test_parse_sepatop():
+    assert parse_command("!sepa.sepaTop()") == ("sepa.sepatop", [], {})
+    assert parse_command("!sepa.sepatop") == ("sepa.sepatop", [], {})
+    assert parse_command("!top") == ("top", [], {})
 
 
 def test_parse_go():
