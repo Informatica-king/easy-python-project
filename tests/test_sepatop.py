@@ -46,8 +46,8 @@ def test_tenure_table_days():
     )
     first = {"AAA": "2026-07-16", "BBB": "2026-07-18"}
     out = tenure_table(cons, first, "2026-07-18")
-    assert int(out.loc[out["ticker"] == "AAA", "days_in_sepaTop"].iloc[0]) == 2
-    assert int(out.loc[out["ticker"] == "BBB", "days_in_sepaTop"].iloc[0]) == 0
+    assert int(out.loc[out["ticker"] == "AAA", "days_in_sepaTop"].iloc[0]) == 3
+    assert int(out.loc[out["ticker"] == "BBB", "days_in_sepaTop"].iloc[0]) == 1
 
 
 def test_cap_weighted_index_respects_weights():

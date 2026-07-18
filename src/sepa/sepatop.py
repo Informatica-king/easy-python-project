@@ -320,7 +320,7 @@ def tenure_table(
                 "fund_score": row.get("fund_score"),
                 "rs_rank": row.get("rs_rank"),
                 "first_seen": fs,
-                "days_in_sepaTop": max(int(days), 0),
+                "days_in_sepaTop": max(int(days), 0) + 1,  # inclusive of first day
             }
         )
     return pd.DataFrame(rows).sort_values(
