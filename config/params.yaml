@@ -37,14 +37,16 @@ vcp:
   watch_zone_pct: 0.05     # 피벗 아래 5% 이내면 WATCHLIST
   max_extension: 0.05      # 피벗 위 5% 초과면 EXTENDED (추격 금지)
 
-fundamental:                 # docs/fundamental_spec.md (2026-07-16 확정)
+fundamental:                 # docs/fundamental_spec.md (2026-07-19 연구 반영)
   rs_min: 80                 # Stage 2 중 RS 이 값 이상만 펀더멘털 채점
-  eps_yoy: 25                # A — 분기 EPS YoY
-  eps_accel: 20              # B — EPS 가속 (2분기 연속=만점)
-  sales_yoy: 15              # C — 분기 매출 YoY
-  sales_accel: 10            # D — 매출 가속 (2분기 연속=만점)
-  margin_improve: 15         # E — 순이익률 YoY 개선 (2분기 연속=만점)
-  roe: 5                     # G — ROE (17%=만점)
+  eps_surprise: 47           # S — EPS 컨센서스 surprise
+  eps_dyoy: 14               # B — EPS YoY 가속도 (ΔYoY)
+  sales_dyoy: 14             # D — 매출 YoY 가속도 (ΔYoY)
+  opm_delta: 25              # E — 영업이익률 YoY 변화 (없으면 NPM)
+  # phase-1 제외 (연구: 수준 YoY·ROE 설명력 약함)
+  eps_yoy: 0
+  sales_yoy: 0
+  roe: 0
   roe_target: 0.17
 
 report:

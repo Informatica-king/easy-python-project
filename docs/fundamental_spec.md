@@ -1,7 +1,8 @@
 # 펀더멘털 점수 명세서 — `sepa.fundamental`
 
-> **문서 버전**: v1.0  
-> **상태**: 가중치 확정 (2026-07-16 사용자 승인)  
+> **문서 버전**: v2.0  
+> **상태**: 가중치 확정 (2026-07-19 이벤트 스터디 → 사용자 승인)  
+> **근거**: `docs/fund_weight_study_spec.md`, `reports/fund_study/`  
 > **용도**: Stage 2 · RS≥80 기업에 대한 정량 펀더멘털 순위
 
 ---
@@ -11,65 +12,70 @@
 `!sepa.fundamental()` 실행 시:
 
 1. 나스닥 Stage 2(Trend Template 8조건) 기업을 산출
-2. **RS ≥ 80** 인 종목만 대상으로 함 (현 Trend Template `rs_rank_min=80`과 일치)
+2. **RS ≥ 80** 인 종목만 대상으로 함
 3. 기업별 **펀더멘털 점수(0~100)** 를 계산해 **내림차순** 출력 (RS 병기)
-
-기술 스크리너(`sepa.screener`)와 VCP 타이밍(`sepa.vcp`) 사이의 정량 펀더멘털 단계이다.
 
 ---
 
-## 2. 확정 가중치 (분기 집중 · F 제외)
+## 2. 확정 가중치 (2026-07-19)
 
-연간 EPS 추세(F)는 제외. 합계 원점수 90 → 표시 시 `×100/90`으로 0~100 정규화.
+이벤트 스터디(실적 day0−1→+3 시장조정 수익률, Spearman·직교화)에서  
+**양수 상관 요인만** `w ∝ max(0, corr)` 로 정규화한 값(정수 반올림, 합 100).
 
-| ID | 요소 | 가중치 | 비고 |
+| ID | 요소 | 가중치 | 연구 팩터 |
 |---|---|---:|---|
-| **A** | 분기 EPS YoY 성장 | 25 | 최신 분기 diluted EPS YoY |
-| **B** | EPS 가속 | 20 | 연속 분기 YoY 성장률 상승 |
-| **C** | 분기 매출 YoY 성장 | 15 | 최신 분기 매출 YoY |
-| **D** | 매출 가속 | 10 | 연속 분기 매출 YoY 상승 |
-| **E** | 이익률 개선 | 15 | 순이익률 YoY 개선 연속 분기 |
-| **G** | ROE | 5 | ≥17% 만점 |
-| ~~F~~ | ~~연간 EPS~~ | ~~0~~ | **제외** — 분기에만 집중 |
+| **S** | EPS Surprise | **47** | `eps_surprise` |
+| **E** | 영업이익률 YoY 변화 | **25** | `opm_d` (없으면 NPM Δ) |
+| **D** | 매출 YoY 가속도 | **14** | `sales_dyoy` |
+| **B** | EPS YoY 가속도 | **14** | `eps_dyoy` |
+| ~~A~~ | ~~EPS YoY 수준~~ | ~~0~~ | 연구에서 Δ에 패배 |
+| ~~C~~ | ~~매출 YoY 수준~~ | ~~0~~ | 연구에서 Δ에 패배 |
+| ~~G~~ | ~~ROE~~ | ~~0~~ | phase-1 제외 |
 
-**Code 33 대응**: B·D·E가 각각 만점(연속 2분기)에 가까우면 Code 33 성격의 셋업이 상위권으로 올라간다. 별도 보너스 점수는 두지 않는다.
+합계 원점수 **100** → `fund_score = raw` (0~100).
 
 ---
 
 ## 3. 채점 규칙
 
-### 3.1 성장률 점수 (A, C)
+### 3.1 Surprise (S)
 
-| YoY | 배점 비율 (가중치 대비) |
+| Surprise (컨센서스 대비) | 배점 |
 |---|---|
-| &lt; 0% | 0% |
-| 0 ~ 25% | 0 ~ 48% (선형) |
-| 25 ~ 50% | 48 ~ 80% (선형) |
-| 50 ~ 100% | 80 ~ 100% (선형, 100%+에서 캡) |
+| &lt; 0% (미스) | 0 |
+| 0 ~ +20% | 0 ~ 100% 선형 |
+| ≥ +20% | 만점 |
 
-### 3.2 가속·마진 연속 분기 (B, D, E)
+데이터: yfinance earnings dates (캐시 `data/fund_study/earnings_dates/` 우선). 결측 → 0.
 
-| 연속 분기 수 (최신부터) | 배점 비율 |
+### 3.2 ΔYoY 가속도 (B, D)
+
+최신 인접 분기 `YoY_t − YoY_{t−1}`.
+
+| ΔYoY | 배점 |
 |---|---|
-| 0 | 0% |
-| 1 | 50% |
-| **2+** | **100% (만점)** |
+| ≤ 0 | 0 |
+| 0 ~ +25pp | 0 ~ 100% 선형 |
+| ≥ +25pp | 만점 |
 
-- **B/D**: YoY 성장률이 직전 분기 YoY보다 큰 구간이 최신부터 몇 분기 연속인지
-- **E**: 순이익률이 전년 동기 대비 개선(`NPM_t > NPM_{t-4}`)인 구간이 최신부터 몇 분기 연속인지
+### 3.3 마진 YoY 변화 (E)
 
-### 3.3 ROE (G)
+`OPM_t − OPM_{t−4}` (없으면 NPM). 단위: 비율 포인트.
 
-`min(1, ROE / 0.17) × 가중치` (ROE≤0 또는 결측 → 0)
+| Δ마진 | 배점 |
+|---|---|
+| ≤ 0 | 0 |
+| 0 ~ +5pp | 0 ~ 100% 선형 |
+| ≥ +5pp | 만점 |
 
 ### 3.4 최종 점수
 
 ```
-raw = A + B + C + D + E + G          # 최대 90
-fund_score = raw / 90 × 100          # 0~100 표시
+raw = S + B + D + E          # 최대 100
+fund_score = raw / 100 × 100 # = raw
 ```
 
-데이터 결측으로 일부 항목을 계산하지 못하면 해당 항목은 0점 (감점 처리).
+결측 항목은 0점.
 
 ---
 
@@ -77,11 +83,11 @@ fund_score = raw / 90 × 100          # 0~100 표시
 
 | 항목 | 1순위 | 폴백 |
 |---|---|---|
-| 분기 EPS / 매출 / 순이익 | SEC EDGAR companyfacts (US-GAAP, `CYyyyyQn` 프레임) | yfinance `quarterly_income_stmt` |
-| ROE | yfinance `info.returnOnEquity` | 0점 |
+| 분기 EPS / 매출 / 영업이익 / 순이익 | SEC EDGAR companyfacts | yfinance quarterly income |
+| EPS Surprise | yfinance earnings dates (+로컬 캐시) | 0점 |
 
-- SEC 티커→CIK 맵과 종목별 facts는 `data/fundamentals/`에 캐시
-- YoY는 **캘린더 분기 프레임**(`CY2025Q1` vs `CY2024Q1`)으로 매칭 (불규칙 보고일·결측 분기에 강함)
+- YoY는 캘린더 분기 프레임(`CY2025Q1` vs `CY2024Q1`)
+- OPM = OperatingIncome / Revenue
 
 ---
 
@@ -91,5 +97,14 @@ fund_score = raw / 90 × 100          # 0~100 표시
 회사명-TICKER  (RS xx.x | Fund yy.y)
 ```
 
-펀더멘털 점수 내림차순. CSV: `reports/fundamental_YYYYMMDD.csv`  
-(세부 항목 A~G 컬럼 포함)
+CSV: `reports/fundamental_YYYYMMDD.csv`  
+컬럼: `s_surprise`, `b_eps_dyoy`, `d_sales_dyoy`, `e_opm_delta`, …
+
+---
+
+## 6. 변경 이력
+
+| 일자 | 내용 |
+|---|---|
+| 2026-07-16 | v1.0 A25/B20/C15/D10/E15/G5 (합 90) |
+| 2026-07-19 | v2.0 S47/E25/D14/B14 (합 100); Surprise·OPMΔ·연속 ΔYoY |

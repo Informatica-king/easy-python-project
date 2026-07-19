@@ -61,17 +61,22 @@ class VCPParams:
 class FundamentalParams:
     """Quantitative fundamental score weights (docs/fundamental_spec.md).
 
-    Sum of weights is 90; displayed fund_score = raw/90*100.
-    Annual EPS component (F) intentionally omitted — quarterly focus only.
+    Empirical reweight (2026-07-19): S47 / E25 / D14 / B14 (sum 100).
+    Level YoY and ROE dropped from phase-1 live scorer.
     """
 
     rs_min: float = 80.0
-    eps_yoy: float = 25.0
-    eps_accel: float = 20.0
-    sales_yoy: float = 15.0
-    sales_accel: float = 10.0
-    margin_improve: float = 15.0
-    roe: float = 5.0
+    eps_surprise: float = 47.0
+    eps_dyoy: float = 14.0
+    sales_dyoy: float = 14.0
+    opm_delta: float = 25.0
+    # unused by scorer; kept so old YAML keys do not crash load_params
+    eps_yoy: float = 0.0
+    eps_accel: float = 0.0
+    sales_yoy: float = 0.0
+    sales_accel: float = 0.0
+    margin_improve: float = 0.0
+    roe: float = 0.0
     roe_target: float = 0.17
 
 

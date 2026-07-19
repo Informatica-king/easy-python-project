@@ -29,13 +29,58 @@ logger = logging.getLogger(__name__)
 def _weights_from_params(params: Params) -> FundamentalWeights:
     w = params.fundamental
     return FundamentalWeights(
-        eps_yoy=w.eps_yoy,
-        eps_accel=w.eps_accel,
-        sales_yoy=w.sales_yoy,
-        sales_accel=w.sales_accel,
-        margin_improve=w.margin_improve,
-        roe=w.roe,
+        eps_surprise=w.eps_surprise,
+        eps_dyoy=w.eps_dyoy,
+        sales_dyoy=w.sales_dyoy,
+        opm_delta=w.opm_delta,
     )
+
+
+def fetch_latest_eps_surprise(ticker: str) -> float | None:
+    """Best-effort latest reported EPS surprise as a fraction (0.05 = +5%)."""
+    from pathlib import Path
+
+    # Prefer fund-study earnings table cache when present
+    sur_path = Path("data/fund_study/earnings_dates") / f"{ticker.upper()}_table.parquet"
+    ed = None
+    if sur_path.exists():
+        try:
+            ed = pd.read_parquet(sur_path)
+        except Exception:  # noqa: BLE001
+            ed = None
+    if ed is None:
+        try:
+            import yfinance as yf
+
+            ed = yf.Ticker(ticker).get_earnings_dates(limit=12)
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("earnings surprise fetch failed %s: %s", ticker, exc)
+            return None
+    if ed is None or ed.empty:
+        return None
+    cols = {c.lower().replace(" ", "_"): c for c in ed.columns}
+    est_c = cols.get("eps_estimate") or cols.get("estimate")
+    act_c = cols.get("reported_eps") or cols.get("actual")
+    sur_c = cols.get("surprise(%)") or cols.get("surprise%") or cols.get("surprise")
+    work = ed.copy()
+    work.index = pd.to_datetime(work.index)
+    if getattr(work.index, "tz", None) is not None:
+        work.index = work.index.tz_localize(None)
+    work = work.sort_index(ascending=False)
+    for _, row in work.iterrows():
+        if sur_c and pd.notna(row.get(sur_c)):
+            try:
+                val = float(row.get(sur_c))
+                # Yahoo Surprise(%) is typically in percent units (e.g. 5.8)
+                return val / 100.0 if abs(val) > 2 else val
+            except Exception:  # noqa: BLE001
+                pass
+        if est_c and act_c and pd.notna(row.get(est_c)) and pd.notna(row.get(act_c)):
+            est = float(row.get(est_c))
+            act = float(row.get(act_c))
+            if est != 0:
+                return act / est - 1.0
+    return None
 
 
 def load_stage2_candidates(
@@ -105,6 +150,7 @@ def score_universe(
         quarterly, roe, source = fund_data.load_quarterly(
             ticker, fund_dir, cik_map, refresh=refresh
         )
+        surprise = fetch_latest_eps_surprise(ticker)
         br = score_ticker(
             ticker,
             quarterly,
@@ -112,6 +158,7 @@ def score_universe(
             source=source,
             weights=weights,
             roe_target=params.fundamental.roe_target,
+            eps_surprise=surprise,
         )
         d = br.as_dict()
         d["name"] = getattr(row, "name", "") or ""

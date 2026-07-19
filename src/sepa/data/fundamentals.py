@@ -31,6 +31,10 @@ REVENUE_TAGS = (
     "RevenueFromContractWithCustomerIncludingAssessedTax",
 )
 NET_INCOME_TAGS = ("NetIncomeLoss", "NetIncomeLossAvailableToCommonStockholdersBasic")
+OP_INCOME_TAGS = (
+    "OperatingIncomeLoss",
+    "OperatingIncomeLossAvailableToCommonStockholdersBasic",
+)
 
 
 def _headers() -> dict[str, str]:
@@ -100,7 +104,7 @@ def _frames_to_series(frames: dict[str, float]) -> pd.Series:
 
 
 def fetch_sec_quarterly(cik: str) -> pd.DataFrame:
-    """Return DataFrame indexed by frame with columns eps, revenue, net_income, npm."""
+    """Return DataFrame indexed by frame with eps, revenue, net_income, npm, opm."""
     url = SEC_FACTS_URL.format(cik=cik)
     r = requests.get(url, headers=_headers(), timeout=90)
     if r.status_code == 404:
@@ -111,11 +115,16 @@ def fetch_sec_quarterly(cik: str) -> pd.DataFrame:
     eps = _frames_to_series(_frames_from_tag(usgaap, EPS_TAGS))
     rev = _frames_to_series(_frames_from_tag(usgaap, REVENUE_TAGS))
     ni = _frames_to_series(_frames_from_tag(usgaap, NET_INCOME_TAGS))
+    oi = _frames_to_series(_frames_from_tag(usgaap, OP_INCOME_TAGS))
 
-    df = pd.DataFrame({"eps": eps, "revenue": rev, "net_income": ni})
+    df = pd.DataFrame({"eps": eps, "revenue": rev, "net_income": ni, "op_income": oi})
     df = df.dropna(how="all")
-    if not df.empty and "revenue" in df and "net_income" in df:
-        df["npm"] = df["net_income"] / df["revenue"].replace(0, pd.NA)
+    if not df.empty and "revenue" in df.columns:
+        rev_nz = df["revenue"].replace(0, pd.NA)
+        if "net_income" in df.columns:
+            df["npm"] = df["net_income"] / rev_nz
+        if "op_income" in df.columns:
+            df["opm"] = df["op_income"] / rev_nz
     return df
 
 
@@ -139,6 +148,7 @@ def fetch_yfinance_quarterly(ticker: str) -> pd.DataFrame:
     eps = row("Diluted EPS", "Basic EPS")
     rev = row("Total Revenue", "Operating Revenue")
     ni = row("Net Income", "Net Income Common Stockholders")
+    oi = row("Operating Income", "Operating Income Loss")
     parts = {}
     if eps is not None:
         parts["eps"] = eps
@@ -146,6 +156,8 @@ def fetch_yfinance_quarterly(ticker: str) -> pd.DataFrame:
         parts["revenue"] = rev
     if ni is not None:
         parts["net_income"] = ni
+    if oi is not None:
+        parts["op_income"] = oi
     if not parts:
         return pd.DataFrame()
     df = pd.DataFrame(parts).sort_index()
@@ -156,8 +168,12 @@ def fetch_yfinance_quarterly(ticker: str) -> pd.DataFrame:
         frames.append(f"CY{ts.year}Q{q}")
     df.index = pd.Index(frames, name="frame")
     df = df[~df.index.duplicated(keep="last")]
-    if "revenue" in df.columns and "net_income" in df.columns:
-        df["npm"] = df["net_income"] / df["revenue"].replace(0, pd.NA)
+    if "revenue" in df.columns:
+        rev_nz = df["revenue"].replace(0, pd.NA)
+        if "net_income" in df.columns:
+            df["npm"] = df["net_income"] / rev_nz
+        if "op_income" in df.columns:
+            df["opm"] = df["op_income"] / rev_nz
     return df
 
 

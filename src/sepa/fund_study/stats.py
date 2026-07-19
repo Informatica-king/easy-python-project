@@ -12,15 +12,15 @@ from sepa.fund_study.config import DELTA_FACTORS, LEVEL_FACTORS, MAIN_FACTORS, S
 
 logger = logging.getLogger(__name__)
 
-# Current fund weights (for comparison table) — maps loosely to study factors
+# Current / live fund weights (for study comparison tables)
 CURRENT_WEIGHT_HINTS = {
-    "eps_yoy": 25.0,
-    "eps_dyoy": 20.0,  # was accel
-    "sales_yoy": 15.0,
-    "sales_dyoy": 10.0,
-    "npm_d": 15.0,
-    "opm_d": 15.0,
-    "eps_surprise": 0.0,
+    "eps_surprise": 47.0,
+    "eps_dyoy": 14.0,
+    "sales_dyoy": 14.0,
+    "opm_d": 25.0,
+    "npm_d": 0.0,
+    "eps_yoy": 0.0,
+    "sales_yoy": 0.0,
     "sales_surprise": 0.0,
 }
 

@@ -15,7 +15,7 @@
 | D2 | 봇의 역할 | 자동 매매가 아닌 **스크리너(추천기)** |
 | D3 | VCP 알고리즘 | 본 문서 §4의 알고리즘 채택. 파라미터 수치는 사용자가 확정 |
 | D4 | 데이터 소스 | 가격: yfinance + Stooq / 펀더멘털: SEC EDGAR + yfinance 폴백 |
-| D11 | 펀더멘털 가중치 | A25/B20/C15/D10/E15/G5 (합 90→100 정규화). F(연간) 제외. 가속 만점=연속 **2분기** (`docs/fundamental_spec.md`) |
+| D11 | 펀더멘털 가중치 | **S47/E25/D14/B14 (합 100)**. Surprise·OPMΔ·SalesΔYoY·EPSΔYoY. 수준 YoY·ROE phase-1 제외 (`docs/fundamental_spec.md` v2) |
 
 **운용 워크플로우 (D8, 2026-07-15 확정 · D11 펀더멘털 봇 추가 2026-07-16)**:
 
