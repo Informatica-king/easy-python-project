@@ -424,6 +424,17 @@ def main(argv: list[str] | None = None) -> int:
         default=252,
         help="Lookback trading days for sepaTop vs benchmarks (default 252)",
     )
+    parser.add_argument(
+        "--skip-sector-share",
+        action="store_true",
+        help="Skip sector share time-series charts (default: run with anal)",
+    )
+    parser.add_argument(
+        "--sector-top-n",
+        type=int,
+        default=8,
+        help="Top-N sectors in stacked/heatmap charts; rest → 기타 (default 8)",
+    )
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
@@ -496,6 +507,26 @@ def main(argv: list[str] | None = None) -> int:
     print(f"report: {csv_path.resolve()}")
 
     publish_many([bar_path, scatter_path, fund_hist_path, mcap_hist_path, csv_path])
+
+    if not args.skip_sector_share:
+        from sepa.sector_share import run_sector_share
+
+        print("\n" + "=" * 64)
+        print("  Sector share time-series — auto from anal")
+        print("=" * 64)
+        try:
+            run_sector_share(
+                report_dir=params.report_dir,
+                stamp=stamp,
+                current_df=enriched,
+                cache_dir=params.data.cache_dir,
+                chart_dir=chart_dir,
+                top_n=args.sector_top_n,
+                fund_high=args.fund_min,
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("sector share failed")
+            print(f"[경고] 섹터 점유율 시계열 실행 실패: {exc}")
 
     if not args.skip_sepatop:
         from sepa.sepatop import run_from_fundamental_df

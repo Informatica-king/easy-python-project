@@ -237,6 +237,10 @@ def _tool_analyze(args: list, kwargs: dict) -> None:
         argv.append("--skip-sepatop")
     if kwargs.get("sepatop_days"):
         argv += ["--sepatop-days", str(kwargs["sepatop_days"])]
+    if kwargs.get("skip_sector_share"):
+        argv.append("--skip-sector-share")
+    if kwargs.get("sector_top_n"):
+        argv += ["--sector-top-n", str(kwargs["sector_top_n"])]
     analyze.main(argv)
 
 
@@ -384,7 +388,7 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.analyze",
         '!sepa.anal()  |  !sepa.anal("reports/fundamental_20260716.csv")  |  !sepa.analyze()',
-        "섹터/테마·Fund·시가총액 분포 + RS×Fund 산점도 + sepaTop 지수. Fund≥40 티커 쉼표 출력",
+        "섹터/테마·Fund·시가총액 분포 + RS×Fund 산점도 + 섹터점유율 시계열 + sepaTop. Fund≥40 티커 쉼표 출력",
         _tool_analyze,
         aliases=("analyze", "sepa.anal", "anal"),
     ),
