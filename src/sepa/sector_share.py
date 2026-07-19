@@ -31,6 +31,8 @@ OTHER_LABEL = "기타(소규모)"
 DEFAULT_TOP_N = 8
 FUND_HIGH_DEFAULT = 40.0
 STAMP_RE = re.compile(r"analyze_(\d{8})\.csv$")
+WEEK_SPAN_DAYS = 7
+MONTH_SPAN_DAYS = 28
 
 
 def _setup_korean_font() -> None:
@@ -43,6 +45,239 @@ def _setup_korean_font() -> None:
 
 def stamp_to_date(stamp: str) -> str:
     return f"{stamp[:4]}-{stamp[4:6]}-{stamp[6:8]}"
+
+
+def previous_week_friday(as_of: str | pd.Timestamp) -> pd.Timestamp:
+    """지난주 금요일 (이번 주 월요 − 3일). as_of가 금요일이어도 지난주를 가리킨다."""
+    ts = pd.Timestamp(as_of).normalize()
+    this_monday = ts - pd.Timedelta(days=int(ts.weekday()))
+    return this_monday - pd.Timedelta(days=3)
+
+
+def previous_month_end(as_of: str | pd.Timestamp) -> pd.Timestamp:
+    """직전 달의 마지막 캘린더일."""
+    ts = pd.Timestamp(as_of).normalize()
+    return (ts.replace(day=1) - pd.Timedelta(days=1)).normalize()
+
+
+def nearest_snapshot_on_or_before(dates: list[str], target: pd.Timestamp) -> str | None:
+    """dates are ISO YYYY-MM-DD strings; return best snapshot ≤ target."""
+    target_s = target.strftime("%Y-%m-%d")
+    candidates = [d for d in dates if d <= target_s]
+    return candidates[-1] if candidates else None
+
+
+def span_days(dates: list[str]) -> int:
+    if not dates:
+        return 0
+    return int((pd.Timestamp(dates[-1]) - pd.Timestamp(dates[0])).days)
+
+
+def resolve_period_baselines(
+    dates: list[str],
+    *,
+    force_week: bool = False,
+    force_month: bool = False,
+) -> dict:
+    """Decide whether week/month comparisons are available.
+
+    Auto rules:
+      week  — calendar span ≥ 7d AND a snapshot on/before 지난주 금요일 exists
+      month — calendar span ≥ 28d AND a snapshot on/before 전월 말 exists
+    force_* still requires a resolvable baseline snapshot.
+    """
+    if not dates:
+        return {
+            "as_of": None,
+            "week": None,
+            "month": None,
+        }
+    as_of = dates[-1]
+    as_of_ts = pd.Timestamp(as_of)
+    span = span_days(dates)
+
+    week_target = previous_week_friday(as_of_ts)
+    week_snap = nearest_snapshot_on_or_before(dates, week_target)
+    week_auto = span >= WEEK_SPAN_DAYS and week_snap is not None and week_snap < as_of
+    week_ok = (week_auto or force_week) and week_snap is not None and week_snap < as_of
+
+    month_target = previous_month_end(as_of_ts)
+    month_snap = nearest_snapshot_on_or_before(dates, month_target)
+    month_auto = span >= MONTH_SPAN_DAYS and month_snap is not None and month_snap < as_of
+    month_ok = (month_auto or force_month) and month_snap is not None and month_snap < as_of
+
+    return {
+        "as_of": as_of,
+        "span_days": span,
+        "week": {
+            "eligible_auto": week_auto,
+            "show": week_ok,
+            "forced": force_week and week_ok,
+            "target": week_target.strftime("%Y-%m-%d"),
+            "snapshot": week_snap,
+            "reason": _period_reason(
+                kind="week",
+                span=span,
+                need=WEEK_SPAN_DAYS,
+                target=week_target.strftime("%Y-%m-%d"),
+                snap=week_snap,
+                as_of=as_of,
+                force=force_week,
+            ),
+        },
+        "month": {
+            "eligible_auto": month_auto,
+            "show": month_ok,
+            "forced": force_month and month_ok,
+            "target": month_target.strftime("%Y-%m-%d"),
+            "snapshot": month_snap,
+            "reason": _period_reason(
+                kind="month",
+                span=span,
+                need=MONTH_SPAN_DAYS,
+                target=month_target.strftime("%Y-%m-%d"),
+                snap=month_snap,
+                as_of=as_of,
+                force=force_month,
+            ),
+        },
+    }
+
+
+def _period_reason(
+    *,
+    kind: str,
+    span: int,
+    need: int,
+    target: str,
+    snap: str | None,
+    as_of: str,
+    force: bool,
+) -> str:
+    label = "주간(지난주 금요일)" if kind == "week" else "월간(전월 말)"
+    if snap is None:
+        return f"{label}: 기준일 {target} 이전 스냅샷 없음"
+    if snap >= as_of:
+        return f"{label}: 기준 스냅샷이 최신일과 같음"
+    if force:
+        return f"{label}: 강제 표시 (기준 스냅샷 {snap}, 목표 {target})"
+    if span < need:
+        return f"{label}: 데이터 기간 {span}일 < {need}일 — 쌓이면 자동 표시 (강제: !sepa.sectorShare({kind}))"
+    return f"{label}: 자동 표시 (기준 스냅샷 {snap}, 목표 {target})"
+
+
+def compute_delta_vs_baseline(
+    panel: pd.DataFrame,
+    *,
+    baseline_date: str,
+    as_of: str,
+    value_col: str = "share_n",
+    baseline_label: str = "baseline",
+) -> pd.DataFrame:
+    """Share delta (percentage points) between two snapshot dates."""
+    if panel.empty:
+        return pd.DataFrame()
+
+    def _map(day: str) -> dict[str, float]:
+        sub = panel.loc[panel["date"] == day, ["primary_tag", value_col]]
+        out: dict[str, float] = {}
+        for k, v in zip(sub["primary_tag"], sub[value_col]):
+            if pd.notna(v):
+                out[str(k)] = float(v)
+        return out
+
+    m0 = _map(baseline_date)
+    m1 = _map(as_of)
+    tags = sorted(set(m0) | set(m1))
+    rows = []
+    for t in tags:
+        a = m0.get(t, 0.0)
+        b = m1.get(t, 0.0)
+        rows.append(
+            {
+                "primary_tag": t,
+                f"share_{baseline_label}": a,
+                "share_last": b,
+                "delta_pp": (b - a) * 100.0,
+                "baseline_date": baseline_date,
+                "last_date": as_of,
+                "baseline_label": baseline_label,
+            }
+        )
+    return pd.DataFrame(rows).sort_values("delta_pp", ascending=False).reset_index(drop=True)
+
+
+def plot_period_compare(
+    panel: pd.DataFrame,
+    *,
+    baseline_date: str,
+    as_of: str,
+    out_path: Path,
+    title: str,
+    value_col: str = "share_n",
+    top_k: int = 10,
+) -> Path:
+    """Side-by-side share bars for baseline vs as_of (top movers by |Δ|)."""
+    _setup_korean_font()
+    deltas = compute_delta_vs_baseline(
+        panel, baseline_date=baseline_date, as_of=as_of, value_col=value_col, baseline_label="base"
+    )
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5.5), gridspec_kw={"width_ratios": [1.1, 1]})
+    if deltas.empty:
+        for ax in axes:
+            ax.text(0.5, 0.5, "데이터 없음", ha="center", va="center")
+            ax.set_axis_off()
+    else:
+        sub = deltas.copy()
+        sub["abs"] = sub["delta_pp"].abs()
+        sub = sub.sort_values("abs", ascending=False).head(top_k).sort_values("delta_pp")
+
+        ax0 = axes[0]
+        colors = ["#c0392b" if v < 0 else "#27ae60" for v in sub["delta_pp"]]
+        ax0.barh(sub["primary_tag"], sub["delta_pp"], color=colors, edgecolor="white")
+        ax0.axvline(0, color="#444", lw=0.8)
+        ax0.set_xlabel("점유율 변화 (%p)")
+        ax0.set_title("Δ 점유율")
+        ax0.grid(axis="x", alpha=0.3)
+
+        ax1 = axes[1]
+        y = np.arange(len(sub))
+        h = 0.35
+        ax1.barh(y - h / 2, sub["share_base"] * 100, height=h, label=baseline_date, color="#7f8c8d")
+        ax1.barh(y + h / 2, sub["share_last"] * 100, height=h, label=as_of, color="#2980b9")
+        ax1.set_yticks(y)
+        ax1.set_yticklabels(sub["primary_tag"])
+        ax1.set_xlabel("점유율 (%)")
+        ax1.set_title("비중 비교")
+        ax1.legend(fontsize=8, loc="best")
+        ax1.grid(axis="x", alpha=0.3)
+
+    fig.suptitle(title, fontsize=12)
+    fig.tight_layout()
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    return out_path
+
+
+def print_period_section(
+    label: str,
+    info: dict,
+    deltas: pd.DataFrame | None,
+) -> None:
+    print(f"\n  ◆ {label}")
+    print(f"    {info['reason']}")
+    if not info.get("show") or deltas is None or deltas.empty:
+        return
+    print(f"    기준 스냅샷 {info['snapshot']} → 최신 {info.get('as_of', deltas['last_date'].iloc[0])}")
+    print(f"    {'섹터':<14} {'기준':>8} {'최신':>8} {'Δ%p':>8}")
+    for _, r in deltas.head(12).iterrows():
+        base_col = [c for c in r.index if c.startswith("share_") and c != "share_last"]
+        base_v = float(r[base_col[0]]) if base_col else 0.0
+        print(
+            f"    {r['primary_tag']:<14} "
+            f"{base_v * 100:7.1f}% {r['share_last'] * 100:7.1f}% {r['delta_pp']:+7.1f}"
+        )
 
 
 def list_analyze_snapshots(report_dir: str | Path) -> list[tuple[str, Path]]:
@@ -461,6 +696,8 @@ def run_sector_share(
     chart_dir: Path | None = None,
     top_n: int = DEFAULT_TOP_N,
     fund_high: float = FUND_HIGH_DEFAULT,
+    force_week: bool = False,
+    force_month: bool = False,
 ) -> dict:
     """Build panel, charts, CSVs. Returns paths dict."""
     report_dir = Path(report_dir)
@@ -470,13 +707,10 @@ def run_sector_share(
     out_dir.mkdir(parents=True, exist_ok=True)
 
     disk = list_analyze_snapshots(report_dir)
-    # Reload with cache enrichment for missing mcap
     dated: list[tuple[str, pd.DataFrame]] = []
-    seen: set[str] = set()
     for s, path in disk:
         try:
             dated.append((s, load_snapshot(path, cache_dir=cache_dir)))
-            seen.add(s)
         except Exception as exc:  # noqa: BLE001
             logger.warning("skip %s: %s", path, exc)
     if current_df is not None and not current_df.empty:
@@ -509,6 +743,9 @@ def run_sector_share(
 
     dates = sorted(panel["date"].unique())
     period = f"{dates[0]} → {dates[-1]} ({len(dates)}일)"
+    baselines = resolve_period_baselines(
+        dates, force_week=force_week, force_month=force_month
+    )
 
     chart_stack_n = chart_dir / f"sector_share_stack_n_{stamp}.png"
     chart_stack_m = chart_dir / f"sector_share_stack_mcap_{stamp}.png"
@@ -547,16 +784,111 @@ def run_sector_share(
         ylabel="종목 수 점유율",
     )
 
+    charts = [
+        chart_stack_n, chart_stack_m, chart_delta_first, chart_delta_prev,
+        chart_heat, chart_stack_hi,
+    ]
+    extra_csvs: list[Path] = []
+    week_deltas = pd.DataFrame()
+    month_deltas = pd.DataFrame()
+
+    week_info = baselines["week"]
+    month_info = baselines["month"]
+    as_of = baselines["as_of"]
+
+    if week_info and week_info["show"]:
+        week_deltas = compute_delta_vs_baseline(
+            panel,
+            baseline_date=week_info["snapshot"],
+            as_of=as_of,
+            value_col="share_n",
+            baseline_label="week",
+        )
+        chart_week = chart_dir / f"sector_share_vs_week_{stamp}.png"
+        plot_period_compare(
+            panel,
+            baseline_date=week_info["snapshot"],
+            as_of=as_of,
+            out_path=chart_week,
+            title=(
+                f"주간 섹터 변화 vs 지난주 금요일 "
+                f"(목표 {week_info['target']} → 스냅샷 {week_info['snapshot']} → {as_of})"
+            ),
+        )
+        week_csv = out_dir / f"sector_share_vs_week_{stamp}.csv"
+        week_deltas.to_csv(week_csv, index=False)
+        charts.append(chart_week)
+        extra_csvs.append(week_csv)
+        # mcap week
+        week_mcap = compute_delta_vs_baseline(
+            panel.dropna(subset=["share_mcap"]),
+            baseline_date=week_info["snapshot"],
+            as_of=as_of,
+            value_col="share_mcap",
+            baseline_label="week",
+        )
+        if not week_mcap.empty:
+            chart_week_m = chart_dir / f"sector_share_vs_week_mcap_{stamp}.png"
+            plot_period_compare(
+                panel,
+                baseline_date=week_info["snapshot"],
+                as_of=as_of,
+                out_path=chart_week_m,
+                title=f"주간 섹터 변화 (시총가중)  {week_info['snapshot']} → {as_of}",
+                value_col="share_mcap",
+            )
+            charts.append(chart_week_m)
+
+    if month_info and month_info["show"]:
+        month_deltas = compute_delta_vs_baseline(
+            panel,
+            baseline_date=month_info["snapshot"],
+            as_of=as_of,
+            value_col="share_n",
+            baseline_label="month",
+        )
+        chart_month = chart_dir / f"sector_share_vs_month_{stamp}.png"
+        plot_period_compare(
+            panel,
+            baseline_date=month_info["snapshot"],
+            as_of=as_of,
+            out_path=chart_month,
+            title=(
+                f"월간 섹터 변화 vs 전월 말 "
+                f"(목표 {month_info['target']} → 스냅샷 {month_info['snapshot']} → {as_of})"
+            ),
+        )
+        month_csv = out_dir / f"sector_share_vs_month_{stamp}.csv"
+        month_deltas.to_csv(month_csv, index=False)
+        charts.append(chart_month)
+        extra_csvs.append(month_csv)
+        month_mcap = compute_delta_vs_baseline(
+            panel.dropna(subset=["share_mcap"]),
+            baseline_date=month_info["snapshot"],
+            as_of=as_of,
+            value_col="share_mcap",
+            baseline_label="month",
+        )
+        if not month_mcap.empty:
+            chart_month_m = chart_dir / f"sector_share_vs_month_mcap_{stamp}.png"
+            plot_period_compare(
+                panel,
+                baseline_date=month_info["snapshot"],
+                as_of=as_of,
+                out_path=chart_month_m,
+                title=f"월간 섹터 변화 (시총가중)  {month_info['snapshot']} → {as_of}",
+                value_col="share_mcap",
+            )
+            charts.append(chart_month_m)
+
     panel_path = out_dir / f"sector_share_panel_{stamp}.csv"
     hi_path = out_dir / f"sector_share_fundhi_{stamp}.csv"
     delta_path = out_dir / f"sector_share_delta_{stamp}.csv"
     flow_path = out_dir / f"sector_share_flow_{stamp}.csv"
-    # also keep a rolling history file that appends uniquely by date
     history_path = out_dir / "sector_share_history.csv"
 
     panel.to_csv(panel_path, index=False)
     panel_hi.to_csv(hi_path, index=False)
-    # merge count + mcap deltas
     delta_out = deltas.copy()
     if not deltas_mcap.empty:
         merge_cols = ["primary_tag", "delta_vs_first_pp", "delta_vs_prev_pp", "share_last"]
@@ -571,7 +903,6 @@ def run_sector_share(
     delta_out.to_csv(delta_path, index=False)
     flows.to_csv(flow_path, index=False)
 
-    # rolling history: replace dates present in this panel
     if history_path.exists():
         old = pd.read_csv(history_path)
         old = old[~old["date"].isin(panel["date"].unique())]
@@ -583,16 +914,19 @@ def run_sector_share(
 
     print_share_tables(panel, deltas, flows, panel_hi, fund_high=fund_high)
 
-    # absolute counts summary line
+    print("\n  ◆ 주/월 기준 섹터 변화")
+    if week_info:
+        week_info = {**week_info, "as_of": as_of}
+        print_period_section("주간 vs 지난주 금요일", week_info, week_deltas if week_info["show"] else None)
+    if month_info:
+        month_info = {**month_info, "as_of": as_of}
+        print_period_section("월간 vs 전월 말", month_info, month_deltas if month_info["show"] else None)
+
     if not wide_n_counts.empty:
         print("\n  ◆ 섹터별 절대 종목 수 (최근일)")
         last_counts = panel[panel["date"] == dates[-1]].sort_values("n", ascending=False)
         print("   " + ", ".join(f"{r.primary_tag}={int(r.n)}" for _, r in last_counts.iterrows()))
 
-    charts = [
-        chart_stack_n, chart_stack_m, chart_delta_first, chart_delta_prev,
-        chart_heat, chart_stack_hi,
-    ]
     print("\n섹터 점유율 charts:")
     for p in charts:
         print(f"  {p.resolve()}")
@@ -600,8 +934,10 @@ def run_sector_share(
     print(f"delta : {delta_path.resolve()}")
     print(f"flow  : {flow_path.resolve()}")
     print(f"hist  : {history_path.resolve()}")
+    for p in extra_csvs:
+        print(f"period: {p.resolve()}")
 
-    publish_many(charts + [panel_path, hi_path, delta_path, flow_path, history_path])
+    publish_many(charts + [panel_path, hi_path, delta_path, flow_path, history_path] + extra_csvs)
     return {
         "ok": True,
         "panel": panel_path,
@@ -611,4 +947,56 @@ def run_sector_share(
         "history": history_path,
         "charts": charts,
         "n_snapshots": len(dates),
+        "span_days": baselines.get("span_days", 0),
+        "week": week_info,
+        "month": month_info,
+        "week_deltas": week_deltas,
+        "month_deltas": month_deltas,
     }
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Standalone: python -m sepa.sector_share [--week] [--month] [--force-week] [--force-month]"""
+    import argparse
+
+    from sepa.config import load_params
+
+    parser = argparse.ArgumentParser(description="Fund sector-share time series (+ week/month)")
+    parser.add_argument("--config", default="config/params.yaml")
+    parser.add_argument("--stamp", default=None, help="YYYYMMDD (default: latest analyze_)")
+    parser.add_argument("--top-n", type=int, default=DEFAULT_TOP_N)
+    parser.add_argument("--fund-high", type=float, default=FUND_HIGH_DEFAULT)
+    parser.add_argument(
+        "--week",
+        action="store_true",
+        help="Force weekly vs last-Friday comparison even if span < 7d",
+    )
+    parser.add_argument(
+        "--month",
+        action="store_true",
+        help="Force monthly vs prior-month-end comparison even if span < 28d",
+    )
+    parser.add_argument("--force-week", action="store_true", help="Alias of --week")
+    parser.add_argument("--force-month", action="store_true", help="Alias of --month")
+    args = parser.parse_args(argv)
+
+    params = load_params(args.config)
+    snaps = list_analyze_snapshots(params.report_dir)
+    if not snaps:
+        print("[오류] analyze_*.csv 가 없습니다. 먼저 !sepa.anal() 을 실행하세요.")
+        return 1
+    stamp = args.stamp or snaps[-1][0]
+    result = run_sector_share(
+        report_dir=params.report_dir,
+        stamp=stamp,
+        cache_dir=params.data.cache_dir,
+        top_n=args.top_n,
+        fund_high=args.fund_high,
+        force_week=bool(args.week or args.force_week),
+        force_month=bool(args.month or args.force_month),
+    )
+    return 0 if result.get("ok") else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

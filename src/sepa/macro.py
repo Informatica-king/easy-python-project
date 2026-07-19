@@ -241,7 +241,45 @@ def _tool_analyze(args: list, kwargs: dict) -> None:
         argv.append("--skip-sector-share")
     if kwargs.get("sector_top_n"):
         argv += ["--sector-top-n", str(kwargs["sector_top_n"])]
+    if kwargs.get("force_sector_week") or kwargs.get("week"):
+        argv.append("--force-sector-week")
+    if kwargs.get("force_sector_month") or kwargs.get("month"):
+        argv.append("--force-sector-month")
     analyze.main(argv)
+
+
+def _tool_sector_share(args: list, kwargs: dict) -> None:
+    """On-demand sector share (+ optional forced week/month views)."""
+    from sepa import sector_share
+
+    argv: list[str] = []
+    force_week = bool(kwargs.get("week") or kwargs.get("force_week"))
+    force_month = bool(kwargs.get("month") or kwargs.get("force_month"))
+    for a in args:
+        a = str(a).lower()
+        if a in ("week", "weekly", "주", "주간"):
+            force_week = True
+        elif a in ("month", "monthly", "월", "월간"):
+            force_month = True
+        elif a in ("all", "both"):
+            force_week = True
+            force_month = True
+        elif a.endswith(".csv"):
+            raise MacroError(
+                "sectorShare 는 analyze 스냅샷을 사용합니다 — "
+                "!sepa.sectorShare() / !sepa.sectorShare(week) / !sepa.sectorShare(month)"
+            )
+        else:
+            raise MacroError(
+                f"알 수 없는 인자: {a!r} — !sepa.sectorShare() | week | month | all"
+            )
+    if force_week:
+        argv.append("--week")
+    if force_month:
+        argv.append("--month")
+    if kwargs.get("top_n"):
+        argv += ["--top-n", str(kwargs["top_n"])]
+    sector_share.main(argv)
 
 
 def _tool_sepatop(args: list, kwargs: dict) -> None:
@@ -388,9 +426,16 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.analyze",
         '!sepa.anal()  |  !sepa.anal("reports/fundamental_20260716.csv")  |  !sepa.analyze()',
-        "섹터/테마·Fund·시가총액 분포 + RS×Fund 산점도 + 섹터점유율 시계열 + sepaTop. Fund≥40 티커 쉼표 출력",
+        "섹터/테마·Fund·시가총액 분포 + RS×Fund 산점도 + 섹터점유율 시계열(+주/월 자동) + sepaTop",
         _tool_analyze,
         aliases=("analyze", "sepa.anal", "anal"),
+    ),
+    MacroSpec(
+        "sepa.sectorshare",
+        "!sepa.sectorShare()  |  !sepa.sectorShare(week)  |  !sepa.sectorShare(month)  |  !sepa.sectorShare(all)",
+        "Fund 섹터 점유율 시계열 단독 실행. week/month/all 로 주·월 비교 강제 표시",
+        _tool_sector_share,
+        aliases=("sectorshare", "sepa.sectorShare", "sepa.sector", "sector"),
     ),
     MacroSpec(
         "sepa.sepatop",
@@ -402,7 +447,7 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.go",
         "!sepa.go()  |  !sepa.go",
-        "일일 파이프라인 — scan(full) → fund → anal(+sepaTop) 을 순서대로 실행·출력",
+        "일일 파이프라인 — scan(full) → fund → anal(+sectorShare+sepaTop) 을 순서대로 실행·출력",
         _tool_go,
         aliases=("go",),
     ),

@@ -435,6 +435,16 @@ def main(argv: list[str] | None = None) -> int:
         default=8,
         help="Top-N sectors in stacked/heatmap charts; rest → 기타 (default 8)",
     )
+    parser.add_argument(
+        "--force-sector-week",
+        action="store_true",
+        help="Force week-vs-last-Friday sector delta even if history < 7 days",
+    )
+    parser.add_argument(
+        "--force-sector-month",
+        action="store_true",
+        help="Force month-vs-prior-month-end sector delta even if history < 28 days",
+    )
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
@@ -523,6 +533,8 @@ def main(argv: list[str] | None = None) -> int:
                 chart_dir=chart_dir,
                 top_n=args.sector_top_n,
                 fund_high=args.fund_min,
+                force_week=args.force_sector_week,
+                force_month=args.force_sector_month,
             )
         except Exception as exc:  # noqa: BLE001
             logger.exception("sector share failed")
