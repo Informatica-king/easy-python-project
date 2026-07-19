@@ -20,6 +20,9 @@ EVENT_DOLLAR_VOL_BOTTOM_PCT = 0.30  # drop bottom 30%
 EXPLOSION_ABS_MAX = 5.0  # 500%
 
 BENCHMARK = "^IXIC"
+BENCHMARK_STOOQ = "^ndq"  # Stooq symbol for NASDAQ Composite
+BENCHMARK_CACHE = "data/fund_study/ixic.parquet"
+EARNINGS_CACHE_DIR = "data/fund_study/earnings_dates"
 
 MAIN_FACTORS = (
     "eps_yoy",

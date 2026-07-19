@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -13,6 +14,9 @@ import yfinance as yf
 from sepa.data import store
 from sepa.fund_study.config import (
     BENCHMARK,
+    BENCHMARK_CACHE,
+    BENCHMARK_STOOQ,
+    EARNINGS_CACHE_DIR,
     EVENT_DOLLAR_VOL_BOTTOM_PCT,
     EVENT_DOLLAR_VOL_WINDOW,
     RET_POST_OFFSET,
@@ -22,6 +26,9 @@ from sepa.fund_study.config import (
 
 logger = logging.getLogger(__name__)
 
+# Process-wide: after Yahoo rate-limits, prefer SEC filings for day0
+_YF_RATE_LIMITED = False
+
 
 def _ensure_naive(idx: pd.DatetimeIndex) -> pd.DatetimeIndex:
     idx = pd.to_datetime(idx)
@@ -30,61 +37,182 @@ def _ensure_naive(idx: pd.DatetimeIndex) -> pd.DatetimeIndex:
     return idx
 
 
-def load_benchmark(cache_dir: str | Path, lookback_years: int) -> pd.Series:
-    """NASDAQ composite close series (tz-naive)."""
-    end = datetime.now().date()
-    start = end - timedelta(days=int(365.25 * max(lookback_years, STUDY_YEARS) + 30))
-    # Prefer Ticker.history — flatter columns than download() MultiIndex
-    try:
-        hist = yf.Ticker(BENCHMARK).history(
-            start=start.isoformat(),
-            end=(end + timedelta(days=1)).isoformat(),
-            auto_adjust=True,
-        )
-    except Exception as exc:  # noqa: BLE001
-        logger.warning("benchmark history failed: %s", exc)
-        hist = None
-    if hist is not None and not hist.empty and "Close" in hist.columns:
-        s = hist["Close"].dropna().astype(float)
-        s.index = _ensure_naive(pd.DatetimeIndex(s.index))
-        s.name = "ixic"
-        return s.sort_index()
+def _mark_rate_limited(exc: BaseException | str) -> None:
+    global _YF_RATE_LIMITED
+    msg = str(exc).lower()
+    if "rate" in msg or "too many" in msg or "429" in msg:
+        _YF_RATE_LIMITED = True
+        logger.warning("Yahoo rate limit detected — preferring SEC filing dates")
 
-    raw = yf.download(
-        BENCHMARK,
-        start=start.isoformat(),
-        end=(end + timedelta(days=1)).isoformat(),
-        auto_adjust=True,
-        progress=False,
-    )
-    if raw is None or raw.empty:
-        return pd.Series(dtype=float)
-    if isinstance(raw.columns, pd.MultiIndex):
-        if ("Close", BENCHMARK) in raw.columns:
-            s = raw[("Close", BENCHMARK)]
-        elif (BENCHMARK, "Close") in raw.columns:
-            s = raw[(BENCHMARK, "Close")]
-        else:
-            # yfinance often uses level0=Price, level1=Ticker
-            try:
-                s = raw.xs("Close", axis=1, level=0).iloc[:, 0]
-            except Exception:  # noqa: BLE001
-                s = raw.xs("Close", axis=1, level=-1).iloc[:, 0]
-    else:
-        s = raw["Close"]
+
+def is_yahoo_rate_limited() -> bool:
+    return _YF_RATE_LIMITED
+
+
+def _series_from_close(s: pd.Series) -> pd.Series:
     s = s.dropna().astype(float)
     s.index = _ensure_naive(pd.DatetimeIndex(s.index))
     s.name = "ixic"
     return s.sort_index()
 
 
-def fetch_earnings_dates(ticker: str, years: int = STUDY_YEARS) -> pd.DatetimeIndex:
+def _load_benchmark_stooq(start, end) -> pd.Series:
+    """NASDAQ Composite via Stooq index symbol ^ndq."""
+    import io
+
+    import requests
+    from sepa.data.sources import normalize_ohlcv
+
+    d1 = start.strftime("%Y%m%d")
+    d2 = end.strftime("%Y%m%d")
+    url = f"https://stooq.com/q/d/l/?s={BENCHMARK_STOOQ.lower()}&d1={d1}&d2={d2}&i=d"
+    resp = requests.get(url, timeout=60)
+    resp.raise_for_status()
+    if "Date" not in resp.text[:120]:
+        return pd.Series(dtype=float)
+    raw = pd.read_csv(io.StringIO(resp.text), parse_dates=["Date"]).set_index("Date")
+    df = normalize_ohlcv(raw)
+    if df.empty:
+        return pd.Series(dtype=float)
+    return _series_from_close(df["close"])
+
+
+def load_benchmark(cache_dir: str | Path, lookback_years: int) -> pd.Series:
+    """NASDAQ composite close series (tz-naive), disk-cached with retries.
+
+    Falls back to QQQ (local cache / Yahoo) when ^IXIC is unavailable — highly
+    correlated Nasdaq market proxy for market-adjusted event returns.
+    """
+    cache_path = Path(BENCHMARK_CACHE)
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    end = datetime.now().date()
+    start = end - timedelta(days=int(365.25 * max(lookback_years, STUDY_YEARS) + 30))
+    min_span_days = int(365.25 * max(lookback_years, STUDY_YEARS) * 0.8)
+
+    if cache_path.exists():
+        try:
+            cached = pd.read_parquet(cache_path)["close"]
+            cached = _series_from_close(cached)
+            span = (cached.index.max() - cached.index.min()).days
+            last = cached.index.max().date()
+            if span >= min_span_days and last >= end - timedelta(days=7):
+                logger.info("benchmark cache hit %s (%d bars)", cache_path, len(cached))
+                return cached
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("benchmark cache unreadable: %s", exc)
+
+    last_exc: Exception | None = None
+    for attempt in range(3):
+        try:
+            hist = yf.Ticker(BENCHMARK).history(
+                start=start.isoformat(),
+                end=(end + timedelta(days=1)).isoformat(),
+                auto_adjust=True,
+            )
+            if hist is not None and not hist.empty and "Close" in hist.columns:
+                s = _series_from_close(hist["Close"])
+                pd.DataFrame({"close": s}).to_parquet(cache_path)
+                return s
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            _mark_rate_limited(exc)
+            logger.warning("benchmark yfinance ^IXIC attempt %d failed: %s", attempt + 1, exc)
+            time.sleep(2 ** attempt)
+
+    # QQQ proxy: prefer local parquet, then Yahoo
+    qqq_path = Path(cache_dir) / "QQQ.parquet"
+    if qqq_path.exists():
+        try:
+            q = pd.read_parquet(qqq_path)["close"]
+            s = _series_from_close(q)
+            if (s.index.max() - s.index.min()).days >= min_span_days * 0.5:
+                pd.DataFrame({"close": s}).to_parquet(cache_path)
+                logger.warning("benchmark using local QQQ as NASDAQ proxy (%d bars)", len(s))
+                return s
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("local QQQ read failed: %s", exc)
+
+    for attempt in range(3):
+        try:
+            hist = yf.Ticker("QQQ").history(
+                start=start.isoformat(),
+                end=(end + timedelta(days=1)).isoformat(),
+                auto_adjust=True,
+            )
+            if hist is not None and not hist.empty and "Close" in hist.columns:
+                s = _series_from_close(hist["Close"])
+                pd.DataFrame({"close": s}).to_parquet(cache_path)
+                # also seed equity cache
+                try:
+                    out = hist.rename(columns=str.lower)[["open", "high", "low", "close", "volume"]]
+                    out.index = _ensure_naive(pd.DatetimeIndex(out.index))
+                    out.to_parquet(qqq_path)
+                except Exception:  # noqa: BLE001
+                    pass
+                logger.warning("benchmark using Yahoo QQQ as NASDAQ proxy (%d bars)", len(s))
+                return s
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            _mark_rate_limited(exc)
+            logger.warning("benchmark QQQ attempt %d failed: %s", attempt + 1, exc)
+            time.sleep(2 ** attempt)
+
+    # Stooq last resort (may 404 depending on region)
+    try:
+        s = _load_benchmark_stooq(start, end)
+        if not s.empty:
+            pd.DataFrame({"close": s}).to_parquet(cache_path)
+            logger.info("benchmark loaded via Stooq (%d bars)", len(s))
+            return s
+    except Exception as exc:  # noqa: BLE001
+        last_exc = exc
+        logger.warning("benchmark Stooq failed: %s", exc)
+
+    if cache_path.exists():
+        try:
+            cached = _series_from_close(pd.read_parquet(cache_path)["close"])
+            logger.warning("using stale benchmark cache (%d bars)", len(cached))
+            return cached
+        except Exception:  # noqa: BLE001
+            pass
+
+    logger.error("benchmark load failed entirely: %s", last_exc)
+    return pd.Series(dtype=float)
+
+
+def _earnings_cache_path(ticker: str) -> Path:
+    return Path(EARNINGS_CACHE_DIR) / f"{ticker.upper()}.parquet"
+
+
+def fetch_earnings_dates(
+    ticker: str,
+    years: int = STUDY_YEARS,
+    *,
+    use_cache: bool = True,
+    refresh: bool = False,
+) -> pd.DatetimeIndex:
     """Return earnings announcement datetimes (date-normalized, naive)."""
+    global _YF_RATE_LIMITED
+    path = _earnings_cache_path(ticker)
+    if use_cache and path.exists() and not refresh:
+        try:
+            df = pd.read_parquet(path)
+            idx = _ensure_naive(pd.DatetimeIndex(df["day0"])).normalize()
+            today = pd.Timestamp.now(tz="UTC").tz_localize(None).normalize()
+            cutoff = today - pd.DateOffset(years=years)
+            idx = idx[(idx >= cutoff) & (idx <= today)]
+            return pd.DatetimeIndex(sorted(set(idx)))
+        except Exception:  # noqa: BLE001
+            pass
+
+    if _YF_RATE_LIMITED:
+        return pd.DatetimeIndex([])
+
     try:
         t = yf.Ticker(ticker)
-        # limit ~4 per year
         ed = t.get_earnings_dates(limit=max(years * 5, 20))
     except Exception as exc:  # noqa: BLE001
+        _mark_rate_limited(exc)
         logger.warning("earnings dates failed %s: %s", ticker, exc)
         return pd.DatetimeIndex([])
     if ed is None or ed.empty:
@@ -92,10 +220,19 @@ def fetch_earnings_dates(ticker: str, years: int = STUDY_YEARS) -> pd.DatetimeIn
     idx = _ensure_naive(pd.DatetimeIndex(ed.index)).normalize()
     today = pd.Timestamp.now(tz="UTC").tz_localize(None).normalize()
     cutoff = today - pd.DateOffset(years=years)
-    idx = idx[idx >= cutoff]
-    # drop future
-    idx = idx[idx <= today]
-    return pd.DatetimeIndex(sorted(set(idx)))
+    idx = idx[(idx >= cutoff) & (idx <= today)]
+    idx = pd.DatetimeIndex(sorted(set(idx)))
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame({"day0": idx}).to_parquet(path, index=False)
+        # Also cache surprise table if present
+        sur_path = path.with_name(path.stem + "_table.parquet")
+        ed2 = ed.copy()
+        ed2.index = _ensure_naive(pd.DatetimeIndex(ed2.index)).normalize()
+        ed2.to_parquet(sur_path)
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("earnings cache write failed %s: %s", ticker, exc)
+    return idx
 
 
 def fetch_sec_filing_dates(

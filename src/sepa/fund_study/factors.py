@@ -231,23 +231,33 @@ def enrich_events_with_factors(
 
 
 def try_attach_surprises(panel: pd.DataFrame) -> pd.DataFrame:
-    """Best-effort EPS surprise from yfinance earnings_dates (if columns exist)."""
+    """Best-effort EPS surprise from cached/yfinance earnings_dates."""
     if panel.empty:
         return panel
-    work = panel.copy()
-    # Per ticker fetch once
-    for ticker, g in work.groupby("ticker"):
-        try:
-            import yfinance as yf
+    from sepa.fund_study.config import EARNINGS_CACHE_DIR
+    from sepa.fund_study.events import is_yahoo_rate_limited
 
-            ed = yf.Ticker(str(ticker)).get_earnings_dates(limit=40)
-        except Exception:  # noqa: BLE001
-            continue
+    work = panel.copy()
+    for ticker, g in work.groupby("ticker"):
+        ed = None
+        sur_path = Path(EARNINGS_CACHE_DIR) / f"{str(ticker).upper()}_table.parquet"
+        if sur_path.exists():
+            try:
+                ed = pd.read_parquet(sur_path)
+            except Exception:  # noqa: BLE001
+                ed = None
+        if ed is None:
+            if is_yahoo_rate_limited():
+                continue
+            try:
+                import yfinance as yf
+
+                ed = yf.Ticker(str(ticker)).get_earnings_dates(limit=40)
+            except Exception:  # noqa: BLE001
+                continue
         if ed is None or ed.empty:
             continue
-        # normalize columns
         cols = {c.lower().replace(" ", "_"): c for c in ed.columns}
-        # typical: EPS Estimate, Reported EPS, Surprise(%)
         est_c = cols.get("eps_estimate") or cols.get("estimate")
         act_c = cols.get("reported_eps") or cols.get("actual")
         sur_c = cols.get("surprise(%)") or cols.get("surprise%") or cols.get("surprise")
@@ -258,7 +268,6 @@ def try_attach_surprises(panel: pd.DataFrame) -> pd.DataFrame:
         ed.index = ed.index.normalize()
         for i in g.index:
             day0 = pd.Timestamp(work.at[i, "day0"]).normalize()
-            # nearest earnings row within 3 days
             if day0 in ed.index:
                 row = ed.loc[day0]
             else:
@@ -271,7 +280,8 @@ def try_attach_surprises(panel: pd.DataFrame) -> pd.DataFrame:
                 row = row.iloc[0]
             if sur_c and pd.notna(row.get(sur_c)):
                 try:
-                    work.at[i, "eps_surprise"] = float(row.get(sur_c)) / 100.0 if abs(float(row.get(sur_c))) > 2 else float(row.get(sur_c))
+                    val = float(row.get(sur_c))
+                    work.at[i, "eps_surprise"] = val / 100.0 if abs(val) > 2 else val
                 except Exception:  # noqa: BLE001
                     pass
             elif est_c and act_c and pd.notna(row.get(est_c)) and pd.notna(row.get(act_c)):

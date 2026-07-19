@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -76,6 +77,7 @@ def run_study(
     cik_map = fund_data.load_cik_map(fund_dir)
 
     event_rows = []
+    n_earn = n_sec = n_none = 0
     for i, t in enumerate(tickers, 1):
         if i % 25 == 0 or i == 1:
             print(f"  events {i}/{len(tickers)} ({t})")
@@ -89,6 +91,17 @@ def run_study(
         )
         if not ev.empty:
             event_rows.append(ev)
+            src = str(ev["day0_source"].iloc[0])
+            if src == "earnings":
+                n_earn += 1
+            elif src == "sec_filed":
+                n_sec += 1
+        else:
+            n_none += 1
+        # light pacing for Yahoo; SEC path is separate HTTP
+        if i % 10 == 0:
+            time.sleep(0.3)
+    print(f"day0 sources: earnings={n_earn} sec_filed={n_sec} none={n_none}")
     if not event_rows:
         print("[오류] 이벤트가 없습니다")
         return {"ok": False}
