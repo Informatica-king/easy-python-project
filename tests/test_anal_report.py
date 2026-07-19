@@ -9,7 +9,12 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
-from sepa.anal_report import build_anal_pack, collect_anal_chart_paths
+from sepa.anal_report import (
+    build_anal_pack,
+    collect_anal_chart_paths,
+    pdf_direct_download_url,
+    pdf_release_tag,
+)
 
 
 def _fake_png(path: Path, color: str = "C0") -> None:
@@ -43,3 +48,9 @@ def test_build_anal_pack(tmp_path: Path):
     assert len(pack["boards"]) >= 2
     for b in pack["boards"]:
         assert Path(b).exists() and Path(b).suffix == ".png"
+
+
+def test_pdf_direct_download_url():
+    assert pdf_release_tag("20260718") == "sepa-anal-20260718"
+    url = pdf_direct_download_url("Informatica-king/easy-python-project", "20260718")
+    assert url.endswith("/releases/download/sepa-anal-20260718/analyze_report_20260718.pdf")

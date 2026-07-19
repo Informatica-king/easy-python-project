@@ -245,6 +245,10 @@ def _tool_analyze(args: list, kwargs: dict) -> None:
         argv.append("--force-sector-week")
     if kwargs.get("force_sector_month") or kwargs.get("month"):
         argv.append("--force-sector-month")
+    if kwargs.get("skip_pdf"):
+        argv.append("--skip-pdf")
+    if kwargs.get("skip_github_release"):
+        argv.append("--skip-github-release")
     analyze.main(argv)
 
 

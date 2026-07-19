@@ -448,7 +448,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--skip-pdf",
         action="store_true",
-        help="Skip bundling all anal charts into one PDF",
+        help="Skip bundling all anal charts into one PDF/ZIP/PNG pack",
+    )
+    parser.add_argument(
+        "--skip-github-release",
+        action="store_true",
+        help="Skip uploading PDF to GitHub Release (no public download link)",
     )
     args = parser.parse_args(argv)
 
@@ -574,9 +579,13 @@ def main(argv: list[str] | None = None) -> int:
             logger.exception("sepaTop failed")
             print(f"[경고] sepaTop 실행 실패: {exc}")
 
-    # Mobile-first pack: ZIP + PNG boards (PDF kept for desktop; Android PDF often fails)
+    # Mobile-first pack: ZIP + PNG boards + PDF, then GitHub Release direct link
     if not args.skip_pdf:
-        from sepa.anal_report import build_anal_pack, collect_anal_chart_paths
+        from sepa.anal_report import (
+            build_anal_pack,
+            collect_anal_chart_paths,
+            publish_pdf_github_release,
+        )
 
         print("\n" + "=" * 64)
         print("  Analyze report pack — ZIP / PNG boards / PDF")
@@ -589,16 +598,25 @@ def main(argv: list[str] | None = None) -> int:
             if pack.get("ok"):
                 print(f"charts bundled: {pack['n_charts']}")
                 if pack.get("zip"):
-                    print(f"ZIP (Android 권장): {Path(pack['zip']).resolve()}")
+                    print(f"ZIP: {Path(pack['zip']).resolve()}")
                 if pack.get("boards"):
                     print(f"PNG boards: {len(pack['boards'])} pages")
-                    for b in pack["boards"][:3]:
-                        print(f"  {Path(b).resolve()}")
-                    if len(pack["boards"]) > 3:
-                        print(f"  ... +{len(pack['boards']) - 3} more")
                 if pack.get("pdf"):
-                    print(f"PDF (데스크톱): {Path(pack['pdf']).resolve()}")
-                print("  → Android: Artifacts에서 analyze_report_*.zip 또는 board*.png 다운로드")
+                    print(f"PDF: {Path(pack['pdf']).resolve()}")
+
+                if pack.get("pdf") and not args.skip_github_release:
+                    print("\n" + "=" * 64)
+                    print("  PDF 직접 다운로드 링크 (GitHub Release)")
+                    print("=" * 64)
+                    rel = publish_pdf_github_release(Path(pack["pdf"]), stamp=stamp)
+                    if rel.get("ok"):
+                        print(f"\n  PDF 직접 다운로드:\n  {rel['download_url']}\n")
+                        print(f"  릴리즈 페이지: {rel['release_url']}")
+                        pack["download_url"] = rel["download_url"]
+                        pack["release_url"] = rel["release_url"]
+                    else:
+                        print(f"[경고] GitHub Release 업로드 실패: {rel.get('error')}")
+                        print("  (로컬 PDF/ZIP은 생성됨 — --skip-github-release 로 생략 가능)")
             else:
                 print("[경고] 리포트에 넣을 차트가 없습니다.")
         except Exception as exc:  # noqa: BLE001

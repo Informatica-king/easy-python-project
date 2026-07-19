@@ -260,3 +260,140 @@ def build_anal_pack(
     boards = build_anal_png_boards(images, out_dir, stamp=stamp)
     result.update({"pdf": pdf, "zip": zpath, "boards": boards})
     return result
+
+
+def github_repo_slug() -> str | None:
+    """Return owner/repo from gh, or None."""
+    import json
+    import shutil
+    import subprocess
+
+    if shutil.which("gh") is None:
+        return None
+    try:
+        out = subprocess.check_output(
+            ["gh", "repo", "view", "--json", "nameWithOwner", "-q", ".nameWithOwner"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+            timeout=30,
+        ).strip()
+        return out or None
+    except Exception:  # noqa: BLE001
+        try:
+            raw = subprocess.check_output(
+                ["gh", "repo", "view", "--json", "nameWithOwner"],
+                text=True,
+                stderr=subprocess.DEVNULL,
+                timeout=30,
+            )
+            return json.loads(raw).get("nameWithOwner")
+        except Exception:  # noqa: BLE001
+            return None
+
+
+def pdf_release_tag(stamp: str) -> str:
+    return f"sepa-anal-{stamp}"
+
+
+def pdf_direct_download_url(repo: str, stamp: str, pdf_name: str | None = None) -> str:
+    name = pdf_name or f"analyze_report_{stamp}.pdf"
+    return f"https://github.com/{repo}/releases/download/{pdf_release_tag(stamp)}/{name}"
+
+
+def publish_pdf_github_release(
+    pdf_path: Path,
+    *,
+    stamp: str,
+    repo: str | None = None,
+) -> dict:
+    """Upload PDF to GitHub Release and return download URLs.
+
+    Creates tag ``sepa-anal-YYYYMMDD`` (or re-uploads asset with --clobber).
+    """
+    import shutil
+    import subprocess
+
+    pdf_path = Path(pdf_path)
+    if not pdf_path.exists():
+        return {"ok": False, "error": f"PDF missing: {pdf_path}"}
+    if shutil.which("gh") is None:
+        return {"ok": False, "error": "gh CLI not available"}
+
+    repo = repo or github_repo_slug()
+    if not repo:
+        return {"ok": False, "error": "cannot resolve GitHub repo slug"}
+
+    tag = pdf_release_tag(stamp)
+    title = f"SEPA Analyze Report {stamp}"
+    as_of = f"{stamp[:4]}-{stamp[4:6]}-{stamp[6:8]}" if len(stamp) == 8 else stamp
+    notes = (
+        f"SEPA `!sepa.anal` charts PDF ({as_of}).\n\n"
+        f"Direct download: {pdf_direct_download_url(repo, stamp, pdf_path.name)}\n"
+    )
+    asset_arg = f"{pdf_path}#{pdf_path.name}"
+
+    # Create release if missing; otherwise clobber-upload the PDF asset
+    view = subprocess.run(
+        ["gh", "release", "view", tag, "--repo", repo],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    if view.returncode != 0:
+        created = subprocess.run(
+            [
+                "gh", "release", "create", tag,
+                asset_arg,
+                "--repo", repo,
+                "--title", title,
+                "--notes", notes,
+                "--latest=false",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+        if created.returncode != 0:
+            return {
+                "ok": False,
+                "error": (created.stderr or created.stdout or "release create failed").strip(),
+                "repo": repo,
+                "tag": tag,
+            }
+    else:
+        uploaded = subprocess.run(
+            [
+                "gh", "release", "upload", tag,
+                asset_arg,
+                "--repo", repo,
+                "--clobber",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+        if uploaded.returncode != 0:
+            return {
+                "ok": False,
+                "error": (uploaded.stderr or uploaded.stdout or "release upload failed").strip(),
+                "repo": repo,
+                "tag": tag,
+            }
+        # refresh notes with latest link
+        subprocess.run(
+            ["gh", "release", "edit", tag, "--repo", repo, "--notes", notes],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+
+    download = pdf_direct_download_url(repo, stamp, pdf_path.name)
+    page = f"https://github.com/{repo}/releases/tag/{tag}"
+    return {
+        "ok": True,
+        "repo": repo,
+        "tag": tag,
+        "download_url": download,
+        "release_url": page,
+        "pdf_name": pdf_path.name,
+    }
