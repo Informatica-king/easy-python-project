@@ -11,6 +11,7 @@ import pandas as pd
 
 from sepa.config import load_params
 from sepa.data import fundamentals as fund_data
+from sepa.fund_study.backfill import run_price_backfill
 from sepa.fund_study.config import STUDY_YEARS, StudyPaths
 from sepa.fund_study.events import (
     apply_liquidity_filter,
@@ -166,9 +167,33 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--full", action="store_true", help="Run full universe (ignores --pilot)")
     p.add_argument("--refresh-universe", action="store_true")
     p.add_argument("--refresh-fundamentals", action="store_true")
+    p.add_argument(
+        "--backfill-prices",
+        action="store_true",
+        help="Backfill ~10y OHLCV for ADV>=$5M candidates, then exit (no study)",
+    )
+    p.add_argument("--backfill-years", type=int, default=STUDY_YEARS + 1, help="Lookback years for price backfill")
+    p.add_argument("--backfill-chunk", type=int, default=40, help="yfinance chunk size for backfill")
+    p.add_argument("--force-backfill", action="store_true", help="Re-download even if span already >=9.5y")
     args = p.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+    if args.backfill_prices:
+        params = load_params(args.config)
+        print("\n=== Price history backfill (fund study) ===")
+        summary = run_price_backfill(
+            cache_dir=params.data.cache_dir,
+            lookback_years=args.backfill_years,
+            chunk_size=args.backfill_chunk,
+            force=args.force_backfill,
+        )
+        # Partial failures (IPO/short history) are expected; hard-fail only on total collapse
+        if not summary.get("ok"):
+            return 1
+        if summary.get("requested", 0) > 0 and len(summary.get("ok_tickers", [])) == 0:
+            return 1
+        return 0
+
     pilot = None if args.full or args.pilot == 0 else args.pilot
     result = run_study(
         config=args.config,

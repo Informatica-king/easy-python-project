@@ -89,6 +89,10 @@
 ## 8. CLI
 
 ```bash
+# 1) 가격 10년 백필 먼저 (ADV>=$5M 후보, forward-only 캐시로는 불가)
+python -m sepa.fund_study --backfill-prices
+
+# 2) 연구 실행
 python -m sepa.fund_study --pilot 50          # 빠른 파일럿
 python -m sepa.fund_study --pilot 200
 python -m sepa.fund_study --full             # 유니버스 전체 (장시간)

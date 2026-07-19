@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+from unittest.mock import patch
+
 import pandas as pd
 import pytest
 
+from sepa.data import store
+from sepa.fund_study.backfill import history_span_years, partition_backfill_targets
 from sepa.fund_study.events import event_return_pair, trading_day_offset
 from sepa.fund_study.factors import delta_map, prior_quarter_frame, qoq_growth_map
 from sepa.fund_study.stats import choose_level_or_delta, main_factors_only, propose_weights
@@ -65,3 +70,57 @@ def test_choose_and_weights():
     assert w.loc[w["factor"] == "sales_yoy", "reverse_candidate"].iloc[0]
     assert w["weight"].sum() == pytest.approx(100.0)
     assert w.loc[w["factor"] == "sales_yoy", "weight"].iloc[0] == 0.0
+
+
+def test_partition_backfill_targets(tmp_path: Path):
+    short = pd.DataFrame(
+        {"open": 1.0, "high": 1.0, "low": 1.0, "close": 1.0, "volume": 1.0},
+        index=pd.bdate_range("2024-01-01", periods=50),
+    )
+    long = pd.DataFrame(
+        {"open": 1.0, "high": 1.0, "low": 1.0, "close": 1.0, "volume": 1.0},
+        index=pd.bdate_range("2015-01-01", periods=2600),
+    )
+    short.to_parquet(tmp_path / "AAA.parquet")
+    long.to_parquet(tmp_path / "BBB.parquet")
+    need, ok = partition_backfill_targets(
+        ["AAA", "BBB", "CCC"],
+        cache_dir=tmp_path,
+        min_span_years=9.5,
+    )
+    assert set(need) == {"AAA", "CCC"}
+    assert ok == ["BBB"]
+    assert history_span_years(tmp_path, "BBB") >= 9.5
+
+
+def test_backfill_history_merges_older_bars(tmp_path: Path):
+    # Existing short cache
+    old = pd.DataFrame(
+        {"open": 10.0, "high": 10.0, "low": 10.0, "close": 10.0, "volume": 100.0},
+        index=pd.bdate_range("2024-06-01", periods=5),
+    )
+    old.index.name = "date"
+    old.to_parquet(tmp_path / "TEST.parquet")
+
+    # Fake download returns longer history ending at same period
+    new = pd.DataFrame(
+        {"Open": 1.0, "High": 1.0, "Low": 1.0, "Close": 1.0, "Volume": 50.0},
+        index=pd.bdate_range("2016-01-01", periods=20),
+    )
+    # Make MultiIndex like yfinance group_by=ticker
+    new.columns = pd.MultiIndex.from_product([["TEST"], new.columns])
+
+    with patch("yfinance.download", return_value=new):
+        ok, failed = store.backfill_history(
+            ["TEST"],
+            tmp_path,
+            lookback_years=11,
+            chunk_size=10,
+            pause_sec=0,
+        )
+    assert ok == ["TEST"]
+    assert failed == []
+    df = pd.read_parquet(tmp_path / "TEST.parquet")
+    assert df.index.min() <= pd.Timestamp("2016-01-15")
+    assert history_span_years(tmp_path, "TEST") is not None
+
