@@ -445,6 +445,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Force month-vs-prior-month-end sector delta even if history < 28 days",
     )
+    parser.add_argument(
+        "--skip-pdf",
+        action="store_true",
+        help="Skip bundling all anal charts into one PDF",
+    )
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
@@ -516,7 +521,10 @@ def main(argv: list[str] | None = None) -> int:
     print(f"        {mcap_hist_path.resolve()}")
     print(f"report: {csv_path.resolve()}")
 
-    publish_many([bar_path, scatter_path, fund_hist_path, mcap_hist_path, csv_path])
+    core_charts = [bar_path, scatter_path, fund_hist_path, mcap_hist_path]
+    publish_many(core_charts + [csv_path])
+
+    all_chart_paths: list[Path] = list(core_charts)
 
     if not args.skip_sector_share:
         from sepa.sector_share import run_sector_share
@@ -525,7 +533,7 @@ def main(argv: list[str] | None = None) -> int:
         print("  Sector share time-series — auto from anal")
         print("=" * 64)
         try:
-            run_sector_share(
+            ss = run_sector_share(
                 report_dir=params.report_dir,
                 stamp=stamp,
                 current_df=enriched,
@@ -536,6 +544,8 @@ def main(argv: list[str] | None = None) -> int:
                 force_week=args.force_sector_week,
                 force_month=args.force_sector_month,
             )
+            if ss.get("ok") and ss.get("charts"):
+                all_chart_paths.extend(ss["charts"])
         except Exception as exc:  # noqa: BLE001
             logger.exception("sector share failed")
             print(f"[경고] 섹터 점유율 시계열 실행 실패: {exc}")
@@ -548,16 +558,43 @@ def main(argv: list[str] | None = None) -> int:
         print("  sepaTop (cap-weighted) — auto from anal")
         print("=" * 64)
         try:
-            run_from_fundamental_df(
+            top = run_from_fundamental_df(
                 enriched,
                 params=params,
                 stamp=stamp,
                 as_of=as_of,
                 lookback_days=args.sepatop_days,
             )
+            if top.get("ok"):
+                for key in ("chart", "relative_chart"):
+                    p = top.get(key)
+                    if p:
+                        all_chart_paths.append(Path(p))
         except Exception as exc:  # noqa: BLE001
             logger.exception("sepaTop failed")
             print(f"[경고] sepaTop 실행 실패: {exc}")
+
+    # One PDF with every anal visualization (mobile-friendly Artifacts download)
+    if not args.skip_pdf:
+        from sepa.anal_report import build_anal_pdf, collect_anal_chart_paths
+
+        print("\n" + "=" * 64)
+        print("  Analyze PDF pack — all charts")
+        print("=" * 64)
+        try:
+            ordered = collect_anal_chart_paths(
+                chart_dir=chart_dir, stamp=stamp, extra=all_chart_paths
+            )
+            pdf_path = Path(params.report_dir) / "charts" / f"analyze_report_{stamp}.pdf"
+            out = build_anal_pdf(ordered, pdf_path, stamp=stamp)
+            if out is not None:
+                print(f"PDF: {out.resolve()}  ({len(ordered)} charts)")
+                print("  → Artifacts에서 analyze_report_*.pdf 다운로드 (Android 지원)")
+            else:
+                print("[경고] PDF에 넣을 차트가 없습니다.")
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("anal PDF failed")
+            print(f"[경고] Analyze PDF 생성 실패: {exc}")
 
     return 0
 

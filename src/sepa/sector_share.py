@@ -516,13 +516,14 @@ def _sector_colors(labels: list[str]) -> dict[str, tuple]:
     return colors
 
 
-def plot_stacked_share(
+def plot_share_lines(
     wide: pd.DataFrame,
     out_path: Path,
     *,
     title: str,
-    ylabel: str = "점유율",
+    ylabel: str = "점유율 (%)",
 ) -> Path:
+    """Multi-line sector share time series (one line per sector)."""
     _setup_korean_font()
     if wide.empty:
         fig, ax = plt.subplots(figsize=(10, 4))
@@ -535,37 +536,45 @@ def plot_stacked_share(
     fig_w = max(9.0, 0.55 * len(wide) + 6.0)
     fig, ax = plt.subplots(figsize=(fig_w, 5.8))
     colors = _sector_colors(list(wide.columns))
-    x = np.arange(len(wide.index))
-    # Prefer area when many dates; stacked bar when few (≤7)
-    use_bar = len(wide) <= 7
-    if use_bar:
-        bottom = np.zeros(len(wide))
-        for col in wide.columns:
-            vals = wide[col].to_numpy(dtype=float)
-            ax.bar(x, vals, bottom=bottom, label=col, color=colors.get(col), width=0.72, edgecolor="white", lw=0.4)
-            bottom = bottom + vals
-        ax.set_xticks(x)
-        ax.set_xticklabels(list(wide.index), rotation=30, ha="right")
-    else:
-        ax.stackplot(
-            wide.index.astype(str),
-            *[wide[c].to_numpy(dtype=float) for c in wide.columns],
-            labels=list(wide.columns),
-            colors=[colors.get(c) for c in wide.columns],
+    x_labels = [str(d) for d in wide.index]
+    x = np.arange(len(x_labels))
+    for col in wide.columns:
+        vals = wide[col].to_numpy(dtype=float) * 100.0
+        ax.plot(
+            x,
+            vals,
+            label=col,
+            color=colors.get(col),
+            marker="o",
+            markersize=4.5,
+            lw=1.8,
             alpha=0.92,
         )
-        ax.tick_params(axis="x", rotation=30)
-    ax.set_ylim(0, 1.02)
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v * 100:.0f}%"))
+    ax.set_xticks(x)
+    ax.set_xticklabels(x_labels, rotation=30, ha="right")
+    ymax = float(np.nanmax(wide.to_numpy(dtype=float))) * 100.0 if len(wide) else 0.0
+    ax.set_ylim(0, max(ymax * 1.15, 10.0))
     ax.set_ylabel(ylabel)
     ax.set_title(title)
-    ax.grid(axis="y", alpha=0.3)
+    ax.grid(True, alpha=0.3)
     ax.legend(loc="center left", bbox_to_anchor=(1.01, 0.5), fontsize=7, frameon=False)
     fig.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return out_path
+
+
+# Backward-compatible alias (old stacked bar/area → line chart)
+def plot_stacked_share(
+    wide: pd.DataFrame,
+    out_path: Path,
+    *,
+    title: str,
+    ylabel: str = "점유율",
+) -> Path:
+    y = ylabel if "%" in ylabel else f"{ylabel} (%)"
+    return plot_share_lines(wide, out_path, title=title, ylabel=y)
 
 
 def plot_delta_bars(
@@ -687,6 +696,141 @@ def print_share_tables(
             print(f"  {r['primary_tag']:<14} {int(r['n']):4d}  {r['share_n'] * 100:5.1f}%")
 
 
+def _render_universe_charts(
+    panel: pd.DataFrame,
+    *,
+    chart_dir: Path,
+    out_dir: Path,
+    stamp: str,
+    tag: str,
+    label: str,
+    period: str,
+    top_n: int,
+    baselines: dict,
+) -> tuple[list[Path], list[Path], pd.DataFrame, pd.DataFrame]:
+    """Render identical chart suite for one universe (all or fundhi).
+
+    Returns (charts, csvs, week_deltas, month_deltas).
+    """
+    charts: list[Path] = []
+    csvs: list[Path] = []
+    week_deltas = pd.DataFrame()
+    month_deltas = pd.DataFrame()
+    if panel.empty:
+        return charts, csvs, week_deltas, month_deltas
+
+    dates = sorted(panel["date"].unique())
+    as_of = dates[-1]
+    deltas = compute_deltas(panel, value_col="share_n")
+    wide_n = pivot_share(panel, "share_n", top_n=top_n)
+    wide_m = pivot_share(panel.dropna(subset=["share_mcap"]), "share_mcap", top_n=top_n)
+
+    p_lines_n = chart_dir / f"sector_share_lines_n_{tag}_{stamp}.png"
+    p_lines_m = chart_dir / f"sector_share_lines_mcap_{tag}_{stamp}.png"
+    p_delta_first = chart_dir / f"sector_share_delta_first_{tag}_{stamp}.png"
+    p_delta_prev = chart_dir / f"sector_share_delta_prev_{tag}_{stamp}.png"
+    p_heat = chart_dir / f"sector_share_heatmap_{tag}_{stamp}.png"
+
+    plot_share_lines(
+        wide_n, p_lines_n,
+        title=f"{label} 섹터 점유율 (종목 수)  {period}",
+        ylabel="종목 수 점유율 (%)",
+    )
+    plot_share_lines(
+        wide_m, p_lines_m,
+        title=f"{label} 섹터 점유율 (시총가중)  {period}",
+        ylabel="시총 점유율 (%)",
+    )
+    plot_delta_bars(
+        deltas, p_delta_first,
+        title=f"{label} Δ vs 최초 ({dates[0]} → {as_of})",
+        value_col="delta_vs_first_pp",
+    )
+    plot_delta_bars(
+        deltas, p_delta_prev,
+        title=f"{label} Δ vs 전일 ({dates[-2] if len(dates) > 1 else 'n/a'} → {as_of})",
+        value_col="delta_vs_prev_pp",
+    )
+    plot_share_heatmap(
+        wide_n, p_heat,
+        title=f"{label} 섹터 점유율 히트맵 (종목 수 %)  {period}",
+    )
+    charts.extend([p_lines_n, p_lines_m, p_delta_first, p_delta_prev, p_heat])
+
+    week_info = baselines.get("week")
+    month_info = baselines.get("month")
+
+    if week_info and week_info.get("show") and week_info.get("snapshot") in dates:
+        week_deltas = compute_delta_vs_baseline(
+            panel,
+            baseline_date=week_info["snapshot"],
+            as_of=as_of,
+            value_col="share_n",
+            baseline_label="week",
+        )
+        p_week = chart_dir / f"sector_share_vs_week_{tag}_{stamp}.png"
+        plot_period_compare(
+            panel,
+            baseline_date=week_info["snapshot"],
+            as_of=as_of,
+            out_path=p_week,
+            title=(
+                f"{label} 주간 섹터 변화 vs 지난주 금요일 "
+                f"({week_info['snapshot']} → {as_of})"
+            ),
+        )
+        week_csv = out_dir / f"sector_share_vs_week_{tag}_{stamp}.csv"
+        week_deltas.to_csv(week_csv, index=False)
+        charts.append(p_week)
+        csvs.append(week_csv)
+        p_week_m = chart_dir / f"sector_share_vs_week_mcap_{tag}_{stamp}.png"
+        plot_period_compare(
+            panel,
+            baseline_date=week_info["snapshot"],
+            as_of=as_of,
+            out_path=p_week_m,
+            title=f"{label} 주간 섹터 변화 (시총가중)  {week_info['snapshot']} → {as_of}",
+            value_col="share_mcap",
+        )
+        charts.append(p_week_m)
+
+    if month_info and month_info.get("show") and month_info.get("snapshot") in dates:
+        month_deltas = compute_delta_vs_baseline(
+            panel,
+            baseline_date=month_info["snapshot"],
+            as_of=as_of,
+            value_col="share_n",
+            baseline_label="month",
+        )
+        p_month = chart_dir / f"sector_share_vs_month_{tag}_{stamp}.png"
+        plot_period_compare(
+            panel,
+            baseline_date=month_info["snapshot"],
+            as_of=as_of,
+            out_path=p_month,
+            title=(
+                f"{label} 월간 섹터 변화 vs 전월 말 "
+                f"({month_info['snapshot']} → {as_of})"
+            ),
+        )
+        month_csv = out_dir / f"sector_share_vs_month_{tag}_{stamp}.csv"
+        month_deltas.to_csv(month_csv, index=False)
+        charts.append(p_month)
+        csvs.append(month_csv)
+        p_month_m = chart_dir / f"sector_share_vs_month_mcap_{tag}_{stamp}.png"
+        plot_period_compare(
+            panel,
+            baseline_date=month_info["snapshot"],
+            as_of=as_of,
+            out_path=p_month_m,
+            title=f"{label} 월간 섹터 변화 (시총가중)  {month_info['snapshot']} → {as_of}",
+            value_col="share_mcap",
+        )
+        charts.append(p_month_m)
+
+    return charts, csvs, week_deltas, month_deltas
+
+
 def run_sector_share(
     *,
     report_dir: str | Path,
@@ -735,151 +879,69 @@ def run_sector_share(
     deltas = compute_deltas(panel, value_col="share_n")
     deltas_mcap = compute_deltas(panel.dropna(subset=["share_mcap"]), value_col="share_mcap")
     flows = membership_flow_by_sector(dated)
+    dated_hi = [
+        (s, d[d["fund_score"].astype(float) >= fund_high].copy())
+        for s, d in dated
+        if "fund_score" in d.columns
+    ]
+    dated_hi = [(s, d) for s, d in dated_hi if not d.empty]
+    flows_hi = membership_flow_by_sector(dated_hi) if dated_hi else pd.DataFrame()
 
-    wide_n = pivot_share(panel, "share_n", top_n=top_n)
-    wide_m = pivot_share(panel.dropna(subset=["share_mcap"]), "share_mcap", top_n=top_n)
-    wide_n_counts = absolute_counts_wide(panel, top_n=top_n)
-    wide_hi = pivot_share(panel_hi, "share_n", top_n=top_n)
-
-    dates = sorted(panel["date"].unique())
-    period = f"{dates[0]} → {dates[-1]} ({len(dates)}일)"
+    dates = sorted(panel["date"].unique()) if not panel.empty else []
+    period = f"{dates[0]} → {dates[-1]} ({len(dates)}일)" if dates else ""
     baselines = resolve_period_baselines(
         dates, force_week=force_week, force_month=force_month
     )
 
-    chart_stack_n = chart_dir / f"sector_share_stack_n_{stamp}.png"
-    chart_stack_m = chart_dir / f"sector_share_stack_mcap_{stamp}.png"
-    chart_delta_first = chart_dir / f"sector_share_delta_first_{stamp}.png"
-    chart_delta_prev = chart_dir / f"sector_share_delta_prev_{stamp}.png"
-    chart_heat = chart_dir / f"sector_share_heatmap_{stamp}.png"
-    chart_stack_hi = chart_dir / f"sector_share_stack_fundhi_{stamp}.png"
+    charts_all, csvs_all, week_deltas, month_deltas = _render_universe_charts(
+        panel,
+        chart_dir=chart_dir,
+        out_dir=out_dir,
+        stamp=stamp,
+        tag="all",
+        label="Fund 전체 군집",
+        period=period,
+        top_n=top_n,
+        baselines=baselines,
+    )
+    charts_hi, csvs_hi, week_hi, month_hi = _render_universe_charts(
+        panel_hi,
+        chart_dir=chart_dir,
+        out_dir=out_dir,
+        stamp=stamp,
+        tag="fundhi",
+        label=f"Fund≥{fund_high:.0f} 핵심 군집",
+        period=period,
+        top_n=top_n,
+        baselines=baselines,
+    )
+    charts = charts_all + charts_hi
+    extra_csvs = csvs_all + csvs_hi
 
-    plot_stacked_share(
-        wide_n, chart_stack_n,
-        title=f"Fund 군집 섹터 점유율 (종목 수)  {period}",
-        ylabel="종목 수 점유율",
-    )
-    plot_stacked_share(
-        wide_m, chart_stack_m,
-        title=f"Fund 군집 섹터 점유율 (시총가중)  {period}",
-        ylabel="시총 점유율",
-    )
-    plot_delta_bars(
-        deltas, chart_delta_first,
-        title=f"섹터 점유율 Δ vs 최초 ({dates[0]} → {dates[-1]})",
-        value_col="delta_vs_first_pp",
-    )
-    plot_delta_bars(
-        deltas, chart_delta_prev,
-        title=f"섹터 점유율 Δ vs 전일 ({dates[-2] if len(dates) > 1 else 'n/a'} → {dates[-1]})",
-        value_col="delta_vs_prev_pp",
-    )
-    plot_share_heatmap(
-        wide_n, chart_heat,
-        title=f"섹터 점유율 히트맵 (종목 수 %)  {period}",
-    )
-    plot_stacked_share(
-        wide_hi, chart_stack_hi,
-        title=f"Fund≥{fund_high:.0f} 서브군집 섹터 점유율 (종목 수)  {period}",
-        ylabel="종목 수 점유율",
-    )
-
-    charts = [
-        chart_stack_n, chart_stack_m, chart_delta_first, chart_delta_prev,
-        chart_heat, chart_stack_hi,
-    ]
-    extra_csvs: list[Path] = []
-    week_deltas = pd.DataFrame()
-    month_deltas = pd.DataFrame()
-
-    week_info = baselines["week"]
-    month_info = baselines["month"]
-    as_of = baselines["as_of"]
-
-    if week_info and week_info["show"]:
-        week_deltas = compute_delta_vs_baseline(
-            panel,
-            baseline_date=week_info["snapshot"],
-            as_of=as_of,
-            value_col="share_n",
-            baseline_label="week",
+    # Latest-day composition gap: all vs fundhi
+    if dates and not panel.empty and not panel_hi.empty:
+        last = dates[-1]
+        a = panel[panel["date"] == last][["primary_tag", "share_n", "share_mcap"]].rename(
+            columns={"share_n": "share_n_all", "share_mcap": "share_mcap_all"}
         )
-        chart_week = chart_dir / f"sector_share_vs_week_{stamp}.png"
-        plot_period_compare(
-            panel,
-            baseline_date=week_info["snapshot"],
-            as_of=as_of,
-            out_path=chart_week,
-            title=(
-                f"주간 섹터 변화 vs 지난주 금요일 "
-                f"(목표 {week_info['target']} → 스냅샷 {week_info['snapshot']} → {as_of})"
-            ),
+        h = panel_hi[panel_hi["date"] == last][["primary_tag", "share_n", "share_mcap"]].rename(
+            columns={"share_n": "share_n_hi", "share_mcap": "share_mcap_hi"}
         )
-        week_csv = out_dir / f"sector_share_vs_week_{stamp}.csv"
-        week_deltas.to_csv(week_csv, index=False)
-        charts.append(chart_week)
-        extra_csvs.append(week_csv)
-        # mcap week
-        week_mcap = compute_delta_vs_baseline(
-            panel.dropna(subset=["share_mcap"]),
-            baseline_date=week_info["snapshot"],
-            as_of=as_of,
-            value_col="share_mcap",
-            baseline_label="week",
+        gap = a.merge(h, on="primary_tag", how="outer").fillna(0.0)
+        gap["delta_n_pp"] = (gap["share_n_hi"] - gap["share_n_all"]) * 100.0
+        gap["delta_mcap_pp"] = (gap["share_mcap_hi"] - gap["share_mcap_all"]) * 100.0
+        gap = gap.sort_values("delta_n_pp", ascending=False)
+        gap_path = out_dir / f"sector_share_all_vs_fundhi_{stamp}.csv"
+        gap.to_csv(gap_path, index=False)
+        extra_csvs.append(gap_path)
+        gap_chart = chart_dir / f"sector_share_all_vs_fundhi_{stamp}.png"
+        plot_delta_bars(
+            gap.rename(columns={"delta_n_pp": "delta_vs_first_pp"}),
+            gap_chart,
+            title=f"핵심 vs 전체 섹터 비중 차이 (Fund≥{fund_high:.0f} − 전체, %p)  {last}",
+            value_col="delta_vs_first_pp",
         )
-        if not week_mcap.empty:
-            chart_week_m = chart_dir / f"sector_share_vs_week_mcap_{stamp}.png"
-            plot_period_compare(
-                panel,
-                baseline_date=week_info["snapshot"],
-                as_of=as_of,
-                out_path=chart_week_m,
-                title=f"주간 섹터 변화 (시총가중)  {week_info['snapshot']} → {as_of}",
-                value_col="share_mcap",
-            )
-            charts.append(chart_week_m)
-
-    if month_info and month_info["show"]:
-        month_deltas = compute_delta_vs_baseline(
-            panel,
-            baseline_date=month_info["snapshot"],
-            as_of=as_of,
-            value_col="share_n",
-            baseline_label="month",
-        )
-        chart_month = chart_dir / f"sector_share_vs_month_{stamp}.png"
-        plot_period_compare(
-            panel,
-            baseline_date=month_info["snapshot"],
-            as_of=as_of,
-            out_path=chart_month,
-            title=(
-                f"월간 섹터 변화 vs 전월 말 "
-                f"(목표 {month_info['target']} → 스냅샷 {month_info['snapshot']} → {as_of})"
-            ),
-        )
-        month_csv = out_dir / f"sector_share_vs_month_{stamp}.csv"
-        month_deltas.to_csv(month_csv, index=False)
-        charts.append(chart_month)
-        extra_csvs.append(month_csv)
-        month_mcap = compute_delta_vs_baseline(
-            panel.dropna(subset=["share_mcap"]),
-            baseline_date=month_info["snapshot"],
-            as_of=as_of,
-            value_col="share_mcap",
-            baseline_label="month",
-        )
-        if not month_mcap.empty:
-            chart_month_m = chart_dir / f"sector_share_vs_month_mcap_{stamp}.png"
-            plot_period_compare(
-                panel,
-                baseline_date=month_info["snapshot"],
-                as_of=as_of,
-                out_path=chart_month_m,
-                title=f"월간 섹터 변화 (시총가중)  {month_info['snapshot']} → {as_of}",
-                value_col="share_mcap",
-            )
-            charts.append(chart_month_m)
+        charts.append(gap_chart)
 
     panel_path = out_dir / f"sector_share_panel_{stamp}.csv"
     hi_path = out_dir / f"sector_share_fundhi_{stamp}.csv"
@@ -902,6 +964,8 @@ def run_sector_share(
         delta_out = delta_out.merge(dm, on="primary_tag", how="outer")
     delta_out.to_csv(delta_path, index=False)
     flows.to_csv(flow_path, index=False)
+    if not flows_hi.empty:
+        flows_hi.to_csv(out_dir / f"sector_share_flow_fundhi_{stamp}.csv", index=False)
 
     if history_path.exists():
         old = pd.read_csv(history_path)
@@ -914,7 +978,10 @@ def run_sector_share(
 
     print_share_tables(panel, deltas, flows, panel_hi, fund_high=fund_high)
 
-    print("\n  ◆ 주/월 기준 섹터 변화")
+    week_info = baselines.get("week")
+    month_info = baselines.get("month")
+    as_of = baselines.get("as_of")
+    print("\n  ◆ 주/월 기준 섹터 변화 (전체 군집)")
     if week_info:
         week_info = {**week_info, "as_of": as_of}
         print_period_section("주간 vs 지난주 금요일", week_info, week_deltas if week_info["show"] else None)
@@ -922,10 +989,14 @@ def run_sector_share(
         month_info = {**month_info, "as_of": as_of}
         print_period_section("월간 vs 전월 말", month_info, month_deltas if month_info["show"] else None)
 
-    if not wide_n_counts.empty:
-        print("\n  ◆ 섹터별 절대 종목 수 (최근일)")
+    if dates:
         last_counts = panel[panel["date"] == dates[-1]].sort_values("n", ascending=False)
+        print("\n  ◆ 섹터별 절대 종목 수 (전체, 최근일)")
         print("   " + ", ".join(f"{r.primary_tag}={int(r.n)}" for _, r in last_counts.iterrows()))
+        if not panel_hi.empty:
+            hi_counts = panel_hi[panel_hi["date"] == dates[-1]].sort_values("n", ascending=False)
+            print(f"\n  ◆ 섹터별 절대 종목 수 (Fund≥{fund_high:.0f}, 최근일)")
+            print("   " + ", ".join(f"{r.primary_tag}={int(r.n)}" for _, r in hi_counts.iterrows()))
 
     print("\n섹터 점유율 charts:")
     for p in charts:

@@ -168,4 +168,7 @@ def test_run_sector_share_week_chart_when_eligible(tmp_path: Path):
     assert result["week"]["show"] is True
     week_charts = [p for p in result["charts"] if "vs_week" in Path(p).name]
     assert week_charts
+    line_all = [p for p in result["charts"] if "lines_n_all" in Path(p).name]
+    line_hi = [p for p in result["charts"] if "lines_n_fundhi" in Path(p).name]
+    assert line_all and line_hi
     assert result["month"]["show"] is False
