@@ -426,7 +426,7 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.analyze",
         '!sepa.anal()  |  !sepa.anal("reports/fundamental_20260716.csv")  |  !sepa.analyze()',
-        "섹터/테마·Fund·시가총액 분포 + RS×Fund 산점도 + 섹터점유율 시계열(+주/월 자동) + sepaTop",
+        "섹터/테마·Fund·시가총액 + RS×Fund + 섹터점유율(전체/Fund≥40 꺾은선) + sepaTop + PDF 묶음",
         _tool_analyze,
         aliases=("analyze", "sepa.anal", "anal"),
     ),
