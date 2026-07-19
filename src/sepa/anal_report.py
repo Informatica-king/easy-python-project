@@ -1,11 +1,14 @@
-"""Bundle SEPA analyze charts into a single downloadable PDF.
+"""Bundle SEPA analyze charts for download — PDF + Android-friendly ZIP/PNG.
 
-Designed for mobile (Android) one-tap download via Cursor Artifacts.
+Android Cursor app often cannot download PDF artifacts, so we also publish:
+  - analyze_report_YYYYMMDD.zip  (all chart PNGs)
+  - analyze_report_YYYYMMDD_boardNN.png  (2 charts per page, inline-viewable)
 """
 
 from __future__ import annotations
 
 import logging
+import zipfile
 from pathlib import Path
 
 import matplotlib
@@ -14,10 +17,13 @@ matplotlib.use("Agg")
 import matplotlib.image as mpimg  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.backends.backend_pdf import PdfPages  # noqa: E402
+from PIL import Image  # noqa: E402
 
-from sepa.artifacts import publish
+from sepa.artifacts import publish, publish_many
 
 logger = logging.getLogger(__name__)
+
+BOARD_CHARTS_PER_PAGE = 2
 
 
 def _cover_page(pdf: PdfPages, *, title: str, subtitle: str, n_pages: int) -> None:
@@ -31,7 +37,7 @@ def _cover_page(pdf: PdfPages, *, title: str, subtitle: str, n_pages: int) -> No
     )
     fig.text(
         0.5, 0.28,
-        "SEPA Analyze report — downloadable on mobile",
+        "Android: use .zip or board*.png artifacts (PDF may not download)",
         ha="center", va="center", fontsize=10, color="#888",
     )
     pdf.savefig(fig)
@@ -45,7 +51,6 @@ def _image_page(pdf: PdfPages, image_path: Path) -> bool:
         logger.warning("skip image %s: %s", image_path, exc)
         return False
     h, w = img.shape[:2]
-    # Fit on landscape letter-ish page
     page_w, page_h = 11.0, 8.5
     aspect = w / max(h, 1)
     if aspect >= page_w / page_h:
@@ -97,13 +102,11 @@ def collect_anal_chart_paths(
         f"sepatop_{stamp}.png",
         f"sepatop_relative_{stamp}.png",
     ]
-    # sepatop charts live under reports/sepatop/charts
     ordered: list[Path] = []
     seen: set[str] = set()
     for name in patterns:
         p = chart_dir / name
         if not p.exists():
-            # try sepatop subdir relative to chart_dir parent
             alt = chart_dir.parent / "sepatop" / "charts" / name
             p = alt if alt.exists() else p
         if p.exists() and str(p.resolve()) not in seen:
@@ -145,3 +148,115 @@ def build_anal_pdf(
     if published is not None:
         logger.info("anal PDF published: %s", published)
     return out_path
+
+
+def build_anal_zip(
+    image_paths: list[Path],
+    out_path: Path,
+) -> Path | None:
+    """Zip all chart PNGs for Android/desktop download."""
+    images = [Path(p) for p in image_paths if Path(p).exists()]
+    if not images:
+        return None
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(out_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        for i, img in enumerate(images, start=1):
+            zf.write(img, arcname=f"{i:02d}_{img.name}")
+    publish(out_path)
+    logger.info("anal ZIP published: %s (%d files)", out_path, len(images))
+    return out_path
+
+
+def _fit_width(img: Image.Image, width: int) -> Image.Image:
+    if img.width == width:
+        return img.convert("RGB")
+    ratio = width / img.width
+    h = max(1, int(img.height * ratio))
+    return img.convert("RGB").resize((width, h), Image.Resampling.LANCZOS)
+
+
+def build_anal_png_boards(
+    image_paths: list[Path],
+    out_dir: Path,
+    *,
+    stamp: str,
+    charts_per_page: int = BOARD_CHARTS_PER_PAGE,
+    page_width: int = 1400,
+) -> list[Path]:
+    """Stack charts into vertical PNG boards (Android-viewable Artifacts)."""
+    images = [Path(p) for p in image_paths if Path(p).exists()]
+    if not images:
+        return []
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    boards: list[Path] = []
+    # cover board
+    cover = Image.new("RGB", (page_width, 480), (250, 250, 248))
+    # simple cover via matplotlib → temp then paste is heavy; use PIL text-less cover
+    from PIL import ImageDraw, ImageFont
+
+    draw = ImageDraw.Draw(cover)
+    try:
+        font_lg = ImageFont.truetype("/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf", 42)
+        font_sm = ImageFont.truetype("/usr/share/fonts/truetype/nanum/NanumGothic.ttf", 24)
+    except Exception:  # noqa: BLE001
+        font_lg = ImageFont.load_default()
+        font_sm = font_lg
+    title = f"SEPA Analyze Report  {stamp}"
+    draw.text((page_width // 2, 180), title, fill=(30, 30, 30), font=font_lg, anchor="mm")
+    draw.text(
+        (page_width // 2, 260),
+        f"{len(images)} charts  ·  Android PNG board pack",
+        fill=(90, 90, 90),
+        font=font_sm,
+        anchor="mm",
+    )
+    cover_path = out_dir / f"analyze_report_{stamp}_board00_cover.png"
+    cover.save(cover_path, optimize=True)
+    boards.append(cover_path)
+
+    chunks = [
+        images[i : i + charts_per_page]
+        for i in range(0, len(images), charts_per_page)
+    ]
+    for bi, chunk in enumerate(chunks, start=1):
+        fitted = [_fit_width(Image.open(p), page_width - 40) for p in chunk]
+        gap = 24
+        label_h = 36
+        total_h = sum(im.height + label_h + gap for im in fitted) + 40
+        canvas = Image.new("RGB", (page_width, total_h), (255, 255, 255))
+        draw = ImageDraw.Draw(canvas)
+        y = 20
+        for src, im in zip(chunk, fitted):
+            draw.text((20, y), src.name, fill=(80, 80, 80), font=font_sm)
+            y += label_h
+            canvas.paste(im, (20, y))
+            y += im.height + gap
+        out = out_dir / f"analyze_report_{stamp}_board{bi:02d}.png"
+        canvas.save(out, optimize=True)
+        boards.append(out)
+
+    publish_many(boards)
+    return boards
+
+
+def build_anal_pack(
+    image_paths: list[Path],
+    *,
+    stamp: str,
+    out_dir: Path,
+) -> dict:
+    """Build PDF + ZIP + PNG boards. Returns paths dict."""
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    images = [Path(p) for p in image_paths if Path(p).exists()]
+    result: dict = {"ok": bool(images), "n_charts": len(images)}
+    if not images:
+        return result
+
+    pdf = build_anal_pdf(images, out_dir / f"analyze_report_{stamp}.pdf", stamp=stamp)
+    zpath = build_anal_zip(images, out_dir / f"analyze_report_{stamp}.zip")
+    boards = build_anal_png_boards(images, out_dir, stamp=stamp)
+    result.update({"pdf": pdf, "zip": zpath, "boards": boards})
+    return result

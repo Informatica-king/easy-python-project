@@ -574,27 +574,36 @@ def main(argv: list[str] | None = None) -> int:
             logger.exception("sepaTop failed")
             print(f"[경고] sepaTop 실행 실패: {exc}")
 
-    # One PDF with every anal visualization (mobile-friendly Artifacts download)
+    # Mobile-first pack: ZIP + PNG boards (PDF kept for desktop; Android PDF often fails)
     if not args.skip_pdf:
-        from sepa.anal_report import build_anal_pdf, collect_anal_chart_paths
+        from sepa.anal_report import build_anal_pack, collect_anal_chart_paths
 
         print("\n" + "=" * 64)
-        print("  Analyze PDF pack — all charts")
+        print("  Analyze report pack — ZIP / PNG boards / PDF")
         print("=" * 64)
         try:
             ordered = collect_anal_chart_paths(
                 chart_dir=chart_dir, stamp=stamp, extra=all_chart_paths
             )
-            pdf_path = Path(params.report_dir) / "charts" / f"analyze_report_{stamp}.pdf"
-            out = build_anal_pdf(ordered, pdf_path, stamp=stamp)
-            if out is not None:
-                print(f"PDF: {out.resolve()}  ({len(ordered)} charts)")
-                print("  → Artifacts에서 analyze_report_*.pdf 다운로드 (Android 지원)")
+            pack = build_anal_pack(ordered, stamp=stamp, out_dir=chart_dir)
+            if pack.get("ok"):
+                print(f"charts bundled: {pack['n_charts']}")
+                if pack.get("zip"):
+                    print(f"ZIP (Android 권장): {Path(pack['zip']).resolve()}")
+                if pack.get("boards"):
+                    print(f"PNG boards: {len(pack['boards'])} pages")
+                    for b in pack["boards"][:3]:
+                        print(f"  {Path(b).resolve()}")
+                    if len(pack["boards"]) > 3:
+                        print(f"  ... +{len(pack['boards']) - 3} more")
+                if pack.get("pdf"):
+                    print(f"PDF (데스크톱): {Path(pack['pdf']).resolve()}")
+                print("  → Android: Artifacts에서 analyze_report_*.zip 또는 board*.png 다운로드")
             else:
-                print("[경고] PDF에 넣을 차트가 없습니다.")
+                print("[경고] 리포트에 넣을 차트가 없습니다.")
         except Exception as exc:  # noqa: BLE001
-            logger.exception("anal PDF failed")
-            print(f"[경고] Analyze PDF 생성 실패: {exc}")
+            logger.exception("anal report pack failed")
+            print(f"[경고] Analyze 리포트 생성 실패: {exc}")
 
     return 0
 
