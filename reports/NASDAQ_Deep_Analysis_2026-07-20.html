@@ -1,0 +1,1167 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"/>
+<title>심층분석 2026-07-20</title>
+<style>
+@font-face{font-family:N;src:url('file:///tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothic.ttf');font-weight:400}
+@font-face{font-family:N;src:url('file:///tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf');font-weight:700}
+@page{size:A4;margin:14mm 12mm;@bottom-center{content:counter(page);font-family:N;font-size:8pt;color:#666}}
+body{font-family:N,sans-serif;font-size:9.5pt;line-height:1.4;color:#1a1a1a}
+h1{font-size:18pt;color:#142846;text-align:center}
+h2{font-size:13pt;color:#19375f;page-break-after:avoid;margin:0 0 4pt}
+h3{font-size:10pt;background:#e6eef8;color:#14325a;padding:3pt 6pt;margin:6pt 0 3pt;page-break-after:avoid}
+.cover{text-align:center;padding-top:28mm;page-break-after:always}
+.ticker{page-break-before:always}
+.price{font-size:8.5pt;color:#333;margin:0 0 4pt}
+table.kv,table.data{width:100%;border-collapse:collapse;margin:3pt 0 6pt;font-size:8.5pt}
+table.data th{background:#1e3c64;color:#fff;padding:3pt;border:1px solid #1e3c64}
+table.data td{border:1px solid #c5d0de;padding:3pt;text-align:center}
+table.data tr:nth-child(even) td{background:#f0f5fa}
+table.kv th{width:20%;text-align:left;background:#f3f6fa;border:1px solid #d0dae6;padding:3pt 5pt;vertical-align:top}
+table.kv td{border:1px solid #d0dae6;padding:3pt 5pt;vertical-align:top}
+.meta{margin:3pt 0;color:#333}
+</style></head><body>
+<section class="cover">
+<h1>NASDAQ 심층분석 보고서</h1>
+<p class="meta" style="font-weight:700;font-size:12pt">2026-07-20 · 기준 2026-07-17 종가</p>
+<p class="meta">전략: 중단기 모멘텀 · 어닝 서프라이즈 중시 · PT 과열 회피</p>
+<p class="meta">폰트: NanumGothic Identity-H · 대상 40종</p>
+<p class="meta" style="margin-top:12pt;font-size:8.5pt">KNSA AMRX JAZZ INDV LQDA TXG TVTX CDNA VCYT ECPG KRYS SEPN LIND DAVE<br/>
+KYMR XMTR FROG FTRE GPRE FA CMPR BAND AVTX BTSG JBHT NWPX NEO RAPP NESR<br/>
+ACHC DNTH CLMT FTNT SEZL ALKS CHEF SLS PTGX LFST ASTH</p>
+<p class="meta" style="margin-top:16pt;font-size:8pt;color:#777">면책: 투자 권유가 아닌 공개자료 기반 분석 노트</p>
+</section>
+<section>
+<h2>0. 서프라이즈·Chase 요약</h2>
+<table class="data"><thead><tr><th>티커</th><th>EPS</th><th>서프라이즈</th><th>Chase</th></tr></thead>
+<tbody><tr><td>ECPG</td><td>6연속Beat</td><td>EPS4/4 Rev4/4 6연속Beat 평균+56%</td><td>최상·코어</td></tr><tr><td>INDV</td><td>4/4 Beat머신</td><td>EPS4/4 Rev4/4 연속4+ Q1+44%</td><td>상·이벤트</td></tr><tr><td>NESR</td><td>연속Beat</td><td>EPS4/4 Rev4/4 연속Beat Q1+24%</td><td>상·분할</td></tr><tr><td>AMRX</td><td>4연속/Rev0/4</td><td>EPS4/4연속 Rev0/4Miss</td><td>중상·반만</td></tr><tr><td>KNSA</td><td>2/4·Rev4/4</td><td>EPS2/4연속1 Rev4/4 Q1+32%</td><td>중상·반만</td></tr><tr><td>NEO</td><td>8연속Beat</td><td>EPS4/4 8연속Beat Rev3/4 Q1+150</td><td>상</td></tr><tr><td>XMTR</td><td>8연속Beat</td><td>EPS4/4 8연속 Rev4/4 Q1EPS+140%</td><td>중상·눌림</td></tr><tr><td>FROG</td><td>8연속Beat</td><td>EPS4/4 8연속 Rev4/4</td><td>중·눌림</td></tr><tr><td>ACHC</td><td>5연속Beat</td><td>EPS4/4 5연속 Rev4/4</td><td>중·대기</td></tr><tr><td>CHEF</td><td>8연속Beat</td><td>EPS4/4 8연속 Rev4/4</td><td>중상</td></tr><tr><td>NWPX</td><td>4연속Beat</td><td>EPS4/4 4연속 Rev4/4</td><td>중하·과열</td></tr><tr><td>FA</td><td>4연속Beat</td><td>EPS4/4 4연속 Rev4/4</td><td>중하·과열</td></tr><tr><td>BAND</td><td>5연속Beat</td><td>EPS4/4 5연속 Rev3/4</td><td>중하·과열</td></tr><tr><td>CMPR</td><td>3연속Beat</td><td>EPS3/4 3연속 Rev4/4</td><td>중</td></tr><tr><td>JAZZ</td><td>Q1대형Beat</td><td>Q1대형Beat·FY가이드약</td><td>중·눌림</td></tr><tr><td>SEPN</td><td>Q1Beat</td><td>Q1 EPS/RevBeat 초기</td><td>중·위성</td></tr><tr><td>AVTX</td><td>혼재</td><td>최근EPS Beat혼재 Rev희소</td><td>하·고위험</td></tr><tr><td>SLS</td><td>연속Beat(적자)</td><td>EPS4/4연속 Rev데이터희소</td><td>하·고위험</td></tr><tr><td>DNTH</td><td>1/4</td><td>EPS1/4 Rev1/4 최근Beat</td><td>중하</td></tr><tr><td>RAPP</td><td>3/4</td><td>EPS3/4 Rev희소</td><td>중·위성</td></tr><tr><td>ASTH</td><td>Adj턴</td><td>Adj최근2연속대형Beat(GAAP혼선) Rev대체</td><td>상·보유</td></tr><tr><td>BTSG</td><td>3/4</td><td>EPS3/4연속1 Rev4/4</td><td>중·보유만</td></tr><tr><td>JBHT</td><td>4연속</td><td>EPS4/4 4연속</td><td>중·눌림</td></tr><tr><td>VCYT</td><td>3/4</td><td>EPS3/4연속2 Rev4/4</td><td>중하</td></tr><tr><td>KYMR</td><td>1/4</td><td>EPS1/4 Rev1/4</td><td>중하</td></tr><tr><td>ALKS</td><td>2미스연속</td><td>EPS2/4 연속2미스 Rev4/4 Q1EPS-16</td><td>하·감점</td></tr><tr><td>FTRE</td><td>2/4</td><td>EPS2/4연속1 Rev3/4</td><td>중하</td></tr><tr><td>GPRE</td><td>3연속/Rev0</td><td>EPS3/4 3연속 Rev0/4</td><td>중하</td></tr><tr><td>LQDA</td><td>3/4</td><td>EPS3/4 Rev4/4</td><td>중·고점</td></tr><tr><td>PTGX</td><td>1/4</td><td>EPS1/4 Rev1/4</td><td>하·고점</td></tr><tr><td>LFST</td><td>5연속Miss</td><td>EPS0/4 5연속Miss Rev4/4</td><td>하</td></tr><tr><td>CLMT</td><td>최근Miss</td><td>EPS2/4 최근Miss Rev3/4</td><td>하</td></tr><tr><td>LIND</td><td>제한</td><td>데이터제한·보수</td><td>하</td></tr><tr><td>CDNA</td><td>혼재</td><td>혼재</td><td>하·과열</td></tr><tr><td>KRYS</td><td>연속Beat</td><td>연속EPSBeat</td><td>하·고점</td></tr><tr><td>TVTX</td><td>Q1Miss</td><td>Q1 EPS-31%Miss L4Q 2/4</td><td>하</td></tr><tr><td>FTNT</td><td>8연속Beat</td><td>EPS4/4 8연속 Rev4/4</td><td>하·과열</td></tr><tr><td>SEZL</td><td>7연속Beat</td><td>EPS4/4 7연속 Rev4/4</td><td>최하·과열</td></tr><tr><td>TXG</td><td>4/4</td><td>EPS4/4 Rev4/4</td><td>최하·과열</td></tr><tr><td>DAVE</td><td>3/4</td><td>EPS3/4 3연속 Rev4/4 변동성큼</td><td>최하·과열</td></tr></tbody></table>
+</section>
+
+<section class="ticker">
+<h2>1. ECPG — Encore Capital</h2>
+<p class="price">현재 $91.33 | 52주 $35.67–$94.6 | PT $105/$113.33/$120 | A/B/C $100/$110/$120</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>서프라이즈·PT 정합 → 코어1 · Q1 매출$475M(+21%YoY) EPS$3.86</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>금융·채권회수</td></tr>
+<tr><th>특징</th><td>연체율·매입가·회수율 핵심</td></tr>
+<tr><th>시총</th><td>~$2.0B 소형금융</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>NPL 회수. 한줄: 싸게 산 빚을 회수</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 매출$475M(+21%YoY) EPS$3.86</td></tr>
+<tr><th>컨센서스</th><td>Buy PT평균$113(+24%)</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4 Rev4/4 6연속Beat 평균+56%</td></tr>
+<tr><th>전략</th><td>서프라이즈·PT 정합 → 코어1</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>연속Beat(ChartMill); ~08-06실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$110–120</td></tr>
+<tr><th>BASE</th><td>$100–110</td></tr>
+<tr><th>BEAR</th><td>$80–88</td></tr>
+<tr><th>Breaker</th><td>Beat단절·규제</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>금융·채권회수</td></tr>
+<tr><th>핵심</th><td>NPL 회수</td></tr>
+<tr><th>EPS</th><td>6연속Beat</td></tr>
+<tr><th>신규진입</th><td>$88–93</td></tr>
+<tr><th>탈락</th><td>회수율하향</td></tr>
+<tr><th>Chase</th><td>최상·코어</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>2. INDV — Indivior</h2>
+<p class="price">현재 $40.54 | 52주 $15.55–$42.81 | PT $46/$50.75/$59 | A/B/C $46/$52/$58</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>Beat머신·07-30관전·추가금지 · Q1 매출$317M EPS$0.96</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>제약·중독치료</td></tr>
+<tr><th>특징</th><td>소송·약가·장기주사 침투</td></tr>
+<tr><th>시총</th><td>~$4.9B</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>SUBLOCADE. 한줄: 중독치료 제약</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 매출$317M EPS$0.96</td></tr>
+<tr><th>컨센서스</th><td>Buy PT$50.8(+25%)</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4 Rev4/4 연속4+ Q1+44%</td></tr>
+<tr><th>전략</th><td>Beat머신·07-30관전·추가금지</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>07-30실적; 연속대형Beat</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$50–58</td></tr>
+<tr><th>BASE</th><td>$46–52</td></tr>
+<tr><th>BEAR</th><td>$32–36</td></tr>
+<tr><th>Breaker</th><td>소송·가이드하향</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>제약·중독치료</td></tr>
+<tr><th>핵심</th><td>SUBLOCADE</td></tr>
+<tr><th>EPS</th><td>4/4 Beat머신</td></tr>
+<tr><th>신규진입</th><td>07-30전 관망</td></tr>
+<tr><th>탈락</th><td>소송/가이드</td></tr>
+<tr><th>Chase</th><td>상·이벤트</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>3. NESR — National Energy Services</h2>
+<p class="price">현재 $27.99 | 52주 $6.0–$30.31 | PT $30/$33/$36 | A/B/C $31/$34/$36</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>서프라이즈·PT여유 → 분할1순위 · Q1 매출$405M(+34%) EPS~$0.26Beat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>에너지·OFS(MENA)</td></tr>
+<tr><th>특징</th><td>중동CAPEX·지정학</td></tr>
+<tr><th>시총</th><td>~$2.8B</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>통합오일필드서비스. 한줄: 중동 유전 장비·인력</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 매출$405M(+34%) EPS~$0.26Beat</td></tr>
+<tr><th>컨센서스</th><td>Buy PT$33(+18%)</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4 Rev4/4 연속Beat Q1+24%</td></tr>
+<tr><th>전략</th><td>서프라이즈·PT여유 → 분할1순위</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>Jafurah프랙; ~08-19실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$33–36</td></tr>
+<tr><th>BASE</th><td>$30–33</td></tr>
+<tr><th>BEAR</th><td>$22–25</td></tr>
+<tr><th>Breaker</th><td>지정학·마진압축</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>에너지·OFS(MENA)</td></tr>
+<tr><th>핵심</th><td>통합오일필드서비스</td></tr>
+<tr><th>EPS</th><td>연속Beat</td></tr>
+<tr><th>신규진입</th><td>$25–28분할</td></tr>
+<tr><th>탈락</th><td>가동률하락</td></tr>
+<tr><th>Chase</th><td>상·분할</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>4. AMRX — Amneal</h2>
+<p class="price">현재 $17.85 | 52주 $7.66–$18.39 | PT $16/$18.2/$23 | A/B/C $18/$20/$23</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>EPS강·매출약·07-30반만 · Q1 EPS$0.27(+56%vs) 매출소폭Miss</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>제네릭/스페셜티제약</td></tr>
+<tr><th>특징</th><td>가격압력·파이프라인</td></tr>
+<tr><th>시총</th><td>~$5.4B</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>제네릭+Specialty. 한줄: 복제약·브랜드약</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS$0.27(+56%vs) 매출소폭Miss</td></tr>
+<tr><th>컨센서스</th><td>Buy PT$18.2≈현재</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4연속 Rev0/4Miss</td></tr>
+<tr><th>전략</th><td>EPS강·매출약·07-30반만</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>07-30장전실적 08:30ET콜</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$20–23</td></tr>
+<tr><th>BASE</th><td>$17–19</td></tr>
+<tr><th>BEAR</th><td>$14–16</td></tr>
+<tr><th>Breaker</th><td>매출가이드컷</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>제네릭/스페셜티제약</td></tr>
+<tr><th>핵심</th><td>제네릭+Specialty</td></tr>
+<tr><th>EPS</th><td>4연속/Rev0/4</td></tr>
+<tr><th>신규진입</th><td>$16–17.5반만</td></tr>
+<tr><th>탈락</th><td>가이드하향</td></tr>
+<tr><th>Chase</th><td>중상·반만</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>5. KNSA — Kiniksa</h2>
+<p class="price">현재 $63.95 | 52주 $26.27–$67.53 | PT $60/$68.29/$74 | A/B/C $68/$74/$80</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>07-28전 반만 · Q1 매출$214M(+56%) EPS$0.27 FY가이드상향</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·희귀염증</td></tr>
+<tr><th>특징</th><td>Arcalyst의존</td></tr>
+<tr><th>시총</th><td>~$4.9B</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>Arcalyst. 한줄: 희귀염증 치료제</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 매출$214M(+56%) EPS$0.27 FY가이드상향</td></tr>
+<tr><th>컨센서스</th><td>Buy PT$68(+7%)</td></tr>
+<tr><th>서프라이즈</th><td>EPS2/4연속1 Rev4/4 Q1+32%</td></tr>
+<tr><th>전략</th><td>07-28전 반만</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>07-28~20:00KST실적; 가이드상향</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$70–74</td></tr>
+<tr><th>BASE</th><td>$64–70</td></tr>
+<tr><th>BEAR</th><td>$55–60</td></tr>
+<tr><th>Breaker</th><td>Q2 EPS미스</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·희귀염증</td></tr>
+<tr><th>핵심</th><td>Arcalyst</td></tr>
+<tr><th>EPS</th><td>2/4·Rev4/4</td></tr>
+<tr><th>신규진입</th><td>반만$60–64</td></tr>
+<tr><th>탈락</th><td>Q2미스</td></tr>
+<tr><th>Chase</th><td>중상·반만</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>6. NEO — NeoGenomics</h2>
+<p class="price">현재 $14.61 | 52주 $4.72–$15.57 | PT $11/$16.36/$25 | A/B/C $16/$19/$23</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>서프라이즈강·PT소폭여유·07-28이벤트 · 연속수익성개선 스토리</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>헬스케어·암진단랩</td></tr>
+<tr><th>특징</th><td>검사볼륨·급여</td></tr>
+<tr><th>시총</th><td>중소형진단</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>암진단검사. 한줄: 암 유전자·병리 검사 랩</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>연속수익성개선 스토리</td></tr>
+<tr><th>컨센서스</th><td>PT$16.4(+12%)</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4 8연속Beat Rev3/4 Q1+150%</td></tr>
+<tr><th>전략</th><td>서프라이즈강·PT소폭여유·07-28이벤트</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>07-28실적예정</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$18–25</td></tr>
+<tr><th>BASE</th><td>$15–18</td></tr>
+<tr><th>BEAR</th><td>$11–13</td></tr>
+<tr><th>Breaker</th><td>볼륨·급여둔화</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>헬스케어·암진단랩</td></tr>
+<tr><th>핵심</th><td>암진단검사</td></tr>
+<tr><th>EPS</th><td>8연속Beat</td></tr>
+<tr><th>신규진입</th><td>$13–14.5</td></tr>
+<tr><th>탈락</th><td>볼륨둔화</td></tr>
+<tr><th>Chase</th><td>상</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>7. XMTR — Xometry</h2>
+<p class="price">현재 $98.54 | 52주 $30.63–$102.0 | PT $62/$90.88/$126 | A/B/C $95/$110/$126</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>Beat최상이나PT프리미엄→눌림선호 · Q1 EPS·Rev Beat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>산업·AI제조마켓플레이스</td></tr>
+<tr><th>특징</th><td>제조수요·수수료</td></tr>
+<tr><th>시총</th><td>중형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>주문형제조플랫폼. 한줄: 부품을 공장에 연결하는 마켓</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS·Rev Beat</td></tr>
+<tr><th>컨센서스</th><td>PT$90.9 현재+8%프리미엄</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4 8연속 Rev4/4 Q1EPS+140%</td></tr>
+<tr><th>전략</th><td>Beat최상이나PT프리미엄→눌림선호</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-04실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$110–126</td></tr>
+<tr><th>BASE</th><td>$90–105</td></tr>
+<tr><th>BEAR</th><td>$70–85</td></tr>
+<tr><th>Breaker</th><td>수요둔화</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>산업·AI제조마켓플레이스</td></tr>
+<tr><th>핵심</th><td>주문형제조플랫폼</td></tr>
+<tr><th>EPS</th><td>8연속Beat</td></tr>
+<tr><th>신규진입</th><td>$85–92</td></tr>
+<tr><th>탈락</th><td>가이던스하향</td></tr>
+<tr><th>Chase</th><td>중상·눌림</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>8. FROG — JFrog</h2>
+<p class="price">현재 $88.54 | 52주 $34.05–$99.22 | PT $65/$88.05/$110 | A/B/C $90/$100/$110</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>Beat우수·가격반영→눌림 · Q1 EPS+69% Rev+4%Beat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>IT·SW공급망/DevOps</td></tr>
+<tr><th>특징</th><td>기업SW지출·경쟁</td></tr>
+<tr><th>시총</th><td>중형SaaS</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>아티팩트·보안플랫폼. 한줄: 소프트웨어 배포 파이프라인 도구</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS+69% Rev+4%Beat</td></tr>
+<tr><th>컨센서스</th><td>PT$88≈현재</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4 8연속 Rev4/4</td></tr>
+<tr><th>전략</th><td>Beat우수·가격반영→눌림</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-06실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$100–110</td></tr>
+<tr><th>BASE</th><td>$85–95</td></tr>
+<tr><th>BEAR</th><td>$70–80</td></tr>
+<tr><th>Breaker</th><td>성장둔화</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>IT·SW공급망/DevOps</td></tr>
+<tr><th>핵심</th><td>아티팩트·보안플랫폼</td></tr>
+<tr><th>EPS</th><td>8연속Beat</td></tr>
+<tr><th>신규진입</th><td>$78–85</td></tr>
+<tr><th>탈락</th><td>가이드컷</td></tr>
+<tr><th>Chase</th><td>중·눌림</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>9. ACHC — Acadia Healthcare</h2>
+<p class="price">현재 $34.5 | 52주 $11.43–$34.74 | PT $13/$31.55/$40 | A/B/C $35/$38/$40</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>Beat강·고점·07-28→대기 · Q1 EPS+37% RevBeat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>헬스케어·행동건강</td></tr>
+<tr><th>특징</th><td>입원·외래수요·규제</td></tr>
+<tr><th>시총</th><td>중형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>행동건강시설. 한줄: 정신건강·중독 치료 병원</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS+37% RevBeat</td></tr>
+<tr><th>컨센서스</th><td>PT$31.6 현재+9%프리미엄</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4 5연속 Rev4/4</td></tr>
+<tr><th>전략</th><td>Beat강·고점·07-28→대기</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>07-28실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$38–40</td></tr>
+<tr><th>BASE</th><td>$32–36</td></tr>
+<tr><th>BEAR</th><td>$25–30</td></tr>
+<tr><th>Breaker</th><td>규제·점유둔화</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>헬스케어·행동건강</td></tr>
+<tr><th>핵심</th><td>행동건강시설</td></tr>
+<tr><th>EPS</th><td>5연속Beat</td></tr>
+<tr><th>신규진입</th><td>$28–32</td></tr>
+<tr><th>탈락</th><td>실적미스</td></tr>
+<tr><th>Chase</th><td>중·대기</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>10. CHEF — The Chefs&#x27; Warehouse</h2>
+<p class="price">현재 $97.08 | 52주 $53.2–$102.87 | PT $66/$92/$110 | A/B/C $98/$105/$110</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>Beat최상·소폭프리미엄·07-29 · Q1 EPS+60% Rev+5%Beat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>소비재·식품유통</td></tr>
+<tr><th>특징</th><td>외식수요·마진</td></tr>
+<tr><th>시총</th><td>중형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>특수식자재유통. 한줄: 고급 식당에 식재료 납품</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS+60% Rev+5%Beat</td></tr>
+<tr><th>컨센서스</th><td>PT$92 현재+5%</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4 8연속 Rev4/4</td></tr>
+<tr><th>전략</th><td>Beat최상·소폭프리미엄·07-29</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>07-29실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$105–110</td></tr>
+<tr><th>BASE</th><td>$95–102</td></tr>
+<tr><th>BEAR</th><td>$80–90</td></tr>
+<tr><th>Breaker</th><td>외식둔화</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>소비재·식품유통</td></tr>
+<tr><th>핵심</th><td>특수식자재유통</td></tr>
+<tr><th>EPS</th><td>8연속Beat</td></tr>
+<tr><th>신규진입</th><td>$88–94</td></tr>
+<tr><th>탈락</th><td>마진압축</td></tr>
+<tr><th>Chase</th><td>중상</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>11. NWPX — Northwest Pipe</h2>
+<p class="price">현재 $138.2 | 52주 $40.01–$152.03 | PT $90/$103.33/$130 | A/B/C $120/$135/$150</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>Beat우수나PT대비과열→비추격 · Q1 EPS+93% Rev+10%Beat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>소재·수자원인프라</td></tr>
+<tr><th>특징</th><td>공공인프라·수주</td></tr>
+<tr><th>시총</th><td>소형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>강관·수자원제품. 한줄: 수도관·인프라용 강관</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS+93% Rev+10%Beat</td></tr>
+<tr><th>컨센서스</th><td>PT$103 현재+34%과열</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4 4연속 Rev4/4</td></tr>
+<tr><th>전략</th><td>Beat우수나PT대비과열→비추격</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>07-29실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$140–152</td></tr>
+<tr><th>BASE</th><td>$110–130</td></tr>
+<tr><th>BEAR</th><td>$90–105</td></tr>
+<tr><th>Breaker</th><td>수주둔화</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>소재·수자원인프라</td></tr>
+<tr><th>핵심</th><td>강관·수자원제품</td></tr>
+<tr><th>EPS</th><td>4연속Beat</td></tr>
+<tr><th>신규진입</th><td>$100–110</td></tr>
+<tr><th>탈락</th><td>가이던스하향</td></tr>
+<tr><th>Chase</th><td>중하·과열</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>12. FA — First Advantage</h2>
+<p class="price">현재 $22.35 | 52주 $8.82–$22.78 | PT $15/$17.29/$20 | A/B/C $19/$22/$25</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>Beat강·가격과열→대기 · Q1 EPS+30% Rev+3%Beat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>산업·신원조회</td></tr>
+<tr><th>특징</th><td>채용사이클</td></tr>
+<tr><th>시총</th><td>중형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>배경조사. 한줄: 채용 때 신원·경력 조회</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS+30% Rev+3%Beat</td></tr>
+<tr><th>컨센서스</th><td>PT$17.3 현재+29%과열</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4 4연속 Rev4/4</td></tr>
+<tr><th>전략</th><td>Beat강·가격과열→대기</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-06실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$23–25</td></tr>
+<tr><th>BASE</th><td>$17–21</td></tr>
+<tr><th>BEAR</th><td>$14–16</td></tr>
+<tr><th>Breaker</th><td>채용한파</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>산업·신원조회</td></tr>
+<tr><th>핵심</th><td>배경조사</td></tr>
+<tr><th>EPS</th><td>4연속Beat</td></tr>
+<tr><th>신규진입</th><td>$16–18</td></tr>
+<tr><th>탈락</th><td>볼륨둔화</td></tr>
+<tr><th>Chase</th><td>중하·과열</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>13. BAND — Bandwidth</h2>
+<p class="price">현재 $71.81 | 52주 $12.5–$79.08 | PT $15/$57.5/$85 | A/B/C $65/$75/$85</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>Beat강·과열·07-29 · Q1 EPS+65% Rev+4%Beat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>IT·CPaaS통신</td></tr>
+<tr><th>특징</th><td>API통화·메시징수요</td></tr>
+<tr><th>시총</th><td>소중형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>클라우드통신API. 한줄: 앱에 전화·문자 기능을 넣는 회사</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS+65% Rev+4%Beat</td></tr>
+<tr><th>컨센서스</th><td>PT$57.5 현재+25%과열</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4 5연속 Rev3/4</td></tr>
+<tr><th>전략</th><td>Beat강·과열·07-29</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>07-29실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$80–85</td></tr>
+<tr><th>BASE</th><td>$55–70</td></tr>
+<tr><th>BEAR</th><td>$40–50</td></tr>
+<tr><th>Breaker</th><td>성장둔화</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>IT·CPaaS통신</td></tr>
+<tr><th>핵심</th><td>클라우드통신API</td></tr>
+<tr><th>EPS</th><td>5연속Beat</td></tr>
+<tr><th>신규진입</th><td>$55–62</td></tr>
+<tr><th>탈락</th><td>가이드컷</td></tr>
+<tr><th>Chase</th><td>중하·과열</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>14. CMPR — Cimpress</h2>
+<p class="price">현재 $102.85 | 52주 $43.52–$106.57 | PT $110/$111.5/$113 | A/B/C $105/$110/$113</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>PT소폭업사이드·07-29 · 최근분기 EPS대형Beat RevBeat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>산업·맞춤인쇄</td></tr>
+<tr><th>특징</th><td>온라인맞춤제작수요</td></tr>
+<tr><th>시총</th><td>중형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>대량맞춤인쇄. 한줄: 명함·홍보물 등 맞춤 인쇄</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>최근분기 EPS대형Beat RevBeat</td></tr>
+<tr><th>컨센서스</th><td>PT$111.5(+8%)</td></tr>
+<tr><th>서프라이즈</th><td>EPS3/4 3연속 Rev4/4</td></tr>
+<tr><th>전략</th><td>PT소폭업사이드·07-29</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>07-29실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$110–113</td></tr>
+<tr><th>BASE</th><td>$100–108</td></tr>
+<tr><th>BEAR</th><td>$85–95</td></tr>
+<tr><th>Breaker</th><td>수요둔화</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>산업·맞춤인쇄</td></tr>
+<tr><th>핵심</th><td>대량맞춤인쇄</td></tr>
+<tr><th>EPS</th><td>3연속Beat</td></tr>
+<tr><th>신규진입</th><td>$95–100</td></tr>
+<tr><th>탈락</th><td>마진악화</td></tr>
+<tr><th>Chase</th><td>중</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>15. JAZZ — Jazz Pharmaceuticals</h2>
+<p class="price">현재 $247.53 | 52주 $105.0–$250.49 | PT $229/$264.5/$307 | A/B/C $265/$285/$307</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>품질양호·고점눌림 · Q1 매출$1.07B(+19%) EPS$6.34(+36%) FY가이드약</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오파마</td></tr>
+<tr><th>특징</th><td>Xywav/Epidiolex·가이던스</td></tr>
+<tr><th>시총</th><td>대형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>신경·종양약. 한줄: 신경계·암 전문약</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 매출$1.07B(+19%) EPS$6.34(+36%) FY가이드약</td></tr>
+<tr><th>컨센서스</th><td>PT$264(+7%)</td></tr>
+<tr><th>서프라이즈</th><td>Q1대형Beat·FY가이드약</td></tr>
+<tr><th>전략</th><td>품질양호·고점눌림</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>Q1Beat(Yahoo)</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$280–307</td></tr>
+<tr><th>BASE</th><td>$250–270</td></tr>
+<tr><th>BEAR</th><td>$210–230</td></tr>
+<tr><th>Breaker</th><td>가이드컷</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오파마</td></tr>
+<tr><th>핵심</th><td>신경·종양약</td></tr>
+<tr><th>EPS</th><td>Q1대형Beat</td></tr>
+<tr><th>신규진입</th><td>$230–240</td></tr>
+<tr><th>탈락</th><td>키제품둔화</td></tr>
+<tr><th>Chase</th><td>중·눌림</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>16. SEPN — Septerna</h2>
+<p class="price">현재 $33.4 | 52주 $10.62–$38.04 | PT $38/$46.25/$60 | A/B/C $40/$48/$58</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>업사이드·임상위성 · Q1 적자축소Beat 매출Beat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·GPCR</td></tr>
+<tr><th>특징</th><td>임상·현금</td></tr>
+<tr><th>시총</th><td>소형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>GPCR신약. 한줄: 세포수용체 신약개발</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 적자축소Beat 매출Beat</td></tr>
+<tr><th>컨센서스</th><td>PT$46(+38%)</td></tr>
+<tr><th>서프라이즈</th><td>Q1 EPS/RevBeat 초기</td></tr>
+<tr><th>전략</th><td>업사이드·임상위성</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-10실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$46–60</td></tr>
+<tr><th>BASE</th><td>$38–46</td></tr>
+<tr><th>BEAR</th><td>$20–28</td></tr>
+<tr><th>Breaker</th><td>임상실패</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·GPCR</td></tr>
+<tr><th>핵심</th><td>GPCR신약</td></tr>
+<tr><th>EPS</th><td>Q1Beat</td></tr>
+<tr><th>신규진입</th><td>소량$30–34</td></tr>
+<tr><th>탈락</th><td>임상실패</td></tr>
+<tr><th>Chase</th><td>중·위성</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>17. AVTX — Avalo Therapeutics</h2>
+<p class="price">현재 $19.37 | 52주 $5.5–$24.27 | PT $34/$45.18/$60 | A/B/C $25/$35/$50</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>PT업사이드크나임상리스크→극소량 · 임상바이오·매출미미</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·염증</td></tr>
+<tr><th>특징</th><td>임상단계·희석</td></tr>
+<tr><th>시총</th><td>소형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>염증질환신약. 한줄: 염증 치료 후보물질 개발</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>임상바이오·매출미미</td></tr>
+<tr><th>컨센서스</th><td>PT$45(+133%이론)</td></tr>
+<tr><th>서프라이즈</th><td>최근EPS Beat혼재 Rev희소</td></tr>
+<tr><th>전략</th><td>PT업사이드크나임상리스크→극소량</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-06실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$34–50</td></tr>
+<tr><th>BASE</th><td>$18–28</td></tr>
+<tr><th>BEAR</th><td>$8–14</td></tr>
+<tr><th>Breaker</th><td>임상실패·희석</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·염증</td></tr>
+<tr><th>핵심</th><td>염증질환신약</td></tr>
+<tr><th>EPS</th><td>혼재</td></tr>
+<tr><th>신규진입</th><td>극소량/관망</td></tr>
+<tr><th>탈락</th><td>임상실패</td></tr>
+<tr><th>Chase</th><td>하·고위험</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>18. SLS — SELLAS Life Sciences</h2>
+<p class="price">현재 $13.19 | 52주 $1.39–$15.88 | PT $25/$27.5/$30 | A/B/C $18/$25/$30</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>이론업사이드·바이너리리스크 · 임상단계</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·항암</td></tr>
+<tr><th>특징</th><td>파이프라인의존</td></tr>
+<tr><th>시총</th><td>초소형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>항암신약. 한줄: 암 치료제 임상 바이오</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>임상단계</td></tr>
+<tr><th>컨센서스</th><td>PT$27.5(+108%)</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4연속 Rev데이터희소</td></tr>
+<tr><th>전략</th><td>이론업사이드·바이너리리스크</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-11실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$25–30</td></tr>
+<tr><th>BASE</th><td>$12–18</td></tr>
+<tr><th>BEAR</th><td>$5–9</td></tr>
+<tr><th>Breaker</th><td>임상실패</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·항암</td></tr>
+<tr><th>핵심</th><td>항암신약</td></tr>
+<tr><th>EPS</th><td>연속Beat(적자)</td></tr>
+<tr><th>신규진입</th><td>관망/극소</td></tr>
+<tr><th>탈락</th><td>임상실패</td></tr>
+<tr><th>Chase</th><td>하·고위험</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>19. DNTH — Dianthus Therapeutics</h2>
+<p class="price">현재 $105.6 | 52주 $18.08–$105.72 | PT $98/$129.73/$200 | A/B/C $110/$130/$160</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>업사이드·고점·서프라이즈약 · Q1 EPS/Rev Beat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·자가면역</td></tr>
+<tr><th>특징</th><td>임상·경쟁</td></tr>
+<tr><th>시총</th><td>중형바이오</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>자가면역신약. 한줄: 면역질환 치료제 개발</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS/Rev Beat</td></tr>
+<tr><th>컨센서스</th><td>PT$130(+23%)</td></tr>
+<tr><th>서프라이즈</th><td>EPS1/4 Rev1/4 최근Beat</td></tr>
+<tr><th>전략</th><td>업사이드·고점·서프라이즈약</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-07실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$130–180</td></tr>
+<tr><th>BASE</th><td>$100–120</td></tr>
+<tr><th>BEAR</th><td>$70–90</td></tr>
+<tr><th>Breaker</th><td>임상실패</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·자가면역</td></tr>
+<tr><th>핵심</th><td>자가면역신약</td></tr>
+<tr><th>EPS</th><td>1/4</td></tr>
+<tr><th>신규진입</th><td>$90–100</td></tr>
+<tr><th>탈락</th><td>임상실패</td></tr>
+<tr><th>Chase</th><td>중하</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>20. RAPP — Rapport Therapeutics</h2>
+<p class="price">현재 $42.62 | 52주 $13.62–$43.76 | PT $40/$53.56/$66 | A/B/C $48/$55/$66</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>업사이드·임상위성 · Q1 EPS+38% RevBeat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·신경과학</td></tr>
+<tr><th>특징</th><td>임상</td></tr>
+<tr><th>시총</th><td>소중형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>신경과학신약. 한줄: 뇌·신경 질환 신약</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS+38% RevBeat</td></tr>
+<tr><th>컨센서스</th><td>PT$53.6(+26%)</td></tr>
+<tr><th>서프라이즈</th><td>EPS3/4 Rev희소</td></tr>
+<tr><th>전략</th><td>업사이드·임상위성</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-06실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$53–66</td></tr>
+<tr><th>BASE</th><td>$40–50</td></tr>
+<tr><th>BEAR</th><td>$25–35</td></tr>
+<tr><th>Breaker</th><td>임상실패</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·신경과학</td></tr>
+<tr><th>핵심</th><td>신경과학신약</td></tr>
+<tr><th>EPS</th><td>3/4</td></tr>
+<tr><th>신규진입</th><td>$36–40소량</td></tr>
+<tr><th>탈락</th><td>임상실패</td></tr>
+<tr><th>Chase</th><td>중·위성</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>21. ASTH — Astrana Health</h2>
+<p class="price">현재 $44.94 | 52주 $18.08–$51.6 | PT $36/$48.57/$65 | A/B/C $48/$55/$62</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>보유적합·08-07콜 · Q1 매출$965M(+56%) AdjEPS$0.74</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>헬스케어서비스·VBC</td></tr>
+<tr><th>특징</th><td>CarePartners·레버리지</td></tr>
+<tr><th>시총</th><td>~$2.2B</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>가치기반케어. 한줄: 의사네트워크로 환자관리</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 매출$965M(+56%) AdjEPS$0.74</td></tr>
+<tr><th>컨센서스</th><td>PT$48.6(+8%)</td></tr>
+<tr><th>서프라이즈</th><td>Adj최근2연속대형Beat(GAAP혼선) Rev대체로Beat</td></tr>
+<tr><th>전략</th><td>보유적합·08-07콜</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>08-06/07실적콜</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$55–65</td></tr>
+<tr><th>BASE</th><td>$48–55</td></tr>
+<tr><th>BEAR</th><td>$36–40</td></tr>
+<tr><th>Breaker</th><td>Adj미스·레버리지</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>헬스케어서비스·VBC</td></tr>
+<tr><th>핵심</th><td>가치기반케어</td></tr>
+<tr><th>EPS</th><td>Adj턴</td></tr>
+<tr><th>신규진입</th><td>$42–46</td></tr>
+<tr><th>탈락</th><td>가이드미스</td></tr>
+<tr><th>Chase</th><td>상·보유</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>22. BTSG — BrightSpring</h2>
+<p class="price">현재 $70.69 | 52주 $19.01–$72.22 | PT $49/$74.88/$90 | A/B/C $75/$82/$90</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>고점·07-31·추가금지 · Q1 EPS$0.39(+23%) RevBeat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>헬스케어서비스</td></tr>
+<tr><th>특징</th><td>스페셜티약국·홈케어</td></tr>
+<tr><th>시총</th><td>~$14.7B</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>전문약+재택돌봄</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS$0.39(+23%) RevBeat</td></tr>
+<tr><th>컨센서스</th><td>PT$74.9(+6%)</td></tr>
+<tr><th>서프라이즈</th><td>EPS3/4연속1 Rev4/4</td></tr>
+<tr><th>전략</th><td>고점·07-31·추가금지</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>07-31 21:30KST콜</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$80–90</td></tr>
+<tr><th>BASE</th><td>$70–78</td></tr>
+<tr><th>BEAR</th><td>$55–62</td></tr>
+<tr><th>Breaker</th><td>마진·통합쇼크</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>헬스케어서비스</td></tr>
+<tr><th>핵심</th><td>전문약+재택돌봄</td></tr>
+<tr><th>EPS</th><td>3/4</td></tr>
+<tr><th>신규진입</th><td>$58–62대기</td></tr>
+<tr><th>탈락</th><td>마진압축</td></tr>
+<tr><th>Chase</th><td>중·보유만</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>23. JBHT — J.B. Hunt</h2>
+<p class="price">현재 $291.41 | 52주 $130.12–$299.76 | PT $200/$298.05/$370 | A/B/C $300/$320/$350</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>고점반영→$260–275대기 · Q2 EPS$1.91(+45%) 매출+19%</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>운송·물류</td></tr>
+<tr><th>특징</th><td>화물사이클·운임</td></tr>
+<tr><th>시총</th><td>~$27B대장</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>Intermodal/DCS</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q2 EPS$1.91(+45%) 매출+19%</td></tr>
+<tr><th>컨센서스</th><td>PT$298≈현재</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4 4연속</td></tr>
+<tr><th>전략</th><td>고점반영→$260–275대기</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>Q2실적발표완료</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$320–350</td></tr>
+<tr><th>BASE</th><td>$290–310</td></tr>
+<tr><th>BEAR</th><td>$240–260</td></tr>
+<tr><th>Breaker</th><td>화물피크아웃</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>운송·물류</td></tr>
+<tr><th>핵심</th><td>Intermodal/DCS</td></tr>
+<tr><th>EPS</th><td>4연속</td></tr>
+<tr><th>신규진입</th><td>$260–275</td></tr>
+<tr><th>탈락</th><td>운임하락</td></tr>
+<tr><th>Chase</th><td>중·눌림</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>24. VCYT — Veracyte</h2>
+<p class="price">현재 $59.13 | 52주 $22.61–$60.91 | PT $47/$59/$70 | A/B/C $62/$68/$75</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>눌림만 · Q1 매출$139M EPS$0.35</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>분자진단</td></tr>
+<tr><th>특징</th><td>볼륨·보험</td></tr>
+<tr><th>시총</th><td>~$4.7B</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>Afirma 등</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 매출$139M EPS$0.35</td></tr>
+<tr><th>컨센서스</th><td>PT$59≈현재</td></tr>
+<tr><th>서프라이즈</th><td>EPS3/4연속2 Rev4/4</td></tr>
+<tr><th>전략</th><td>눌림만</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>분자진단테마</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$68–75</td></tr>
+<tr><th>BASE</th><td>$58–65</td></tr>
+<tr><th>BEAR</th><td>$47–52</td></tr>
+<tr><th>Breaker</th><td>급여축소</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>분자진단</td></tr>
+<tr><th>핵심</th><td>Afirma 등</td></tr>
+<tr><th>EPS</th><td>3/4</td></tr>
+<tr><th>신규진입</th><td>$52–55</td></tr>
+<tr><th>탈락</th><td>볼륨둔화</td></tr>
+<tr><th>Chase</th><td>중하</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>25. KYMR — Kymera Therapeutics</h2>
+<p class="price">현재 $115.77 | 52주 $36.65–$130.05 | PT $100/$126.61/$155 | A/B/C $120/$135/$155</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>서프라이즈약·임상모멘텀 · Q1 EPSBeat Rev대형Beat(일회성가능)</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·단백질분해</td></tr>
+<tr><th>특징</th><td>TPD플랫폼·임상</td></tr>
+<tr><th>시총</th><td>중형바이오</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>표적단백질분해. 한줄: 질병단백질을 분해하는 신약</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPSBeat Rev대형Beat(일회성가능)</td></tr>
+<tr><th>컨센서스</th><td>PT$127(+9%)</td></tr>
+<tr><th>서프라이즈</th><td>EPS1/4 Rev1/4</td></tr>
+<tr><th>전략</th><td>서프라이즈약·임상모멘텀</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-10실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$126–155</td></tr>
+<tr><th>BASE</th><td>$100–120</td></tr>
+<tr><th>BEAR</th><td>$70–90</td></tr>
+<tr><th>Breaker</th><td>임상실패</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·단백질분해</td></tr>
+<tr><th>핵심</th><td>표적단백질분해</td></tr>
+<tr><th>EPS</th><td>1/4</td></tr>
+<tr><th>신규진입</th><td>$100–110</td></tr>
+<tr><th>탈락</th><td>임상실패</td></tr>
+<tr><th>Chase</th><td>중하</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>26. ALKS — Alkermes</h2>
+<p class="price">현재 $52.72 | 52주 $25.17–$55.67 | PT $38/$52.2/$65 | A/B/C $55/$60/$65</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>Rev강·EPS약·07-28감점 · Rev4/4Beat이나EPS최근미스</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오파마·신경과학</td></tr>
+<tr><th>특징</th><td>상업화포트폴리오</td></tr>
+<tr><th>시총</th><td>중형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>신경과학약</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Rev4/4Beat이나EPS최근미스</td></tr>
+<tr><th>컨센서스</th><td>PT$52≈현재</td></tr>
+<tr><th>서프라이즈</th><td>EPS2/4 연속2미스 Rev4/4 Q1EPS-167%</td></tr>
+<tr><th>전략</th><td>Rev강·EPS약·07-28감점</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>07-28실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$58–65</td></tr>
+<tr><th>BASE</th><td>$50–55</td></tr>
+<tr><th>BEAR</th><td>$38–45</td></tr>
+<tr><th>Breaker</th><td>연속EPS미스</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오파마·신경과학</td></tr>
+<tr><th>핵심</th><td>신경과학약</td></tr>
+<tr><th>EPS</th><td>2미스연속</td></tr>
+<tr><th>신규진입</th><td>실적후</td></tr>
+<tr><th>탈락</th><td>가이드하향</td></tr>
+<tr><th>Chase</th><td>하·감점</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>27. FTRE — Fortrea</h2>
+<p class="price">현재 $17.76 | 52주 $4.45–$18.67 | PT $9.5/$15.64/$20 | A/B/C $17/$19/$20</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>소폭과열·07-29 · Q1 EPS대형Beat Rev+1%</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>헬스케어·CRO</td></tr>
+<tr><th>특징</th><td>임상수탁·바이오고객</td></tr>
+<tr><th>시총</th><td>소중형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>임상시험수탁. 한줄: 제약사 대신 임상시험 대행</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS대형Beat Rev+1%</td></tr>
+<tr><th>컨센서스</th><td>PT$15.6 현재+14%</td></tr>
+<tr><th>서프라이즈</th><td>EPS2/4연속1 Rev3/4</td></tr>
+<tr><th>전략</th><td>소폭과열·07-29</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>07-29실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$19–20</td></tr>
+<tr><th>BASE</th><td>$15–18</td></tr>
+<tr><th>BEAR</th><td>$10–13</td></tr>
+<tr><th>Breaker</th><td>수주둔화</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>헬스케어·CRO</td></tr>
+<tr><th>핵심</th><td>임상시험수탁</td></tr>
+<tr><th>EPS</th><td>2/4</td></tr>
+<tr><th>신규진입</th><td>$14–16</td></tr>
+<tr><th>탈락</th><td>가이던스하향</td></tr>
+<tr><th>Chase</th><td>중하</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>28. GPRE — Green Plains</h2>
+<p class="price">현재 $19.23 | 52주 $7.07–$19.65 | PT $10/$17.2/$20 | A/B/C $18/$20/$22</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>AMRX유사·매출약·과열주의 · EPSBeat연속·Rev4연속Miss</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>소재·저탄소연료/에탄올</td></tr>
+<tr><th>특징</th><td>에탄올마진·옥수수</td></tr>
+<tr><th>시총</th><td>소형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>에탄올·저탄소연료</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>EPSBeat연속·Rev4연속Miss</td></tr>
+<tr><th>컨센서스</th><td>PT$17.2 현재+12%</td></tr>
+<tr><th>서프라이즈</th><td>EPS3/4 3연속 Rev0/4</td></tr>
+<tr><th>전략</th><td>AMRX유사·매출약·과열주의</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-10실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$20–22</td></tr>
+<tr><th>BASE</th><td>$16–19</td></tr>
+<tr><th>BEAR</th><td>$12–15</td></tr>
+<tr><th>Breaker</th><td>마진붕괴</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>소재·저탄소연료/에탄올</td></tr>
+<tr><th>핵심</th><td>에탄올·저탄소연료</td></tr>
+<tr><th>EPS</th><td>3연속/Rev0</td></tr>
+<tr><th>신규진입</th><td>$15–17</td></tr>
+<tr><th>탈락</th><td>스프레드악화</td></tr>
+<tr><th>Chase</th><td>중하</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>29. LQDA — Liquidia</h2>
+<p class="price">현재 $79.94 | 52주 $14.25–$82.96 | PT $60/$75.14/$109 | A/B/C $75/$90/$109</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>펀더강·고점비추격 · Q1 제품~$130M 흑자EPS$0.52</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>희귀심폐</td></tr>
+<tr><th>특징</th><td>YUTREPIA침투·특허</td></tr>
+<tr><th>시총</th><td>~$7B</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>YUTREPIA 흡입치료</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 제품~$130M 흑자EPS$0.52</td></tr>
+<tr><th>컨센서스</th><td>PT$75 현재+6%</td></tr>
+<tr><th>서프라이즈</th><td>EPS3/4 Rev4/4</td></tr>
+<tr><th>전략</th><td>펀더강·고점비추격</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>3분기연속흑자(IR)</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$90–109</td></tr>
+<tr><th>BASE</th><td>$70–85</td></tr>
+<tr><th>BEAR</th><td>$55–65</td></tr>
+<tr><th>Breaker</th><td>소송·수요둔화</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>희귀심폐</td></tr>
+<tr><th>핵심</th><td>YUTREPIA 흡입치료</td></tr>
+<tr><th>EPS</th><td>3/4</td></tr>
+<tr><th>신규진입</th><td>$65–72</td></tr>
+<tr><th>탈락</th><td>특허패소</td></tr>
+<tr><th>Chase</th><td>중·고점</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>30. PTGX — Protagonist</h2>
+<p class="price">현재 $140.91 | 52주 $50.49–$141.1 | PT $100/$124.1/$165 | A/B/C $130/$145/$165</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>고점과열·서프라이즈약 · Q1 EPS/Rev대형Beat(일회성가능)</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·신약</td></tr>
+<tr><th>특징</th><td>파이프라인·파트너</td></tr>
+<tr><th>시총</th><td>중형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>경구펩타이드신약</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS/Rev대형Beat(일회성가능)</td></tr>
+<tr><th>컨센서스</th><td>PT$124 현재+14%</td></tr>
+<tr><th>서프라이즈</th><td>EPS1/4 Rev1/4</td></tr>
+<tr><th>전략</th><td>고점과열·서프라이즈약</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-05실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$150–165</td></tr>
+<tr><th>BASE</th><td>$120–140</td></tr>
+<tr><th>BEAR</th><td>$90–110</td></tr>
+<tr><th>Breaker</th><td>파이프라인실패</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>바이오·신약</td></tr>
+<tr><th>핵심</th><td>경구펩타이드신약</td></tr>
+<tr><th>EPS</th><td>1/4</td></tr>
+<tr><th>신규진입</th><td>$115–125</td></tr>
+<tr><th>탈락</th><td>임상실패</td></tr>
+<tr><th>Chase</th><td>하·고점</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>31. LFST — LifeStance Health</h2>
+<p class="price">현재 $11.58 | 52주 $3.74–$11.68 | PT $9/$11.5/$14 | A/B/C $11/$12/$14</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>서프라이즈실패→하위 · Rev4/4Beat·EPS0/4 5연속Miss</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>헬스케어·외래정신건강</td></tr>
+<tr><th>특징</th><td>외래정신건강수요</td></tr>
+<tr><th>시총</th><td>중형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>외래정신건강클리닉</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Rev4/4Beat·EPS0/4 5연속Miss</td></tr>
+<tr><th>컨센서스</th><td>PT$11.5≈현재</td></tr>
+<tr><th>서프라이즈</th><td>EPS0/4 5연속Miss Rev4/4</td></tr>
+<tr><th>전략</th><td>서프라이즈실패→하위</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-06실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$13–14</td></tr>
+<tr><th>BASE</th><td>$10–12</td></tr>
+<tr><th>BEAR</th><td>$7–9</td></tr>
+<tr><th>Breaker</th><td>연속미스</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>헬스케어·외래정신건강</td></tr>
+<tr><th>핵심</th><td>외래정신건강클리닉</td></tr>
+<tr><th>EPS</th><td>5연속Miss</td></tr>
+<tr><th>신규진입</th><td>비선호</td></tr>
+<tr><th>탈락</th><td>또미스</td></tr>
+<tr><th>Chase</th><td>하</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>32. CLMT — Calumet</h2>
+<p class="price">현재 $42.83 | 52주 $12.94–$42.95 | PT $26/$37.8/$60 | A/B/C $40/$48/$55</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>고점·미스→비추격 · Q1 EPS대형Miss RevBeat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>소재·특수제품/재생연료</td></tr>
+<tr><th>특징</th><td>리파이닝·재생연료마진</td></tr>
+<tr><th>시총</th><td>소중형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>특수석유·재생연료</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS대형Miss RevBeat</td></tr>
+<tr><th>컨센서스</th><td>PT$37.8 현재+13%</td></tr>
+<tr><th>서프라이즈</th><td>EPS2/4 최근Miss Rev3/4</td></tr>
+<tr><th>전략</th><td>고점·미스→비추격</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-07실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$45–55</td></tr>
+<tr><th>BASE</th><td>$35–42</td></tr>
+<tr><th>BEAR</th><td>$25–32</td></tr>
+<tr><th>Breaker</th><td>마진붕괴</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>소재·특수제품/재생연료</td></tr>
+<tr><th>핵심</th><td>특수석유·재생연료</td></tr>
+<tr><th>EPS</th><td>최근Miss</td></tr>
+<tr><th>신규진입</th><td>$32–36</td></tr>
+<tr><th>탈락</th><td>스프레드악화</td></tr>
+<tr><th>Chase</th><td>하</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>33. LIND — Lindblad Expeditions</h2>
+<p class="price">현재 $27.67 | 52주 $11.37–$30.0 | PT $17/$27.5/$34 | A/B/C $28/$31/$34</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>이질섹터·후순위 · 시즌성여행실적</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>여행·탐험</td></tr>
+<tr><th>특징</th><td>예약·유가·소비</td></tr>
+<tr><th>시총</th><td>소형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>탐험크루즈</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>시즌성여행실적</td></tr>
+<tr><th>컨센서스</th><td>PT$27.5≈현재</td></tr>
+<tr><th>서프라이즈</th><td>데이터제한·보수</td></tr>
+<tr><th>전략</th><td>이질섹터·후순위</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>여행수요테마</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$31–34</td></tr>
+<tr><th>BASE</th><td>$26–29</td></tr>
+<tr><th>BEAR</th><td>$20–24</td></tr>
+<tr><th>Breaker</th><td>예약둔화</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>여행·탐험</td></tr>
+<tr><th>핵심</th><td>탐험크루즈</td></tr>
+<tr><th>EPS</th><td>제한</td></tr>
+<tr><th>신규진입</th><td>비선호</td></tr>
+<tr><th>탈락</th><td>수요둔화</td></tr>
+<tr><th>Chase</th><td>하</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>34. CDNA — CareDx</h2>
+<p class="price">현재 $39.73 | 52주 $11.26–$40.47 | PT $21/$32.25/$45 | A/B/C $35/$40/$45</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>07-30·과열관망 · 이식검사·인수확장</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>이식진단</td></tr>
+<tr><th>특징</th><td>검사볼륨·M&amp;A</td></tr>
+<tr><th>시총</th><td>~$1.5–2B</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>AlloMap+Naveris인수</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>이식검사·인수확장</td></tr>
+<tr><th>컨센서스</th><td>PT$32 현재+23%과열</td></tr>
+<tr><th>서프라이즈</th><td>혼재</td></tr>
+<tr><th>전략</th><td>07-30·과열관망</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>Naveris인수; 07-30실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$42–45</td></tr>
+<tr><th>BASE</th><td>$32–38</td></tr>
+<tr><th>BEAR</th><td>$25–30</td></tr>
+<tr><th>Breaker</th><td>실적·인수차질</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>이식진단</td></tr>
+<tr><th>핵심</th><td>AlloMap+Naveris인수</td></tr>
+<tr><th>EPS</th><td>혼재</td></tr>
+<tr><th>신규진입</th><td>실적후$30–33</td></tr>
+<tr><th>탈락</th><td>통합실패</td></tr>
+<tr><th>Chase</th><td>하·과열</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>35. KRYS — Krystal Biotech</h2>
+<p class="price">현재 $354.86 | 52주 $130.5–$382.54 | PT $284/$355.7/$474 | A/B/C $360/$400/$450</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>고점비추격 · Q1 매출$116M EPS$1.83</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>유전자치료</td></tr>
+<tr><th>특징</th><td>VYJUVEK상업화</td></tr>
+<tr><th>시총</th><td>~$10.5B</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>VYJUVEK</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 매출$116M EPS$1.83</td></tr>
+<tr><th>컨센서스</th><td>PT$356≈현재</td></tr>
+<tr><th>서프라이즈</th><td>연속EPSBeat</td></tr>
+<tr><th>전략</th><td>고점비추격</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-03실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$400–450</td></tr>
+<tr><th>BASE</th><td>$340–380</td></tr>
+<tr><th>BEAR</th><td>$280–300</td></tr>
+<tr><th>Breaker</th><td>처방둔화</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>유전자치료</td></tr>
+<tr><th>핵심</th><td>VYJUVEK</td></tr>
+<tr><th>EPS</th><td>연속Beat</td></tr>
+<tr><th>신규진입</th><td>$300–320</td></tr>
+<tr><th>탈락</th><td>상업화둔화</td></tr>
+<tr><th>Chase</th><td>하·고점</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>36. TVTX — Travere</h2>
+<p class="price">현재 $56.71 | 52주 $15.03–$60.1 | PT $43/$58.33/$70 | A/B/C $58/$65/$70</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>Miss감점 · Q1 매출$127M(+56%)나Miss EPSMiss</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>희귀신장</td></tr>
+<tr><th>특징</th><td>Filspari상업화</td></tr>
+<tr><th>시총</th><td>중소형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>희귀신장약</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 매출$127M(+56%)나Miss EPSMiss</td></tr>
+<tr><th>컨센서스</th><td>PT$58≈현재</td></tr>
+<tr><th>서프라이즈</th><td>Q1 EPS-31%Miss L4Q 2/4</td></tr>
+<tr><th>전략</th><td>Miss감점</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>Q1Miss(Yahoo)</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$65–70</td></tr>
+<tr><th>BASE</th><td>$52–60</td></tr>
+<tr><th>BEAR</th><td>$40–48</td></tr>
+<tr><th>Breaker</th><td>연속Miss</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>희귀신장</td></tr>
+<tr><th>핵심</th><td>희귀신장약</td></tr>
+<tr><th>EPS</th><td>Q1Miss</td></tr>
+<tr><th>신규진입</th><td>비선호</td></tr>
+<tr><th>탈락</th><td>또Miss</td></tr>
+<tr><th>Chase</th><td>하</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>37. FTNT — Fortinet</h2>
+<p class="price">현재 $161.61 | 52주 $70.12–$170.35 | PT $75/$118.42/$215 | A/B/C $140/$160/$190</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>Beat최고·가격과열→비추격 · Q1 EPS+37% Rev+7%Beat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>IT·사이버보안</td></tr>
+<tr><th>특징</th><td>방화벽·보안지출</td></tr>
+<tr><th>시총</th><td>대형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>네트워크보안</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS+37% Rev+7%Beat</td></tr>
+<tr><th>컨센서스</th><td>PT$118 현재+36%과열</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4 8연속 Rev4/4</td></tr>
+<tr><th>전략</th><td>Beat최고·가격과열→비추격</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>07-29실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$170–200</td></tr>
+<tr><th>BASE</th><td>$120–150</td></tr>
+<tr><th>BEAR</th><td>$95–115</td></tr>
+<tr><th>Breaker</th><td>성장둔화</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>IT·사이버보안</td></tr>
+<tr><th>핵심</th><td>네트워크보안</td></tr>
+<tr><th>EPS</th><td>8연속Beat</td></tr>
+<tr><th>신규진입</th><td>$115–125</td></tr>
+<tr><th>탈락</th><td>가이드컷</td></tr>
+<tr><th>Chase</th><td>하·과열</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>38. SEZL — Sezzle</h2>
+<p class="price">현재 $174.67 | 52주 $49.5–$195.71 | PT $108/$154.17/$190 | A/B/C $160/$180/$190</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>Beat강·과열회피 · Q1 EPS+17% RevBeat</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>핀테크·BNPL</td></tr>
+<tr><th>특징</th><td>신용손실·규제</td></tr>
+<tr><th>시총</th><td>~$5.9B</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>후불결제</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 EPS+17% RevBeat</td></tr>
+<tr><th>컨센서스</th><td>PT$154 현재+13%</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4 7연속 Rev4/4</td></tr>
+<tr><th>전략</th><td>Beat강·과열회피</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-06실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$180–190</td></tr>
+<tr><th>BASE</th><td>$150–170</td></tr>
+<tr><th>BEAR</th><td>$110–130</td></tr>
+<tr><th>Breaker</th><td>신용손실</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>핀테크·BNPL</td></tr>
+<tr><th>핵심</th><td>후불결제</td></tr>
+<tr><th>EPS</th><td>7연속Beat</td></tr>
+<tr><th>신규진입</th><td>회피</td></tr>
+<tr><th>탈락</th><td>규제</td></tr>
+<tr><th>Chase</th><td>최하·과열</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>39. TXG — 10x Genomics</h2>
+<p class="price">현재 $43.74 | 52주 $11.16–$46.32 | PT $20/$34.17/$50 | A/B/C $35/$42/$50</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>Beat강·과열회피 · Q1 매출$151M 손실축소</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>라이프사이언스툴</td></tr>
+<tr><th>특징</th><td>연구비·도구수요</td></tr>
+<tr><th>시총</th><td>중형</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>단일세포/공간분석</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 매출$151M 손실축소</td></tr>
+<tr><th>컨센서스</th><td>PT$34 현재+28%과열</td></tr>
+<tr><th>서프라이즈</th><td>EPS4/4 Rev4/4</td></tr>
+<tr><th>전략</th><td>Beat강·과열회피</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-06실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$48–50</td></tr>
+<tr><th>BASE</th><td>$32–40</td></tr>
+<tr><th>BEAR</th><td>$22–28</td></tr>
+<tr><th>Breaker</th><td>가이드컷</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>라이프사이언스툴</td></tr>
+<tr><th>핵심</th><td>단일세포/공간분석</td></tr>
+<tr><th>EPS</th><td>4/4</td></tr>
+<tr><th>신규진입</th><td>회피/$30–34</td></tr>
+<tr><th>탈락</th><td>연구비둔화</td></tr>
+<tr><th>Chase</th><td>최하·과열</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>40. DAVE — Dave</h2>
+<p class="price">현재 $440.42 | 52주 $152.21–$455.98 | PT $250/$373/$485 | A/B/C $380/$420/$485</p>
+<div class="sec"><h3>1. One-line Thesis</h3><p>과열회피 · Q1 매출$158M(+47%)</p></div>
+<div class="sec"><h3>2. 섹터 · 특징 · 시총</h3>
+<table class="kv"><tr><th>섹터</th><td>핀테크</td></tr>
+<tr><th>특징</th><td>ExtraCash·규제</td></tr>
+<tr><th>시총</th><td>~$5.6B</td></tr></table></div>
+<div class="sec"><h3>3. 핵심 아이템</h3><p>ExtraCash</p></div>
+<div class="sec"><h3>4. 실적 · 컨센서스 · 서프라이즈 · 전략</h3>
+<table class="kv"><tr><th>실적</th><td>Q1 매출$158M(+47%)</td></tr>
+<tr><th>컨센서스</th><td>PT$373 현재+18%</td></tr>
+<tr><th>서프라이즈</th><td>EPS3/4 3연속 Rev4/4 변동성큼</td></tr>
+<tr><th>전략</th><td>과열회피</td></tr></table></div>
+<div class="sec"><h3>5. 뉴스</h3><p>~08-05실적</p></div>
+<div class="sec"><h3>6. BULL / BASE / BEAR</h3>
+<table class="kv"><tr><th>BULL</th><td>$450–485</td></tr>
+<tr><th>BASE</th><td>$360–420</td></tr>
+<tr><th>BEAR</th><td>$280–330</td></tr>
+<tr><th>Breaker</th><td>규제·신용</td></tr></table></div>
+<div class="sec"><h3>7. 결론</h3>
+<table class="kv"><tr><th>섹터</th><td>핀테크</td></tr>
+<tr><th>핵심</th><td>ExtraCash</td></tr>
+<tr><th>EPS</th><td>3/4</td></tr>
+<tr><th>신규진입</th><td>회피</td></tr>
+<tr><th>탈락</th><td>규제</td></tr>
+<tr><th>Chase</th><td>최하·과열</td></tr></table></div>
+</section>
+<section class="ticker">
+<h2>투자 우선순위 (Chase RR · 오늘 40종)</h2>
+<table class="data"><thead><tr><th>순위</th><th>티커</th><th>메모</th></tr></thead>
+<tbody><tr><td>1</td><td>ECPG</td><td>최상·코어 · $88–93</td></tr><tr><td>2</td><td>INDV</td><td>상·이벤트 · 07-30전 관망</td></tr><tr><td>3</td><td>NESR</td><td>상·분할 · $25–28분할</td></tr><tr><td>4</td><td>AMRX</td><td>중상·반만 · $16–17.5반만</td></tr><tr><td>5</td><td>KNSA</td><td>중상·반만 · 반만$60–64</td></tr><tr><td>6</td><td>NEO</td><td>상 · $13–14.5</td></tr><tr><td>7</td><td>XMTR</td><td>중상·눌림 · $85–92</td></tr><tr><td>8</td><td>FROG</td><td>중·눌림 · $78–85</td></tr><tr><td>9</td><td>ACHC</td><td>중·대기 · $28–32</td></tr><tr><td>10</td><td>CHEF</td><td>중상 · $88–94</td></tr><tr><td>11</td><td>NWPX</td><td>중하·과열 · $100–110</td></tr><tr><td>12</td><td>FA</td><td>중하·과열 · $16–18</td></tr><tr><td>13</td><td>BAND</td><td>중하·과열 · $55–62</td></tr><tr><td>14</td><td>CMPR</td><td>중 · $95–100</td></tr><tr><td>15</td><td>JAZZ</td><td>중·눌림 · $230–240</td></tr><tr><td>16</td><td>SEPN</td><td>중·위성 · 소량$30–34</td></tr><tr><td>17</td><td>AVTX</td><td>하·고위험 · 극소량/관망</td></tr><tr><td>18</td><td>SLS</td><td>하·고위험 · 관망/극소</td></tr><tr><td>19</td><td>DNTH</td><td>중하 · $90–100</td></tr><tr><td>20</td><td>RAPP</td><td>중·위성 · $36–40소량</td></tr><tr><td>21</td><td>ASTH</td><td>상·보유 · $42–46</td></tr><tr><td>22</td><td>BTSG</td><td>중·보유만 · $58–62대기</td></tr><tr><td>23</td><td>JBHT</td><td>중·눌림 · $260–275</td></tr><tr><td>24</td><td>VCYT</td><td>중하 · $52–55</td></tr><tr><td>25</td><td>KYMR</td><td>중하 · $100–110</td></tr><tr><td>26</td><td>ALKS</td><td>하·감점 · 실적후</td></tr><tr><td>27</td><td>FTRE</td><td>중하 · $14–16</td></tr><tr><td>28</td><td>GPRE</td><td>중하 · $15–17</td></tr><tr><td>29</td><td>LQDA</td><td>중·고점 · $65–72</td></tr><tr><td>30</td><td>PTGX</td><td>하·고점 · $115–125</td></tr><tr><td>31</td><td>LFST</td><td>하 · 비선호</td></tr><tr><td>32</td><td>CLMT</td><td>하 · $32–36</td></tr><tr><td>33</td><td>LIND</td><td>하 · 비선호</td></tr><tr><td>34</td><td>CDNA</td><td>하·과열 · 실적후$30–33</td></tr><tr><td>35</td><td>KRYS</td><td>하·고점 · $300–320</td></tr><tr><td>36</td><td>TVTX</td><td>하 · 비선호</td></tr><tr><td>37</td><td>FTNT</td><td>하·과열 · $115–125</td></tr><tr><td>38</td><td>SEZL</td><td>최하·과열 · 회피</td></tr><tr><td>39</td><td>TXG</td><td>최하·과열 · 회피/$30–34</td></tr><tr><td>40</td><td>DAVE</td><td>최하·과열 · 회피</td></tr></tbody></table>
+<h3>실행 요약</h3>
+<p>• 코어/상위: ECPG, NESR 분할, INDV·AMRX·KNSA는 실적 이벤트 관리<br/>
+• 서프라이즈 강하나 과열: FTNT, FA, BAND, NWPX, TXG, SEZL, DAVE → 눌림/회피<br/>
+• 금주 이벤트(KST): NEO/ACHC/ALKS 07-28 · CHEF/FTNT/BAND/NWPX/CMPR/FTRE 07-29 · INDV/AMRX/CDNA 07-30 · BTSG 07-31 · KNSA 07-28</p>
+</section>
+</body></html>
