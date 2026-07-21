@@ -8,6 +8,8 @@
     sepa> !sepa.chart("sandisk")          # 기업 이름으로도 가능
     sepa> !sepa.screener("full")          # 전 종목 Stage 2 스크리닝
     sepa> !sepa.vcp("NVDA,MSFT")          # shortlist VCP 타이밍
+    sepa> !sepa.ta("ECPG,NESR")           # TA 4축 (≤20, 전종목 금지)
+    sepa> !sepa.ta(watchlist, no_update=1)
 
 일회성 실행도 지원한다:
 
@@ -150,6 +152,41 @@ def _tool_screener(args: list, kwargs: dict) -> None:
     if kwargs.get("no_update"):
         argv.append("--no-update")
     screener.main(argv)
+
+
+def _tool_ta(args: list, kwargs: dict) -> None:
+    """Lean TA scores for a shortlist (≤20). docs/ta_bot_spec.md"""
+    from sepa import ta_bot
+
+    argv: list[str] = []
+    tickers: list[str] = []
+    for a in args:
+        s = str(a).strip()
+        if not s:
+            continue
+        if s.lower() in ("watchlist", "wl"):
+            argv.append("--watchlist")
+        elif s.lower() in ("full", "all"):
+            raise MacroError(
+                "TA는 전종목 금지입니다 — !sepa.ta(\"ECPG,NESR\") 또는 !sepa.ta(watchlist)"
+            )
+        else:
+            tickers.append(s.upper())
+    if tickers:
+        argv.extend(["--tickers", ",".join(tickers)])
+    elif "--watchlist" not in argv:
+        argv.append("--watchlist")
+
+    if kwargs.get("no_update") in (1, "1", True, "true", "True") or kwargs.get("no-update"):
+        argv.append("--no-update")
+    if kwargs.get("chart") in (1, "1", True, "true", "True"):
+        argv.append("--chart")
+    if kwargs.get("as_of") or kwargs.get("as-of"):
+        argv.extend(["--as-of", str(kwargs.get("as_of") or kwargs.get("as-of"))])
+    if kwargs.get("tail"):
+        argv.extend(["--tail-bars", str(kwargs["tail"])])
+
+    ta_bot.main(argv)
 
 
 def _tool_vcp(args: list, kwargs: dict) -> None:
@@ -419,6 +456,12 @@ REGISTRY: list[MacroSpec] = [
         "sepa.vcp", '!sepa.vcp("NVDA,MSFT")  |  !sepa.vcp(sandisk, as_of=2025-02-18)',
         "shortlist VCP 진입 타이밍 — BREAKOUT/WATCHLIST/FORMING/EXTENDED",
         _tool_vcp, aliases=("vcp", "sepa.vcp_timing"),
+    ),
+    MacroSpec(
+        "sepa.ta",
+        '!sepa.ta("ECPG,NESR,NEO")  |  !sepa.ta(watchlist)  |  !sepa.ta(ECPG, no_update=1)',
+        "기술적 분석 4축 스코어(≤20종목) — 전종목 금지·캐시 재사용·차트 기본 OFF",
+        _tool_ta, aliases=("ta", "sepa.tech", "tech"),
     ),
     MacroSpec(
         "sepa.chart", '!sepa.chart("SNDK")  |  !sepa.chart(sandisk, months=12)',

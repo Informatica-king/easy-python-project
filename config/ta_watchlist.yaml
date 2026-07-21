@@ -1,0 +1,10 @@
+# TA 봇 기본 워치리스트 (≤20)
+# 보유 + 이벤트 리저브 + 관심. 전종목 금지 — 연산량 최소화.
+tickers:
+  - ECPG
+  - ASTH
+  - NESR
+  - INDV
+  - NEO
+  - AMRX
+  - ALKS

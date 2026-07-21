@@ -11,6 +11,8 @@
 - Python 3.11+ / 가상환경 `.venv` (`pip install -r requirements.txt && pip install -e .`)
 - 테스트: `python -m pytest tests/` (네트워크 불필요, 합성 데이터 기반)
 - 가격 데이터 캐시는 `data/raw/`(git 제외) — 없으면 도구 실행 시 자동 수집
+- **TA 봇** (`!sepa.ta`): 전종목 스캔 금지·워치리스트≤20·`--no-update` 권장.
+  스펙은 `docs/ta_bot_spec.md`. 차트는 `chart=1`일 때만.
 
 ## `!` 매크로 컨벤션 (중요)
 

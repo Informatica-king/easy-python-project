@@ -10,6 +10,8 @@
    "회사명-티커" 리스트로 출력 → 사용자가 펀더멘털을 직접 검토·순위화
 2. **VCP 타이밍**: 검토를 마친 상위권 shortlist에 대해서만 VCP(변동성 수축
    패턴) 셋업과 피벗 돌파 타이밍을 계산
+3. **TA 봇** (`!sepa.ta`): 보유·관심 **≤20종목**만 4축 스코어 — 전종목 스캔
+   금지, parquet 캐시 재사용, 차트 기본 OFF (`docs/ta_bot_spec.md`)
 
 ## 설치
 
@@ -31,6 +33,8 @@ $ sepa
 sepa> !tools                        # 도구 목록과 사용법
 sepa> !sepa.screener(full)          # 나스닥 전 종목 Stage 2 스크리닝
 sepa> !sepa.vcp("NVDA,MSFT")        # shortlist VCP 타이밍
+sepa> !sepa.ta("ECPG,NESR")         # TA 4축 (워치리스트≤20)
+sepa> !sepa.ta(watchlist, no_update=1)
 sepa> !sepa.chart(sandisk)          # 기업 이름으로 SEPA 분석 차트
 sepa> !sepa.update()                # 전 종목 데이터만 증분 업데이트
 sepa> !exit
@@ -38,6 +42,14 @@ sepa> !exit
 $ sepa '!sepa.chart("SNDK")'        # 일회성 실행도 지원
 ```
 
+### TA 봇 (연산량 최소화)
+
+```bash
+python -m sepa.ta_bot --tickers ECPG,ASTH,NESR,NEO --no-update
+python -m sepa.ta_bot --watchlist
+```
+
+전종목 TA는 거부합니다. 스펙: `docs/ta_bot_spec.md`.
 ### 1단계 — Stage 2 스크리닝
 
 ```bash
