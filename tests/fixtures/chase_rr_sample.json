@@ -1,0 +1,19 @@
+{
+  "as_of": "2026-07-21",
+  "source": "심층분석",
+  "rows": [
+    {"rank": 1, "ticker": "NEO", "chase": "최상", "px": 14.24, "earn_date": "2026-07-28"},
+    {"rank": 2, "ticker": "ECPG", "chase": "최상·코어", "px": 88.67},
+    {"rank": 3, "ticker": "SLS", "chase": "상·위성", "px": 13.0},
+    {"rank": 4, "ticker": "ALKS", "chase": "상·07-28", "px": 30.0, "earn_date": "2026-07-28"},
+    {"rank": 5, "ticker": "TVTX", "chase": "상", "px": 20.0},
+    {"rank": 6, "ticker": "RAPP", "chase": "상", "px": 42.0},
+    {"rank": 7, "ticker": "NESR", "chase": "상·분할보유", "px": 27.23},
+    {"rank": 8, "ticker": "TXG", "chase": "중·고점눌림", "px": 15.0},
+    {"rank": 11, "ticker": "ASTH", "chase": "상·코어보유", "px": 44.0},
+    {"rank": 12, "ticker": "AMRX", "chase": "중상·07-30반만", "px": 17.5, "earn_date": "2026-07-30"},
+    {"rank": 18, "ticker": "BTSG", "chase": "매도·07-31추격금지", "px": 20.0},
+    {"rank": 34, "ticker": "KNSA", "chase": "중상·07-28반만", "px": 63.0, "earn_date": "2026-07-28"},
+    {"rank": 38, "ticker": "FTNT", "chase": "하·과열", "px": 100.0}
+  ]
+}

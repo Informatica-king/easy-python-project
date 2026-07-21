@@ -155,8 +155,29 @@ def _tool_screener(args: list, kwargs: dict) -> None:
 
 
 def _tool_ta(args: list, kwargs: dict) -> None:
-    """Lean TA scores for a shortlist (≤20). docs/ta_bot_spec.md"""
-    from sepa import ta_bot
+    """Lean TA scores / 기술적분석(). docs/korean_commands.md"""
+    from sepa import ta_bot, tech_analysis
+
+    # Chase auto: !sepa.ta(from_chase=1) or !sepa.ta(chase)
+    if kwargs.get("from_chase") in (1, "1", True, "true", "True") or (
+        args and str(args[0]).lower() in ("from_chase", "chase", "auto")
+    ):
+        path = None
+        if len(args) > 1 and str(args[0]).lower() in ("from_chase", "chase", "auto"):
+            # !sepa.ta(chase, reports/chase_rr_....json)
+            cand = str(args[1])
+            if cand.endswith(".json"):
+                path = cand
+        elif isinstance(kwargs.get("from_chase"), str) and kwargs["from_chase"] not in (
+            "1", "true", "True",
+        ):
+            path = str(kwargs["from_chase"])
+        tech_analysis.run_from_chase(
+            path,
+            update=kwargs.get("no_update") not in (1, "1", True, "true", "True"),
+            no_hooks=kwargs.get("no_hooks") in (1, "1", True, "true", "True"),
+        )
+        return
 
     argv: list[str] = []
     tickers: list[str] = []
@@ -168,8 +189,10 @@ def _tool_ta(args: list, kwargs: dict) -> None:
             argv.append("--watchlist")
         elif s.lower() in ("full", "all"):
             raise MacroError(
-                "TA는 전종목 금지입니다 — !sepa.ta(\"ECPG,NESR\") 또는 !sepa.ta(watchlist)"
+                "TA는 전종목 금지입니다 — !sepa.ta(\"ECPG,NESR\") 또는 !sepa.ta(from_chase=1)"
             )
+        elif s.lower() in ("from_chase", "chase", "auto"):
+            continue
         else:
             tickers.append(s.upper())
     if tickers:
@@ -185,6 +208,8 @@ def _tool_ta(args: list, kwargs: dict) -> None:
         argv.extend(["--as-of", str(kwargs.get("as_of") or kwargs.get("as-of"))])
     if kwargs.get("tail"):
         argv.extend(["--tail-bars", str(kwargs["tail"])])
+    if kwargs.get("no_hooks") in (1, "1", True, "true", "True"):
+        argv.append("--no-hooks")
 
     ta_bot.main(argv)
 
@@ -459,9 +484,9 @@ REGISTRY: list[MacroSpec] = [
     ),
     MacroSpec(
         "sepa.ta",
-        '!sepa.ta("ECPG,NESR,NEO")  |  !sepa.ta(watchlist)  |  !sepa.ta(ECPG, no_update=1)',
-        "기술적 분석 4축 스코어(≤20종목) — 전종목 금지·캐시 재사용·차트 기본 OFF",
-        _tool_ta, aliases=("ta", "sepa.tech", "tech"),
+        '!sepa.ta("ECPG,NESR")  |  !sepa.ta(from_chase=1)  |  !sepa.ta(watchlist, no_update=1)',
+        "기술적분석() — 4축 TA+훅. from_chase=1 이면 심층분석 Chase RR 자동 선정",
+        _tool_ta, aliases=("ta", "sepa.tech", "tech", "기술적분석"),
     ),
     MacroSpec(
         "sepa.chart", '!sepa.chart("SNDK")  |  !sepa.chart(sandisk, months=12)',

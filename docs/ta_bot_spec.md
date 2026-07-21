@@ -98,7 +98,13 @@ TA 점수는 유지하고 **`분할OK`만** 덮어씀.
 출력 컬럼: `ta_action`(순수 TA) / `action`(최종) / `override` / `reason`.  
 `--no-hooks` 로 비활성.
 
-## 8. 다음 (미승인 · 보류)
+## 8. 한국어 명령 · 심층분석 연동
+
+- 명령 계약: `docs/korean_commands.md`
+- 엔트리: `python -m sepa.tech_analysis` / `!sepa.ta` / 사용자 말 `기술적분석(...)`
+- `심층분석` 종료 시 `after_deep_analysis(chase_rows)` → 스냅샷 + 자동 TA
+
+## 9. 다음 (미승인 · 보류)
 
 - PT 프리미엄 캡, role 태그(core_no_add 등), 현금 사이징
 - VCP/Stage2 점수 합치기, 자동매매
