@@ -10,14 +10,14 @@ from __future__ import annotations
 
 import argparse
 import logging
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 import pandas as pd
-import yaml
 
 from sepa.config import load_params
 from sepa.data import store
+from sepa.ta_hooks import TickerMeta, apply_hooks, parse_watchlist, watchlist_symbols
 from sepa.ta_score import TAIL_BARS_DEFAULT, results_to_frame, score_frame
 
 logger = logging.getLogger(__name__)
@@ -31,12 +31,7 @@ def _parse_tickers(raw: str) -> list[str]:
 
 
 def load_watchlist(path: str | Path = "config/ta_watchlist.yaml") -> list[str]:
-    raw = yaml.safe_load(Path(path).read_text())
-    tickers = raw.get("tickers") or []
-    out = [str(t).strip().upper() for t in tickers if str(t).strip()]
-    if len(out) > 20:
-        raise SystemExit(f"ta watchlist too large ({len(out)}); keep ≤20 for efficiency")
-    return out
+    return watchlist_symbols(parse_watchlist(path))
 
 
 def run(
@@ -48,6 +43,8 @@ def run(
     tail_bars: int,
     as_of: str | None,
     report_dir: str,
+    meta_by_ticker: dict[str, TickerMeta] | None = None,
+    hooks_as_of: date | None = None,
 ) -> pd.DataFrame:
     if not tickers:
         raise SystemExit("no tickers — pass --tickers or --watchlist")
@@ -62,13 +59,20 @@ def run(
         cutoff = pd.Timestamp(as_of)
         data = {t: df.loc[:cutoff] for t, df in data.items()}
 
+    meta_by_ticker = meta_by_ticker or {}
+    # Hook calendar date: explicit --as-of, else bar date, else today
+    hook_day = hooks_as_of
+    if hook_day is None and as_of:
+        hook_day = date.fromisoformat(as_of[:10])
+
     rows = []
     for t in tickers:
         df = data.get(t)
         if df is None:
-            rows.append(score_frame(pd.DataFrame(), t, tail_bars))
-            continue
-        rows.append(score_frame(df, t, tail_bars))
+            raw = score_frame(pd.DataFrame(), t, tail_bars)
+        else:
+            raw = score_frame(df, t, tail_bars)
+        rows.append(apply_hooks(raw, meta_by_ticker.get(t), as_of=hook_day))
 
     out = results_to_frame(rows)
     if not out.empty:
@@ -91,19 +95,18 @@ def _print_table(df: pd.DataFrame) -> None:
         return
     cols = [
         "ticker", "close", "trend", "momentum", "setup", "total",
-        "rsi", "atr_pct", "status", "action", "entry_lo", "entry_hi", "stop", "note",
+        "rsi", "atr_pct", "status", "ta_action", "action", "override",
+        "entry_lo", "entry_hi", "stop", "reason",
     ]
     show = df[[c for c in cols if c in df.columns]].copy()
-    with pd.option_context("display.max_rows", 50, "display.width", 140, "display.max_colwidth", 40):
+    with pd.option_context("display.max_rows", 50, "display.width", 160, "display.max_colwidth", 48):
         print(show.to_string(index=False))
 
 
 def _maybe_charts(tickers: list[str], report_dir: str) -> None:
     """Optional heavy path — only when user asks for charts."""
     from sepa import chart
-    from sepa.config import load_params
 
-    params = load_params("config/params.yaml")
     out_dir = Path(report_dir) / "charts"
     out_dir.mkdir(parents=True, exist_ok=True)
     for t in tickers:
@@ -126,15 +129,33 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--no-update", action="store_true", help="Cache only — zero network")
     p.add_argument("--tail-bars", type=int, default=TAIL_BARS_DEFAULT)
     p.add_argument("--chart", action="store_true", help="Also render SEPA charts (expensive)")
+    p.add_argument(
+        "--no-hooks",
+        action="store_true",
+        help="Skip EARN_D5/BAND portfolio hooks (raw TA only)",
+    )
     args = p.parse_args(argv)
 
     params = load_params(args.params)
+    wl_path = Path(args.watchlist_file)
+    meta: dict[str, TickerMeta] = {}
+    if wl_path.exists() and not args.no_hooks:
+        try:
+            meta = parse_watchlist(wl_path)
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
+
     if args.tickers.strip():
         tickers = _parse_tickers(args.tickers)
     elif args.watchlist:
-        tickers = load_watchlist(args.watchlist_file)
+        if not meta:
+            meta = parse_watchlist(wl_path)
+        tickers = watchlist_symbols(meta)
     else:
         p.error("pass --tickers or --watchlist")
+
+    # When tickers passed explicitly, still apply meta for those symbols if present
+    use_meta = {} if args.no_hooks else {t: meta[t] for t in tickers if t in meta}
 
     run(
         tickers,
@@ -144,6 +165,7 @@ def main(argv: list[str] | None = None) -> int:
         tail_bars=args.tail_bars,
         as_of=args.as_of,
         report_dir=params.report_dir,
+        meta_by_ticker=use_meta,
     )
     if args.chart:
         _maybe_charts(tickers, params.report_dir)

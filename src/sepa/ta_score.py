@@ -42,6 +42,10 @@ class TAResult:
     atr_pct: float
     rsi: float
     note: str
+    # Filled by portfolio hooks (ta_hooks); defaults keep raw-TA rows valid
+    ta_action: str = ""
+    override: str = "—"
+    reason: str = ""
 
 
 def _ema(s: pd.Series, n: int) -> pd.Series:

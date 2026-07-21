@@ -85,8 +85,20 @@ python -m sepa.ta_bot --watchlist             # ta_watchlist.yaml
 
 ---
 
-## 7. 다음 단계 (본 MVP 이후)
+## 7. 포트 훅 (승인: EARN_D5 + BAND만)
 
-1. 포트 규칙 훅 (실적 D-5, PT 프리미엄, NESR $25–27 밴드)
-2. `!sepa.ta` 결과에 Chase 라벨 병기
-3. 필요 시에만 차트 오버레이 (진입존·ATR 손절)
+TA 점수는 유지하고 **`분할OK`만** 덮어씀.
+
+| 훅 | 조건 | 효과 |
+|---|---|---|
+| `EARN_D5` | `earn−5일 ≤ as_of ≤ earn` | `분할OK` → `대기` |
+| `BAND` | `close ∉ [lo,hi]` | `분할OK` → `대기`; 밴드 안이면 entry∩band |
+
+설정: `config/ta_watchlist.yaml` (`earn_date`, `band`).  
+출력 컬럼: `ta_action`(순수 TA) / `action`(최종) / `override` / `reason`.  
+`--no-hooks` 로 비활성.
+
+## 8. 다음 (미승인 · 보류)
+
+- PT 프리미엄 캡, role 태그(core_no_add 등), 현금 사이징
+- VCP/Stage2 점수 합치기, 자동매매
