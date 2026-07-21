@@ -250,6 +250,46 @@ def print_fund_copy_list(df: pd.DataFrame, min_score: float = FUND_COPY_MIN_DEFA
     print()
 
 
+def fund_median_threshold(df: pd.DataFrame) -> float:
+    """Median fund_score of the candidate frame (NaN-safe)."""
+    scores = pd.to_numeric(df["fund_score"], errors="coerce").dropna()
+    if scores.empty:
+        return float("nan")
+    return float(scores.median())
+
+
+def fund_median_tickers(df: pd.DataFrame) -> tuple[list[str], float]:
+    """Tickers with fund_score >= median, ordered like fund_highlight_tickers."""
+    med = fund_median_threshold(df)
+    if not (med == med):  # NaN
+        return [], med
+    return fund_highlight_tickers(df, min_score=med), med
+
+
+def print_fund_median_copy_list(
+    df: pd.DataFrame,
+    *,
+    out_path: Path | None = None,
+) -> Path | None:
+    """Print (and optionally export) comma-separated tickers at/above median fund score."""
+    tickers, med = fund_median_tickers(df)
+    med_s = "n/a" if med != med else f"{med:.1f}"
+    print(f"\n=== Fund ≥ 중앙값({med_s}) 티커 (복사용, 쉼표 구분) — {len(tickers)}종 ===\n")
+    line = ",".join(tickers)
+    if not tickers:
+        print("  (해당 없음)")
+    else:
+        print(line)
+    print()
+    if out_path is None:
+        return None
+    out_path = Path(out_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text((line + "\n") if line else "")
+    print(f"export: {out_path}")
+    return out_path
+
+
 def latest_fundamental_csv(report_dir: str | Path) -> Path | None:
     paths = sorted(Path(report_dir).glob("fundamental_*.csv"))
     return paths[-1] if paths else None
@@ -519,6 +559,8 @@ def main(argv: list[str] | None = None) -> int:
     print_fund_distribution(scores)
     print_mcap_distribution(enriched["market_cap"])
     print_fund_copy_list(enriched, min_score=args.fund_min)
+    median_export = Path(params.report_dir) / f"fund_median_tickers_{stamp}.txt"
+    print_fund_median_copy_list(enriched, out_path=median_export)
     print(f"중심값(산점도 원점): RS mean={cx:.1f}, Fund mean={cy:.1f}")
     print(f"charts: {bar_path.resolve()}")
     print(f"        {scatter_path.resolve()}")

@@ -358,6 +358,15 @@ def _tool_go(args: list, kwargs: dict) -> None:
     if fund_csv is None or not fund_csv.exists():
         raise MacroError("fund 후 fundamental 리포트가 없습니다 — reports/fundamental_*.csv 확인")
 
+    # Copy-friendly median+ ticker export (also printed again inside anal)
+    import pandas as pd
+
+    from sepa.analyze import print_fund_median_copy_list
+
+    fund_df = pd.read_csv(fund_csv)
+    median_export = Path(f"reports/fund_median_tickers_{stamp}.txt")
+    print_fund_median_copy_list(fund_df, out_path=median_export)
+
     # 3) Sector + RS×Fund analysis
     banner(3, 3, "!sepa.anal()")
     anal_argv = ["--from-fundamental", str(fund_csv)]
@@ -369,6 +378,7 @@ def _tool_go(args: list, kwargs: dict) -> None:
     print("  SEPA GO 완료")
     print(f"  stage2 : {stage2}")
     print(f"  fund   : {fund_csv}")
+    print(f"  median+: {median_export}")
     scatter = Path(f"reports/charts/analyze_scatter_{stamp}.png")
     sectors = Path(f"reports/charts/analyze_sectors_{stamp}.png")
     if not scatter.exists():
@@ -451,7 +461,7 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.go",
         "!sepa.go()  |  !sepa.go",
-        "일일 파이프라인 — scan(full) → fund → anal(+sectorShare+sepaTop) 을 순서대로 실행·출력",
+        "일일 파이프라인 — scan(full) → fund → anal(+sectorShare+sepaTop) 을 순서대로 실행·출력. Fund 중앙값 이상 티커를 쉼표 목록으로 출력·export",
         _tool_go,
         aliases=("go",),
     ),

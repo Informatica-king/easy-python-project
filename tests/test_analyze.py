@@ -5,8 +5,10 @@ import pandas as pd
 from sepa.analyze import (
     classify_tags,
     fund_highlight_tickers,
+    fund_median_tickers,
     fund_score_bin_counts,
     market_cap_bin_counts,
+    print_fund_median_copy_list,
     tag_counts,
 )
 
@@ -68,3 +70,20 @@ def test_fund_highlight_tickers_comma_order():
         }
     )
     assert fund_highlight_tickers(df, 40) == ["C", "A", "D"]
+
+
+def test_fund_median_tickers_and_export(tmp_path):
+    df = pd.DataFrame(
+        {
+            "ticker": ["A", "B", "C", "D"],
+            "fund_score": [10, 20, 30, 40],
+            "rs_rank": [80, 81, 82, 83],
+        }
+    )
+    # median = 25 → C(30), D(40)
+    tickers, med = fund_median_tickers(df)
+    assert med == 25.0
+    assert tickers == ["D", "C"]
+    out = tmp_path / "fund_median_tickers.txt"
+    print_fund_median_copy_list(df, out_path=out)
+    assert out.read_text().strip() == "D,C"
