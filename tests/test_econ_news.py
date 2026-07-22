@@ -1,6 +1,11 @@
 """Unit tests for econ news helpers (no network for tag/mood)."""
 
+from sepa.econ_news import econ_release_tag
 from sepa.econ_news_data import BarSnap, _tag_sectors, infer_mood
+
+
+def test_econ_release_tag():
+    assert econ_release_tag("2026-07-21") == "sepa-econ-20260721"
 
 
 def test_tag_semiconductor_keywords():

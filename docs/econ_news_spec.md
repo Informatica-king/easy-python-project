@@ -18,7 +18,12 @@
 | 포트 | `config/portfolio_watch.yaml` |
 
 ## 출력
-`reports/Econ_News_YYYY-MM-DD.pdf` (+ artifacts 복사)
+`reports/Econ_News_YYYY-MM-DD.pdf`
++ artifacts 복사 (`publish`)
++ `assets/` 복사
++ **GitHub Release 직접 다운로드** (`sepa-econ-YYYYMMDD`, `!sepa.anal`과 동일 UX)
+
+`--skip-github-release` 로 업로드 생략 가능.
 
 ## 섹션
 1. 표지 3불릿 2. 자금이동 3. 핫/콜드 섹터+뉴스 4. 대표지수
