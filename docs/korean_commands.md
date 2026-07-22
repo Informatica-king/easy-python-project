@@ -9,6 +9,7 @@
 
 | 명령 | 의미 | 구현 |
 |---|---|---|
+| `경제뉴스()` | 직전 미국 정규장 하룻밤 브리핑 PDF | `python -m sepa.econ_news` / `!sepa.econ()` |
 | `심층분석(티커,…)` | Chase RR·7섹션 심층 PDF | 딥분석 생성기 + **종료 시 기술적분석 자동** |
 | `기술적분석(티커,…)` | TA 4축 + EARN_D5/BAND 훅 | `python -m sepa.tech_analysis` / `!sepa.ta` |
 | `수익구조분석(티커)` | 수익구조 딥다이브 PDF | `reports/generate_revenue_structure_*.py` |

@@ -5,8 +5,9 @@
 마크 미너비니 SEPA 전략 기반 나스닥 스크리너 (개인 투자 참고용 · 비상업).
 전략 정의는 `docs/strategy_spec.md`, 로드맵·결정 로그는 `docs/DEVELOPMENT_NOTE.md`,
 데이터 구조는 `docs/data_structure.md` 참조.
-**한국어 분석 명령**(`심층분석` / `기술적분석` / `수익구조분석`)은
+**한국어 분석 명령**(`경제뉴스` / `심층분석` / `기술적분석` / `수익구조분석`)은
 `docs/korean_commands.md` 가 계약이다.
+스펙: `docs/econ_news_spec.md` · 보유/워치: `config/portfolio_watch.yaml`.
 
 ## 환경
 
@@ -23,6 +24,7 @@
 
 | 사용자 입력 | 동작 |
 |---|---|
+| `경제뉴스()` | 직전 미국 정규장 브리핑 PDF (자금·섹터·지수·보유+워치·뉴스) |
 | `심층분석(티커,…)` | 딥분석 PDF 생성 → **`reports/chase_rr_YYYYMMDD.json` 저장** → **즉시 `기술적분석` 자동** |
 | `기술적분석(티커,…)` | 해당 티커 TA+훅 |
 | `기술적분석()` | 최신 Chase 스냅샷에서 매수 고려 종목 자동 선정 후 TA |

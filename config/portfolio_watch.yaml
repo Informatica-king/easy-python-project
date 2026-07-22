@@ -1,0 +1,17 @@
+# 경제뉴스() · TA 포트 영향용 — 보유 + 워치
+# role: hold | watch
+
+as_of_note: "USD 시드에 KRW 환전분 포함 가능"
+
+holdings:
+  - { ticker: ECPG, role: hold, note: "코어 · 추가금지" }
+  - { ticker: ASTH, role: hold, note: "코어 · 추가금지" }
+  - { ticker: NESR, role: hold, note: "분할 · 밴드 25-27만" }
+  - { ticker: INDV, role: hold, note: "추가금지 · 실적 주의" }
+
+watchlist:
+  - { ticker: NEO, role: watch, note: "이벤트 1순위" }
+  - { ticker: AMRX, role: watch, note: "이벤트 2순위" }
+  - { ticker: MU, role: watch, note: "반도체 소수점 위성" }
+  - { ticker: ALKS, role: watch, note: "이벤트 후보" }
+  - { ticker: COCO, role: watch, note: "실적 임박 관전" }

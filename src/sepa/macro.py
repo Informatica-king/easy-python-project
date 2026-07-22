@@ -154,6 +154,21 @@ def _tool_screener(args: list, kwargs: dict) -> None:
     screener.main(argv)
 
 
+def _tool_econ_news(args: list, kwargs: dict) -> None:
+    """경제뉴스() — prior US session overnight brief PDF."""
+    from sepa import econ_news
+
+    argv: list[str] = []
+    if args:
+        # first positional may be as-of date
+        s = str(args[0]).strip()
+        if len(s) >= 8 and s[0].isdigit():
+            argv.extend(["--as-of", s[:10]])
+    if kwargs.get("as_of") or kwargs.get("as-of"):
+        argv.extend(["--as-of", str(kwargs.get("as_of") or kwargs.get("as-of"))[:10]])
+    econ_news.main(argv)
+
+
 def _tool_ta(args: list, kwargs: dict) -> None:
     """Lean TA scores / 기술적분석(). docs/korean_commands.md"""
     from sepa import ta_bot, tech_analysis
@@ -487,6 +502,13 @@ REGISTRY: list[MacroSpec] = [
         '!sepa.ta("ECPG,NESR")  |  !sepa.ta(from_chase=1)  |  !sepa.ta(watchlist, no_update=1)',
         "기술적분석() — 4축 TA+훅. from_chase=1 이면 심층분석 Chase RR 자동 선정",
         _tool_ta, aliases=("ta", "sepa.tech", "tech", "기술적분석"),
+    ),
+    MacroSpec(
+        "sepa.econ_news",
+        "!sepa.econ()  |  !sepa.econ_news()  |  !sepa.econ(2026-07-21)  |  !경제뉴스()",
+        "경제뉴스() — 직전 미국 정규장 자금이동·섹터·지수·포트영향 + 뉴스 PDF",
+        _tool_econ_news,
+        aliases=("econ", "sepa.econ", "econ_news", "경제뉴스", "news_brief"),
     ),
     MacroSpec(
         "sepa.chart", '!sepa.chart("SNDK")  |  !sepa.chart(sandisk, months=12)',

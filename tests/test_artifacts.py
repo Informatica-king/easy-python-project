@@ -2,7 +2,12 @@
 
 from pathlib import Path
 
-from sepa.artifacts import publish, publish_many
+from sepa.artifacts import publish, publish_many, release_download_url
+
+
+def test_release_download_url():
+    url = release_download_url("o/r", "sepa-econ-20260721", "Econ_News_2026-07-21.pdf")
+    assert url.endswith("/releases/download/sepa-econ-20260721/Econ_News_2026-07-21.pdf")
 
 
 def test_publish_copies_to_artifact_dir(tmp_path, monkeypatch):
