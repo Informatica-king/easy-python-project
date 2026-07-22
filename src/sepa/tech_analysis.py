@@ -26,7 +26,7 @@ from sepa.chase_select import (
 )
 from sepa.config import load_params
 from sepa.ta_bot import run as ta_run
-from sepa.ta_hooks import TickerMeta, parse_watchlist
+from sepa.ta_hooks import TickerMeta, load_hook_meta, parse_watchlist
 
 logger = logging.getLogger(__name__)
 
@@ -35,15 +35,20 @@ def _merge_meta(
     tickers: list[str],
     chase_rows: list[ChaseRow],
     watchlist_path: str | Path,
+    portfolio_path: str | Path = "config/portfolio_watch.yaml",
 ) -> dict[str, TickerMeta]:
-    """Watchlist meta + chase earn_date overlay (snapshot wins for earn_date)."""
-    meta: dict[str, TickerMeta] = {}
-    wl = Path(watchlist_path)
-    if wl.exists():
-        try:
-            meta = dict(parse_watchlist(wl))
-        except ValueError as exc:
-            logger.warning("watchlist parse failed: %s", exc)
+    """Watchlist+portfolio meta + chase earn_date overlay (snapshot wins for earn_date)."""
+    try:
+        meta = load_hook_meta(watchlist_path, portfolio_path)
+    except ValueError as exc:
+        logger.warning("hook meta parse failed: %s", exc)
+        meta = {}
+        wl = Path(watchlist_path)
+        if wl.exists():
+            try:
+                meta = dict(parse_watchlist(wl))
+            except ValueError as exc2:
+                logger.warning("watchlist parse failed: %s", exc2)
 
     by_t = {r.ticker: r for r in chase_rows}
     out: dict[str, TickerMeta] = {}
@@ -58,6 +63,10 @@ def _merge_meta(
             earn_date=earn,
             band_lo=base.band_lo,
             band_hi=base.band_hi,
+            stop=base.stop,
+            tp1=base.tp1,
+            tp2=base.tp2,
+            no_add=base.no_add,
         )
     return out
 
@@ -114,12 +123,16 @@ def run_tickers(
     update: bool = True,
     no_hooks: bool = False,
     watchlist_path: str = "config/ta_watchlist.yaml",
+    portfolio_path: str = "config/portfolio_watch.yaml",
 ) -> None:
     params = load_params("config/params.yaml")
     meta = {}
-    if not no_hooks and Path(watchlist_path).exists():
-        wl = parse_watchlist(watchlist_path)
-        meta = {t: wl[t] for t in tickers if t in wl}
+    if not no_hooks:
+        try:
+            full = load_hook_meta(watchlist_path, portfolio_path)
+            meta = {t: full[t] for t in tickers if t in full}
+        except ValueError as exc:
+            logger.warning("hook meta parse failed: %s", exc)
     ta_run(
         tickers,
         cache_dir=params.data.cache_dir,

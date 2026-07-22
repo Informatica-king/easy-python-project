@@ -85,16 +85,22 @@ python -m sepa.ta_bot --watchlist             # ta_watchlist.yaml
 
 ---
 
-## 7. 포트 훅 (승인: EARN_D5 + BAND만)
+## 7. 포트 훅 (EARN_D5 · BAND · NO_ADD · STOP · TP)
 
-TA 점수는 유지하고 **`분할OK`만** 덮어씀.
+TA 점수는 유지하고 **action만** 덮어씀 (`ta_action`에 순수 TA 보존).
 
 | 훅 | 조건 | 효과 |
 |---|---|---|
 | `EARN_D5` | `earn−5일 ≤ as_of ≤ earn` | `분할OK` → `대기` |
+| `NO_ADD` | `no_add: true` | `분할OK` → `대기` |
 | `BAND` | `close ∉ [lo,hi]` | `분할OK` → `대기`; 밴드 안이면 entry∩band |
+| `STOP` | `close ≤ stop` | → `축소검토` |
+| `TP` | `close ≥ tp1` (tp2면 이유 표기) | → `익절검토` |
 
-설정: `config/ta_watchlist.yaml` (`earn_date`, `band`).  
+설정:
+- `config/ta_watchlist.yaml` — TA 훅 필드
+- `config/portfolio_watch.yaml` — 보유·익절/손절 시나리오 (병합, 충돌 시 portfolio 우선)
+
 출력 컬럼: `ta_action`(순수 TA) / `action`(최종) / `override` / `reason`.  
 `--no-hooks` 로 비활성.
 
@@ -106,5 +112,5 @@ TA 점수는 유지하고 **`분할OK`만** 덮어씀.
 
 ## 9. 다음 (미승인 · 보류)
 
-- PT 프리미엄 캡, role 태그(core_no_add 등), 현금 사이징
+- PT 프리미엄 캡, 현금 사이징
 - VCP/Stage2 점수 합치기, 자동매매

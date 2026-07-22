@@ -1,10 +1,17 @@
-"""Tests for EARN_D5 and BAND portfolio hooks."""
+"""Tests for EARN_D5 / BAND / NO_ADD / STOP / TP portfolio hooks."""
 
 from __future__ import annotations
 
 from datetime import date
 
-from sepa.ta_hooks import TickerMeta, apply_hooks, in_earn_d5, parse_watchlist
+from sepa.ta_hooks import (
+    TickerMeta,
+    apply_hooks,
+    in_earn_d5,
+    load_hook_meta,
+    parse_portfolio_watch,
+    parse_watchlist,
+)
 from sepa.ta_score import TAResult
 
 
@@ -84,6 +91,43 @@ def test_band_and_d5_both_tag():
     assert "BAND" in out.override
 
 
+def test_no_add_blocks_split():
+    meta = TickerMeta(symbol="ECPG", no_add=True)
+    out = apply_hooks(_raw(ticker="ECPG", close=88.0), meta, as_of=date(2026, 7, 22))
+    assert out.action == "대기"
+    assert "NO_ADD" in out.override
+
+
+def test_stop_triggers_reduce():
+    meta = TickerMeta(symbol="NEO", stop=12.0, tp1=16.0)
+    out = apply_hooks(_raw(ticker="NEO", close=11.5, action="홀드"), meta, as_of=date(2026, 7, 22))
+    assert out.action == "축소검토"
+    assert "STOP" in out.override
+    assert "손절가" in out.reason
+
+
+def test_tp_triggers_take_profit():
+    meta = TickerMeta(symbol="NEO", stop=12.0, tp1=16.0, tp2=18.0)
+    out = apply_hooks(_raw(ticker="NEO", close=16.2, action="홀드"), meta, as_of=date(2026, 7, 22))
+    assert out.action == "익절검토"
+    assert out.override == "TP"
+    assert "tp1" in out.reason
+
+
+def test_tp2_note():
+    meta = TickerMeta(symbol="NEO", tp1=16.0, tp2=18.0)
+    out = apply_hooks(_raw(ticker="NEO", close=18.5, action="홀드"), meta, as_of=date(2026, 7, 22))
+    assert out.action == "익절검토"
+    assert "tp2" in out.reason
+
+
+def test_stop_wins_over_tp():
+    meta = TickerMeta(symbol="X", stop=20.0, tp1=10.0)
+    out = apply_hooks(_raw(ticker="X", close=9.0, action="홀드"), meta, as_of=date(2026, 7, 22))
+    assert out.action == "축소검토"
+    assert "STOP" in out.override
+
+
 def test_parse_watchlist_file():
     meta = parse_watchlist("config/ta_watchlist.yaml")
     assert "NESR" in meta
@@ -91,3 +135,15 @@ def test_parse_watchlist_file():
     assert meta["NESR"].band_hi == 27.0
     assert meta["NEO"].earn_date == date(2026, 7, 28)
     assert meta["AMRX"].earn_date == date(2026, 7, 30)
+    assert meta["NEO"].stop == 12.0
+    assert meta["ECPG"].no_add is True
+
+
+def test_parse_portfolio_and_merge():
+    port = parse_portfolio_watch("config/portfolio_watch.yaml")
+    assert port["NEO"].tp1 == 16.0
+    assert port["MU"].stop == 830.0
+    merged = load_hook_meta()
+    assert merged["AMRX"].no_add is True
+    assert merged["NESR"].band_lo == 25.0
+    assert merged["INDV"].earn_date == date(2026, 8, 6)

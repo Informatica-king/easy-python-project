@@ -11,7 +11,7 @@
 |---|---|---|
 | `경제뉴스()` | 직전 미국 정규장 하룻밤 브리핑 PDF | `python -m sepa.econ_news` / `!sepa.econ()` |
 | `심층분석(티커,…)` | Chase RR·7섹션 심층 PDF | 딥분석 생성기 + **종료 시 기술적분석 자동** |
-| `기술적분석(티커,…)` | TA 4축 + EARN_D5/BAND 훅 | `python -m sepa.tech_analysis` / `!sepa.ta` |
+| `기술적분석(티커,…)` | TA 4축 + EARN_D5/BAND/NO_ADD/STOP/TP 훅 | `python -m sepa.tech_analysis` / `!sepa.ta` |
 | `수익구조분석(티커)` | 수익구조 딥다이브 PDF | `reports/generate_revenue_structure_*.py` |
 
 티커 생략 시:
@@ -97,3 +97,6 @@ CLI:
 ```
 
 `earn_date`가 있으면 워치리스트 메타보다 **스냅샷 값이 EARN_D5에 우선** 병합된다.
+
+익절/손절·추가금지는 `config/portfolio_watch.yaml` (`stop`/`tp1`/`tp2`/`no_add`) →
+`기술적분석` 시 `STOP`/`TP`/`NO_ADD` 훅으로 반영 (`docs/ta_bot_spec.md` §7).
