@@ -17,12 +17,25 @@ import pandas as pd
 
 from sepa.config import load_params
 from sepa.data import store
-from sepa.ta_hooks import TickerMeta, apply_hooks, parse_watchlist, watchlist_symbols
+from sepa.ta_hooks import (
+    TickerMeta,
+    apply_hooks,
+    load_hook_meta,
+    parse_watchlist,
+    watchlist_symbols,
+)
 from sepa.ta_score import TAIL_BARS_DEFAULT, results_to_frame, score_frame
 
 logger = logging.getLogger(__name__)
 
-ACTION_ORDER = {"분할OK": 0, "홀드": 1, "대기": 2, "축소검토": 3, "신규금지": 4}
+ACTION_ORDER = {
+    "분할OK": 0,
+    "홀드": 1,
+    "익절검토": 2,
+    "대기": 3,
+    "축소검토": 4,
+    "신규금지": 5,
+}
 
 
 def _parse_tickers(raw: str) -> list[str]:
@@ -132,16 +145,22 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument(
         "--no-hooks",
         action="store_true",
-        help="Skip EARN_D5/BAND portfolio hooks (raw TA only)",
+        help="Skip EARN_D5/BAND/NO_ADD/STOP/TP portfolio hooks (raw TA only)",
+    )
+    p.add_argument(
+        "--portfolio-file",
+        type=str,
+        default="config/portfolio_watch.yaml",
+        help="Merge TP/SL + no_add from portfolio_watch.yaml",
     )
     args = p.parse_args(argv)
 
     params = load_params(args.params)
     wl_path = Path(args.watchlist_file)
     meta: dict[str, TickerMeta] = {}
-    if wl_path.exists() and not args.no_hooks:
+    if not args.no_hooks:
         try:
-            meta = parse_watchlist(wl_path)
+            meta = load_hook_meta(wl_path, args.portfolio_file)
         except ValueError as exc:
             raise SystemExit(str(exc)) from exc
 
@@ -149,7 +168,7 @@ def main(argv: list[str] | None = None) -> int:
         tickers = _parse_tickers(args.tickers)
     elif args.watchlist:
         if not meta:
-            meta = parse_watchlist(wl_path)
+            meta = parse_watchlist(wl_path) if wl_path.exists() else {}
         tickers = watchlist_symbols(meta)
     else:
         p.error("pass --tickers or --watchlist")
