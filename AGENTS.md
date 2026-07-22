@@ -5,8 +5,9 @@
 마크 미너비니 SEPA 전략 기반 나스닥 스크리너 (개인 투자 참고용 · 비상업).
 전략 정의는 `docs/strategy_spec.md`, 로드맵·결정 로그는 `docs/DEVELOPMENT_NOTE.md`,
 데이터 구조는 `docs/data_structure.md` 참조.
-**한국어 분석 명령**(`심층분석` / `기술적분석` / `수익구조분석`)은
+**한국어 분석 명령**(`경제뉴스` / `심층분석` / `기술적분석` / `수익구조분석`)은
 `docs/korean_commands.md` 가 계약이다.
+스펙: `docs/econ_news_spec.md` · 보유/워치: `config/portfolio_watch.yaml`.
 
 ## 환경
 
