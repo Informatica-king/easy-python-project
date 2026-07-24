@@ -120,17 +120,29 @@ def parse_watchlist(path: str | Path) -> dict[str, TickerMeta]:
 
 
 def parse_portfolio_watch(path: str | Path) -> dict[str, TickerMeta]:
-    """Load holdings+watchlist from portfolio_watch.yaml → {SYMBOL: TickerMeta}."""
+    """Load holdings/watchlist/exited from portfolio_watch.yaml → {SYMBOL: TickerMeta}."""
     p = Path(path)
     if not p.exists():
         return {}
     raw = yaml.safe_load(p.read_text()) or {}
     out: dict[str, TickerMeta] = {}
-    for key in ("holdings", "watchlist"):
+    for key in ("holdings", "watchlist", "exited"):
         for item in raw.get(key) or []:
             if not isinstance(item, dict):
                 continue
             meta = _meta_from_mapping(item)
+            # exited names stay no_add so TA won't re-signal 분할OK
+            if key == "exited":
+                meta = TickerMeta(
+                    symbol=meta.symbol,
+                    earn_date=meta.earn_date,
+                    band_lo=meta.band_lo,
+                    band_hi=meta.band_hi,
+                    stop=meta.stop,
+                    tp1=meta.tp1,
+                    tp2=meta.tp2,
+                    no_add=True,
+                )
             if meta.symbol in out:
                 out[meta.symbol] = _merge_meta(out[meta.symbol], meta)
             else:
