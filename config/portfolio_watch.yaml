@@ -1,17 +1,24 @@
 # 경제뉴스() · TA 포트 영향용 — 보유 + 워치
-# role: hold | watch
+# role: hold | watch | exited
+# as_of: 2026-07-24 — ASTH 전량매도 · CRDO $80 분할매수 당일
 
-as_of_note: "USD 시드에 KRW 환전분 포함 가능"
+as_of: "2026-07-24"
+as_of_note: "ASTH 청산 · CRDO 당일 분할매수 · NEO 07-28 실적"
 
 holdings:
-  - { ticker: ECPG, role: hold, note: "코어 · 추가금지" }
-  - { ticker: ASTH, role: hold, note: "코어 · 추가금지" }
-  - { ticker: NESR, role: hold, note: "분할 · 밴드 25-27만" }
-  - { ticker: INDV, role: hold, note: "추가금지 · 실적 주의" }
+  - { ticker: NEO, role: hold, note: "코어 · 07-28 실적 · stop12/tp1 16 · 추가금지" }
+  - { ticker: ECPG, role: hold, note: "비중 부담 · stop80 · 추가금지" }
+  - { ticker: AMRX, role: hold, note: "07-30 실적 · 추가금지" }
+  - { ticker: MU, role: hold, note: "반도체 소수점 · 추가금지" }
+  - { ticker: NESR, role: hold, note: "밴드 25-27만 추가 · 밖이면 대기" }
+  - { ticker: INDV, role: hold, note: "시드 · 추가금지" }
 
 watchlist:
-  - { ticker: NEO, role: watch, note: "이벤트 1순위" }
-  - { ticker: AMRX, role: watch, note: "이벤트 2순위" }
-  - { ticker: MU, role: watch, note: "반도체 소수점 위성" }
-  - { ticker: ALKS, role: watch, note: "이벤트 후보" }
-  - { ticker: COCO, role: watch, note: "실적 임박 관전" }
+  - { ticker: CRDO, role: watch, note: "당일 $80 분할매수 · 밴드 224-242 · NO_ADD" }
+  - { ticker: AMAT, role: watch, note: "CRDO 대타 · 메가캡 장비" }
+  - { ticker: ALKS, role: watch, note: "07-28 실적 동시" }
+  - { ticker: ACHC, role: watch, note: "07-28 실적 동시" }
+  - { ticker: SLS, role: watch, note: "Chase1 · 바이너리 · 코어금지" }
+
+exited:
+  - { ticker: ASTH, role: exited, note: "~-9% 전량매도 · 현금화" }
