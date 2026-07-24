@@ -142,8 +142,12 @@ def test_parse_watchlist_file():
 def test_parse_portfolio_and_merge():
     port = parse_portfolio_watch("config/portfolio_watch.yaml")
     assert port["NEO"].tp1 == 16.0
+    assert port["NEO"].no_add is True
     assert port["MU"].stop == 830.0
+    assert port["ASTH"].no_add is True  # exited
+    assert port["AMAT"].tp1 == 623.0
     merged = load_hook_meta()
     assert merged["AMRX"].no_add is True
     assert merged["NESR"].band_lo == 25.0
     assert merged["INDV"].earn_date == date(2026, 8, 6)
+    assert merged["CRDO"].no_add is True
