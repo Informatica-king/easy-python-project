@@ -1,0 +1,119 @@
+# 보유 + 워치 + 익절/손절 시나리오 (2026-07-22 아침 포트 기준)
+# TA 훅: config/ta_watchlist.yaml 과 동기 · sepa.ta_hooks 가 둘 다 병합
+#
+# role: hold | watch
+# no_add: true → 분할OK 차단 (NO_ADD)
+# stop / tp1 / tp2: 가격 도달 시 STOP / TP 훅 태그
+# band: 추가매수 허용 구간 (BAND) — NESR만
+
+as_of: "2026-07-22"
+as_of_note: "아침 스냅 · MU 체결 · AMRX 6→8 · USD 시드에 KRW 포함 가능"
+fx_krw_per_usd: 1480
+
+cash:
+  usd: 238.49
+  krw: 150459
+
+rules:
+  - "물타기 금지 · 손절가 위에서만 추가"
+  - "실적 D-5 구간 분할 차단 (EARN_D5)"
+  - "종목>30% 또는 HC합>65% → 강제 축소"
+  - "NEO 07-28 · AMRX 07-30 실적 전 즉흥 금지"
+
+holdings:
+  - ticker: NEO
+    role: hold
+    shares: 18
+    cost_approx: 14.45
+    stop: 12.0
+    tp1: 16.0
+    tp2: 18.0
+    no_add: false
+    earn_date: "2026-07-28"
+    note: "코어 1순위 · tp1=PT평균 절반익절 · stop 12"
+
+  - ticker: ECPG
+    role: hold
+    shares: 2
+    cost_approx: 92.30
+    stop: 80.0
+    tp1: 105.0
+    tp2: 110.0
+    no_add: true
+    earn_date: "2026-08-05"
+    note: "비중 부담 · 추가금지 · stop시 1주 먼저"
+
+  - ticker: AMRX
+    role: hold
+    shares: 8
+    cost_approx: 18.40
+    stop: 15.5
+    tp1: 19.0
+    tp2: 20.0
+    no_add: true
+    earn_date: "2026-07-30"
+    note: "실적 07-30 · PT평형 · 추가금지 · tp1에서 절반+"
+
+  - ticker: MU
+    role: hold
+    shares: 0.143743
+    cost_approx: 938.0
+    stop: 830.0
+    tp1: 1100.0
+    tp2: 1170.0
+    no_add: true
+    earn_date: "2026-09-23"
+    note: "반도체 좌석 · 추가금지 · -15% stop"
+
+  - ticker: ASTH
+    role: hold
+    shares: 3
+    cost_approx: 45.10
+    stop: 38.0
+    tp1: 49.0
+    tp2: 50.0
+    no_add: true
+    earn_date: "2026-08-06"
+    note: "추가금지 · PT저점 stop"
+
+  - ticker: NESR
+    role: hold
+    shares: 3
+    cost_approx: 28.00
+    stop: 24.0
+    tp1: 32.0
+    tp2: 33.0
+    no_add: false
+    band: [25.0, 27.0]
+    earn_date: "2026-08-18"
+    note: "추가는 밴드 25-27만 · 추격 금지"
+
+  - ticker: INDV
+    role: hold
+    shares: 1
+    cost_approx: 41.00
+    stop: 34.0
+    tp1: 50.0
+    tp2: 52.0
+    no_add: true
+    earn_date: "2026-08-06"
+    note: "시드 · 추가금지 · 1주 단순 익절"
+
+watchlist:
+  - ticker: ALKS
+    role: watch
+    stop: null
+    tp1: null
+    tp2: null
+    no_add: true
+    earn_date: "2026-07-28"
+    note: "워치 · NEO 같은 날 실적"
+
+  - ticker: COCO
+    role: watch
+    stop: null
+    tp1: null
+    tp2: null
+    no_add: true
+    earn_date: "2026-07-23"
+    note: "워치 · 관전만"
