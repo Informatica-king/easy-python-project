@@ -301,21 +301,24 @@ def _ensure_benchmark(cache_dir: str | Path, symbol: str = "QQQ") -> pd.Series:
             raw = yf.download(sym, period="2y", auto_adjust=True, progress=False)
             if raw is None or raw.empty:
                 continue
-            close = raw["Close"] if "Close" in raw.columns else raw.iloc[:, 0]
-            s = close.astype(float).dropna()
+            if isinstance(raw.columns, pd.MultiIndex):
+                close = raw["Close"]
+                if isinstance(close, pd.DataFrame):
+                    close = close.iloc[:, 0]
+            elif "Close" in raw.columns:
+                close = raw["Close"]
+            else:
+                close = raw.iloc[:, 0]
+            s = pd.Series(close.astype(float).to_numpy(), index=pd.to_datetime(close.index))
+            s = s.dropna()
             s.index = pd.to_datetime(s.index).tz_localize(None)
             s = s.sort_index()
-            # persist under a safe filename (^ → removed)
+            if s.empty:
+                continue
             fname = sym.replace("^", "") + ".parquet"
             out = Path(cache_dir) / fname
             out.parent.mkdir(parents=True, exist_ok=True)
             pd.DataFrame({"close": s}).to_parquet(out)
-            # also alias for callers expecting ^IXIC.parquet
-            if sym.startswith("^"):
-                try:
-                    pd.DataFrame({"close": s}).to_parquet(Path(cache_dir) / f"{sym}.parquet")
-                except Exception:  # noqa: BLE001
-                    pass
             return s
     except Exception as exc:  # noqa: BLE001
         logger.warning("benchmark fetch failed: %s", exc)
