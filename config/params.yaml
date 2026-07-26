@@ -51,3 +51,10 @@ fundamental:                 # docs/fundamental_spec.md (2026-07-19 연구 반�
 
 report:
   output_dir: reports
+
+# TA bot (docs/ta_bot_spec.md) — shortlist only; not loaded into Params dataclass yet.
+# CLI defaults: tail_bars=280, max_tickers=20, watchlist=config/ta_watchlist.yaml
+ta:
+  max_tickers: 20
+  tail_bars: 280
+  watchlist: config/ta_watchlist.yaml

@@ -8,6 +8,8 @@
     sepa> !sepa.chart("sandisk")          # 기업 이름으로도 가능
     sepa> !sepa.screener("full")          # 전 종목 Stage 2 스크리닝
     sepa> !sepa.vcp("NVDA,MSFT")          # shortlist VCP 타이밍
+    sepa> !sepa.ta("ECPG,NESR")           # TA 4축 (≤20, 전종목 금지)
+    sepa> !sepa.ta(watchlist, no_update=1)
 
 일회성 실행도 지원한다:
 
@@ -150,6 +152,66 @@ def _tool_screener(args: list, kwargs: dict) -> None:
     if kwargs.get("no_update"):
         argv.append("--no-update")
     screener.main(argv)
+
+
+def _tool_ta(args: list, kwargs: dict) -> None:
+    """Lean TA scores / 기술적분석(). docs/korean_commands.md"""
+    from sepa import ta_bot, tech_analysis
+
+    # Chase auto: !sepa.ta(from_chase=1) or !sepa.ta(chase)
+    if kwargs.get("from_chase") in (1, "1", True, "true", "True") or (
+        args and str(args[0]).lower() in ("from_chase", "chase", "auto")
+    ):
+        path = None
+        if len(args) > 1 and str(args[0]).lower() in ("from_chase", "chase", "auto"):
+            # !sepa.ta(chase, reports/chase_rr_....json)
+            cand = str(args[1])
+            if cand.endswith(".json"):
+                path = cand
+        elif isinstance(kwargs.get("from_chase"), str) and kwargs["from_chase"] not in (
+            "1", "true", "True",
+        ):
+            path = str(kwargs["from_chase"])
+        tech_analysis.run_from_chase(
+            path,
+            update=kwargs.get("no_update") not in (1, "1", True, "true", "True"),
+            no_hooks=kwargs.get("no_hooks") in (1, "1", True, "true", "True"),
+        )
+        return
+
+    argv: list[str] = []
+    tickers: list[str] = []
+    for a in args:
+        s = str(a).strip()
+        if not s:
+            continue
+        if s.lower() in ("watchlist", "wl"):
+            argv.append("--watchlist")
+        elif s.lower() in ("full", "all"):
+            raise MacroError(
+                "TA는 전종목 금지입니다 — !sepa.ta(\"ECPG,NESR\") 또는 !sepa.ta(from_chase=1)"
+            )
+        elif s.lower() in ("from_chase", "chase", "auto"):
+            continue
+        else:
+            tickers.append(s.upper())
+    if tickers:
+        argv.extend(["--tickers", ",".join(tickers)])
+    elif "--watchlist" not in argv:
+        argv.append("--watchlist")
+
+    if kwargs.get("no_update") in (1, "1", True, "true", "True") or kwargs.get("no-update"):
+        argv.append("--no-update")
+    if kwargs.get("chart") in (1, "1", True, "true", "True"):
+        argv.append("--chart")
+    if kwargs.get("as_of") or kwargs.get("as-of"):
+        argv.extend(["--as-of", str(kwargs.get("as_of") or kwargs.get("as-of"))])
+    if kwargs.get("tail"):
+        argv.extend(["--tail-bars", str(kwargs["tail"])])
+    if kwargs.get("no_hooks") in (1, "1", True, "true", "True"):
+        argv.append("--no-hooks")
+
+    ta_bot.main(argv)
 
 
 def _tool_vcp(args: list, kwargs: dict) -> None:
@@ -419,6 +481,12 @@ REGISTRY: list[MacroSpec] = [
         "sepa.vcp", '!sepa.vcp("NVDA,MSFT")  |  !sepa.vcp(sandisk, as_of=2025-02-18)',
         "shortlist VCP 진입 타이밍 — BREAKOUT/WATCHLIST/FORMING/EXTENDED",
         _tool_vcp, aliases=("vcp", "sepa.vcp_timing"),
+    ),
+    MacroSpec(
+        "sepa.ta",
+        '!sepa.ta("ECPG,NESR")  |  !sepa.ta(from_chase=1)  |  !sepa.ta(watchlist, no_update=1)',
+        "기술적분석() — 4축 TA+훅. from_chase=1 이면 심층분석 Chase RR 자동 선정",
+        _tool_ta, aliases=("ta", "sepa.tech", "tech", "기술적분석"),
     ),
     MacroSpec(
         "sepa.chart", '!sepa.chart("SNDK")  |  !sepa.chart(sandisk, months=12)',

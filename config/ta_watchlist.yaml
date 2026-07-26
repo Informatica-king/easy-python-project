@@ -1,0 +1,17 @@
+# TA 워치리스트 + 포트 훅 메타 (≤20)
+# hooks: earn_d5 (실적 전 5일) · band (가격 밴드)
+# tickers: 문자열 또는 {symbol, earn_date?, band?}
+
+tickers:
+  - symbol: ECPG
+  - symbol: ASTH
+  - symbol: NESR
+    band: [25.0, 27.0]
+  - symbol: INDV
+    earn_date: "2026-07-30"
+  - symbol: NEO
+    earn_date: "2026-07-28"
+  - symbol: AMRX
+    earn_date: "2026-07-30"
+  - symbol: ALKS
+    earn_date: "2026-07-28"
