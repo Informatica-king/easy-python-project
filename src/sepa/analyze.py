@@ -530,6 +530,12 @@ def main(argv: list[str] | None = None) -> int:
         f"\n후보 필터: {before_n} → {len(enriched)}  "
         f"({summarize_drops(dropped)}; Fund=0 또는 시총 <$1B 제외)"
     )
+    qmin = float(getattr(params.fundamental, "fund_quality_min", 0.0) or 0.0)
+    if qmin > 0 and not enriched.empty:
+        from sepa.fundamental import apply_fund_quality_filter
+
+        enriched, qdrop = apply_fund_quality_filter(enriched, min_quality=qmin)
+        print(f"quality 필터 (mean b/d/e ≥ {qmin}): 추가 제외 {qdrop} → n={len(enriched)}")
     if enriched.empty:
         print("[오류] 필터 후 후보가 없습니다.")
         return 1

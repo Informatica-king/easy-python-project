@@ -5,7 +5,9 @@ import pytest
 
 from sepa.fundamental_score import (
     DEFAULT_WEIGHTS,
+    QualityParams,
     accel_points,
+    accel_quality,
     count_accel_quarters,
     count_margin_improve_quarters,
     delta_points,
@@ -14,10 +16,12 @@ from sepa.fundamental_score import (
     latest_delta,
     latest_margin_yoy_delta,
     margin_delta_points,
+    margin_quality,
     prior_year_frame,
     roe_points,
     score_ticker,
     surprise_points,
+    winsorize_surprise,
     yoy_growth_map,
 )
 
@@ -131,10 +135,81 @@ def test_score_ticker_happy_path():
     df["npm"] = df["net_income"] / df["revenue"]
     df["opm"] = df["op_income"] / df["revenue"]
 
+    # Long accel streak → full B/D quality
     br = score_ticker("TEST", df, roe=0.25, source="synthetic", eps_surprise=0.20)
     assert br.fund_score > 70
     assert br.s_surprise == pytest.approx(47.0)
     assert br.margin_source == "opm"
+    assert br.e_quality == pytest.approx(1.0)
     assert br.eps_dyoy is not None and br.eps_dyoy > 0
     assert br.sales_dyoy is not None and br.sales_dyoy > 0
     assert br.opm_delta is not None and br.opm_delta > 0
+
+
+def test_npm_penalty_and_accel_gate():
+    frames = [
+        "CY2024Q1", "CY2024Q2", "CY2024Q3", "CY2024Q4",
+        "CY2025Q1", "CY2025Q2", "CY2025Q3", "CY2025Q4",
+    ]
+    # Only one accel step on EPS (n=1) → B gated to 0 under v2.1
+    eps = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.4]
+    rev = [100, 100, 100, 100, 100, 100, 100, 100]  # no sales accel
+    ni = [10, 10, 10, 10, 12, 14, 16, 20]
+    df = pd.DataFrame(
+        {"eps": eps, "revenue": rev, "net_income": ni},
+        index=pd.Index(frames, name="frame"),
+    )
+    df["npm"] = df["net_income"] / df["revenue"]
+
+    br = score_ticker("NPM1", df, roe=None, source="synthetic", eps_surprise=0.10)
+    assert br.margin_source == "npm"
+    assert br.e_quality == pytest.approx(0.6)
+    assert br.e_opm_delta == pytest.approx(br.e_raw * 0.6)
+    assert br.eps_accel_n == 1
+    assert br.b_quality == 0.0
+    assert br.b_eps_dyoy == 0.0
+    assert br.b_status == "shallow_accel"
+    assert br.d_quality == 0.0
+
+    legacy = score_ticker(
+        "NPM1", df, roe=None, source="synthetic", eps_surprise=0.10,
+        quality=QualityParams(enabled=False),
+    )
+    assert legacy.b_eps_dyoy > 0
+    assert legacy.e_opm_delta > br.e_opm_delta
+
+
+def test_quality_helpers():
+    qp = QualityParams()
+    assert accel_quality(0, qp) == 0.0
+    assert accel_quality(1, qp) == 0.0
+    assert accel_quality(2, qp) == pytest.approx(0.7)
+    assert accel_quality(3, qp) == 1.0
+    assert margin_quality("opm", qp) == 1.0
+    assert margin_quality("npm", qp) == pytest.approx(0.6)
+    assert margin_quality("none", qp) == 0.0
+    assert winsorize_surprise(3.0, 1.0) == 1.0
+    assert winsorize_surprise(-2.0, 1.0) == -1.0
+
+
+def test_sanitize_and_overlay_opm():
+    from sepa.data.fundamentals import overlay_operating_income, sanitize_margins
+
+    base = pd.DataFrame(
+        {"eps": [1.0, 1.1], "revenue": [100.0, 110.0], "net_income": [10.0, 12.0]},
+        index=pd.Index(["CY2025Q1", "CY2025Q2"], name="frame"),
+    )
+    base["npm"] = base["net_income"] / base["revenue"]
+    donor = pd.DataFrame(
+        {"op_income": [15.0, 20.0], "revenue": [100.0, 110.0]},
+        index=pd.Index(["CY2025Q1", "CY2025Q2"], name="frame"),
+    )
+    donor["opm"] = donor["op_income"] / donor["revenue"]
+    merged = overlay_operating_income(base, donor)
+    assert "opm" in merged.columns
+    assert merged["opm"].notna().sum() == 2
+
+    bad = base.copy()
+    bad["opm"] = [0.1, 50.0]  # absurd
+    clean = sanitize_margins(bad)
+    assert pd.isna(clean.loc["CY2025Q2", "opm"])

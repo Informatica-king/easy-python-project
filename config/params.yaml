@@ -48,6 +48,14 @@ fundamental:                 # docs/fundamental_spec.md (2026-07-19 연구 반�
   sales_yoy: 0
   roe: 0
   roe_target: 0.17
+  # v2.1 quality layer (weights unchanged; see fund_score_improvement_plan.md)
+  quality_enabled: true
+  npm_quality: 0.6           # E × this when margin_source=npm
+  accel_min_n: 2             # B/D 미채점 if accel streak < this
+  accel_full_n: 3            # B/D full quality if accel streak >= this
+  accel_partial: 0.7         # quality when accel_n == accel_min_n
+  surprise_winsor: 1.0       # clip |surprise| to this fraction before curve
+  fund_quality_min: 0.0      # Phase C: drop if mean(b,d,e quality) < this (0=off)
 
 report:
   output_dir: reports

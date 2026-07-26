@@ -2,7 +2,11 @@
 
 Weights (2026-07-19 empirical study, user-approved):
   S eps_surprise 47 · E opm_delta 25 · D sales_dyoy 14 · B eps_dyoy 14
-  (level YoY A/C and ROE G dropped — weak / out of phase-1)
+
+v2.1 quality layer (docs/fund_score_improvement_plan.md):
+  fund_raw = S + B*qB + D*qD + E*qE
+  qE: opm=1.0 / npm=npm_quality / none=0
+  qB/qD: accel_n < min → 0; ==min → partial; >=full → 1.0
 """
 
 from __future__ import annotations
@@ -14,7 +18,7 @@ import pandas as pd
 
 @dataclass(frozen=True)
 class FundamentalWeights:
-    """Active factors sum to 100 → fund_score == raw when all full."""
+    """Active factors sum to 100 → fund_score == raw when all full & q=1."""
 
     eps_surprise: float = 47.0  # S
     eps_dyoy: float = 14.0      # B — latest Δ of EPS YoY
@@ -26,7 +30,20 @@ class FundamentalWeights:
         return self.eps_surprise + self.eps_dyoy + self.sales_dyoy + self.opm_delta
 
 
+@dataclass(frozen=True)
+class QualityParams:
+    """v2.1 reliability multipliers (weights stay fixed)."""
+
+    enabled: bool = True
+    npm_quality: float = 0.6
+    accel_min_n: int = 2       # below → quality 0 (미채점)
+    accel_full_n: int = 3      # >= → quality 1
+    accel_partial: float = 0.7  # exactly accel_min_n
+    surprise_winsor: float = 1.0  # clip |surprise| before curve (fraction)
+
+
 DEFAULT_WEIGHTS = FundamentalWeights()
+DEFAULT_QUALITY = QualityParams()
 
 # Curve full-credit anchors (fraction / percentage-points)
 SURPRISE_FULL_AT = 0.20   # +20% beat → full S
@@ -171,6 +188,14 @@ def roe_points(roe: float | None, weight: float, target: float = 0.17) -> float:
     return weight * min(1.0, roe / target)
 
 
+def winsorize_surprise(surprise: float | None, limit: float) -> float | None:
+    if surprise is None:
+        return None
+    if limit <= 0:
+        return float(surprise)
+    return max(-limit, min(limit, float(surprise)))
+
+
 def surprise_points(
     surprise: float | None,
     weight: float,
@@ -213,6 +238,46 @@ def margin_delta_points(
     return weight * min(1.0, float(delta) / full_at)
 
 
+def accel_quality(n: int, qp: QualityParams) -> float:
+    """Map consecutive accel depth to quality multiplier."""
+    if not qp.enabled:
+        return 1.0
+    if n < qp.accel_min_n:
+        return 0.0
+    if n >= qp.accel_full_n:
+        return 1.0
+    return float(qp.accel_partial)
+
+
+def margin_quality(source: str, qp: QualityParams) -> float:
+    if not qp.enabled:
+        return 1.0 if source != "none" else 0.0
+    if source == "opm":
+        return 1.0
+    if source == "npm":
+        return float(qp.npm_quality)
+    return 0.0
+
+
+def pick_margin_series(
+    opm: pd.Series,
+    npm: pd.Series,
+) -> tuple[pd.Series, str]:
+    """Prefer OPM when YoY-delta is computable; else NPM; else empty."""
+    if opm is not None and not opm.dropna().empty:
+        if latest_margin_yoy_delta(opm) is not None or opm.dropna().shape[0] >= 2:
+            # Prefer OPM if we have ≥2 points (delta may still be None)
+            if latest_margin_yoy_delta(opm) is not None:
+                return opm, "opm"
+            if opm.dropna().shape[0] >= 2:
+                return opm, "opm"
+    if npm is not None and not npm.dropna().empty and latest_margin_yoy_delta(npm) is not None:
+        return npm, "npm"
+    if npm is not None and npm.dropna().shape[0] >= 2:
+        return npm, "npm"
+    return pd.Series(dtype=float), "none"
+
+
 @dataclass
 class ScoreBreakdown:
     ticker: str
@@ -234,15 +299,35 @@ class ScoreBreakdown:
     margin_n: int
     roe: float | None
     source: str
+    # v2.1 quality layer
+    b_quality: float = 1.0
+    d_quality: float = 1.0
+    e_quality: float = 1.0
+    b_raw: float = 0.0
+    d_raw: float = 0.0
+    e_raw: float = 0.0
+    b_status: str = "scored"
+    d_status: str = "scored"
+    e_status: str = "scored"
 
     def as_dict(self) -> dict:
         return {
             "ticker": self.ticker,
             "fund_score": round(self.fund_score, 1),
+            "fund_raw": round(self.raw, 2),
             "s_surprise": round(self.s_surprise, 2),
             "b_eps_dyoy": round(self.b_eps_dyoy, 2),
             "d_sales_dyoy": round(self.d_sales_dyoy, 2),
             "e_opm_delta": round(self.e_opm_delta, 2),
+            "b_raw": round(self.b_raw, 2),
+            "d_raw": round(self.d_raw, 2),
+            "e_raw": round(self.e_raw, 2),
+            "b_quality": round(self.b_quality, 2),
+            "d_quality": round(self.d_quality, 2),
+            "e_quality": round(self.e_quality, 2),
+            "b_status": self.b_status,
+            "d_status": self.d_status,
+            "e_status": self.e_status,
             "eps_surprise_pct": None
             if self.eps_surprise is None
             else round(self.eps_surprise * 100, 1),
@@ -260,6 +345,18 @@ class ScoreBreakdown:
         }
 
 
+def _factor_status(delta: float | None, n: int, q: float, qp: QualityParams) -> str:
+    if delta is None:
+        return "no_data"
+    if delta <= 0:
+        return "nonpositive_delta"
+    if qp.enabled and n < qp.accel_min_n:
+        return "shallow_accel"
+    if q < 1.0 and qp.enabled:
+        return "partial_quality"
+    return "scored"
+
+
 def score_ticker(
     ticker: str,
     quarterly: pd.DataFrame,
@@ -268,6 +365,7 @@ def score_ticker(
     weights: FundamentalWeights = DEFAULT_WEIGHTS,
     roe_target: float = 0.17,  # retained for API compat; unused (G=0)
     eps_surprise: float | None = None,
+    quality: QualityParams = DEFAULT_QUALITY,
 ) -> ScoreBreakdown:
     del roe_target  # phase-1: ROE out of scorer
     eps = quarterly["eps"] if "eps" in quarterly.columns else pd.Series(dtype=float)
@@ -285,25 +383,26 @@ def score_ticker(
     eps_n = count_accel_quarters(eps_yoy_map)
     sales_n = count_accel_quarters(sales_yoy_map)
 
-    if opm.dropna().shape[0] >= 2:
-        opm_d = latest_margin_yoy_delta(opm)
-        margin_n = count_margin_improve_quarters(opm)
-        margin_source = "opm"
-    elif npm.dropna().shape[0] >= 2:
-        opm_d = latest_margin_yoy_delta(npm)
-        margin_n = count_margin_improve_quarters(npm)
-        margin_source = "npm"
-    else:
-        opm_d = None
-        margin_n = 0
-        margin_source = "none"
+    margin_s, margin_source = pick_margin_series(opm, npm)
+    opm_d = latest_margin_yoy_delta(margin_s) if margin_source != "none" else None
+    margin_n = count_margin_improve_quarters(margin_s) if margin_source != "none" else 0
 
-    s = surprise_points(eps_surprise, weights.eps_surprise)
-    b = delta_points(eps_dyoy, weights.eps_dyoy)
-    d = delta_points(sales_dyoy, weights.sales_dyoy)
-    e = margin_delta_points(opm_d, weights.opm_delta)
+    surprise_w = winsorize_surprise(eps_surprise, quality.surprise_winsor)
+    s = surprise_points(surprise_w, weights.eps_surprise)
+    b_raw = delta_points(eps_dyoy, weights.eps_dyoy)
+    d_raw = delta_points(sales_dyoy, weights.sales_dyoy)
+    e_raw = margin_delta_points(opm_d, weights.opm_delta)
+
+    q_b = accel_quality(eps_n, quality)
+    q_d = accel_quality(sales_n, quality)
+    q_e = margin_quality(margin_source, quality)
+
+    b = b_raw * q_b
+    d = d_raw * q_d
+    e = e_raw * q_e
 
     raw = s + b + d + e
+    # Keep 0–100 scale with fixed weight total (quality may leave headroom unused)
     fund = (raw / weights.total) * 100.0 if weights.total else 0.0
 
     return ScoreBreakdown(
@@ -326,4 +425,21 @@ def score_ticker(
         margin_n=margin_n,
         roe=roe,
         source=source,
+        b_quality=q_b,
+        d_quality=q_d,
+        e_quality=q_e,
+        b_raw=b_raw,
+        d_raw=d_raw,
+        e_raw=e_raw,
+        b_status=_factor_status(eps_dyoy, eps_n, q_b, quality),
+        d_status=_factor_status(sales_dyoy, sales_n, q_d, quality),
+        e_status=(
+            "no_data"
+            if margin_source == "none" or opm_d is None
+            else (
+                "nonpositive_delta"
+                if opm_d is not None and opm_d <= 0
+                else ("npm_penalty" if margin_source == "npm" and quality.enabled else "scored")
+            )
+        ),
     )

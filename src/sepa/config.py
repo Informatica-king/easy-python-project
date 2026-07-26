@@ -63,6 +63,9 @@ class FundamentalParams:
 
     Empirical reweight (2026-07-19): S47 / E25 / D14 / B14 (sum 100).
     Level YoY and ROE dropped from phase-1 live scorer.
+
+    v2.1 quality layer (docs/fund_score_improvement_plan.md): weights fixed;
+    npm_quality / accel_* gate unreliable factors instead of reweighting.
     """
 
     rs_min: float = 80.0
@@ -78,6 +81,15 @@ class FundamentalParams:
     margin_improve: float = 0.0
     roe: float = 0.0
     roe_target: float = 0.17
+    # v2.1 quality
+    quality_enabled: bool = True
+    npm_quality: float = 0.6
+    accel_min_n: int = 2
+    accel_full_n: int = 3
+    accel_partial: float = 0.7
+    surprise_winsor: float = 1.0
+    # optional daily filter (Phase C)
+    fund_quality_min: float = 0.0  # min mean(b,d,e quality); 0 = off
 
 
 @dataclass(frozen=True)

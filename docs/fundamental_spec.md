@@ -108,3 +108,21 @@ CSV: `reports/fundamental_YYYYMMDD.csv`
 |---|---|
 | 2026-07-16 | v1.0 A25/B20/C15/D10/E15/G5 (합 90) |
 | 2026-07-19 | v2.0 S47/E25/D14/B14 (합 100); Surprise·OPMΔ·연속 ΔYoY |
+| 2026-07-26 | v2.1 **가중치 동일**, quality 레이어: OPM 백필, NPM×0.6, B/D accel 게이트, surprise winsor. 상세 `docs/fund_score_improvement_plan.md` |
+
+### v2.1 quality (요약)
+
+```
+fund_raw = S + B·qB + D·qD + E·qE
+fund_score = fund_raw   # 가중 합 100 기준, quality로 헤드룸 남김 허용
+```
+
+| 계수 | 규칙 |
+|---|---|
+| qE | opm=1.0 · npm=0.6 · none=0 |
+| qB / qD | accel_n&lt;2 → 0 · =2 → 0.7 · ≥3 → 1.0 |
+| S | \|surprise\| winsor 1.0 (100%) 후 기존 곡선 |
+
+CSV 추가 컬럼: `fund_raw`, `b/d/e_quality`, `b/d/e_raw`, `b/d/e_status`.
+폴백 순서: **SEC OPM → yfinance OPM → NPM(페널티) → none**.
+캐시에 OPM이 없으면 `load_quarterly`가 SEC로 자동 백필한다.

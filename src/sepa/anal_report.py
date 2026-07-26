@@ -62,8 +62,8 @@ MODEL_PAGE_COMMENTS: dict[str, tuple[str, str]] = {
     ),
     "model_data_coverage": (
         "7. 데이터 커버리지",
-        "왼쪽=서프라이즈 가용성, 가운데=마진 소스(OPM 우선·NPM 대체·없음), "
-        "오른쪽=시계열 깊이. NPM/none이 많거나 n≥2 비중이 낮으면 E·가속도 점수의 신뢰도가 떨어집니다.",
+        "위: 서프라이즈·마진소스(OPM/NPM)·가속도 깊이. 아래(v2.1): B/D/E quality 분포 "
+        "(0=미채점·게이트, partial=페널티, 1.0=신뢰). OPM·quality 1.0 비중이 늘수록 E/B/D가 믿을 만합니다.",
     ),
 }
 

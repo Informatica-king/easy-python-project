@@ -1,6 +1,9 @@
 """분기 재무 데이터 수집 — SEC EDGAR(1순위) + yfinance 폴백.
 
 캐시: data/fundamentals/{TICKER}.parquet, data/fundamentals/_sec_tickers.json
+
+OPM 폴백 순서 (Fund v2.1 / A1):
+  SEC operating income → yfinance Operating Income → (scorer) NPM with penalty → none
 """
 
 from __future__ import annotations
@@ -34,7 +37,12 @@ NET_INCOME_TAGS = ("NetIncomeLoss", "NetIncomeLossAvailableToCommonStockholdersB
 OP_INCOME_TAGS = (
     "OperatingIncomeLoss",
     "OperatingIncomeLossAvailableToCommonStockholdersBasic",
+    "OperatingIncomeLossBeforeIncomeTaxes",
+    "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
 )
+
+# Absurd margin ratios → drop (bad scale / wrong unit merges)
+MARGIN_ABS_MAX = 2.0
 
 
 def _headers() -> dict[str, str]:
@@ -103,6 +111,40 @@ def _frames_to_series(frames: dict[str, float]) -> pd.Series:
     return pd.Series([v for _, v in items], index=idx, dtype=float)
 
 
+def sanitize_margins(df: pd.DataFrame, *, abs_max: float = MARGIN_ABS_MAX) -> pd.DataFrame:
+    """Drop absurd margin ratios (wrong units / divide noise)."""
+    if df is None or df.empty:
+        return df
+    out = df.copy()
+    for col in ("opm", "npm"):
+        if col not in out.columns:
+            continue
+        s = pd.to_numeric(out[col], errors="coerce")
+        bad = s.abs() > abs_max
+        if bad.any():
+            s = s.mask(bad)
+        out[col] = s
+    return out
+
+
+def _recompute_margins(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty or "revenue" not in df.columns:
+        return df
+    out = df.copy()
+    rev_nz = out["revenue"].replace(0, pd.NA)
+    if "net_income" in out.columns:
+        out["npm"] = out["net_income"] / rev_nz
+    if "op_income" in out.columns:
+        out["opm"] = out["op_income"] / rev_nz
+    return sanitize_margins(out)
+
+
+def opm_coverage_ok(df: pd.DataFrame, *, min_points: int = 2) -> bool:
+    if df is None or df.empty or "opm" not in df.columns:
+        return False
+    return int(pd.to_numeric(df["opm"], errors="coerce").notna().sum()) >= min_points
+
+
 def fetch_sec_quarterly(cik: str) -> pd.DataFrame:
     """Return DataFrame indexed by frame with eps, revenue, net_income, npm, opm."""
     url = SEC_FACTS_URL.format(cik=cik)
@@ -119,13 +161,7 @@ def fetch_sec_quarterly(cik: str) -> pd.DataFrame:
 
     df = pd.DataFrame({"eps": eps, "revenue": rev, "net_income": ni, "op_income": oi})
     df = df.dropna(how="all")
-    if not df.empty and "revenue" in df.columns:
-        rev_nz = df["revenue"].replace(0, pd.NA)
-        if "net_income" in df.columns:
-            df["npm"] = df["net_income"] / rev_nz
-        if "op_income" in df.columns:
-            df["opm"] = df["op_income"] / rev_nz
-    return df
+    return _recompute_margins(df)
 
 
 def fetch_yfinance_quarterly(ticker: str) -> pd.DataFrame:
@@ -148,7 +184,11 @@ def fetch_yfinance_quarterly(ticker: str) -> pd.DataFrame:
     eps = row("Diluted EPS", "Basic EPS")
     rev = row("Total Revenue", "Operating Revenue")
     ni = row("Net Income", "Net Income Common Stockholders")
-    oi = row("Operating Income", "Operating Income Loss")
+    oi = row(
+        "Operating Income",
+        "Operating Income Loss",
+        "Total Operating Income As Reported",
+    )
     parts = {}
     if eps is not None:
         parts["eps"] = eps
@@ -168,13 +208,7 @@ def fetch_yfinance_quarterly(ticker: str) -> pd.DataFrame:
         frames.append(f"CY{ts.year}Q{q}")
     df.index = pd.Index(frames, name="frame")
     df = df[~df.index.duplicated(keep="last")]
-    if "revenue" in df.columns:
-        rev_nz = df["revenue"].replace(0, pd.NA)
-        if "net_income" in df.columns:
-            df["npm"] = df["net_income"] / rev_nz
-        if "op_income" in df.columns:
-            df["opm"] = df["op_income"] / rev_nz
-    return df
+    return _recompute_margins(df)
 
 
 def fetch_roe(ticker: str) -> float | None:
@@ -192,6 +226,79 @@ def fetch_roe(ticker: str) -> float | None:
     return float(roe)
 
 
+def overlay_operating_income(
+    base: pd.DataFrame,
+    donor: pd.DataFrame,
+) -> pd.DataFrame:
+    """Copy op_income/opm from donor onto base frames (fill gaps only)."""
+    if base is None or base.empty:
+        return sanitize_margins(donor.copy()) if donor is not None and not donor.empty else base
+    out = base.copy()
+    if donor is None or donor.empty:
+        return _recompute_margins(out)
+    for col in ("op_income", "opm"):
+        if col not in donor.columns:
+            continue
+        donor_s = pd.to_numeric(donor[col], errors="coerce")
+        if col not in out.columns:
+            out[col] = donor_s.reindex(out.index)
+        else:
+            existing = pd.to_numeric(out[col], errors="coerce")
+            filled = existing.copy()
+            add = donor_s.reindex(out.index)
+            need = filled.isna() & add.notna()
+            filled = filled.where(~need, add)
+            out[col] = filled
+    # If we gained op_income but not opm, recompute
+    return _recompute_margins(out)
+
+
+def backfill_operating_margin(
+    df: pd.DataFrame,
+    ticker: str,
+    cik_map: dict[str, str],
+    *,
+    sleep_s: float = 0.12,
+) -> tuple[pd.DataFrame, str]:
+    """Ensure OPM via SEC then yfinance. Returns (df, note)."""
+    if opm_coverage_ok(df):
+        return sanitize_margins(df), "ok"
+    work = df.copy() if df is not None else pd.DataFrame()
+    note = "none"
+
+    cik = cik_map.get(ticker.upper())
+    if cik:
+        try:
+            time.sleep(sleep_s)
+            sec = fetch_sec_quarterly(cik)
+            if not sec.empty and "op_income" in sec.columns and sec["op_income"].notna().any():
+                if work.empty:
+                    work = sec
+                else:
+                    work = overlay_operating_income(work, sec)
+                if opm_coverage_ok(work):
+                    return work, "sec_opm"
+                note = "sec_partial"
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("SEC OPM backfill failed %s: %s", ticker, exc)
+            note = "sec_fail"
+
+    try:
+        yf_df = fetch_yfinance_quarterly(ticker)
+        if not yf_df.empty and "op_income" in yf_df.columns and yf_df["op_income"].notna().any():
+            if work.empty:
+                work = yf_df
+            else:
+                work = overlay_operating_income(work, yf_df)
+            if opm_coverage_ok(work):
+                return work, "yfinance_opm"
+            note = f"{note}+yf_partial" if note != "none" else "yf_partial"
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("yfinance OPM backfill failed %s: %s", ticker, exc)
+
+    return sanitize_margins(work), note
+
+
 def load_quarterly(
     ticker: str,
     fund_dir: Path,
@@ -199,8 +306,13 @@ def load_quarterly(
     *,
     refresh: bool = False,
     sleep_s: float = 0.12,
+    backfill_opm: bool = True,
 ) -> tuple[pd.DataFrame, float | None, str]:
-    """Load quarterly fundamentals + ROE. Returns (df, roe, source)."""
+    """Load quarterly fundamentals + ROE. Returns (df, roe, source).
+
+    If a cache exists but lacks usable OPM, backfill from SEC/yfinance (A1)
+    and rewrite the parquet so subsequent loads see opm.
+    """
     fund_dir.mkdir(parents=True, exist_ok=True)
     path = fund_dir / f"{ticker.upper()}.parquet"
     meta_path = fund_dir / f"{ticker.upper()}.meta.json"
@@ -208,7 +320,23 @@ def load_quarterly(
     if path.exists() and meta_path.exists() and not refresh:
         df = pd.read_parquet(path)
         meta = json.loads(meta_path.read_text())
-        return df, meta.get("roe"), meta.get("source", "cache")
+        source = meta.get("source", "cache")
+        if backfill_opm and not opm_coverage_ok(df):
+            df2, note = backfill_operating_margin(df, ticker, cik_map, sleep_s=sleep_s)
+            if opm_coverage_ok(df2) or ("op_income" in df2.columns and df2["op_income"].notna().any()):
+                df = df2
+                source = f"{source}+opm:{note}"
+                df.to_parquet(path)
+                meta = {
+                    **meta,
+                    "source": source,
+                    "opm_backfill": note,
+                    "ticker": ticker.upper(),
+                }
+                meta_path.write_text(json.dumps(meta))
+                logger.info("OPM backfill %s → %s (opm_n=%s)", ticker, note,
+                            int(df["opm"].notna().sum()) if "opm" in df.columns else 0)
+        return sanitize_margins(df), meta.get("roe"), source
 
     source = "none"
     df = pd.DataFrame()
@@ -230,13 +358,54 @@ def load_quarterly(
         except Exception as exc:  # noqa: BLE001
             logger.warning("yfinance fundamentals failed for %s: %s", ticker, exc)
 
+    # If SEC lacked OI but we have a frame skeleton, try OPM-only backfill
+    if backfill_opm and not opm_coverage_ok(df):
+        df2, note = backfill_operating_margin(df, ticker, cik_map, sleep_s=sleep_s)
+        if not df2.empty:
+            df = df2
+            if note.startswith("sec") and source == "yfinance":
+                source = f"yfinance+opm:{note}"
+            elif note != "none" and source == "none":
+                source = f"opm:{note}"
+
     roe = None
     try:
         roe = fetch_roe(ticker)
     except Exception as exc:  # noqa: BLE001
         logger.debug("ROE failed for %s: %s", ticker, exc)
 
+    df = sanitize_margins(df)
     if not df.empty:
         df.to_parquet(path)
     meta_path.write_text(json.dumps({"roe": roe, "source": source, "ticker": ticker.upper()}))
     return df, roe, source
+
+
+def audit_opm_coverage(
+    tickers: list[str],
+    fund_dir: Path,
+    cik_map: dict[str, str] | None = None,
+) -> pd.DataFrame:
+    """Snapshot OPM/NPM coverage for cached fundamentals (no network)."""
+    rows = []
+    for t in tickers:
+        t = str(t).upper()
+        path = fund_dir / f"{t}.parquet"
+        if not path.exists():
+            rows.append({"ticker": t, "cached": False, "opm_n": 0, "npm_n": 0, "rows": 0})
+            continue
+        df = pd.read_parquet(path)
+        opm_n = int(df["opm"].notna().sum()) if "opm" in df.columns else 0
+        npm_n = int(df["npm"].notna().sum()) if "npm" in df.columns else 0
+        rows.append(
+            {
+                "ticker": t,
+                "cached": True,
+                "opm_n": opm_n,
+                "npm_n": npm_n,
+                "rows": len(df),
+                "opm_ok": opm_n >= 2,
+                "has_cik": bool(cik_map and t in cik_map) if cik_map else None,
+            }
+        )
+    return pd.DataFrame(rows)

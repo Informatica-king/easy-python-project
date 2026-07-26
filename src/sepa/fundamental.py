@@ -21,7 +21,13 @@ from sepa.candidates import apply_candidate_filters, summarize_drops
 from sepa.config import Params, load_params, load_universe
 from sepa.data import fundamentals as fund_data
 from sepa.data import store, universe
-from sepa.fundamental_score import DEFAULT_WEIGHTS, FundamentalWeights, score_ticker
+from sepa.fundamental_score import (
+    DEFAULT_QUALITY,
+    DEFAULT_WEIGHTS,
+    FundamentalWeights,
+    QualityParams,
+    score_ticker,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +39,18 @@ def _weights_from_params(params: Params) -> FundamentalWeights:
         eps_dyoy=w.eps_dyoy,
         sales_dyoy=w.sales_dyoy,
         opm_delta=w.opm_delta,
+    )
+
+
+def _quality_from_params(params: Params) -> QualityParams:
+    w = params.fundamental
+    return QualityParams(
+        enabled=bool(getattr(w, "quality_enabled", True)),
+        npm_quality=float(getattr(w, "npm_quality", DEFAULT_QUALITY.npm_quality)),
+        accel_min_n=int(getattr(w, "accel_min_n", DEFAULT_QUALITY.accel_min_n)),
+        accel_full_n=int(getattr(w, "accel_full_n", DEFAULT_QUALITY.accel_full_n)),
+        accel_partial=float(getattr(w, "accel_partial", DEFAULT_QUALITY.accel_partial)),
+        surprise_winsor=float(getattr(w, "surprise_winsor", DEFAULT_QUALITY.surprise_winsor)),
     )
 
 
@@ -131,15 +149,35 @@ def load_stage2_candidates(
     return stage2[stage2["rs_rank"] >= rs_min].reset_index(drop=True)
 
 
+def apply_fund_quality_filter(
+    df: pd.DataFrame,
+    *,
+    min_quality: float,
+) -> tuple[pd.DataFrame, int]:
+    """Phase C: drop rows whose mean(b,d,e quality) < min_quality. Returns (kept, n_dropped)."""
+    if df is None or df.empty or min_quality <= 0:
+        return df, 0
+    work = df.copy()
+    cols = [c for c in ("b_quality", "d_quality", "e_quality") if c in work.columns]
+    if not cols:
+        return work, 0
+    qmean = work[cols].apply(pd.to_numeric, errors="coerce").mean(axis=1)
+    keep = qmean >= float(min_quality)
+    return work.loc[keep].reset_index(drop=True), int((~keep).sum())
+
+
 def score_universe(
     candidates: pd.DataFrame,
     params: Params,
     *,
     refresh: bool = False,
+    compare_legacy: bool = False,
 ) -> pd.DataFrame:
     fund_dir = fund_data.cache_dir(params.data.cache_dir)
     cik_map = fund_data.load_cik_map(fund_dir)
     weights = _weights_from_params(params)
+    quality = _quality_from_params(params)
+    legacy_q = QualityParams(enabled=False)
 
     rows = []
     n = len(candidates)
@@ -159,8 +197,22 @@ def score_universe(
             weights=weights,
             roe_target=params.fundamental.roe_target,
             eps_surprise=surprise,
+            quality=quality,
         )
         d = br.as_dict()
+        if compare_legacy:
+            legacy = score_ticker(
+                ticker,
+                quarterly,
+                roe,
+                source=source,
+                weights=weights,
+                roe_target=params.fundamental.roe_target,
+                eps_surprise=surprise,
+                quality=legacy_q,
+            )
+            d["fund_score_v2"] = round(legacy.fund_score, 1)
+            d["fund_score_delta"] = round(br.fund_score - legacy.fund_score, 1)
         d["name"] = getattr(row, "name", "") or ""
         d["close"] = getattr(row, "close", None)
         d["rs_rank"] = getattr(row, "rs_rank", None)
@@ -204,6 +256,16 @@ def main(argv: list[str] | None = None) -> int:
         "--refresh-fundamentals", action="store_true",
         help="ignore fundamentals cache and re-fetch SEC/yfinance",
     )
+    parser.add_argument(
+        "--compare-legacy",
+        action="store_true",
+        help="also score with quality layer off; write fund_score_v2 / delta columns",
+    )
+    parser.add_argument(
+        "--audit-opm",
+        action="store_true",
+        help="print OPM coverage for candidates then exit (no full score)",
+    )
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
@@ -220,8 +282,27 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     logger.info("candidates (Stage 2 & RS>=%.0f): %d", rs_min, len(candidates))
+
+    if args.audit_opm:
+        fund_dir = fund_data.cache_dir(params.data.cache_dir)
+        cik_map = fund_data.load_cik_map(fund_dir)
+        cov = fund_data.audit_opm_coverage(
+            candidates["ticker"].astype(str).tolist(), fund_dir, cik_map
+        )
+        stamp = (args.as_of or datetime.now().strftime("%Y-%m-%d")).replace("-", "")
+        out = Path(params.report_dir) / f"opm_coverage_{stamp}.csv"
+        Path(params.report_dir).mkdir(parents=True, exist_ok=True)
+        cov.to_csv(out, index=False)
+        ok = int(cov["opm_ok"].sum()) if "opm_ok" in cov.columns else 0
+        print(f"OPM coverage: {ok}/{len(cov)} tickers with opm_n≥2")
+        print(f"report: {out}")
+        return 0
+
     scored = score_universe(
-        candidates, params, refresh=args.refresh_fundamentals
+        candidates,
+        params,
+        refresh=args.refresh_fundamentals,
+        compare_legacy=bool(args.compare_legacy),
     )
 
     # Attach market cap then drop Fund=0 / sub-$1B names from the candidate list
@@ -235,12 +316,28 @@ def main(argv: list[str] | None = None) -> int:
             f"\n후보 필터: {before_n} → {len(scored)}  "
             f"({summarize_drops(dropped)}; Fund=0 또는 시총 <$1B 제외)"
         )
+        qmin = float(getattr(params.fundamental, "fund_quality_min", 0.0) or 0.0)
+        if qmin > 0:
+            scored, qdrop = apply_fund_quality_filter(scored, min_quality=qmin)
+            print(f"quality 필터 (mean b/d/e ≥ {qmin}): 추가 제외 {qdrop} → n={len(scored)}")
 
     stamp = (args.as_of or datetime.now().strftime("%Y-%m-%d")).replace("-", "")
     out_dir = Path(params.report_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"fundamental_{stamp}.csv"
     scored.to_csv(out_path, index=False)
+
+    if args.compare_legacy and not scored.empty and "fund_score_v2" in scored.columns:
+        cmp_path = out_dir / f"fundamental_v21_compare_{stamp}.csv"
+        cols = [
+            c for c in (
+                "ticker", "name", "fund_score", "fund_score_v2", "fund_score_delta",
+                "margin_source", "e_quality", "b_quality", "d_quality",
+                "eps_accel_n", "sales_accel_n",
+            ) if c in scored.columns
+        ]
+        scored[cols].to_csv(cmp_path, index=False)
+        print(f"v2 vs v2.1 compare: {cmp_path}")
 
     print(
         f"\n=== SEPA Fundamental scores "

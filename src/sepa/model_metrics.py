@@ -595,14 +595,13 @@ def plot_quantile_forward_returns(
 
 
 def plot_data_coverage(df: pd.DataFrame, out_path: Path) -> Path | None:
-    """7. Coverage: surprise, margin source, accel depth."""
+    """7. Coverage: surprise, margin source, accel depth + quality (v2.1)."""
     _setup_korean_font()
     if df is None or df.empty:
         return None
     d = df.copy()
     n = len(d)
 
-    # Surprise coverage: raw pct present & non-zero score share
     surprise_present = 0
     if "eps_surprise_pct" in d.columns:
         surprise_present = int(pd.to_numeric(d["eps_surprise_pct"], errors="coerce").notna().sum())
@@ -625,10 +624,13 @@ def plot_data_coverage(df: pd.DataFrame, out_path: Path) -> Path | None:
             return 0.0
         return float((pd.to_numeric(d[col], errors="coerce").fillna(0) >= min_n).mean())
 
-    fig, axes = plt.subplots(1, 3, figsize=(12, 4.8))
+    has_quality = all(c in d.columns for c in ("b_quality", "d_quality", "e_quality"))
+    fig, axes = plt.subplots(2 if has_quality else 1, 3, figsize=(12, 8.2 if has_quality else 4.8))
+    if not has_quality:
+        axes = np.array([axes])
 
-    # panel A — surprise
-    axes[0].bar(
+    row0 = axes[0]
+    row0[0].bar(
         ["surprise\npresent", "S score\n> 0", "missing\nsurprise"],
         [
             100 * surprise_present / n,
@@ -637,26 +639,24 @@ def plot_data_coverage(df: pd.DataFrame, out_path: Path) -> Path | None:
         ],
         color=["#2E86AB", "#2A9D8F", "#E76F51"],
     )
-    axes[0].set_ylim(0, 105)
-    axes[0].set_ylabel("% of universe")
-    axes[0].set_title("EPS surprise coverage")
+    row0[0].set_ylim(0, 105)
+    row0[0].set_ylabel("% of universe")
+    row0[0].set_title("EPS surprise coverage")
     for i, v in enumerate(
         [100 * surprise_present / n, 100 * s_pos / n, 100 * (n - surprise_present) / n]
     ):
-        axes[0].text(i, v + 1.5, f"{v:.0f}%", ha="center", fontsize=8)
+        row0[0].text(i, v + 1.5, f"{v:.0f}%", ha="center", fontsize=8)
 
-    # panel B — margin source
     labels = list(margin_counts.keys())
     vals = [margin_counts[k] for k in labels]
     colors = ["#C73E1D", "#F18F01", "#999", "#666"]
-    axes[1].bar(labels, [100 * v / n for v in vals], color=colors)
-    axes[1].set_ylim(0, 105)
-    axes[1].set_title("Margin source (E factor)")
-    axes[1].set_ylabel("% of universe")
+    row0[1].bar(labels, [100 * v / n for v in vals], color=colors)
+    row0[1].set_ylim(0, 105)
+    row0[1].set_title("Margin source (E factor)")
+    row0[1].set_ylabel("% of universe")
     for i, v in enumerate(vals):
-        axes[1].text(i, 100 * v / n + 1.5, f"{v}", ha="center", fontsize=8)
+        row0[1].text(i, 100 * v / n + 1.5, f"{v}", ha="center", fontsize=8)
 
-    # panel C — accel / margin depth
     depth = {
         "EPS accel\nn≥2": 100 * _depth_share("eps_accel_n", 2),
         "Sales accel\nn≥2": 100 * _depth_share("sales_accel_n", 2),
@@ -668,12 +668,32 @@ def plot_data_coverage(df: pd.DataFrame, out_path: Path) -> Path | None:
             ).mean()
         ),
     }
-    axes[2].bar(list(depth.keys()), list(depth.values()), color="#2E86AB")
-    axes[2].set_ylim(0, 105)
-    axes[2].set_title("Series depth / scored share")
-    axes[2].set_ylabel("% of universe")
+    row0[2].bar(list(depth.keys()), list(depth.values()), color="#2E86AB")
+    row0[2].set_ylim(0, 105)
+    row0[2].set_title("Series depth / scored share")
+    row0[2].set_ylabel("% of universe")
     for i, v in enumerate(depth.values()):
-        axes[2].text(i, v + 1.5, f"{v:.0f}%", ha="center", fontsize=8)
+        row0[2].text(i, v + 1.5, f"{v:.0f}%", ha="center", fontsize=8)
+
+    if has_quality:
+        row1 = axes[1]
+        for ax, col, title, color in [
+            (row1[0], "b_quality", "B quality (EPS accel gate)", "#A23B72"),
+            (row1[1], "d_quality", "D quality (Sales accel gate)", "#F18F01"),
+            (row1[2], "e_quality", "E quality (OPM/NPM)", "#C73E1D"),
+        ]:
+            s = pd.to_numeric(d[col], errors="coerce").fillna(0)
+            buckets = {
+                "0": float((s <= 0).mean() * 100),
+                "partial": float(((s > 0) & (s < 1)).mean() * 100),
+                "1.0": float((s >= 1).mean() * 100),
+            }
+            ax.bar(list(buckets.keys()), list(buckets.values()), color=color)
+            ax.set_ylim(0, 105)
+            ax.set_title(title)
+            ax.set_ylabel("% of universe")
+            for i, v in enumerate(buckets.values()):
+                ax.text(i, v + 1.5, f"{v:.0f}%", ha="center", fontsize=8)
 
     fig.suptitle(f"7. Data coverage panel (n={n})", fontsize=12, fontweight="bold")
     fig.tight_layout()
