@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 from sepa.anal_report import (
     build_anal_pack,
+    chart_page_comment,
     collect_anal_chart_paths,
     pdf_direct_download_url,
     pdf_release_tag,
@@ -24,6 +25,14 @@ def _fake_png(path: Path, color: str = "C0") -> None:
     ax.set_title(path.stem)
     fig.savefig(path, dpi=80)
     plt.close(fig)
+
+
+def test_chart_page_comment_model_pages():
+    title, body = chart_page_comment("model_factor_decomp_20260725.png")
+    assert "팩터 분해" in title
+    assert "서프라이즈" in body or "S" in body
+    assert chart_page_comment("analyze_scatter_20260725.png") is None
+    assert chart_page_comment("model_quantile_fwd_20260725.png")[0].startswith("6.")
 
 
 def test_build_anal_pack(tmp_path: Path):

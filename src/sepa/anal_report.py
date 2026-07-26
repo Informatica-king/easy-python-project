@@ -7,7 +7,9 @@ Android Cursor app often cannot download PDF artifacts, so we also publish:
 
 from __future__ import annotations
 
+import glob
 import logging
+import re
 import zipfile
 from pathlib import Path
 
@@ -16,6 +18,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.image as mpimg  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib import font_manager as fm  # noqa: E402
 from matplotlib.backends.backend_pdf import PdfPages  # noqa: E402
 from PIL import Image  # noqa: E402
 
@@ -25,8 +28,63 @@ logger = logging.getLogger(__name__)
 
 BOARD_CHARTS_PER_PAGE = 2
 
+# Newly added model-metric pages: (한글 제목, 보는 법 한 줄)
+MODEL_PAGE_COMMENTS: dict[str, tuple[str, str]] = {
+    "model_factor_decomp": (
+        "1. 팩터 분해 (S/B/D/E)",
+        "상위 종목 Fund 점수가 어떤 팩터에서 쌓였는지 봅니다. 파란(S)=서프라이즈, 보라(B)=EPS가속도, "
+        "주황(D)=매출가속도, 빨강(E)=마진변화. 한 색이 과하면 그 요인 의존도가 큽니다.",
+    ),
+    "model_factor_dist": (
+        "2. 팩터 점수 분포",
+        "네 팩터 점수가 후보군에서 어떻게 퍼져 있는지 봅니다. 한쪽(0 또는 만점)에 몰리면 "
+        "변별력이 약하고, 평균선 주변에 고르게 퍼지면 점수 체계가 살아 있는 상태입니다.",
+    ),
+    "model_rs_factor_matrix": (
+        "3. RS × 팩터 산점도",
+        "가로=상대강도(RS), 세로=각 팩터/종합점수. ρ(스피어만)가 +면 RS 강종목이 해당 팩터도 "
+        "높은 편. ρ≈0이면 모멘텀과 펀더멘털이 따로 움직입니다.",
+    ),
+    "model_rank_stability": (
+        "4. 순위 안정성 / 교체율",
+        "위: 전일 대비 점수 순위 상관(Spearman)과 유니버스 겹침(Jaccard). "
+        "아래: Top-N 잔류 vs 교체. 상관이 급락·교체가 뛰면 그 날 스크리닝/데이터 변화가 큽니다.",
+    ),
+    "model_sepatop_attrib": (
+        "5. sepaTop 기여도 분해",
+        "최근 구간의 지수 수익을 시총가중×수익률로 나눕니다. 왼쪽=종목, 오른쪽=섹터. "
+        "초록(+)/빨강(−)이 지수를 끌어올린·깎은 축입니다.",
+    ),
+    "model_quantile_fwd": (
+        "6. Fund 분위별 선행수익률",
+        "Q4=Fund 상위. 왼쪽=절대수익, 오른쪽=나스닥/QQQ 대비 초과수익. "
+        "Q4가 Q1보다 꾸준히 높으면 점수에 단기 예측력이 있다는 신호입니다.",
+    ),
+    "model_data_coverage": (
+        "7. 데이터 커버리지",
+        "왼쪽=서프라이즈 가용성, 가운데=마진 소스(OPM 우선·NPM 대체·없음), "
+        "오른쪽=시계열 깊이. NPM/none이 많거나 n≥2 비중이 낮으면 E·가속도 점수의 신뢰도가 떨어집니다.",
+    ),
+}
+
+
+def _setup_korean_font() -> None:
+    for path in glob.glob("/usr/share/fonts/truetype/nanum/NanumGothic*.ttf"):
+        fm.fontManager.addfont(path)
+    if any(f.name == "NanumGothic" for f in fm.fontManager.ttflist):
+        plt.rcParams["font.family"] = "NanumGothic"
+        plt.rcParams["axes.unicode_minus"] = False
+
+
+def chart_page_comment(image_path: Path | str) -> tuple[str, str] | None:
+    """Return (title, how-to-read) for newly added model pages, else None."""
+    name = Path(image_path).name
+    stem = re.sub(r"_\d{8}$", "", Path(name).stem)
+    return MODEL_PAGE_COMMENTS.get(stem)
+
 
 def _cover_page(pdf: PdfPages, *, title: str, subtitle: str, n_pages: int) -> None:
+    _setup_korean_font()
     fig = plt.figure(figsize=(11, 8.5))
     fig.text(0.5, 0.62, title, ha="center", va="center", fontsize=22, fontweight="bold")
     fig.text(0.5, 0.52, subtitle, ha="center", va="center", fontsize=12, color="#444")
@@ -44,24 +102,74 @@ def _cover_page(pdf: PdfPages, *, title: str, subtitle: str, n_pages: int) -> No
     plt.close(fig)
 
 
+def _wrap_comment(text: str, width: int = 52) -> str:
+    """Wrap by character count (Korean has few spaces)."""
+    lines: list[str] = []
+    remaining = text.strip()
+    while len(remaining) > width:
+        cut = width
+        # prefer break near punctuation / space in the last 12 chars
+        window = remaining[:width]
+        for i, ch in enumerate(reversed(window[-12:]), start=1):
+            if ch in " .，。、;；/·":
+                cut = width - i + 1
+                break
+        lines.append(remaining[:cut].rstrip())
+        remaining = remaining[cut:].lstrip()
+    if remaining:
+        lines.append(remaining)
+    return "\n".join(lines)
+
+
 def _image_page(pdf: PdfPages, image_path: Path) -> bool:
+    _setup_korean_font()
     try:
         img = mpimg.imread(str(image_path))
     except Exception as exc:  # noqa: BLE001
         logger.warning("skip image %s: %s", image_path, exc)
         return False
-    h, w = img.shape[:2]
+
+    comment = chart_page_comment(image_path)
     page_w, page_h = 11.0, 8.5
-    aspect = w / max(h, 1)
-    if aspect >= page_w / page_h:
-        fig_w, fig_h = page_w, page_w / aspect
+    fig = plt.figure(figsize=(page_w, page_h))
+
+    if comment:
+        title, body = comment
+        # Leave bottom band for Korean guide
+        ax = fig.add_axes([0.04, 0.22, 0.92, 0.72])
+        ax.imshow(img)
+        ax.axis("off")
+        fig.text(
+            0.5, 0.965, title,
+            ha="center", va="top", fontsize=13, fontweight="bold", color="#1a1a1a",
+        )
+        fig.text(
+            0.05, 0.16, "어떻게 보면 되나",
+            ha="left", va="top", fontsize=9, color="#2E86AB", fontweight="bold",
+        )
+        fig.text(
+            0.05, 0.13, _wrap_comment(body, width=58),
+            ha="left", va="top", fontsize=9.5, color="#333",
+            linespacing=1.35,
+        )
+        fig.text(
+            0.98, 0.02, image_path.name,
+            ha="right", va="bottom", fontsize=7, color="#999",
+        )
     else:
-        fig_h, fig_w = page_h, page_h * aspect
-    fig = plt.figure(figsize=(fig_w, fig_h))
-    ax = fig.add_axes([0.02, 0.02, 0.96, 0.90])
-    ax.imshow(img)
-    ax.axis("off")
-    fig.text(0.5, 0.97, image_path.name, ha="center", va="top", fontsize=8, color="#555")
+        h, w = img.shape[:2]
+        aspect = w / max(h, 1)
+        if aspect >= page_w / page_h:
+            # wide: fit width, center vertically
+            img_h = (page_w / aspect) / page_h
+            y0 = (1.0 - img_h) / 2
+            ax = fig.add_axes([0.03, y0, 0.94, img_h * 0.92])
+        else:
+            ax = fig.add_axes([0.03, 0.04, 0.94, 0.88])
+        ax.imshow(img)
+        ax.axis("off")
+        fig.text(0.5, 0.97, image_path.name, ha="center", va="top", fontsize=8, color="#555")
+
     pdf.savefig(fig, dpi=140)
     plt.close(fig)
     return True
