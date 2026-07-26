@@ -30,16 +30,24 @@ def test_build_anal_pack(tmp_path: Path):
     charts = tmp_path / "charts"
     imgs = []
     for name in [
-        "analyze_sectors_20260718.png",
-        "sector_share_lines_n_all_20260718.png",
-        "sector_share_lines_n_fundhi_20260718.png",
         "analyze_scatter_20260718.png",
+        "analyze_fund_hist_20260718.png",
+        "sector_share_lines_n_all_20260718.png",
+        "model_factor_decomp_20260718.png",
+        # clutter that must NOT enter the lean PDF collect list
+        "analyze_sectors_20260718.png",
+        "sector_share_lines_n_fundhi_20260718.png",
     ]:
         p = charts / name
         _fake_png(p)
         imgs.append(p)
 
     ordered = collect_anal_chart_paths(chart_dir=charts, stamp="20260718", extra=imgs)
+    names = [p.name for p in ordered]
+    assert "analyze_scatter_20260718.png" in names
+    assert "model_factor_decomp_20260718.png" in names
+    assert "analyze_sectors_20260718.png" not in names
+    assert "sector_share_lines_n_fundhi_20260718.png" not in names
     assert len(ordered) >= 3
     pack = build_anal_pack(ordered, stamp="20260718", out_dir=charts)
     assert pack["ok"]

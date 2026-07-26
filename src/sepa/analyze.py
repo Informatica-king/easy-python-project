@@ -486,6 +486,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Force month-vs-prior-month-end sector delta even if history < 28 days",
     )
     parser.add_argument(
+        "--skip-model-metrics",
+        action="store_true",
+        help="Skip model-metric charts 1–7 (factor decomp, stability, coverage, …)",
+    )
+    parser.add_argument(
         "--skip-pdf",
         action="store_true",
         help="Skip bundling all anal charts into one PDF/ZIP/PNG pack",
@@ -620,6 +625,28 @@ def main(argv: list[str] | None = None) -> int:
         except Exception as exc:  # noqa: BLE001
             logger.exception("sepaTop failed")
             print(f"[경고] sepaTop 실행 실패: {exc}")
+
+    if not args.skip_model_metrics:
+        from sepa.model_metrics import run_model_metrics
+
+        as_of = f"{stamp[:4]}-{stamp[4:6]}-{stamp[6:8]}"
+        print("\n" + "=" * 64)
+        print("  Model metrics (1–7) — auto from anal")
+        print("=" * 64)
+        try:
+            mm = run_model_metrics(
+                enriched,
+                chart_dir=chart_dir,
+                stamp=stamp,
+                report_dir=params.report_dir,
+                cache_dir=params.data.cache_dir,
+                as_of=as_of,
+            )
+            if mm.get("ok") and mm.get("charts"):
+                all_chart_paths.extend(mm["charts"])
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("model metrics failed")
+            print(f"[경고] model metrics 실행 실패: {exc}")
 
     # Mobile-first pack: ZIP + PNG boards + PDF, then GitHub Release direct link
     if not args.skip_pdf:

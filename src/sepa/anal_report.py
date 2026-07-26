@@ -73,35 +73,32 @@ def collect_anal_chart_paths(
     stamp: str,
     extra: list[Path] | None = None,
 ) -> list[Path]:
-    """Ordered list of PNGs produced by a typical anal run for ``stamp``."""
+    """Ordered lean PNG list for the anal PDF.
+
+    Keeps core decision charts + model metrics 1–7; drops duplicate sector-share
+    fundhi/delta/heatmap/week/month variants and mcap/sector bar clutter.
+    """
     chart_dir = Path(chart_dir)
     patterns = [
-        f"analyze_sectors_{stamp}.png",
+        # Core
         f"analyze_scatter_{stamp}.png",
         f"analyze_fund_hist_{stamp}.png",
-        f"analyze_mcap_hist_{stamp}.png",
+        # Sector share (lean)
         f"sector_share_lines_n_all_{stamp}.png",
-        f"sector_share_lines_mcap_all_{stamp}.png",
-        f"sector_share_delta_first_all_{stamp}.png",
-        f"sector_share_delta_prev_all_{stamp}.png",
-        f"sector_share_heatmap_all_{stamp}.png",
-        f"sector_share_lines_n_fundhi_{stamp}.png",
-        f"sector_share_lines_mcap_fundhi_{stamp}.png",
-        f"sector_share_delta_first_fundhi_{stamp}.png",
-        f"sector_share_delta_prev_fundhi_{stamp}.png",
-        f"sector_share_heatmap_fundhi_{stamp}.png",
         f"sector_share_all_vs_fundhi_{stamp}.png",
-        f"sector_share_vs_week_all_{stamp}.png",
-        f"sector_share_vs_week_mcap_all_{stamp}.png",
-        f"sector_share_vs_week_fundhi_{stamp}.png",
-        f"sector_share_vs_week_mcap_fundhi_{stamp}.png",
-        f"sector_share_vs_month_all_{stamp}.png",
-        f"sector_share_vs_month_mcap_all_{stamp}.png",
-        f"sector_share_vs_month_fundhi_{stamp}.png",
-        f"sector_share_vs_month_mcap_fundhi_{stamp}.png",
+        # sepaTop
         f"sepatop_{stamp}.png",
         f"sepatop_relative_{stamp}.png",
+        # Model metrics 1–7
+        f"model_factor_decomp_{stamp}.png",
+        f"model_factor_dist_{stamp}.png",
+        f"model_rs_factor_matrix_{stamp}.png",
+        f"model_rank_stability_{stamp}.png",
+        f"model_sepatop_attrib_{stamp}.png",
+        f"model_quantile_fwd_{stamp}.png",
+        f"model_data_coverage_{stamp}.png",
     ]
+    lean_names = set(patterns)
     ordered: list[Path] = []
     seen: set[str] = set()
     for name in patterns:
@@ -115,9 +112,15 @@ def collect_anal_chart_paths(
 
     for p in extra or []:
         pp = Path(p)
-        if pp.exists() and pp.suffix.lower() == ".png" and str(pp.resolve()) not in seen:
+        if not pp.exists() or pp.suffix.lower() != ".png":
+            continue
+        # Do not re-introduce trimmed clutter via ``extra``.
+        if pp.name not in lean_names and not pp.name.startswith(f"model_"):
+            continue
+        key = str(pp.resolve())
+        if key not in seen:
             ordered.append(pp)
-            seen.add(str(pp.resolve()))
+            seen.add(key)
     return ordered
 
 
