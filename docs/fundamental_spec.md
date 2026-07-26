@@ -1,8 +1,10 @@
 # 펀더멘털 점수 명세서 — `sepa.fundamental`
 
-> **문서 버전**: v2.0  
-> **상태**: 가중치 확정 (2026-07-19 이벤트 스터디 → 사용자 승인)  
-> **근거**: `docs/fund_weight_study_spec.md`, `reports/fund_study/`  
+> **문서 버전**: v2.1  
+> **상태**: **프로덕션 확정** (2026-07-26)  
+> **가중치**: v2.0과 동일 — S47 / E25 / D14 / B14 (재스터디 ±2pt → 변경 없음)  
+> **추가**: quality 레이어 (OPM 백필 · NPM 페널티 · B/D accel 게이트)  
+> **근거**: `docs/fund_weight_study_spec.md`, `docs/fund_model_comparison_20260726.md`  
 > **용도**: Stage 2 · RS≥80 기업에 대한 정량 펀더멘털 순위
 
 ---
@@ -98,7 +100,8 @@ fund_score = raw / 100 × 100 # = raw
 ```
 
 CSV: `reports/fundamental_YYYYMMDD.csv`  
-컬럼: `s_surprise`, `b_eps_dyoy`, `d_sales_dyoy`, `e_opm_delta`, …
+컬럼: `s_surprise`, `b_eps_dyoy`, `d_sales_dyoy`, `e_opm_delta`,
+`fund_raw`, `b/d/e_quality`, `b/d/e_raw`, `b/d/e_status`, `margin_source`, …
 
 ---
 
@@ -108,9 +111,10 @@ CSV: `reports/fundamental_YYYYMMDD.csv`
 |---|---|
 | 2026-07-16 | v1.0 A25/B20/C15/D10/E15/G5 (합 90) |
 | 2026-07-19 | v2.0 S47/E25/D14/B14 (합 100); Surprise·OPMΔ·연속 ΔYoY |
-| 2026-07-26 | v2.1 **가중치 동일**, quality 레이어: OPM 백필, NPM×0.6, B/D accel 게이트, surprise winsor. 상세 `docs/fund_score_improvement_plan.md` |
+| 2026-07-26 | v2.1 quality 레이어 코드 반영 (가중치 동일) |
+| 2026-07-26 | **v2.1 프로덕션 확정** — 재스터디 S47/E27/B14/D12 (±2) → 가중치 유지, quality on 기본 |
 
-### v2.1 quality (요약)
+### v2.1 quality (요약) — **live 기본 ON** (`quality_enabled: true`)
 
 ```
 fund_raw = S + B·qB + D·qD + E·qE
@@ -123,6 +127,6 @@ fund_score = fund_raw   # 가중 합 100 기준, quality로 헤드룸 남김 허
 | qB / qD | accel_n&lt;2 → 0 · =2 → 0.7 · ≥3 → 1.0 |
 | S | \|surprise\| winsor 1.0 (100%) 후 기존 곡선 |
 
-CSV 추가 컬럼: `fund_raw`, `b/d/e_quality`, `b/d/e_raw`, `b/d/e_status`.
-폴백 순서: **SEC OPM → yfinance OPM → NPM(페널티) → none**.
-캐시에 OPM이 없으면 `load_quarterly`가 SEC로 자동 백필한다.
+폴백 순서: **SEC OPM → yfinance OPM → NPM(페널티) → none**.  
+캐시에 OPM이 없으면 `load_quarterly`가 SEC로 자동 백필한다.  
+끄려면 `config/params.yaml`에서 `quality_enabled: false`.

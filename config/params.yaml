@@ -37,25 +37,25 @@ vcp:
   watch_zone_pct: 0.05     # 피벗 아래 5% 이내면 WATCHLIST
   max_extension: 0.05      # 피벗 위 5% 초과면 EXTENDED (추격 금지)
 
-fundamental:                 # docs/fundamental_spec.md (2026-07-19 연구 반영)
+fundamental:                 # docs/fundamental_spec.md — v2.1 production (2026-07-26)
   rs_min: 80                 # Stage 2 중 RS 이 값 이상만 펀더멘털 채점
   eps_surprise: 47           # S — EPS 컨센서스 surprise
   eps_dyoy: 14               # B — EPS YoY 가속도 (ΔYoY)
   sales_dyoy: 14             # D — 매출 YoY 가속도 (ΔYoY)
-  opm_delta: 25              # E — 영업이익률 YoY 변화 (없으면 NPM)
+  opm_delta: 25              # E — 영업이익률 YoY 변화 (없으면 NPM×npm_quality)
   # phase-1 제외 (연구: 수준 YoY·ROE 설명력 약함)
   eps_yoy: 0
   sales_yoy: 0
   roe: 0
   roe_target: 0.17
-  # v2.1 quality layer (weights unchanged; see fund_score_improvement_plan.md)
+  # v2.1 quality — PRODUCTION DEFAULT ON (weights unchanged; study 2026-07-26)
   quality_enabled: true
   npm_quality: 0.6           # E × this when margin_source=npm
   accel_min_n: 2             # B/D 미채점 if accel streak < this
   accel_full_n: 3            # B/D full quality if accel streak >= this
   accel_partial: 0.7         # quality when accel_n == accel_min_n
   surprise_winsor: 1.0       # clip |surprise| to this fraction before curve
-  fund_quality_min: 0.0      # Phase C: drop if mean(b,d,e quality) < this (0=off)
+  fund_quality_min: 0.0      # optional: drop if mean(b,d,e quality) < this (0=off)
 
 report:
   output_dir: reports

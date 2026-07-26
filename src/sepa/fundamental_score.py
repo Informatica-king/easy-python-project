@@ -1,9 +1,9 @@
 """미너비니 스타일 정량 펀더멘털 점수 (docs/fundamental_spec.md).
 
-Weights (2026-07-19 empirical study, user-approved):
+Weights (2026-07-19 empirical study, user-approved; reconfirmed 2026-07-26):
   S eps_surprise 47 · E opm_delta 25 · D sales_dyoy 14 · B eps_dyoy 14
 
-v2.1 quality layer (docs/fund_score_improvement_plan.md):
+v2.1 quality layer — PRODUCTION DEFAULT ON (2026-07-26):
   fund_raw = S + B*qB + D*qD + E*qE
   qE: opm=1.0 / npm=npm_quality / none=0
   qB/qD: accel_n < min → 0; ==min → partial; >=full → 1.0

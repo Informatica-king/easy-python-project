@@ -73,4 +73,5 @@ sales_surprise     0       NaN       NaN
 - 실질적 점수 변화는 quality 게이트(평균 48→40)에서 발생하며, 가중치 재배분이 아님
 - OPM 커버 개선 후에도 팩터 부호·순위 안정 (surprise ≫ opm_d ≈ sales_dyoy > eps_dyoy)
 
-승인 요청: **v2.1 quality를 live 기본으로 채택**, 가중치는 S47/E25/D14/B14 유지.
+**승인·적용 (2026-07-26):** v2.1 quality를 live 기본(`quality_enabled: true`)으로 채택.  
+가중치는 S47/E25/D14/B14 유지. 스펙: `docs/fundamental_spec.md` v2.1.

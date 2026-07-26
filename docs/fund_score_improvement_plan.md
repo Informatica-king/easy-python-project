@@ -1,9 +1,11 @@
 # Fund 점수 개선 개발안 (v2 → v2.1)
 
 > **작성일**: 2026-07-26  
+> **상태**: **완료 · 프로덕션 확정** (quality ON, 가중치 유지)  
 > **근거**: `!sepa.anal` 모델 지표 1–7 + 라이브 `fundamental_20260725` 진단  
-> **현행 스펙**: `docs/fundamental_spec.md` (v2.0 · S47/E25/D14/B14)  
+> **현행 스펙**: `docs/fundamental_spec.md` (**v2.1**)  
 > **연구 스펙**: `docs/fund_weight_study_spec.md`  
+> **비교 리포트**: `docs/fund_model_comparison_20260726.md`  
 > **원칙**: 가중치를 먼저 건드리지 않는다. **데이터 신뢰도 → 채점 규칙 → 역할 분리 → 재스터디** 순.
 
 ---
@@ -194,4 +196,5 @@ A1 → A3 → A2 → B1 → E1(관측) → C1 → (데이터 안정 후) D1
 | 일자 | 내용 |
 |---|---|
 | 2026-07-26 | 초안: 진단 기반 v2.1 개발안 (데이터→규칙→역할→재스터디) |
-| 2026-07-26 | **A1–C1 코드 반영 시작**: OPM 백필, quality 채점, anal coverage 확장, `fund_quality_min` / `--compare-legacy` |
+| 2026-07-26 | **A1–C1 코드 반영**: OPM 백필, quality 채점, anal coverage 확장, `fund_quality_min` / `--compare-legacy` |
+| 2026-07-26 | **D 완료**: full study → S47/E27/B14/D12 (±2) → **가중치 유지 확정**, quality 프로덕션 ON |
