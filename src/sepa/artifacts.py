@@ -44,6 +44,11 @@ def publish(path: str | Path, *, name: str | None = None) -> Path | None:
     if dest_dir is None:
         return None
     dest = dest_dir / (name or src.name)
+    try:
+        if dest.resolve() == src.resolve():
+            return dest
+    except OSError:
+        pass
     shutil.copy2(src, dest)
     return dest
 

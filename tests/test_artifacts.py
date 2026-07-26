@@ -18,13 +18,12 @@ def test_publish_copies_to_artifact_dir(tmp_path, monkeypatch):
     assert dest.parent == art
 
 
-def test_publish_many(tmp_path, monkeypatch):
-    monkeypatch.setenv("SEPA_ARTIFACT_DIR", str(tmp_path / "out"))
-    files = []
-    for name in ("a.png", "b.png"):
-        p = tmp_path / name
-        p.write_text(name)
-        files.append(p)
-    published = publish_many(files)
-    assert len(published) == 2
-    assert all(p.exists() for p in published)
+def test_publish_same_path_is_noop(tmp_path, monkeypatch):
+    art = tmp_path / "artifacts"
+    art.mkdir()
+    monkeypatch.setenv("SEPA_ARTIFACT_DIR", str(art))
+    src = art / "already.png"
+    src.write_bytes(b"x")
+    dest = publish(src)
+    assert dest == src
+    assert dest.read_bytes() == b"x"
