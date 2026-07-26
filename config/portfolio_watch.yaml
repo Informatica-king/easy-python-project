@@ -1,119 +1,153 @@
-# 보유 + 워치 + 익절/손절 시나리오 (2026-07-22 아침 포트 기준)
+# 보유 + 워치 + 익절/손절 시나리오
 # TA 훅: config/ta_watchlist.yaml 과 동기 · sepa.ta_hooks 가 둘 다 병합
 #
-# role: hold | watch
+# role: hold | watch | exited
 # no_add: true → 분할OK 차단 (NO_ADD)
 # stop / tp1 / tp2: 가격 도달 시 STOP / TP 훅 태그
 # band: 추가매수 허용 구간 (BAND) — NESR만
 
-as_of: "2026-07-22"
-as_of_note: "아침 스냅 · MU 체결 · AMRX 6→8 · USD 시드에 KRW 포함 가능"
+as_of: "2026-07-25"
+as_of_note: "앱 스냅 · 평가 $936.39 (−2.9%) · ASTH 청산·CRDO 진입·AMRX 8→9"
 fx_krw_per_usd: 1480
 
 cash:
-  usd: 238.49
+  usd: 247.86
   krw: 150459
+  note: "평가합 $936.39 + USD현금 → 유동 ~$1,184 (현금비중 ~21%)"
 
 rules:
   - "물타기 금지 · 손절가 위에서만 추가"
   - "실적 D-5 구간 분할 차단 (EARN_D5)"
   - "종목>30% 또는 HC합>65% → 강제 축소"
   - "NEO 07-28 · AMRX 07-30 실적 전 즉흥 금지"
+  - "CRDO 소액 위성 · NO_ADD until NEO"
+  - "ECPG $80 / NESR 밴드밖 · 보유분 추가금지 유지"
+  - "SLS 바이너리 금지"
 
 holdings:
   - ticker: NEO
     role: hold
     shares: 18
     cost_approx: 14.45
+    mark_approx: 13.86
+    value_approx: 249.51
+    weight_approx: 0.266
     stop: 12.0
     tp1: 16.0
     tp2: 18.0
-    no_add: false
+    no_add: true
     earn_date: "2026-07-28"
-    note: "코어 1순위 · tp1=PT평균 절반익절 · stop 12"
+    note: "코어 1순위 · D-3 실적 · 추가금지 · tp1 절반익절 · stop 12"
 
   - ticker: ECPG
     role: hold
     shares: 2
     cost_approx: 92.30
+    mark_approx: 89.97
+    value_approx: 179.94
+    weight_approx: 0.192
     stop: 80.0
     tp1: 105.0
     tp2: 110.0
     no_add: true
     earn_date: "2026-08-05"
-    note: "비중 부담 · 추가금지 · stop시 1주 먼저"
+    note: "비중 부담 · 추가금지 · stop $80 감시"
 
   - ticker: AMRX
     role: hold
-    shares: 8
+    shares: 9
     cost_approx: 18.40
+    mark_approx: 17.89
+    value_approx: 160.97
+    weight_approx: 0.172
     stop: 15.5
     tp1: 19.0
     tp2: 20.0
     no_add: true
     earn_date: "2026-07-30"
-    note: "실적 07-30 · PT평형 · 추가금지 · tp1에서 절반+"
+    note: "8→9주 추가됨 · 실적 07-30 · 추가금지 재잠금 · tp1 절반+"
 
   - ticker: MU
     role: hold
     shares: 0.143743
     cost_approx: 938.0
+    mark_approx: 919.14
+    value_approx: 132.12
+    weight_approx: 0.141
     stop: 830.0
     tp1: 1100.0
     tp2: 1170.0
     no_add: true
     earn_date: "2026-09-23"
-    note: "반도체 좌석 · 추가금지 · -15% stop"
+    note: "반도체 좌석 · 추가금지"
 
-  - ticker: ASTH
+  - ticker: CRDO
     role: hold
-    shares: 3
-    cost_approx: 45.10
-    stop: 38.0
-    tp1: 49.0
-    tp2: 50.0
+    shares: 0.426226
+    cost_approx: 212.8
+    mark_approx: 212.80
+    value_approx: 90.70
+    weight_approx: 0.097
+    stop: 190.0
+    tp1: 260.0
+    tp2: 290.0
     no_add: true
-    earn_date: "2026-08-06"
-    note: "추가금지 · PT저점 stop"
+    earn_date: "2026-09-02"
+    note: "ASTH 대체 위성 · $80대 분할매수 체결 · NEO 전 NO_ADD"
 
   - ticker: NESR
     role: hold
     shares: 3
     cost_approx: 28.00
+    mark_approx: 27.57
+    value_approx: 82.71
+    weight_approx: 0.088
     stop: 24.0
     tp1: 32.0
     tp2: 33.0
     no_add: false
     band: [25.0, 27.0]
     earn_date: "2026-08-18"
-    note: "추가는 밴드 25-27만 · 추격 금지"
+    note: "밴드 밖(~$27.6) · 추격/추가 금지 · 밴드 재진입만"
 
   - ticker: INDV
     role: hold
     shares: 1
     cost_approx: 41.00
+    mark_approx: 40.44
+    value_approx: 40.44
+    weight_approx: 0.043
     stop: 34.0
     tp1: 50.0
     tp2: 52.0
     no_add: true
     earn_date: "2026-08-06"
-    note: "시드 · 추가금지 · 1주 단순 익절"
+    note: "시드 · 추가금지"
+
+exited:
+  - ticker: ASTH
+    role: exited
+    shares: 0
+    shares_was: 3
+    cost_approx: 45.10
+    exit_approx: 40.92
+    pnl_pct_approx: -9.2
+    exit_as_of: "2026-07-24"
+    note: "전량매도 · CRDO로 회전"
 
 watchlist:
+  - ticker: AMAT
+    role: watch
+    note: "CRDO 대타 · 메가캡 장비 · 신규 보류"
   - ticker: ALKS
     role: watch
-    stop: null
-    tp1: null
-    tp2: null
-    no_add: true
-    earn_date: "2026-07-28"
-    note: "워치 · NEO 같은 날 실적"
-
-  - ticker: COCO
+    note: "07-28 실적 동시"
+  - ticker: ACHC
     role: watch
-    stop: null
-    tp1: null
-    tp2: null
-    no_add: true
-    earn_date: "2026-07-23"
-    note: "워치 · 관전만"
+    note: "07-28 실적 · 과열주의"
+  - ticker: LASR
+    role: watch
+    note: "Chase1 · 08-06 · 분할후보"
+  - ticker: SLS
+    role: watch
+    note: "바이너리 · 코어금지"

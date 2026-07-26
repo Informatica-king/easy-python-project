@@ -1,7 +1,7 @@
 # TA 워치리스트 + 포트 훅 메타 (≤20)
 # hooks: EARN_D5 · BAND · NO_ADD · STOP · TP
 # 상세 시나리오 원본: config/portfolio_watch.yaml (병합됨)
-# tickers: {symbol, earn_date?, band?, stop?, tp1?, tp2?, no_add?}
+# 2026-07-24: ASTH exited · NEO no_add through earnings · AMAT/CRDO watch
 
 tickers:
   - symbol: NEO
@@ -9,7 +9,7 @@ tickers:
     stop: 12.0
     tp1: 16.0
     tp2: 18.0
-    no_add: false
+    no_add: true
 
   - symbol: ECPG
     earn_date: "2026-08-05"
@@ -32,13 +32,6 @@ tickers:
     tp2: 1170.0
     no_add: true
 
-  - symbol: ASTH
-    earn_date: "2026-08-06"
-    stop: 38.0
-    tp1: 49.0
-    tp2: 50.0
-    no_add: true
-
   - symbol: NESR
     earn_date: "2026-08-18"
     band: [25.0, 27.0]
@@ -54,8 +47,37 @@ tickers:
     tp2: 52.0
     no_add: true
 
+  - symbol: ASTH
+    earn_date: "2026-08-06"
+    stop: 38.0
+    tp1: 49.0
+    tp2: 50.0
+    no_add: true
+
   - symbol: ALKS
     earn_date: "2026-07-28"
+    no_add: true
+
+  - symbol: AMAT
+    earn_date: "2026-08-13"
+    stop: 503.0
+    tp1: 623.0
+    tp2: 700.0
+    no_add: true
+
+  - symbol: CRDO
+    earn_date: "2026-09-02"
+    stop: 190.0
+    tp1: 279.0
+    tp2: 320.0
+    no_add: true
+
+  - symbol: SLS
+    earn_date: "2026-08-11"
+    no_add: true
+
+  - symbol: TSEM
+    earn_date: "2026-08-04"
     no_add: true
 
   - symbol: COCO
