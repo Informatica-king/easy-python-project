@@ -162,6 +162,41 @@ def run_study(
         print(f"  {k}: {p}")
     print(f"  yoy_vs_qoq: {yoy_path}")
     print("\nNOTE: weights are research proposals — not applied to sepa.fund until approved.")
+
+    # Compare vs live v2 / v2.1 quality / prior study
+    try:
+        from sepa.fund_study.compare import run_model_comparison
+
+        live_csv = Path(params.report_dir) / "fundamental_v21_20260725.csv"
+        if not live_csv.exists():
+            # fall back to latest fundamental_*.csv excluding cmp/v21 compare
+            cands = sorted(Path(params.report_dir).glob("fundamental_20*.csv"))
+            live_csv = cands[-1] if cands else live_csv
+        prior_w = out_dir / "weight_proposal_20260719.csv"
+        prior_c = out_dir / "factor_corr_20260719.csv"
+        print("\n=== Model comparison (live v2 / v2.1 / proposed) ===")
+        cmp = run_model_comparison(
+            stamp=stamp,
+            proposal_path=Path(paths_out["weights"]),
+            report_dir=Path(params.report_dir),
+            cache_dir=params.data.cache_dir,
+            live_fund_csv=live_csv,
+            prior_proposal_path=prior_w if prior_w.exists() else None,
+            prior_corr_path=prior_c if prior_c.exists() else None,
+            new_corr_path=Path(paths_out["corr"]),
+            n_events=len(panel),
+        )
+        if cmp.get("ok"):
+            print("Proposed (rounded):", cmp.get("proposed_weights"))
+            for k, v in (cmp.get("summary") or {}).items():
+                print(f"  {k}: {v}")
+            for k, p in (cmp.get("paths") or {}).items():
+                print(f"  {k}: {p}")
+            paths_out.update({f"cmp_{k}": v for k, v in (cmp.get("paths") or {}).items()})
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("model comparison failed")
+        print(f"[경고] model comparison 실패: {exc}")
+
     return {
         "ok": True,
         "stamp": stamp,
