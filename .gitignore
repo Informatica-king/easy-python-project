@@ -16,6 +16,13 @@ data/sepatop/
 data/fund_study/
 reports/
 
+# Generated PDFs / charts — do NOT git add -f
+# Download via GitHub Releases only (owner also keeps phone-local copies).
+*.pdf
+assets/*.pdf
+assets/**/*.pdf
+**/charts/
+
 # OS / editor
 .DS_Store
 .idea/

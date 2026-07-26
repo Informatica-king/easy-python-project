@@ -100,3 +100,15 @@ CLI:
 
 익절/손절·추가금지는 `config/portfolio_watch.yaml` (`stop`/`tp1`/`tp2`/`no_add`) →
 `기술적분석` 시 `STOP`/`TP`/`NO_ADD` 훅으로 반영 (`docs/ta_bot_spec.md` §7).
+
+---
+
+## PDF · 아티팩트 저장 규칙 (필수)
+
+사용자는 생성 PDF를 **휴대폰 로컬에도 저장**한다. GitHub는 재다운로드 편의용이다.
+
+1. PDF는 **GitHub Release 업로드 + 채팅에 다운로드 URL**만 제공한다.
+2. **`git add -f *.pdf` 금지** (`assets/`, `reports/` 모두). `.gitignore`가 PDF를 막는다.
+3. 깃에 넣을 것: 생성기 `.py`, `chase_rr_*.json`, `ta_*.csv` 등 작은 텍스트만.
+4. 오래된 릴리즈 정리: `python -m sepa.cleanup_artifacts` (기본 dry-run).  
+   설정: `config/artifact_retention.yaml` · 상세: `docs/artifact_retention.md`.

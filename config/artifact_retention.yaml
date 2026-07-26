@@ -1,0 +1,30 @@
+# Artifact retention — GitHub Releases + git binary hygiene
+#
+# Personal copies: the owner also saves PDFs to phone local storage.
+# GitHub is for convenient re-download links, not long-term archive.
+# Prefer regenerating from scripts over keeping every historical PDF in git.
+
+releases:
+  # tag prefix → keep newest N dated releases
+  sepa-anal:
+    keep_last: 7
+  sepa-deep:
+    keep_last: 14
+  sepa-econ:
+    keep_last: 14
+  # ticker-scoped tags like sepa-rev-lasr / sepa-rev-rapp
+  sepa-rev:
+    keep_latest_per_ticker: true
+
+git:
+  # Never commit generated binaries; reports/ is already gitignored —
+  # do not `git add -f` PDFs. Release upload only.
+  disallow_pdf_commit: true
+  # Paths (relative) that may hold force-added PDFs to untrack
+  pdf_globs:
+    - "assets/**/*.pdf"
+    - "reports/**/*.pdf"
+
+audit:
+  # Written on --apply (and optionally on dry-run with --audit)
+  dir: reports
