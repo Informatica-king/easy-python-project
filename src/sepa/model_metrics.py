@@ -35,7 +35,7 @@ FACTOR_COLS = [
     ("e_opm_delta", "E OPM Δ", "#C73E1D"),
 ]
 
-HORIZONS = (5, 20)
+HORIZONS = (1, 5, 20)
 
 
 def _setup_korean_font() -> None:
@@ -284,22 +284,82 @@ def plot_rank_stability(
     return out_path
 
 
-def _load_close_series(ticker: str, cache_dir: str | Path) -> pd.Series:
+def _ensure_benchmark(cache_dir: str | Path, symbol: str = "QQQ") -> pd.Series:
+    """Load benchmark closes; fetch once into cache if missing."""
+    series = _load_close_series(symbol, cache_dir)
+    if not series.empty:
+        return series
+    # try NASDAQ composite under yfinance symbol
+    alt = "^IXIC" if symbol.upper() != "^IXIC" else "QQQ"
+    series = _load_close_series(alt, cache_dir)
+    if not series.empty:
+        return series
+    try:
+        import yfinance as yf
+
+        for sym in (symbol, "QQQ", "^IXIC"):
+            raw = yf.download(sym, period="2y", auto_adjust=True, progress=False)
+            if raw is None or raw.empty:
+                continue
+            close = raw["Close"] if "Close" in raw.columns else raw.iloc[:, 0]
+            s = close.astype(float).dropna()
+            s.index = pd.to_datetime(s.index).tz_localize(None)
+            s = s.sort_index()
+            # persist under a safe filename (^ → removed)
+            fname = sym.replace("^", "") + ".parquet"
+            out = Path(cache_dir) / fname
+            out.parent.mkdir(parents=True, exist_ok=True)
+            pd.DataFrame({"close": s}).to_parquet(out)
+            # also alias for callers expecting ^IXIC.parquet
+            if sym.startswith("^"):
+                try:
+                    pd.DataFrame({"close": s}).to_parquet(Path(cache_dir) / f"{sym}.parquet")
+                except Exception:  # noqa: BLE001
+                    pass
+            return s
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("benchmark fetch failed: %s", exc)
+    return pd.Series(dtype=float)
+
+
+def _load_close_series(
+    ticker: str,
+    cache_dir: str | Path,
+    _cache: dict[str, pd.Series] | None = None,
+) -> pd.Series:
+    key = ticker.upper()
+    if _cache is not None and key in _cache:
+        return _cache[key]
     from sepa.data import store
 
-    path = Path(cache_dir) / f"{ticker.upper()}.parquet"
-    if not path.exists():
+    cache = Path(cache_dir)
+    candidates = [cache / f"{key}.parquet"]
+    if key.startswith("^"):
+        candidates.append(cache / f"{key[1:]}.parquet")
+    elif key in {"IXIC", "GSPC"}:
+        candidates.append(cache / f"^{key}.parquet")
+
+    series = pd.Series(dtype=float)
+    df = None
+    for path in candidates:
+        if path.exists():
+            try:
+                df = pd.read_parquet(path)
+                break
+            except Exception:  # noqa: BLE001
+                continue
+    if df is None:
         try:
-            df = store.get_history(ticker, cache_dir, lookback_years=2, update=False)
+            df = store.get_history(key, cache_dir, lookback_years=2, update=False)
         except Exception:  # noqa: BLE001
-            return pd.Series(dtype=float)
-    else:
-        df = pd.read_parquet(path)
-    if df is None or df.empty or "close" not in df.columns:
-        return pd.Series(dtype=float)
-    s = df["close"].astype(float).copy()
-    s.index = pd.to_datetime(s.index).tz_localize(None)
-    return s.sort_index()
+            df = None
+    if df is not None and not df.empty and "close" in df.columns:
+        s = df["close"].astype(float).copy()
+        s.index = pd.to_datetime(s.index).tz_localize(None)
+        series = s.sort_index()
+    if _cache is not None:
+        _cache[key] = series
+    return series
 
 
 def _period_return(series: pd.Series, as_of: pd.Timestamp, days: int) -> float | None:
@@ -347,8 +407,9 @@ def plot_sepatop_attribution(
     start_ts = as_of_ts - pd.Timedelta(days=int(lookback_days * 1.6))
 
     rets = []
+    px_cache: dict[str, pd.Series] = {}
     for t in d["ticker"]:
-        s = _load_close_series(t, cache_dir)
+        s = _load_close_series(t, cache_dir, px_cache)
         if s.empty:
             rets.append(np.nan)
             continue
@@ -418,10 +479,16 @@ def compute_quantile_forward_returns(
         # need forward window after stamp → use snapshots strictly before last price
         paths = [p for p in paths if (_stamp_from_fundamental_name(p.name) or "") <= current_stamp]
 
-    bench = _load_close_series(benchmark, cache_dir)
+    bench = _ensure_benchmark(cache_dir, benchmark)
     if bench.empty:
-        bench = _load_close_series("QQQ", cache_dir)
+        bench = _ensure_benchmark(cache_dir, "QQQ")
 
+    px_cache: dict[str, pd.Series] = {}
+    if not bench.empty:
+        px_cache[benchmark.upper()] = bench
+        px_cache["QQQ"] = bench
+        px_cache["^IXIC"] = bench
+        px_cache["IXIC"] = bench
     rows = []
     for path in paths:
         stamp = _stamp_from_fundamental_name(path.name)
@@ -449,7 +516,7 @@ def compute_quantile_forward_returns(
             for h in horizons:
                 stock_rets = []
                 for t in g["ticker"]:
-                    r = _period_return(_load_close_series(t, cache_dir), as_of, h)
+                    r = _period_return(_load_close_series(t, cache_dir, px_cache), as_of, h)
                     if r is not None:
                         stock_rets.append(r)
                 if len(stock_rets) < 3:
@@ -490,18 +557,19 @@ def plot_quantile_forward_returns(
         detail.groupby(["quantile", "horizon"], as_index=False)
         .agg(avg_return=("avg_return", "mean"), excess=("excess", "mean"), n_snaps=("stamp", "nunique"))
     )
+    horizons = sorted(int(h) for h in agg["horizon"].unique())
     fig, axes = plt.subplots(1, 2, figsize=(11, 5.2))
     qs = sorted(agg["quantile"].unique())
     x = np.arange(len(qs))
-    width = 0.35
+    width = 0.8 / max(len(horizons), 1)
     for ax, metric, title, ylabel in [
         (axes[0], "avg_return", "Absolute forward return", "avg return"),
-        (axes[1], "excess", "Excess vs NASDAQ (^IXIC)", "excess return"),
+        (axes[1], "excess", "Excess vs NASDAQ/QQQ", "excess return"),
     ]:
-        for i, h in enumerate(HORIZONS):
+        for i, h in enumerate(horizons):
             sub = agg[agg["horizon"] == h].set_index("quantile").reindex(qs)
             vals = sub[metric].fillna(0).to_numpy(dtype=float) * 100
-            ax.bar(x + (i - 0.5) * width, vals, width=width, label=f"+{h}d")
+            ax.bar(x + (i - (len(horizons) - 1) / 2) * width, vals, width=width, label=f"+{h}d")
         ax.set_xticks(x)
         ax.set_xticklabels([f"Q{q}" for q in qs])
         ax.axhline(0, color="#333", lw=0.8)
