@@ -19,11 +19,6 @@ from sepa.fund_study.config import EXPLOSION_ABS_MAX
 
 logger = logging.getLogger(__name__)
 
-OP_INCOME_TAGS = (
-    "OperatingIncomeLoss",
-    "OperatingIncomeLossAvailableToCommonStockholdersBasic",
-)
-
 
 def prior_quarter_frame(frame: str) -> str:
     y, q = int(frame[2:6]), int(frame[7])
@@ -78,38 +73,14 @@ def margin_yoy_delta_map(margin: pd.Series) -> dict[str, float]:
 
 
 def attach_operating_margin(df: pd.DataFrame, ticker: str, cik_map: dict[str, str]) -> pd.DataFrame:
-    """Add opm column from SEC operating income / revenue when possible."""
-    work = df.copy()
-    if "opm" in work.columns and work["opm"].notna().any():
-        return work
-    cik = cik_map.get(ticker.upper())
-    if not cik or "revenue" not in work.columns:
-        work["opm"] = np.nan
-        return work
-    try:
-        import requests
-        from sepa.data.fundamentals import SEC_FACTS_URL, _frames_from_tag, _headers
-
-        r = requests.get(SEC_FACTS_URL.format(cik=cik), headers=_headers(), timeout=90)
-        if r.status_code != 200:
-            work["opm"] = np.nan
-            return work
-        usgaap = r.json().get("facts", {}).get("us-gaap", {})
-        op = _frames_from_tag(usgaap, OP_INCOME_TAGS)
-        if not op:
-            work["opm"] = np.nan
-            return work
-        opm = {}
-        for fr, oi in op.items():
-            rev = work.loc[fr, "revenue"] if fr in work.index else None
-            if rev is None or (isinstance(rev, float) and (not np.isfinite(rev) or rev == 0)):
-                continue
-            opm[fr] = float(oi) / float(rev)
-        work["opm"] = pd.Series(opm)
-    except Exception as exc:  # noqa: BLE001
-        logger.debug("opm attach failed %s: %s", ticker, exc)
-        work["opm"] = np.nan
-    return work
+    """Ensure OPM via shared A1 backfill (SEC → yfinance overlay)."""
+    work = df.copy() if df is not None else pd.DataFrame()
+    if fund_data.opm_coverage_ok(work):
+        return fund_data.sanitize_margins(work)
+    filled, _note = fund_data.backfill_operating_margin(
+        work, ticker, cik_map, sleep_s=0.05
+    )
+    return filled
 
 
 def frame_asof_event(frames: list[str], day0: pd.Timestamp, frame_end_approx: dict[str, pd.Timestamp]) -> str | None:
