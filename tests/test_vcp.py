@@ -63,18 +63,18 @@ def test_rejects_non_tightening_contractions():
     df = make_vcp_frame(depths=(0.20, 0.18), last_rally_to=94.0)
     res = detect_vcp(df, P)
     assert not res.valid
-    assert "not tightening" in res.reason
+    assert "수축이 점점 얕아지지 않음" in res.reason
 
 
 def test_rejects_without_volume_dryup():
     df = make_vcp_frame(depths=(0.20, 0.10, 0.05), base_volume_dryup=False)
     res = detect_vcp(df, P)
     assert not res.valid
-    assert "volume not dried up" in res.reason
+    assert "거래량 고갈 부족" in res.reason
 
 
 def test_rejects_too_deep_base():
     df = make_vcp_frame(depths=(0.40, 0.10), last_rally_to=90.0)
     res = detect_vcp(df, P)
     assert not res.valid
-    assert "too deep" in res.reason
+    assert "베이스 낙폭 과다" in res.reason

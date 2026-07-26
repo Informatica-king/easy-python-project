@@ -148,11 +148,12 @@ def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
     """Detect a VCP setup on the last row of an indicator-enriched frame.
 
     Requires columns: open, high, low, close, volume, vol_sma50.
+    ``reason`` strings are Korean for operator-facing reports/charts.
     """
     scan_days = p.base_max_weeks * TRADING_DAYS_PER_WEEK
     window = df.tail(scan_days)
     if len(window) < p.base_min_weeks * TRADING_DAYS_PER_WEEK:
-        return VCPResult(valid=False, reason="insufficient history for base scan")
+        return VCPResult(valid=False, reason="베이스 스캔용 가격 이력 부족")
 
     # 1. Base identification
     peak_search = window.iloc[: -BASE_PEAK_EXCLUDE_DAYS] if len(window) > BASE_PEAK_EXCLUDE_DAYS else window
@@ -160,12 +161,12 @@ def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
     base = window.iloc[peak_pos:]
     base_days = len(base)
     if base_days < p.base_min_weeks * TRADING_DAYS_PER_WEEK:
-        return VCPResult(valid=False, reason=f"base too short ({base_days}d)")
+        return VCPResult(valid=False, reason=f"베이스 기간 부족 ({base_days}일, 최소 {p.base_min_weeks}주)")
 
     base_high = float(base["high"].iloc[0])
     base_depth = (base_high - float(base["low"].min())) / base_high
     if base_depth > p.max_base_depth:
-        return VCPResult(valid=False, reason=f"base too deep ({base_depth:.1%})")
+        return VCPResult(valid=False, reason=f"베이스 낙폭 과다 ({base_depth:.1%}, 상한 {p.max_base_depth:.0%})")
 
     # 2. Contraction structure
     swings = zigzag_from_high(base["high"], base["low"], p.swing_threshold)
@@ -173,19 +174,28 @@ def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
     contractions = _merge_minor_contractions(contractions, p.contraction_min_retrace)
     n = len(contractions)
     if not (p.min_contractions <= n <= p.max_contractions):
-        return VCPResult(valid=False, reason=f"contraction count {n} outside range")
+        return VCPResult(
+            valid=False,
+            reason=f"수축 횟수 {n}회 (허용 {p.min_contractions}~{p.max_contractions}회)",
+        )
 
     depths = [c.depth for c in contractions]
     for prev, cur in zip(depths, depths[1:]):
         if cur > prev * p.contraction_decay:
-            return VCPResult(valid=False, reason=f"contractions not tightening ({_fmt_depths(depths)})")
+            return VCPResult(
+                valid=False,
+                reason=f"수축이 점점 얕아지지 않음 ({_fmt_depths(depths)})",
+            )
     if depths[-1] > p.final_contraction_max:
-        return VCPResult(valid=False, reason=f"final contraction too deep ({depths[-1]:.1%})")
+        return VCPResult(
+            valid=False,
+            reason=f"마지막 수축이 너무 깊음 ({depths[-1]:.1%}, 상한 {p.final_contraction_max:.0%})",
+        )
 
     # 3. Volume dry-up
     vol_sma50 = float(df["vol_sma50"].iloc[-1])
     if pd.isna(vol_sma50) or vol_sma50 <= 0:
-        return VCPResult(valid=False, reason="no volume baseline")
+        return VCPResult(valid=False, reason="거래량 기준선(50일 평균) 없음")
     recent_vol = float(df["volume"].tail(p.dryup_days).mean())
     dryup_actual = recent_vol / vol_sma50
     last_vol_ratio = float(df["volume"].iloc[-1]) / vol_sma50
@@ -212,24 +222,26 @@ def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
     if close > pivot * (1 + p.pivot_buffer):
         if dist_to_pivot > p.max_extension:
             result.signal = Signal.EXTENDED
-            result.reason = "pivot cleared beyond max extension - do not chase"
+            result.reason = "피벗 돌파 후 이격 과다 — 추격 금지"
         elif last_vol_ratio >= p.breakout_vol_mult:
             result.signal = Signal.BREAKOUT
-            result.reason = "pivot breakout with volume confirmation"
+            result.reason = "피벗 돌파 + 거래량 확인"
         else:
             result.signal = Signal.WATCHLIST
-            result.reason = "pivot cleared but volume not confirmed"
+            result.reason = "피벗은 돌파했으나 거래량 미확인"
     else:
         if dryup_actual > p.dryup_ratio:
             result.valid = False
             result.signal = Signal.NONE
-            result.reason = f"volume not dried up ({dryup_actual:.2f} > {p.dryup_ratio})"
+            result.reason = (
+                f"거래량 고갈 부족 ({dryup_actual:.2f} > {p.dryup_ratio})"
+            )
         elif close >= pivot * (1 - p.watch_zone_pct):
             result.signal = Signal.WATCHLIST
-            result.reason = "setup complete, price near pivot"
+            result.reason = "셋업 완료, 피벗 근접 (돌파 임박)"
         else:
             result.signal = Signal.FORMING
-            result.reason = "valid structure, price below watch zone"
+            result.reason = "구조는 유효, 아직 감시구간 아래"
     return result
 
 

@@ -64,7 +64,7 @@ def analyze(
     for ticker in tickers:
         df = data.get(ticker)
         if df is None or len(df) < params.data.min_history_days:
-            rows.append({"ticker": ticker, "signal": "NO_DATA", "note": "insufficient history"})
+            rows.append({"ticker": ticker, "signal": "NO_DATA", "note": "가격 이력 부족"})
             continue
         enriched = indicators.add_indicators(df, params.trend_template)
         trend_ok = trend_template.evaluate(enriched, tp_no_rs).passed
