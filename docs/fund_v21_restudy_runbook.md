@@ -4,9 +4,9 @@
 
 ## 사전 조건
 
-- [ ] OPM 백필 후 후보군 `margin_source=opm` 비중 확인 (`reports/opm_coverage_*.csv`)
-- [ ] `reports/fundamental_v21_compare_*.csv` 로 v2 vs v2.1 점수 차이 검토
-- [ ] quality 게이트 파라미터가 `config/params.yaml`에 확정됨
+- [x] OPM 백필 후 후보군 `margin_source=opm` 비중 확인 (`reports/opm_coverage_*.csv`)
+- [x] `reports/fundamental_v21_compare_*.csv` 로 v2 vs v2.1 점수 차이 검토
+- [x] quality 게이트 파라미터가 `config/params.yaml`에 확정됨
 
 ## 실행
 
@@ -31,3 +31,11 @@ ls reports/fund_study/
 
 - 일상 스냅샷 Q4−Q1 (+5/+20d) — 모니터링만
 - 섹터 중립화 Q4−Q1 — 바이오 편중 통제용
+
+
+## 실행 결과 (2026-07-26 full)
+
+- Events: 10,948 · proposed weights **S47 / E27 / B14 / D12**
+- vs live: E +2, D −2 (within ±5 → **keep live weights**)
+- Comparison report: `docs/fund_model_comparison_20260726.md`
+- Score Spearman live↔v2.1 **0.958**, v2.1↔proposed **0.998**
