@@ -417,7 +417,7 @@ REGISTRY: list[MacroSpec] = [
     ),
     MacroSpec(
         "sepa.vcp", '!sepa.vcp("NVDA,MSFT")  |  !sepa.vcp(sandisk, as_of=2025-02-18)',
-        "shortlist VCP 진입 타이밍 — BREAKOUT/WATCHLIST/FORMING/EXTENDED",
+        "shortlist VCP 진입 타이밍 — CSV/HTML/PNG 표로 즉시 확인",
         _tool_vcp, aliases=("vcp", "sepa.vcp_timing"),
     ),
     MacroSpec(
