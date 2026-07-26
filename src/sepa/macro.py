@@ -167,6 +167,27 @@ def _tool_vcp(args: list, kwargs: dict) -> None:
     vcp_timing.main(argv)
 
 
+def _tool_vcp_study(args: list, kwargs: dict) -> None:
+    from sepa import vcp_study
+
+    argv: list[str] = []
+    if args:
+        a0 = str(args[0])
+        if a0.endswith(".csv"):
+            argv += ["--from-stage2", a0]
+        elif a0.endswith(".txt"):
+            argv += ["--tickers-file", a0]
+        else:
+            names = _load_names()
+            tickers = [resolve_ticker(t, names) for t in a0.split(",") if t.strip()]
+            argv += ["--tickers", ",".join(tickers)]
+    if kwargs.get("no_history"):
+        argv.append("--no-history")
+    if kwargs.get("update"):
+        argv.append("--update")
+    vcp_study.main(argv)
+
+
 def _tool_chart(args: list, kwargs: dict) -> None:
     from sepa import chart
 
@@ -419,6 +440,12 @@ REGISTRY: list[MacroSpec] = [
         "sepa.vcp", '!sepa.vcp("NVDA,MSFT")  |  !sepa.vcp(sandisk, as_of=2025-02-18)',
         "shortlist VCP 진입 타이밍 — CSV/HTML/PNG 표로 즉시 확인",
         _tool_vcp, aliases=("vcp", "sepa.vcp_timing"),
+    ),
+    MacroSpec(
+        "sepa.vcp_study",
+        '!sepa.vcp_study()  |  !sepa.vcp_study("reports/stage2_20260726.csv")',
+        "VCP 파라미터 민감도/품질 스터디 — live 수치 변경 없음",
+        _tool_vcp_study, aliases=("vcp_study",),
     ),
     MacroSpec(
         "sepa.chart", '!sepa.chart("SNDK")  |  !sepa.chart(sandisk, months=12)',

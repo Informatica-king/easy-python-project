@@ -158,27 +158,30 @@ def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
     return classify_signal(df, pivot, p)           # WATCHLIST / BREAKOUT / EXTENDED
 ```
 
-### 4.4 VCP 파라미터 표 — **수치 확정 필요**
+### 4.4 VCP 파라미터 표 — 2026-07-26 민감도 스터디 기준 **유지**
 
-> "권장 기본값"은 미너비니의 서술과 일반적인 VCP 구현 관례에서 도출한 제안값이다. **"확정값" 열을 채워 주면 그 값으로 구현한다.** 비워두면 권장값으로 시작한 후 Phase 5에서 백테스트로 조정한다.
+> 권장 기본값은 미너비니 서술 + 일반 VCP 관례에서 온 값이다.  
+> `docs/vcp_param_analysis_20260726.md` (Stage2 교차·1년 weekly as-of) 결과:  
+> **hit rate를 높이려고 decay/base_min을 완화하면 신호 품질이 떨어지거나 VCP 정의가 무너짐** → production 값은 아래 live 유지.  
+> 재튜닝은 전 유니버스·다년 이벤트 스터디 이후에만.
 
-| 파라미터 | 의미 | 권장 기본값 | 합리적 범위 | 확정값 |
+| 파라미터 | 의미 | 권장/Live | 합리적 범위 | 확정 |
 |---|---|---|---|---|
-| `base_min_weeks` | 베이스 최소 기간 | 5주 | 3~8주 | |
-| `base_max_weeks` | 베이스 최대 기간 | 26주 | 10~65주 | |
-| `max_base_depth` | 베이스 전체 최대 낙폭 | 35% | 25~50% | |
-| `swing_threshold` | 스윙 포인트 인정 최소 반전폭 | 3% | 2~5% | |
-| `min_contractions` | 최소 수축 횟수 | 2회 | 2~3회 | |
-| `max_contractions` | 최대 수축 횟수 | 6회 | 4~6회 | |
-| `contraction_decay` | 수축 깊이 감소 비율 상한 | 0.75 | 0.5(엄격)~1.0(감소만 요구) | 0.75 |
-| `contraction_min_retrace` | 별개 수축 인정 최소 반등 비율 (소수축 병합) | 0.5 | 0.3~0.7 | 0.5 |
-| `final_contraction_max` | 마지막 수축 최대 깊이 | 10% | 3~15% | |
-| `dryup_days` | 거래량 고갈 측정 기간 | 5일 | 3~10일 | |
-| `dryup_ratio` | 고갈 판정: 50일 평균 대비 비율 | 0.6 | 0.4~0.8 | |
-| `pivot_buffer` | 돌파 인정 여유폭 | 0.1% | 0~0.5% | |
-| `breakout_vol_mult` | 돌파일 거래량 배수 (50일 평균 대비) | 1.5배 | 1.2~2.0배 | |
-| `watch_zone_pct` | Watchlist 인정: 피벗 아래 근접 범위 | 5% | 3~10% | |
-| `max_extension` | 추격 금지: 피벗 위 최대 이격 | 5% | 3~8% | |
+| `base_min_weeks` | 베이스 최소 기간 | 5주 | 3~8주 | **5 (유지)** |
+| `base_max_weeks` | 베이스 최대 기간 | 26주 | 10~65주 | 26 |
+| `max_base_depth` | 베이스 전체 최대 낙폭 | 35% | 25~50% | 0.35 |
+| `swing_threshold` | 스윙 포인트 인정 최소 반전폭 | 3% | 2~5% | 0.03 |
+| `min_contractions` | 최소 수축 횟수 | 2회 | 2~3회 | 2 |
+| `max_contractions` | 최대 수축 횟수 | 6회 | 4~6회 | 6 |
+| `contraction_decay` | 수축 깊이 감소 비율 상한 | 0.75 | 0.5(엄격)~1.0 | **0.75 (유지)** |
+| `contraction_min_retrace` | 별개 수축 인정 최소 반등 비율 | 0.5 | 0.3~0.7 | 0.5 |
+| `final_contraction_max` | 마지막 수축 최대 깊이 | 10% | 3~15% | 0.10 |
+| `dryup_days` | 거래량 고갈 측정 기간 | 5일 | 3~10일 | 5 |
+| `dryup_ratio` | 고갈 판정: 50일 평균 대비 | 0.6 | 0.4~0.8 | 0.6 |
+| `pivot_buffer` | 돌파 인정 여유폭 | 0.1% | 0~0.5% | 0.001 |
+| `breakout_vol_mult` | 돌파일 거래량 배수 | 1.5배 | 1.2~2.0배 | 1.5 |
+| `watch_zone_pct` | Watchlist: 피벗 아래 근접 | 5% | 3~10% | 0.05 |
+| `max_extension` | 추격 금지: 피벗 위 최대 이격 | 5% | 3~8% | 0.05 |
 
 ### 4.5 알려진 한계와 대응
 
