@@ -16,6 +16,12 @@ cash:
   krw: 150459
   note: "평가합 $969.06 + USD현금 → 유동 ~$1,191 (현금비중 ~19%)"
 
+contribution:
+  payday: "매월 10일"
+  monthly_krw: 300000
+  monthly_usd_approx: 203
+  note: "월급일 입금 → 환전/대기 후 규칙 집행. 실적 D-5·추격 금지 우선."
+
 rules:
   - "물타기 금지 · 손절가 위에서만 추가"
   - "실적 D-5 구간 분할 차단 (EARN_D5)"
@@ -25,6 +31,7 @@ rules:
   - "ECPG $80 / NESR 밴드밖 · 보유분 추가금지 유지"
   - "SLS 바이너리 금지"
   - "SCHD는 코어 완충 · 추격매수 금지 · DCA만"
+  - "월 30만원은 10일 입금 후 기본 배분: 현금버퍼 보충 → SCHD DCA → (여유시) 계획자리만"
 
 holdings:
   - ticker: NEO
