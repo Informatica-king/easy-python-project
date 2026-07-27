@@ -79,10 +79,15 @@ def store_bulk_update(params: Params, tickers: list[str]) -> tuple[list[str], li
 
 
 def score_once(stage2: pd.DataFrame, params: Params, *, refresh: bool = False) -> pd.DataFrame:
-    """Score every tech-Stage2 name once (no RS pre-filter)."""
+    """Score every tech-Stage2 name once (no RS pre-filter), attach mcap/sector."""
     if stage2.empty:
         return stage2.copy()
-    return fundamental.score_universe(stage2, params, refresh=refresh)
+    scored = fundamental.score_universe(stage2, params, refresh=refresh)
+    if scored.empty:
+        return scored
+    from sepa.analyze import enrich_with_sectors
+
+    return enrich_with_sectors(scored, params.data.cache_dir, refresh=False)
 
 
 def slice_at_threshold(scored: pd.DataFrame, rs_min: float) -> dict:
