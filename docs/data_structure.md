@@ -116,8 +116,12 @@ stage2 필드 + `stage2`(bool), `failed_conditions`(실패 조건 콤마 목록,
 
 ### 4.3 `reports/vcp_YYYYMMDD.csv` — [도구2] 출력
 
-`ticker, signal, close, pivot, dist_to_pivot_pct, trend_ok, base_weeks,
-footprint, final_depth_pct, dryup_ratio, volume_vs_avg, note`
+`ticker, signal, close, pivot, stop, risk_pct, quality_score, dist_to_pivot_pct, trend_ok,
+base_weeks, footprint, final_depth_pct, dryup_ratio, volume_vs_avg, note`
+
+- `stop`: 마지막 수축 저점 (손절 후보)
+- `risk_pct`: 피벗 매수 시 손절까지 리스크% = `(pivot - stop) / pivot × 100`
+- `quality_score`: 패턴 품질 0–100 (수축 조임·최종깊이·거래량고갈·피벗근접). 매수 신호가 아님
 (의미는 `docs/strategy_spec.md` §5.2 참조)
 
 ---

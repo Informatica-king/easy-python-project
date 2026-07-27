@@ -65,6 +65,10 @@ class VCPResult:
     final_depth: float | None = None
     dryup_ratio_actual: float | None = None
     volume_vs_avg: float | None = None
+    # Phase-1 operator UX (detection rules unchanged): stop = last contraction low.
+    stop: float | None = None
+    risk_pct: float | None = None  # (pivot - stop) / pivot * 100 — risk if buying at pivot
+    quality_score: float | None = None  # 0–100 pattern quality (not a buy signal)
 
 
 def zigzag_from_high(high: pd.Series, low: pd.Series, threshold: float) -> list[Swing]:
@@ -144,6 +148,77 @@ def _merge_minor_contractions(contractions: list[Contraction], min_retrace: floa
     return merged
 
 
+def compute_quality_score(
+    depths: list[float],
+    *,
+    dryup_ratio: float,
+    dist_to_pivot_pct: float,
+    p: VCPParams,
+) -> float:
+    """Pattern-quality score 0–100 (execution/timing is separate via ``signal``).
+
+    Weights (phase-1, intentionally simple):
+      - tightening 40: how much each contraction shrinks vs the prior
+      - final depth 25: shallower last contraction is better
+      - volume dry-up 25: lower recent/50d volume ratio is better
+      - pivot proximity 10: closer to pivot (from below) scores higher;
+        already extended above ``max_extension`` scores near zero
+    """
+    if len(depths) < 2:
+        return 0.0
+
+    # 1) Tightening: reward ratio well below decay ceiling
+    step_scores = []
+    for prev, cur in zip(depths, depths[1:]):
+        if prev <= 0:
+            continue
+        ratio = cur / prev
+        # full marks at ratio <= 0.5 (classic "half rule"), zero at ratio >= decay
+        ceiling = max(p.contraction_decay, 0.51)
+        if ratio <= 0.5:
+            step_scores.append(1.0)
+        elif ratio >= ceiling:
+            step_scores.append(0.0)
+        else:
+            step_scores.append(1.0 - (ratio - 0.5) / (ceiling - 0.5))
+    tighten = 40.0 * (sum(step_scores) / len(step_scores) if step_scores else 0.0)
+
+    # 2) Final contraction depth: full at <=5%, zero at >= final_contraction_max
+    final = depths[-1]
+    fmax = max(p.final_contraction_max, 0.051)
+    if final <= 0.05:
+        final_pts = 25.0
+    elif final >= fmax:
+        final_pts = 0.0
+    else:
+        final_pts = 25.0 * (1.0 - (final - 0.05) / (fmax - 0.05))
+
+    # 3) Dry-up: full at ≤0.40, zero at ≥0.80 (linear in between)
+    if dryup_ratio <= 0.40:
+        dry_pts = 25.0
+    elif dryup_ratio >= 0.80:
+        dry_pts = 0.0
+    else:
+        dry_pts = 25.0 * (1.0 - (dryup_ratio - 0.40) / 0.40)
+
+    # 4) Pivot proximity (pattern readiness, not a buy gate)
+    dist = dist_to_pivot_pct / 100.0  # fraction
+    if dist > p.max_extension:
+        prox_pts = 0.0
+    elif dist >= 0:
+        # at/above pivot but within extension band
+        prox_pts = 10.0 * (1.0 - dist / max(p.max_extension, 1e-6))
+    else:
+        # below pivot: full marks inside watch zone, fades further away
+        depth_below = -dist
+        if depth_below <= p.watch_zone_pct:
+            prox_pts = 10.0
+        else:
+            prox_pts = max(0.0, 10.0 * (1.0 - (depth_below - p.watch_zone_pct) / 0.15))
+
+    return round(max(0.0, min(100.0, tighten + final_pts + dry_pts + prox_pts)), 1)
+
+
 def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
     """Detect a VCP setup on the last row of an indicator-enriched frame.
 
@@ -201,8 +276,16 @@ def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
     last_vol_ratio = float(df["volume"].iloc[-1]) / vol_sma50
 
     pivot = contractions[-1].high
+    stop = contractions[-1].low
     close = float(df["close"].iloc[-1])
     dist_to_pivot = close / pivot - 1.0
+    risk_pct = (pivot - stop) / pivot * 100.0 if pivot > 0 else None
+    qscore = compute_quality_score(
+        depths,
+        dryup_ratio=dryup_actual,
+        dist_to_pivot_pct=dist_to_pivot * 100.0,
+        p=p,
+    )
 
     base_weeks = round(base_days / TRADING_DAYS_PER_WEEK, 1)
     footprint = f"{int(round(base_weeks))}W {_fmt_depths(depths)} {n}T"
@@ -216,6 +299,9 @@ def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
         final_depth=round(depths[-1], 4),
         dryup_ratio_actual=round(dryup_actual, 2),
         volume_vs_avg=round(last_vol_ratio, 2),
+        stop=round(stop, 2),
+        risk_pct=round(risk_pct, 2) if risk_pct is not None else None,
+        quality_score=qscore,
     )
 
     # 4. Signal classification
@@ -236,6 +322,7 @@ def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
             result.reason = (
                 f"거래량 고갈 부족 ({dryup_actual:.2f} > {p.dryup_ratio})"
             )
+            # keep stop / quality_score — structure was good enough to score
         elif close >= pivot * (1 - p.watch_zone_pct):
             result.signal = Signal.WATCHLIST
             result.reason = "셋업 완료, 피벗 근접 (돌파 임박)"

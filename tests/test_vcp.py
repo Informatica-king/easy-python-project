@@ -41,6 +41,27 @@ def test_watchlist_setup_detected():
     depths = [c.depth for c in res.contractions]
     assert depths == sorted(depths, reverse=True), "depths must tighten"
     assert res.footprint.endswith("3T")
+    # Phase-1 UX fields
+    assert res.stop == pytest.approx(res.contractions[-1].low, abs=0.05)
+    assert res.risk_pct is not None and res.risk_pct > 0
+    assert res.quality_score is not None and 0 <= res.quality_score <= 100
+
+
+def test_quality_score_rewards_tighter_dryer_setups():
+    from sepa.vcp import compute_quality_score
+
+    tight = compute_quality_score(
+        [0.20, 0.10, 0.05], dryup_ratio=0.35, dist_to_pivot_pct=-1.0, p=P
+    )
+    loose = compute_quality_score(
+        [0.20, 0.14, 0.10], dryup_ratio=0.70, dist_to_pivot_pct=-12.0, p=P
+    )
+    assert tight > loose
+    assert tight >= 70
+    extended = compute_quality_score(
+        [0.20, 0.10, 0.05], dryup_ratio=0.35, dist_to_pivot_pct=8.0, p=P
+    )
+    assert extended < tight  # proximity component collapses when extended
 
 
 def test_breakout_with_volume_confirmation():
@@ -71,6 +92,9 @@ def test_rejects_without_volume_dryup():
     res = detect_vcp(df, P)
     assert not res.valid
     assert "거래량 고갈 부족" in res.reason
+    # Phase-1: still expose stop/quality when structure passed but dry-up failed
+    assert res.stop is not None
+    assert res.quality_score is not None
 
 
 def test_rejects_too_deep_base():

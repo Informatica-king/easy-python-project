@@ -279,6 +279,7 @@ sepa-bot/
 | 2026-07-17 | D14: `!sepa.go` | 일일 원샷 파이프라인 — `scan(full)` → `fund` → `anal` 순서 실행 |
 | 2026-07-17 | D15: 후보 필터 | Fund=0 또는 시가총액 <$1B(미확인 포함) 이면 fund/anal 후보에서 제외 |
 | 2026-07-26 | D16: VCP 파라미터 유지 | Stage2 민감도+1y as-of 스터디(`sepa.vcp_study`) — hit rate용 완화는 품질↓. live VCP 수치 유지. 상세: `docs/vcp_param_analysis_20260726.md` |
+| 2026-07-27 | D17: VCP UX 1단계 | 탐지 규칙 변경 없이 `stop`/`risk_pct`/`quality_score` 출력 (CSV·HTML/PNG·차트). 품질점수는 매수 신호 아님 |
 
 ## 6. 진행 현황
 

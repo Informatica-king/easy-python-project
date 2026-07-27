@@ -207,13 +207,15 @@ def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
 | `ticker` | 종목 식별 |
 | `signal` | `BREAKOUT` / `WATCHLIST` / `FORMING` / `EXTENDED` / `NONE` |
 | `close`, `pivot`, `dist_to_pivot_pct` | 현재가, 피벗 가격, 피벗까지 거리 |
+| `stop`, `risk_pct` | 손절 후보(마지막 수축 저점), 피벗 매수 시 리스크% |
+| `quality_score` | 패턴 품질 0–100 (조임·최종깊이·고갈·피벗근접). 매수 신호 아님 |
 | `trend_ok` | Trend Template(조건 8 제외) 통과 여부 — 참고용 |
 | `base_weeks`, `footprint` | 베이스 기간, 미너비니식 표기 (예: `12W 18/9/4 3T`) |
 | `final_depth_pct`, `dryup_ratio` | 마지막 수축 깊이, 실제 거래량 고갈 비율 |
 | `volume_vs_avg` | 당일 거래량 / 50일 평균 (돌파 확인용) |
 | `note` | 시그널 근거 또는 셋업 불성립 사유 |
 
-형식: CSV + 콘솔 요약 테이블 (추후 차트 이미지 자동 생성 확장 가능)
+형식: CSV + HTML/PNG 표 + 콘솔 요약 (탐지 규칙은 동일, 1단계 UX 필드 추가)
 
 ---
 

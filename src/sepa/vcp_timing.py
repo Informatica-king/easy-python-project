@@ -38,8 +38,9 @@ from sepa.data import store
 logger = logging.getLogger(__name__)
 
 REPORT_COLUMNS = [
-    "ticker", "signal", "close", "pivot", "dist_to_pivot_pct", "trend_ok",
-    "base_weeks", "footprint", "final_depth_pct", "dryup_ratio", "volume_vs_avg", "note",
+    "ticker", "signal", "close", "pivot", "stop", "risk_pct", "quality_score",
+    "dist_to_pivot_pct", "trend_ok", "base_weeks", "footprint",
+    "final_depth_pct", "dryup_ratio", "volume_vs_avg", "note",
 ]
 
 # Operator-facing Korean headers for the visual table (CSV keeps English keys).
@@ -48,6 +49,9 @@ DISPLAY_HEADERS = {
     "signal": "신호",
     "close": "종가",
     "pivot": "피벗",
+    "stop": "손절",
+    "risk_pct": "리스크%",
+    "quality_score": "품질",
     "dist_to_pivot_pct": "피벗이격%",
     "trend_ok": "추세",
     "base_weeks": "베이스주",
@@ -109,6 +113,9 @@ def analyze(
             "signal": res.signal.value if res.valid else "NONE",
             "close": round(float(df["close"].iloc[-1]), 2),
             "pivot": res.pivot,
+            "stop": res.stop,
+            "risk_pct": res.risk_pct,
+            "quality_score": res.quality_score,
             "dist_to_pivot_pct": res.dist_to_pivot_pct,
             "trend_ok": trend_ok,
             "base_weeks": res.base_weeks,
@@ -148,11 +155,18 @@ def _fmt_cell(col: str, value) -> str:
         return ""
     if col == "trend_ok":
         return "Y" if bool(value) else "N"
-    if col in {"close", "pivot"}:
+    if col in {"close", "pivot", "stop"}:
         return f"{float(value):.2f}"
-    if col in {"dist_to_pivot_pct", "base_weeks", "final_depth_pct", "dryup_ratio", "volume_vs_avg"}:
+    if col in {
+        "dist_to_pivot_pct", "base_weeks", "final_depth_pct",
+        "dryup_ratio", "volume_vs_avg", "risk_pct", "quality_score",
+    }:
         try:
-            return f"{float(value):.2f}" if col != "final_depth_pct" else f"{float(value):.1f}"
+            if col == "final_depth_pct":
+                return f"{float(value):.1f}"
+            if col == "quality_score":
+                return f"{float(value):.0f}"
+            return f"{float(value):.2f}"
         except (TypeError, ValueError):
             return str(value)
     return str(value)

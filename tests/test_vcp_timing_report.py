@@ -22,6 +22,9 @@ def _sample_report() -> pd.DataFrame:
             "signal": "BREAKOUT",
             "close": 100.5,
             "pivot": 99.0,
+            "stop": 94.0,
+            "risk_pct": 5.05,
+            "quality_score": 88.0,
             "dist_to_pivot_pct": 1.5,
             "trend_ok": True,
             "base_weeks": 6.2,
@@ -36,6 +39,9 @@ def _sample_report() -> pd.DataFrame:
             "signal": "NONE",
             "close": 50.0,
             "pivot": None,
+            "stop": None,
+            "risk_pct": None,
+            "quality_score": None,
             "dist_to_pivot_pct": None,
             "trend_ok": True,
             "base_weeks": None,
@@ -50,6 +56,9 @@ def _sample_report() -> pd.DataFrame:
             "signal": "WATCHLIST",
             "close": 80.0,
             "pivot": 81.0,
+            "stop": 77.5,
+            "risk_pct": 4.32,
+            "quality_score": 81.0,
             "dist_to_pivot_pct": -1.2,
             "trend_ok": False,
             "base_weeks": 5.0,
@@ -78,6 +87,8 @@ def test_build_vcp_table_html(tmp_path: Path):
     assert "베이스 기간 부족" in text
     assert "BREAKOUT" in text
     assert "비고 / 탈락사유" in text
+    assert "손절" in text
+    assert "품질" in text
 
 
 def test_build_vcp_table_pngs(tmp_path: Path):
@@ -96,6 +107,9 @@ def test_build_vcp_table_pngs_paginates(tmp_path: Path):
             "signal": "NONE",
             "close": 10.0,
             "pivot": None,
+            "stop": None,
+            "risk_pct": None,
+            "quality_score": None,
             "dist_to_pivot_pct": None,
             "trend_ok": True,
             "base_weeks": None,
@@ -122,6 +136,8 @@ def test_write_vcp_report_pack(tmp_path: Path, monkeypatch):
     assert Path(pack["pngs"][0]).exists()
     csv_text = Path(pack["csv"]).read_text(encoding="utf-8")
     assert "베이스 기간 부족" in csv_text
+    assert "quality_score" in csv_text
+    assert "stop" in csv_text
     # published into artifact dir
     assert (tmp_path / "artifacts" / "vcp_20260726.csv").exists()
     assert (tmp_path / "artifacts" / "vcp_20260726.html").exists()

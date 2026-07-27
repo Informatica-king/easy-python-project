@@ -139,9 +139,14 @@ def render_chart(
             ax.plot(*zip(*in_view), color="black", lw=1.1, ls="--", marker="o",
                     ms=4, label="베이스 스윙 구조(ZigZag)")
 
-    if vcp_res.valid and vcp_res.pivot:
+    if vcp_res.pivot is not None:
+        sig = vcp_res.signal.value if vcp_res.valid else "NONE"
         ax.axhline(vcp_res.pivot, color="crimson", lw=1.4, ls="-.",
-                   label=f"VCP 피벗 {vcp_res.pivot:,.0f} ({vcp_res.signal.value})")
+                   label=f"VCP 피벗 {vcp_res.pivot:,.0f} ({sig})")
+    if vcp_res.stop is not None:
+        risk = f" (리스크 {vcp_res.risk_pct:.1f}%)" if vcp_res.risk_pct is not None else ""
+        ax.axhline(vcp_res.stop, color="#8e44ad", lw=1.2, ls=":",
+                   label=f"손절 {vcp_res.stop:,.0f}{risk}")
 
     last = full.iloc[-1]
     # 큰 폭의 상승/하락 구간은 로그 스케일이 추세 판독에 유리
@@ -166,10 +171,15 @@ def render_chart(
         lines.append(f"{'O' if tt.conditions[key] else 'X'}  {label}{note}")
     n_pass = sum(tt.conditions.values())
     verdict = "Stage 2 (Trend Template 통과)" if tt.passed else f"Stage 2 아님 ({n_pass}/{len(tt.conditions)} 통과)"
-    vcp_line = (
-        f"VCP: {vcp_res.signal.value} — {vcp_res.footprint}"
-        if vcp_res.valid else f"VCP 셋업 없음: {vcp_res.reason}"
-    )
+    if vcp_res.valid:
+        q = f" · 품질 {vcp_res.quality_score:.0f}" if vcp_res.quality_score is not None else ""
+        stop_s = f" · 손절 {vcp_res.stop:,.0f}" if vcp_res.stop is not None else ""
+        vcp_line = f"VCP: {vcp_res.signal.value} — {vcp_res.footprint}{q}{stop_s}"
+    else:
+        extra = ""
+        if vcp_res.stop is not None and vcp_res.quality_score is not None:
+            extra = f" (손절 {vcp_res.stop:,.0f} · 품질 {vcp_res.quality_score:.0f})"
+        vcp_line = f"VCP 셋업 없음: {vcp_res.reason}{extra}"
     box_text = f"[{verdict}]\n" + "\n".join(lines) + f"\n\n{vcp_line}"
     ax.text(0.995, 0.02, box_text, transform=ax.transAxes, fontsize=9,
             va="bottom", ha="right", family="NanumGothicCoding",
