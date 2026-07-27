@@ -104,6 +104,66 @@ def zigzag_from_high(high: pd.Series, low: pd.Series, threshold: float) -> list[
     return swings
 
 
+def compute_atr(df: pd.DataFrame, period: int = 14) -> pd.Series:
+    """Wilder ATR (EMA of True Range with alpha=1/period)."""
+    prev_c = df["close"].shift(1)
+    tr = pd.concat(
+        [
+            df["high"] - df["low"],
+            (df["high"] - prev_c).abs(),
+            (df["low"] - prev_c).abs(),
+        ],
+        axis=1,
+    ).max(axis=1)
+    return tr.ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean()
+
+
+def zigzag_from_high_atr(
+    high: pd.Series,
+    low: pd.Series,
+    atr: pd.Series,
+    multiplier: float,
+) -> list[Swing]:
+    """ATR-scaled ZigZag: reversal when move ≥ ``ATR × multiplier`` in price units.
+
+    Adapts swing size to each name's volatility (tradermonty-style research option).
+    Bars with missing/non-positive ATR are skipped for confirmation (extreme still updates).
+    """
+    h, l, a = high.to_numpy(), low.to_numpy(), atr.to_numpy()
+    swings = [Swing("H", 0, float(h[0]))]
+    direction = -1
+    ext_pos, ext_price = 0, float(l[0])
+    for i in range(1, len(h)):
+        thr = float(a[i]) * multiplier
+        if direction == -1:
+            if l[i] <= ext_price:
+                ext_pos, ext_price = i, float(l[i])
+            elif thr == thr and thr > 0 and h[i] >= ext_price + thr:
+                swings.append(Swing("L", ext_pos, ext_price))
+                direction = 1
+                ext_pos, ext_price = i, float(h[i])
+        else:
+            if h[i] >= ext_price:
+                ext_pos, ext_price = i, float(h[i])
+            elif thr == thr and thr > 0 and l[i] <= ext_price - thr:
+                swings.append(Swing("H", ext_pos, ext_price))
+                direction = -1
+                ext_pos, ext_price = i, float(l[i])
+    return swings
+
+
+def build_swings(base: pd.DataFrame, p: VCPParams, full_df: pd.DataFrame | None = None) -> list[Swing]:
+    """Dispatch percent vs ATR ZigZag according to ``p.swing_mode``."""
+    mode = (p.swing_mode or "pct").lower()
+    if mode == "atr":
+        src = full_df if full_df is not None else base
+        atr_full = src["atr"] if "atr" in src.columns else compute_atr(src, p.atr_period)
+        # Align ATR to the base window by index intersection
+        atr_base = atr_full.reindex(base.index)
+        return zigzag_from_high_atr(base["high"], base["low"], atr_base, p.atr_multiplier)
+    return zigzag_from_high(base["high"], base["low"], p.swing_threshold)
+
+
 def _build_contractions(swings: list[Swing], base: pd.DataFrame) -> list[Contraction]:
     """Pair each swing high with the following swing low.
 
@@ -249,7 +309,7 @@ def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
         return VCPResult(valid=False, reason=f"베이스 낙폭 과다 ({base_depth:.1%}, 상한 {p.max_base_depth:.0%})")
 
     # 2. Contraction structure
-    swings = zigzag_from_high(base["high"], base["low"], p.swing_threshold)
+    swings = build_swings(base, p, full_df=df)
     contractions = _build_contractions(swings, base)
     contractions = _merge_minor_contractions(contractions, p.contraction_min_retrace)
     n = len(contractions)

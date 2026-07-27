@@ -56,6 +56,7 @@ def presets(live: VCPParams) -> dict[str, VCPParams]:
     """Named profiles for comparison (live kept as control)."""
     return {
         "live": live,
+        "atr_zigzag": dataclasses.replace(live, swing_mode="atr"),
         "minervini_strict": dataclasses.replace(
             live,
             contraction_decay=0.50,
@@ -63,6 +64,7 @@ def presets(live: VCPParams) -> dict[str, VCPParams]:
             final_contraction_max=0.08,
         ),
         "base3": dataclasses.replace(live, base_min_weeks=3),
+        "base3_atr": dataclasses.replace(live, base_min_weeks=3, swing_mode="atr"),
         "leader_relaxed": dataclasses.replace(
             live,
             base_min_weeks=3,

@@ -407,20 +407,33 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--config", default="config/params.yaml")
     parser.add_argument("--as-of", default=None, help="analyze as of date YYYY-MM-DD")
     parser.add_argument("--no-update", action="store_true", help="use cache only, skip downloads")
+    parser.add_argument(
+        "--swing-mode",
+        choices=["pct", "atr"],
+        default=None,
+        help="ZigZag mode override (default: config; atr = research ATR ZigZag)",
+    )
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 
     params = load_params(args.config)
+    if args.swing_mode:
+        params = dataclasses.replace(
+            params,
+            vcp=dataclasses.replace(params.vcp, swing_mode=args.swing_mode),
+        )
     tickers = _parse_tickers(args)
     report = analyze(params, tickers, as_of=args.as_of, update=not args.no_update)
 
     stamp = (args.as_of or datetime.now().strftime("%Y-%m-%d")).replace("-", "")
+    mode_tag = f"_{params.vcp.swing_mode}" if args.swing_mode else ""
     out_dir = Path(params.report_dir)
-    pack = write_vcp_report_pack(report, out_dir, stamp=stamp)
+    pack = write_vcp_report_pack(report, out_dir, stamp=f"{stamp}{mode_tag}")
 
     _print_console_table(report, args.as_of, len(tickers))
-    print(f"\nreport csv : {pack['csv']}")
+    print(f"\nswing_mode : {params.vcp.swing_mode}")
+    print(f"report csv : {pack['csv']}")
     print(f"report html: {pack['html']}")
     pngs = pack["pngs"]
     if len(pngs) == 1:

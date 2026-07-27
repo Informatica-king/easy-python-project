@@ -17,8 +17,11 @@ def test_presets_include_live():
     live = VCPParams()
     p = presets(live)
     assert "live" in p and "base3" in p and "minervini_strict" in p
+    assert "atr_zigzag" in p and "base3_atr" in p
     assert p["live"].base_min_weeks == 5
+    assert p["live"].swing_mode == "pct"
     assert p["base3"].base_min_weeks == 3
+    assert p["atr_zigzag"].swing_mode == "atr"
     assert p["minervini_strict"].contraction_decay == 0.5
 
 

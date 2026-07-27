@@ -281,6 +281,7 @@ sepa-bot/
 | 2026-07-26 | D16: VCP 파라미터 유지 | Stage2 민감도+1y as-of 스터디(`sepa.vcp_study`) — hit rate용 완화는 품질↓. live VCP 수치 유지. 상세: `docs/vcp_param_analysis_20260726.md` |
 | 2026-07-27 | D17: VCP UX 1단계 | 탐지 규칙 변경 없이 `stop`/`risk_pct`/`quality_score` 출력 (CSV·HTML/PNG·차트). 품질점수는 매수 신호 아님 |
 | 2026-07-27 | D18: VCP 노이즈 2단계 | `min_contraction_days=5`, `t1_depth_min=0.08` 추가 — 잔물결 수축·너무 얕은 첫 수축 탈락 |
+| 2026-07-27 | D19: VCP ATR ZigZag 3단계 | `swing_mode=pct\|atr` — live는 pct 유지, ATR×1.5는 연구/CLI(`--swing-mode atr`) |
 
 ## 6. 진행 현황
 

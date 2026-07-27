@@ -131,3 +131,32 @@ def test_phase2_defaults_still_pass_textbook_setup():
     assert res.valid, res.reason
     assert res.contractions[0].depth >= P.t1_depth_min
     assert all(c.duration_days >= P.min_contraction_days for c in res.contractions)
+
+
+def test_atr_zigzag_detects_textbook_setup():
+    import dataclasses
+
+    from sepa.vcp import compute_atr, zigzag_from_high_atr
+
+    df = make_vcp_frame(depths=(0.20, 0.10, 0.05), last_rally_to=94.0)
+    atr = compute_atr(df, 14)
+    assert atr.notna().sum() > 50
+    base = df.iloc[250:]
+    swings = zigzag_from_high_atr(base["high"], base["low"], atr.reindex(base.index), 1.5)
+    assert swings[0].kind == "H"
+    assert len(swings) >= 3
+
+    p = dataclasses.replace(P, swing_mode="atr")
+    res = detect_vcp(df, p)
+    assert res.valid, res.reason
+    assert res.signal == Signal.WATCHLIST
+
+
+def test_load_params_swing_mode_default_pct():
+    from sepa.config import load_params
+
+    params = load_params("config/params.yaml")
+    assert params.vcp.swing_mode == "pct"
+    assert params.vcp.atr_multiplier == 1.5
+    assert params.vcp.min_contraction_days == 5
+    assert params.vcp.t1_depth_min == 0.08

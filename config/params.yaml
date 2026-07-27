@@ -24,7 +24,10 @@ vcp:
   base_min_weeks: 5
   base_max_weeks: 26
   max_base_depth: 0.35     # 베이스 전체 최대 낙폭
-  swing_threshold: 0.03    # ZigZag 스윙 인정 최소 반전폭
+  swing_threshold: 0.03    # ZigZag 스윙 인정 최소 반전폭 (swing_mode=pct)
+  swing_mode: pct          # pct(live) | atr(연구용 ATR ZigZag)
+  atr_period: 14
+  atr_multiplier: 1.5      # ATR ZigZag 반전 임계 = ATR × 배수
   min_contractions: 2
   max_contractions: 6
   contraction_decay: 0.75  # 각 수축 깊이 <= 직전 수축 x 0.75

@@ -44,6 +44,10 @@ class VCPParams:
     base_max_weeks: int = 26
     max_base_depth: float = 0.35
     swing_threshold: float = 0.03
+    # Phase-3: ZigZag mode — live default remains percent; "atr" is research option
+    swing_mode: str = "pct"  # "pct" | "atr"
+    atr_period: int = 14
+    atr_multiplier: float = 1.5
     min_contractions: int = 2
     max_contractions: int = 6
     contraction_decay: float = 0.75

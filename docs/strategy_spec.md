@@ -113,7 +113,8 @@ rs_rank = 유니버스 내 rs_raw의 백분위 순위 (0~100)
 **② 수축 구조 검증**
 
 1. 베이스 구간에서 스윙 고점/저점 추출:
-   ZigZag 방식 — 직전 극점 대비 `swing_threshold` % 이상 반대 방향으로 움직였을 때만 새 스윙 포인트로 인정 (노이즈 필터링)
+   - **`swing_mode=pct`(live)**: ZigZag — 직전 극점 대비 `swing_threshold` % 이상 반대 방향
+   - **`swing_mode=atr`(연구)**: ZigZag — 반전 폭 ≥ `ATR(atr_period) × atr_multiplier` (변동성 적응)
 2. 연속된 (스윙고점 → 스윙저점) 쌍을 **수축(contraction)** 으로 정의, 깊이 = `(고점 − 저점) / 고점`
 3. **소수축 병합** *(실데이터 검증 중 추가)*: 수축 사이의 반등이 직전 하락폭의 `contraction_min_retrace` 미만이면 별개 수축이 아니라 같은 하락의 연장으로 보고 직전 수축에 병합 (고점 유지, 더 깊은 저점 채택). ZigZag만으로는 실제 차트의 잔파동이 수축 7~20개로 과다 집계되어 유효 셋업이 전부 기각되는 문제를 해결
 4. 판정 조건:
@@ -172,7 +173,10 @@ def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
 | `base_min_weeks` | 베이스 최소 기간 | 5주 | 3~8주 | **5 (유지)** |
 | `base_max_weeks` | 베이스 최대 기간 | 26주 | 10~65주 | 26 |
 | `max_base_depth` | 베이스 전체 최대 낙폭 | 35% | 25~50% | 0.35 |
-| `swing_threshold` | 스윙 포인트 인정 최소 반전폭 | 3% | 2~5% | 0.03 |
+| `swing_threshold` | 스윙 포인트 인정 최소 반전폭 (% 모드) | 3% | 2~5% | 0.03 |
+| `swing_mode` | ZigZag 모드 | `pct` | `pct` / `atr` | **pct (live)** · atr=연구 |
+| `atr_period` | ATR 기간 (`swing_mode=atr`) | 14 | 10~20 | 14 |
+| `atr_multiplier` | ATR ZigZag 반전 배수 | 1.5 | 1.0~2.5 | 1.5 |
 | `min_contractions` | 최소 수축 횟수 | 2회 | 2~3회 | 2 |
 | `max_contractions` | 최대 수축 횟수 | 6회 | 4~6회 | 6 |
 | `contraction_decay` | 수축 깊이 감소 비율 상한 | 0.75 | 0.5(엄격)~1.0 | **0.75 (유지)** |

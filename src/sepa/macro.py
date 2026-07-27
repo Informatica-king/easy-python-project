@@ -164,6 +164,8 @@ def _tool_vcp(args: list, kwargs: dict) -> None:
         argv += ["--as-of", str(kwargs["as_of"])]
     if kwargs.get("no_update"):
         argv.append("--no-update")
+    if kwargs.get("swing_mode"):
+        argv += ["--swing-mode", str(kwargs["swing_mode"]).lower()]
     vcp_timing.main(argv)
 
 
@@ -201,6 +203,8 @@ def _tool_chart(args: list, kwargs: dict) -> None:
         argv += ["--as-of", str(kwargs["as_of"])]
     if kwargs.get("no_update"):
         argv.append("--no-update")
+    if kwargs.get("swing_mode"):
+        argv += ["--swing-mode", str(kwargs["swing_mode"]).lower()]
     chart.main(argv)
 
 
@@ -437,8 +441,9 @@ REGISTRY: list[MacroSpec] = [
         aliases=("screener", "sepa.stage2", "sepa.scan", "scan"),
     ),
     MacroSpec(
-        "sepa.vcp", '!sepa.vcp("NVDA,MSFT")  |  !sepa.vcp(sandisk, as_of=2025-02-18)',
-        "shortlist VCP 진입 타이밍 — CSV/HTML/PNG 표로 즉시 확인",
+        "sepa.vcp",
+        '!sepa.vcp("NVDA,MSFT")  |  !sepa.vcp(sandisk, swing_mode=atr)',
+        "shortlist VCP 진입 타이밍 — CSV/HTML/PNG 표 (swing_mode=pct|atr)",
         _tool_vcp, aliases=("vcp", "sepa.vcp_timing"),
     ),
     MacroSpec(

@@ -125,7 +125,9 @@ def render_chart(
         peak_search = window.iloc[: -vcp.BASE_PEAK_EXCLUDE_DAYS]
         peak_pos = int(peak_search["high"].argmax())
         base = window.iloc[peak_pos:]
-        swings = vcp.zigzag_from_high(base["high"], base["low"], params.vcp.swing_threshold)
+        swings = vcp.build_swings(base, params.vcp, full_df=full)
+        mode = (params.vcp.swing_mode or "pct").lower()
+        zz_label = f"베이스 스윙 구조(ZigZag/{mode})"
         base_start_full = len(full) - len(window) + peak_pos
         sx = [base_start_full + s.pos - offset for s in swings]
         sy = [s.price for s in swings]
@@ -137,7 +139,7 @@ def render_chart(
         in_view = [(px, py) for px, py in zip(sx, sy) if px >= 0]
         if len(in_view) >= 2:
             ax.plot(*zip(*in_view), color="black", lw=1.1, ls="--", marker="o",
-                    ms=4, label="베이스 스윙 구조(ZigZag)")
+                    ms=4, label=zz_label)
 
     if vcp_res.pivot is not None:
         sig = vcp_res.signal.value if vcp_res.valid else "NONE"
@@ -221,15 +223,23 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--as-of", default=None, help="analyze as of date YYYY-MM-DD")
     parser.add_argument("--out", default="reports/charts")
     parser.add_argument("--no-update", action="store_true")
+    parser.add_argument("--swing-mode", choices=["pct", "atr"], default=None)
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     params = load_params(args.config)
+    if args.swing_mode:
+        import dataclasses
+
+        params = dataclasses.replace(
+            params,
+            vcp=dataclasses.replace(params.vcp, swing_mode=args.swing_mode),
+        )
     path = render_chart(
         args.ticker, params, months=args.months,
         as_of=args.as_of, update=not args.no_update, out_dir=args.out,
     )
-    print(f"chart: {path}")
+    print(f"chart: {path}  (swing_mode={params.vcp.swing_mode})")
     return 0
 
 
