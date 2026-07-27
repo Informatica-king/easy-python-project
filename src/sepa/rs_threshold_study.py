@@ -152,6 +152,7 @@ def compare_adjacent(slices: list[dict], key: str = "fund_tickers") -> pd.DataFr
 
 
 def plot_counts(summary: pd.DataFrame, out_path: Path) -> Path:
+    _setup_korean_font()
     fig, ax = plt.subplots(figsize=(9, 4.8))
     x = summary["rs_min"].astype(int).astype(str)
     ax.plot(x, summary["n_stage2"], "o-", label="Stage2 (RS≥T)", color="#546e7a")
@@ -169,6 +170,7 @@ def plot_counts(summary: pd.DataFrame, out_path: Path) -> Path:
 
 
 def plot_band_churn(adj: pd.DataFrame, out_path: Path, *, title: str) -> Path:
+    _setup_korean_font()
     fig, ax = plt.subplots(figsize=(9, 4.5))
     ax.bar(adj["band"], adj["symdiff_n"], color="#ef6c00", label="대칭차집합 |A△B|")
     ax.plot(adj["band"], adj["removed_n"], "o--", color="#b71c1c", label="상향 시 탈락")
