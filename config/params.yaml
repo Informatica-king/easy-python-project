@@ -18,7 +18,7 @@ trend_template:
   low_52w_min_pct: 0.30    # 52주 저점 대비 최소 +30%
   high_52w_max_pct: 0.25   # 52주 고점 대비 -25% 이내
   rs_enabled: true
-  rs_rank_min: 80          # RS 백분위 순위 하한
+  rs_rank_min: 70          # RS 백분위 순위 하한 (미너비니 최소선; 2026-07-27)
 
 vcp:
   base_min_weeks: 5
@@ -43,7 +43,9 @@ vcp:
   max_extension: 0.05      # 피벗 위 5% 초과면 EXTENDED (추격 금지)
 
 fundamental:                 # docs/fundamental_spec.md — v2.1 production (2026-07-26)
-  rs_min: 80                 # Stage 2 중 RS 이 값 이상만 펀더멘털 채점
+  rs_min: 70                 # Stage 2 중 RS 이 값 이상만 펀더멘털 채점
+  rs_soft_max: 90            # RS≥이 값이면 Fund≥중앙값 조건부 통과 (하드컷 아님)
+  rs_high_requires_fund_median: true  # soft-max 구간: 풀(Fund>0·mcap통과) 중앙값 이상만 유지
   eps_surprise: 47           # S — EPS 컨센서스 surprise
   eps_dyoy: 14               # B — EPS YoY 가속도 (ΔYoY)
   sales_dyoy: 14             # D — 매출 YoY 가속도 (ΔYoY)

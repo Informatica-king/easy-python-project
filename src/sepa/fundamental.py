@@ -17,7 +17,11 @@ import pandas as pd
 
 from sepa import screener
 from sepa.analyze import enrich_with_sectors
-from sepa.candidates import apply_candidate_filters, summarize_drops
+from sepa.candidates import (
+    apply_candidate_filters,
+    apply_rs_soft_ceiling,
+    summarize_drops,
+)
 from sepa.config import Params, load_params, load_universe
 from sepa.data import fundamentals as fund_data
 from sepa.data import store, universe
@@ -244,7 +248,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--universe", default="config/universe.yaml")
     parser.add_argument(
         "--full", action="store_true",
-        help="screen full Nasdaq then score RS≥80 Stage 2 names",
+        help="screen full Nasdaq then score RS≥rs_min Stage 2 names",
     )
     parser.add_argument(
         "--from-stage2", default=None,
@@ -316,6 +320,22 @@ def main(argv: list[str] | None = None) -> int:
             f"\n후보 필터: {before_n} → {len(scored)}  "
             f"({summarize_drops(dropped)}; Fund=0 또는 시총 <$1B 제외)"
         )
+        soft_max = float(getattr(params.fundamental, "rs_soft_max", 0.0) or 0.0)
+        soft_on = bool(getattr(params.fundamental, "rs_high_requires_fund_median", True))
+        if soft_max > 0 and soft_on and not scored.empty:
+            before_soft = len(scored)
+            scored, soft_dropped, med = apply_rs_soft_ceiling(
+                scored, rs_soft_max=soft_max, enabled=True
+            )
+            tickers = (
+                ",".join(soft_dropped["ticker"].astype(str).str.upper().tolist())
+                if not soft_dropped.empty else ""
+            )
+            print(
+                f"RS soft ceiling: RS≥{soft_max:.0f} 은 Fund≥중앙값({med:.1f})만 유지  "
+                f"{before_soft} → {len(scored)}"
+                + (f"  탈락: {tickers}" if tickers else "  (탈락 0)")
+            )
         qmin = float(getattr(params.fundamental, "fund_quality_min", 0.0) or 0.0)
         if qmin > 0:
             scored, qdrop = apply_fund_quality_filter(scored, min_quality=qmin)
@@ -339,9 +359,14 @@ def main(argv: list[str] | None = None) -> int:
         scored[cols].to_csv(cmp_path, index=False)
         print(f"v2 vs v2.1 compare: {cmp_path}")
 
+    soft_max = float(getattr(params.fundamental, "rs_soft_max", 0.0) or 0.0)
+    soft_on = bool(getattr(params.fundamental, "rs_high_requires_fund_median", True))
+    rs_note = f"RS≥{rs_min:.0f}"
+    if soft_max > 0 and soft_on:
+        rs_note += f" · RS≥{soft_max:.0f}→Fund≥중앙값"
     print(
         f"\n=== SEPA Fundamental scores "
-        f"(Stage 2 · RS≥{rs_min:.0f} · 후보필터 적용, n={len(scored)}) "
+        f"(Stage 2 · {rs_note} · 후보필터 적용, n={len(scored)}) "
         f"— fund_score desc ===\n"
     )
     print_fundamental_list(scored)

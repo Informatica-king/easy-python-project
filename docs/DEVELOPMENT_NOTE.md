@@ -283,6 +283,7 @@ sepa-bot/
 | 2026-07-27 | D18: VCP 노이즈 2단계 | `min_contraction_days=5`, `t1_depth_min=0.08` 추가 — 잔물결 수축·너무 얕은 첫 수축 탈락 |
 | 2026-07-27 | D19: VCP ATR ZigZag 3단계 | `swing_mode=pct\|atr` — live는 pct 유지, ATR×1.5는 연구/CLI(`--swing-mode atr`) |
 | 2026-07-27 | D20: RS 임계값 스터디 | `!sepa.rs_study` — RS 50→90 티커집합 비교 + Fund 점수 분포(누적/독점/탈락vs잔류). live RS≥80 유지 |
+| 2026-07-27 | D21: RS 하한·소프트 상한 | live: Trend/Fund `RS≥70`; `RS≥90`은 Fund≥풀중앙값 조건부 통과 (하드 상한 컷 아님) |
 
 ## 6. 진행 현황
 

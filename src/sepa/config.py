@@ -35,7 +35,7 @@ class TrendTemplateParams:
     low_52w_min_pct: float = 0.30
     high_52w_max_pct: float = 0.25
     rs_enabled: bool = True
-    rs_rank_min: float = 80.0
+    rs_rank_min: float = 70.0
 
 
 @dataclass(frozen=True)
@@ -75,7 +75,11 @@ class FundamentalParams:
     npm_quality / accel_* gate unreliable factors instead of reweighting.
     """
 
-    rs_min: float = 80.0
+    rs_min: float = 70.0
+    # Soft ceiling: RS >= rs_soft_max kept only if fund >= median (when enabled).
+    # 0 disables the soft ceiling. Hard exclusion of high-RS leaders is intentional-off.
+    rs_soft_max: float = 90.0
+    rs_high_requires_fund_median: bool = True
     eps_surprise: float = 47.0
     eps_dyoy: float = 14.0
     sales_dyoy: float = 14.0

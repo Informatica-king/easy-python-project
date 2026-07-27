@@ -20,7 +20,7 @@
 **운용 워크플로우 (D8, 2026-07-15 확정 · D11 펀더멘털 봇 추가 2026-07-16)**:
 
 1. **Stage 2 스크리너** (`!sepa.scan(full)`): Trend Template 8조건 → **"회사명-티커"** + RS
-2. **정량 펀더멘털** (`!sepa.fund()`): Stage 2 · RS≥80 → fund_score 내림차순
+2. **정량 펀더멘털** (`!sepa.fund()`): Stage 2 · RS≥70 (RS≥90은 Fund≥중앙값 조건부) → fund_score 내림차순
 3. **분석·시각화** (`!sepa.anal()`): 섹터/테마 분류 + RS×펀더멘털 산점도 (원점=평균)
 4. **사용자 최종 숏리스트** 확정
 5. **VCP 타이밍** (`!sepa.vcp(...)`) / 차트 (`!sepa.chart(...)`)
@@ -78,7 +78,7 @@
 | `trend_days` | 21 (1개월) | 200일선 상승 판정 기간. 미너비니 권장은 4~5개월(84~105일) |
 | `low_52w_min_pct` | 0.30 | 52주 저점 대비 최소 상승률 |
 | `high_52w_max_pct` | 0.25 | 52주 고점 대비 허용 이격 |
-| `rs_rank_min` | 80 | RS 백분위 순위 하한 (미너비니 선호 80~90) |
+| `rs_rank_min` | 70 | RS 백분위 순위 하한 (미너비니 최소 70; 선호 구간 70–89) |
 
 ### 3.3 RS(상대강도) 순위 계산
 
@@ -271,4 +271,4 @@ def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
 
 ## 8. 미결정 사항
 
-1. Trend Template의 `trend_days`(현재 1개월 vs 미너비니 권장 4~5개월), `rs_rank_min`(현재 80) — Phase 5 백테스트에서 함께 검토
+1. Trend Template의 `trend_days`(현재 1개월 vs 미너비니 권장 4~5개월), `rs_rank_min`(현재 70) — Phase 5 백테스트에서 함께 검토
