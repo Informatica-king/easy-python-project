@@ -22,16 +22,31 @@ contribution:
   monthly_usd_approx: 203
   note: "월급일 입금 → 환전/대기 후 규칙 집행. 실적 D-5·추격 금지 우선."
 
+allocation:
+  basis: "주식 평가금 대비 비중 (현금 별도)"
+  core_target_pct: 20
+  core_band_pct: [15, 25]
+  satellite_max_pct: 10
+  schd_target_pct: 10
+  schd_role: "변동성 완충"
+  core_tickers: [NEO, ECPG, AMRX]
+  satellite_tickers: [MU, CRDO, NESR]
+  note: |
+    코어 ~20% 전후(밴드 15–25). 위성 ≤10. SCHD 목표 10%(완충).
+    코어 후보 추가는 월적립·익절재배치로만. 위성 초과분은 축소·신규금지.
+
 rules:
   - "물타기 금지 · 손절가 위에서만 추가"
   - "실적 D-5 구간 분할 차단 (EARN_D5)"
-  - "종목>30% 또는 HC합>65% → 강제 축소"
+  - "비중: 코어~20%(15–25) · 위성≤10% · SCHD 완충 목표10%"
+  - "단일 코어>25% 또는 HC합>65% → 강제 축소"
+  - "위성>10% → 추가금지·축소 검토 (현재 MU 해당)"
   - "NEO 07-28 · AMRX 07-30 실적 전 즉흥 금지"
   - "CRDO 소액 위성 · NO_ADD until NEO"
   - "ECPG $80 / NESR 밴드밖 · 보유분 추가금지 유지"
   - "SLS 바이너리 금지"
-  - "SCHD는 코어 완충 · 추격매수 금지 · DCA만"
-  - "월 30만원은 10일 입금 후 기본 배분: 현금버퍼 보충 → SCHD DCA → (여유시) 계획자리만"
+  - "SCHD는 추격매수 금지 · 월적립 DCA로 10%까지"
+  - "월 30만원: 현금버퍼 → SCHD(10% 미만시) → 코어 부족분 → 위성은 밴드/계획자리만"
 
 holdings:
   - ticker: NEO
