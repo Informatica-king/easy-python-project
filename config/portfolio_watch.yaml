@@ -6,14 +6,14 @@
 # stop / tp1 / tp2: 가격 도달 시 STOP / TP 훅 태그
 # band: 추가매수 허용 구간 (BAND) — NESR만
 
-as_of: "2026-07-25"
-as_of_note: "앱 스냅 · 평가 $936.39 (−2.9%) · ASTH 청산·CRDO 진입·AMRX 8→9"
-fx_krw_per_usd: 1480
+as_of: "2026-07-27"
+as_of_note: "앱 스냅 KST 20:21 · 평가 1,421,096원 (−2.9%) · INDV→SCHD 2주 · USD현금 $221.59"
+fx_krw_per_usd: 1476
 
 cash:
-  usd: 247.86
+  usd: 221.59
   krw: 150459
-  note: "평가합 $936.39 + USD현금 → 유동 ~$1,184 (현금비중 ~21%)"
+  note: "평가합 ~$964 + USD현금 → 유동 ~$1,186 (현금비중 ~19%)"
 
 rules:
   - "물타기 금지 · 손절가 위에서만 추가"
@@ -23,108 +23,123 @@ rules:
   - "CRDO 소액 위성 · NO_ADD until NEO"
   - "ECPG $80 / NESR 밴드밖 · 보유분 추가금지 유지"
   - "SLS 바이너리 금지"
+  - "SCHD는 코어 완충 · 추격매수 금지 · DCA만"
 
 holdings:
   - ticker: NEO
     role: hold
     shares: 18
     cost_approx: 14.45
-    mark_approx: 13.86
-    value_approx: 249.51
-    weight_approx: 0.266
+    mark_approx: 13.89
+    value_approx: 250.02
+    value_krw_approx: 365855
+    weight_approx: 0.259
     stop: 12.0
     tp1: 16.0
     tp2: 18.0
     no_add: true
     earn_date: "2026-07-28"
-    note: "코어 1순위 · D-3 실적 · 추가금지 · tp1 절반익절 · stop 12"
+    note: "코어 1순위 · D-1 실적 · 추가금지 · tp1 절반익절 · stop 12 · 앱 −4.6%"
 
   - ticker: ECPG
     role: hold
     shares: 2
     cost_approx: 92.30
-    mark_approx: 89.97
-    value_approx: 179.94
-    weight_approx: 0.192
+    mark_approx: 90.16
+    value_approx: 180.31
+    value_krw_approx: 263843
+    weight_approx: 0.187
     stop: 80.0
     tp1: 105.0
     tp2: 110.0
     no_add: true
     earn_date: "2026-08-05"
-    note: "비중 부담 · 추가금지 · stop $80 감시"
+    note: "비중 부담 · 추가금지 · stop $80 · 앱 −4.0%"
 
   - ticker: AMRX
     role: hold
     shares: 9
     cost_approx: 18.40
-    mark_approx: 17.89
-    value_approx: 160.97
-    weight_approx: 0.172
+    mark_approx: 17.92
+    value_approx: 161.28
+    value_krw_approx: 237347
+    weight_approx: 0.167
     stop: 15.5
     tp1: 19.0
     tp2: 20.0
     no_add: true
     earn_date: "2026-07-30"
-    note: "8→9주 추가됨 · 실적 07-30 · 추가금지 재잠금 · tp1 절반+"
+    note: "실적 07-30 · 추가금지 · 앱 −2.6%"
 
   - ticker: MU
     role: hold
     shares: 0.143743
     cost_approx: 938.0
-    mark_approx: 919.14
-    value_approx: 132.12
-    weight_approx: 0.141
+    mark_approx: 920.95
+    value_approx: 132.38
+    value_krw_approx: 198116
+    weight_approx: 0.137
     stop: 830.0
     tp1: 1100.0
     tp2: 1170.0
     no_add: true
     earn_date: "2026-09-23"
-    note: "반도체 좌석 · 추가금지"
+    note: "반도체 좌석 · 추가금지 · 앱 −0.4%"
 
   - ticker: CRDO
     role: hold
     shares: 0.426226
     cost_approx: 212.8
-    mark_approx: 212.80
-    value_approx: 90.70
-    weight_approx: 0.097
+    mark_approx: 213.15
+    value_approx: 90.85
+    value_krw_approx: 138419
+    weight_approx: 0.094
     stop: 190.0
     tp1: 260.0
     tp2: 290.0
     no_add: true
     earn_date: "2026-09-02"
-    note: "ASTH 대체 위성 · $80대 분할매수 체결 · NEO 전 NO_ADD"
+    note: "위성 · NEO 전 NO_ADD · 앱 −0.8%"
 
   - ticker: NESR
     role: hold
     shares: 3
     cost_approx: 28.00
-    mark_approx: 27.57
-    value_approx: 82.71
-    weight_approx: 0.088
+    mark_approx: 27.62
+    value_approx: 82.86
+    value_krw_approx: 120042
+    weight_approx: 0.086
     stop: 24.0
     tp1: 32.0
     tp2: 33.0
     no_add: false
     band: [25.0, 27.0]
     earn_date: "2026-08-18"
-    note: "밴드 밖(~$27.6) · 추격/추가 금지 · 밴드 재진입만"
+    note: "밴드 밖 · 추가금지 · 앱 −3.7%"
 
-  - ticker: INDV
+  - ticker: SCHD
     role: hold
-    shares: 1
-    cost_approx: 41.00
-    mark_approx: 40.44
-    value_approx: 40.44
-    weight_approx: 0.043
-    stop: 34.0
-    tp1: 50.0
-    tp2: 52.0
+    shares: 2
+    cost_approx: 33.35
+    mark_approx: 33.29
+    value_approx: 66.58
+    value_krw_approx: 97470
+    weight_approx: 0.069
+    stop: 30.0
+    tp1: 36.0
+    tp2: 38.0
     no_add: true
-    earn_date: "2026-08-06"
-    note: "시드 · 추가금지"
+    note: "INDV 회전 + 현금 ~$26 · 배당ETF 완충 ~7% · 앱 −0.4% · DCA만"
 
 exited:
+  - ticker: INDV
+    role: exited
+    shares: 0
+    shares_was: 1
+    cost_approx: 41.00
+    exit_as_of: "2026-07-27"
+    note: "전량매도 · SCHD 2주로 회전 (시드→배당완충)"
+
   - ticker: ASTH
     role: exited
     shares: 0
@@ -148,6 +163,12 @@ watchlist:
   - ticker: LASR
     role: watch
     note: "Chase1 · 08-06 · 분할후보"
+  - ticker: RAPP
+    role: watch
+    note: "임상 위성 · 극소만 · 08-06"
   - ticker: SLS
     role: watch
     note: "바이너리 · 코어금지"
+  - ticker: INDV
+    role: watch
+    note: "청산 후 워치 · 재진입 비우선"
