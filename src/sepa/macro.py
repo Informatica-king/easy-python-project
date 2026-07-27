@@ -173,14 +173,21 @@ def _tool_rs_study(args: list, kwargs: dict) -> None:
     from sepa import rs_threshold_study
 
     argv: list[str] = []
-    if args:
+    if kwargs.get("scored"):
+        argv += ["--from-scored", str(kwargs["scored"])]
+    elif args:
         a0 = str(args[0])
-        if a0.endswith(".csv"):
+        if a0.endswith(".csv") and "fundamental" in a0:
+            argv += ["--from-scored", a0]
+        elif a0.endswith(".csv"):
             argv += ["--from-stage2-tech", a0]
         elif a0.lower() == "full":
             argv.append("--full")
         else:
-            raise MacroError('!sepa.rs_study() 또는 !sepa.rs_study("reports/stage2_tech_....csv")')
+            raise MacroError(
+                '!sepa.rs_study() 또는 !sepa.rs_study("reports/stage2_tech_....csv") '
+                '또는 !sepa.rs_study(scored="reports/rs_study/fundamental_tech_....csv")'
+            )
     else:
         argv.append("--full")
     if kwargs.get("thresholds"):
@@ -479,7 +486,7 @@ REGISTRY: list[MacroSpec] = [
     ),
     MacroSpec(
         "sepa.rs_study",
-        '!sepa.rs_study()  |  !sepa.rs_study(thresholds=50,60,70,80,90)',
+        '!sepa.rs_study()  |  !sepa.rs_study(scored=".../fundamental_tech_....csv")',
         "RS 하한 10점 단위 스윕 — Stage2→Fund 티커 집합 비교 (anal PDF 생략)",
         _tool_rs_study, aliases=("rs_study", "sepa.rs_threshold_study"),
     ),

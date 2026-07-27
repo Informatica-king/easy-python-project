@@ -8,6 +8,7 @@ thresholds — without re-running full scan/anal PDF per threshold.
 Usage:
     python -m sepa.rs_threshold_study --full --no-update
     python -m sepa.rs_threshold_study --from-stage2-tech reports/stage2_tech_....csv
+    python -m sepa.rs_threshold_study --from-scored reports/rs_study/fundamental_tech_....csv
     !sepa.rs_study()
 """
 
@@ -195,6 +196,242 @@ def plot_band_churn(adj: pd.DataFrame, out_path: Path, *, title: str) -> Path:
     return out_path
 
 
+def fund_score_stats(series: pd.Series) -> dict:
+    """Distribution summary for fund_score (empty-safe)."""
+    s = pd.to_numeric(series, errors="coerce").dropna()
+    if s.empty:
+        return {
+            "n": 0,
+            "mean": float("nan"),
+            "std": float("nan"),
+            "min": float("nan"),
+            "p10": float("nan"),
+            "p25": float("nan"),
+            "median": float("nan"),
+            "p75": float("nan"),
+            "p90": float("nan"),
+            "max": float("nan"),
+            "iqr": float("nan"),
+            "share_ge_40": float("nan"),
+            "share_ge_50": float("nan"),
+            "share_ge_60": float("nan"),
+        }
+    q = s.quantile([0.10, 0.25, 0.50, 0.75, 0.90])
+    return {
+        "n": int(len(s)),
+        "mean": round(float(s.mean()), 2),
+        "std": round(float(s.std(ddof=1)), 2) if len(s) > 1 else 0.0,
+        "min": round(float(s.min()), 2),
+        "p10": round(float(q.loc[0.10]), 2),
+        "p25": round(float(q.loc[0.25]), 2),
+        "median": round(float(q.loc[0.50]), 2),
+        "p75": round(float(q.loc[0.75]), 2),
+        "p90": round(float(q.loc[0.90]), 2),
+        "max": round(float(s.max()), 2),
+        "iqr": round(float(q.loc[0.75] - q.loc[0.25]), 2),
+        "share_ge_40": round(float((s >= 40).mean()), 3),
+        "share_ge_50": round(float((s >= 50).mean()), 3),
+        "share_ge_60": round(float((s >= 60).mean()), 3),
+    }
+
+
+def exclusive_rs_edges(thresholds: list[int] | tuple[int, ...]) -> list[tuple[float, float, str]]:
+    """Build half-open RS bands from sorted floors, last band open to 100+."""
+    ts = sorted(int(t) for t in thresholds)
+    edges: list[tuple[float, float, str]] = []
+    for i, lo in enumerate(ts):
+        if i + 1 < len(ts):
+            hi = ts[i + 1]
+            edges.append((float(lo), float(hi), f"{lo}–{hi - 1}"))
+        else:
+            edges.append((float(lo), 101.0, f"{lo}+"))
+    return edges
+
+
+def fund_dist_cumulative(slices: list[dict]) -> pd.DataFrame:
+    rows = []
+    for sl in slices:
+        stats = fund_score_stats(sl["fund_df"]["fund_score"] if not sl["fund_df"].empty else pd.Series(dtype=float))
+        rows.append({"scope": "cumulative", "label": f"RS≥{int(sl['rs_min'])}", "rs_min": sl["rs_min"], **stats})
+    return pd.DataFrame(rows)
+
+
+def fund_dist_exclusive(scored: pd.DataFrame, thresholds: list[int] | tuple[int, ...]) -> pd.DataFrame:
+    """Fund-passers only, binned into exclusive RS bands (not cumulative)."""
+    kept, _ = apply_candidate_filters(scored)
+    if kept.empty:
+        return pd.DataFrame()
+    work = kept.copy()
+    work["rs_rank"] = pd.to_numeric(work["rs_rank"], errors="coerce")
+    work = work.dropna(subset=["rs_rank", "fund_score"])
+    rows = []
+    for lo, hi, label in exclusive_rs_edges(thresholds):
+        band = work[(work["rs_rank"] >= lo) & (work["rs_rank"] < hi)]
+        stats = fund_score_stats(band["fund_score"])
+        rows.append({"scope": "exclusive", "label": label, "rs_lo": lo, "rs_hi": hi, **stats})
+    return pd.DataFrame(rows)
+
+
+def fund_dist_removed_on_raise(slices: list[dict]) -> pd.DataFrame:
+    """Fund-score stats for names dropped when RS floor is raised (lo → hi)."""
+    rows = []
+    for lo, hi in zip(slices, slices[1:]):
+        removed = lo["fund_tickers"] - hi["fund_tickers"]
+        kept = hi["fund_tickers"]
+        lo_df = lo["fund_df"]
+        if lo_df.empty:
+            rem_scores = pd.Series(dtype=float)
+            keep_scores = pd.Series(dtype=float)
+        else:
+            tick = lo_df["ticker"].astype(str).str.upper()
+            rem_scores = lo_df.loc[tick.isin(removed), "fund_score"]
+            keep_scores = lo_df.loc[tick.isin(kept), "fund_score"]
+        rem = fund_score_stats(rem_scores)
+        kep = fund_score_stats(keep_scores)
+        rows.append({
+            "band": f"{int(lo['rs_min'])}→{int(hi['rs_min'])}",
+            "removed_n": rem["n"],
+            "removed_mean": rem["mean"],
+            "removed_median": rem["median"],
+            "removed_p25": rem["p25"],
+            "removed_p75": rem["p75"],
+            "kept_n": kep["n"],
+            "kept_mean": kep["mean"],
+            "kept_median": kep["median"],
+            "kept_p25": kep["p25"],
+            "kept_p75": kep["p75"],
+            "delta_median": (
+                round(float(kep["median"] - rem["median"]), 2)
+                if rem["n"] and kep["n"] and rem["median"] == rem["median"] and kep["median"] == kep["median"]
+                else float("nan")
+            ),
+        })
+    return pd.DataFrame(rows)
+
+
+def plot_fund_box(
+    slices: list[dict],
+    scored: pd.DataFrame,
+    thresholds: list[int] | tuple[int, ...],
+    out_path: Path,
+) -> Path:
+    """Side-by-side boxplots: cumulative RS≥T and exclusive RS bands."""
+    _setup_korean_font()
+    fig, axes = plt.subplots(1, 2, figsize=(12.5, 5.2), sharey=True)
+
+    cum_data, cum_labels = [], []
+    for sl in slices:
+        s = pd.to_numeric(sl["fund_df"]["fund_score"], errors="coerce").dropna()
+        if len(s):
+            cum_data.append(s.values)
+            cum_labels.append(f"≥{int(sl['rs_min'])}\n(n={len(s)})")
+    if cum_data:
+        bp = axes[0].boxplot(cum_data, tick_labels=cum_labels, patch_artist=True, showfliers=True)
+        for patch in bp["boxes"]:
+            patch.set_facecolor("#90caf9")
+            patch.set_alpha(0.85)
+    axes[0].set_title("누적 RS≥T — Fund 점수 분포")
+    axes[0].set_ylabel("Fund 점수")
+    axes[0].grid(alpha=0.3, axis="y")
+
+    kept, _ = apply_candidate_filters(scored)
+    work = kept.copy() if not kept.empty else kept
+    if not work.empty:
+        work["rs_rank"] = pd.to_numeric(work["rs_rank"], errors="coerce")
+        work["fund_score"] = pd.to_numeric(work["fund_score"], errors="coerce")
+    excl_data, excl_labels = [], []
+    for lo, hi, label in exclusive_rs_edges(thresholds):
+        if work.empty:
+            continue
+        band = work[(work["rs_rank"] >= lo) & (work["rs_rank"] < hi)]["fund_score"].dropna()
+        if len(band):
+            excl_data.append(band.values)
+            excl_labels.append(f"{label}\n(n={len(band)})")
+    if excl_data:
+        bp2 = axes[1].boxplot(excl_data, tick_labels=excl_labels, patch_artist=True, showfliers=True)
+        for patch in bp2["boxes"]:
+            patch.set_facecolor("#a5d6a7")
+            patch.set_alpha(0.85)
+    axes[1].set_title("독점 RS 구간 — Fund 점수 분포")
+    axes[1].grid(alpha=0.3, axis="y")
+
+    fig.suptitle("RS 구간별 Fund 점수 분포", fontsize=12, y=1.02)
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=140, bbox_inches="tight")
+    plt.close(fig)
+    return out_path
+
+
+def plot_fund_hist_overlay(slices: list[dict], out_path: Path) -> Path:
+    _setup_korean_font()
+    fig, ax = plt.subplots(figsize=(9.5, 5.0))
+    colors = ["#90a4ae", "#42a5f5", "#66bb6a", "#ffa726", "#ef5350"]
+    bins = list(range(0, 85, 5))
+    for i, sl in enumerate(slices):
+        s = pd.to_numeric(sl["fund_df"]["fund_score"], errors="coerce").dropna()
+        if s.empty:
+            continue
+        color = colors[i % len(colors)]
+        ax.hist(
+            s,
+            bins=bins,
+            density=True,
+            histtype="step",
+            linewidth=2.0,
+            label=f"RS≥{int(sl['rs_min'])} (n={len(s)}, med={s.median():.1f})",
+            color=color,
+        )
+    ax.set_xlabel("Fund 점수")
+    ax.set_ylabel("밀도")
+    ax.set_title("누적 RS≥T — Fund 점수 히스토그램(밀도)")
+    ax.legend(fontsize=8)
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=140, bbox_inches="tight")
+    plt.close(fig)
+    return out_path
+
+
+def plot_fund_centiles(dist_cum: pd.DataFrame, out_path: Path) -> Path:
+    _setup_korean_font()
+    fig, ax = plt.subplots(figsize=(9, 5.0))
+    x = dist_cum["label"]
+    ax.fill_between(range(len(dist_cum)), dist_cum["p25"], dist_cum["p75"], color="#bbdefb", alpha=0.7, label="IQR (p25–p75)")
+    ax.plot(range(len(dist_cum)), dist_cum["median"], "o-", color="#1565c0", label="중앙값")
+    ax.plot(range(len(dist_cum)), dist_cum["mean"], "s--", color="#6a1b9a", label="평균")
+    ax.plot(range(len(dist_cum)), dist_cum["p10"], ":", color="#546e7a", label="p10 / p90")
+    ax.plot(range(len(dist_cum)), dist_cum["p90"], ":", color="#546e7a")
+    ax.set_xticks(range(len(dist_cum)))
+    ax.set_xticklabels(x)
+    ax.set_ylabel("Fund 점수")
+    ax.set_title("누적 RS≥T — Fund 점수 중심·분위수")
+    ax.legend(fontsize=8)
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=140, bbox_inches="tight")
+    plt.close(fig)
+    return out_path
+
+
+def plot_removed_vs_kept(removed_df: pd.DataFrame, out_path: Path) -> Path:
+    _setup_korean_font()
+    fig, ax = plt.subplots(figsize=(9, 4.8))
+    x = range(len(removed_df))
+    w = 0.35
+    ax.bar([i - w / 2 for i in x], removed_df["removed_median"], width=w, color="#ef9a9a", label="탈락 중앙값")
+    ax.bar([i + w / 2 for i in x], removed_df["kept_median"], width=w, color="#81c784", label="잔류 중앙값")
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(removed_df["band"])
+    ax.set_ylabel("Fund 점수 중앙값")
+    ax.set_title("RS 상향 시 탈락 vs 잔류 — Fund 중앙값")
+    ax.legend(fontsize=8)
+    ax.grid(alpha=0.3, axis="y")
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=140, bbox_inches="tight")
+    plt.close(fig)
+    return out_path
+
+
 def write_markdown(
     path: Path,
     *,
@@ -205,8 +442,29 @@ def write_markdown(
     adj_stage: pd.DataFrame,
     adj_median: pd.DataFrame,
     focus_70_80: dict,
+    dist_cum: pd.DataFrame | None = None,
+    dist_excl: pd.DataFrame | None = None,
+    dist_removed: pd.DataFrame | None = None,
 ) -> Path:
     biggest = adj_fund.sort_values("symdiff_n", ascending=False).iloc[0]
+    dist_note = ""
+    if dist_cum is not None and not dist_cum.empty:
+        peak = dist_cum.loc[dist_cum["median"].idxmax()]
+        dist_note = (
+            f"- Fund 중앙값 최고 구간(누적): **{peak['label']}** "
+            f"(median={peak['median']}, mean={peak['mean']}, n={int(peak['n'])})"
+        )
+    rem_note = ""
+    if dist_removed is not None and not dist_removed.empty and 70 in thresholds and 80 in thresholds:
+        row7080 = dist_removed[dist_removed["band"] == "70→80"]
+        if not row7080.empty:
+            r = row7080.iloc[0]
+            rem_note = (
+                f"- 70→80 탈락 vs 잔류 Fund 중앙값: "
+                f"탈락 {r['removed_median']} / 잔류 {r['kept_median']} "
+                f"(Δ={r['delta_median']})"
+            )
+
     lines = [
         f"# RS threshold study ({stamp})",
         "",
@@ -222,6 +480,12 @@ def write_markdown(
         f"- Focus 70 vs 80: stage2 {focus_70_80['n_stage_70']}→{focus_70_80['n_stage_80']}, "
         f"fund {focus_70_80['n_fund_70']}→{focus_70_80['n_fund_80']}, "
         f"fund removed when raising 70→80: {focus_70_80['fund_removed_n']}종",
+    ]
+    if dist_note:
+        lines.append(dist_note)
+    if rem_note:
+        lines.append(rem_note)
+    lines += [
         "",
         "## 1. Counts by RS floor",
         "",
@@ -268,12 +532,58 @@ def write_markdown(
             f"| {r.band} | {r.n_lo} | {r.n_hi} | {r.removed_n} | {r.symdiff_n} | {r.jaccard} |"
         )
 
+    if dist_cum is not None and not dist_cum.empty:
+        lines += [
+            "",
+            "## 4. Fund score distribution (cumulative RS≥T)",
+            "",
+            "| label | n | mean | std | p10 | p25 | median | p75 | p90 | max | ≥50% | ≥60% |",
+            "|---|---|---|---|---|---|---|---|---|---|---|---|",
+        ]
+        for r in dist_cum.itertuples():
+            lines.append(
+                f"| {r.label} | {r.n} | {r.mean} | {r.std} | {r.p10} | {r.p25} | "
+                f"{r.median} | {r.p75} | {r.p90} | {r.max} | {r.share_ge_50} | {r.share_ge_60} |"
+            )
+
+    if dist_excl is not None and not dist_excl.empty:
+        lines += [
+            "",
+            "## 5. Fund score distribution (exclusive RS bands)",
+            "",
+            "Fund 통과 종목만 RS 독점 구간에 배치 (겹치지 않음).",
+            "",
+            "| band | n | mean | std | p25 | median | p75 | ≥50% | ≥60% |",
+            "|---|---|---|---|---|---|---|---|---|",
+        ]
+        for r in dist_excl.itertuples():
+            lines.append(
+                f"| {r.label} | {r.n} | {r.mean} | {r.std} | {r.p25} | {r.median} | "
+                f"{r.p75} | {r.share_ge_50} | {r.share_ge_60} |"
+            )
+
+    if dist_removed is not None and not dist_removed.empty:
+        lines += [
+            "",
+            "## 6. Removed vs kept Fund scores (when raising RS floor)",
+            "",
+            "| band | removed_n | rem_med | rem_mean | kept_n | kept_med | kept_mean | Δmedian |",
+            "|---|---|---|---|---|---|---|---|",
+        ]
+        for r in dist_removed.itertuples():
+            lines.append(
+                f"| {r.band} | {r.removed_n} | {r.removed_median} | {r.removed_mean} | "
+                f"{r.kept_n} | {r.kept_median} | {r.kept_mean} | {r.delta_median} |"
+            )
+
     lines += [
         "",
-        "## 4. How to read",
+        "## 7. How to read",
         "",
         "- Raising RS floor **shrinks** sets; `removed` = names that fall out of the go-like Fund list.",
         "- Largest `symdiff_n` band = where the RS knife cuts the most names — tune around there.",
+        "- Cumulative distributions nest (RS≥90 ⊂ RS≥80 ⊂ …); exclusive bands show marginal RS quality.",
+        "- If raising RS drops median Fund, high-RS names are not automatically higher-Fund.",
         "- Live production today uses **RS≥80** (Trend Template + fund.rs_min).",
         "",
     ]
@@ -287,6 +597,7 @@ def run_study(
     full: bool = True,
     universe_path: str = "config/universe.yaml",
     from_stage2_tech: str | None = None,
+    from_scored: str | None = None,
     thresholds: tuple[int, ...] = DEFAULT_THRESHOLDS,
     as_of: str | None = None,
     update: bool = False,
@@ -301,29 +612,36 @@ def run_study(
     chart_dir.mkdir(parents=True, exist_ok=True)
 
     print("\n=== RS threshold study ===")
-    if from_stage2_tech:
-        stage2 = pd.read_csv(from_stage2_tech)
-        print(f"loaded tech Stage2: {from_stage2_tech} (n={len(stage2)})")
+    if from_scored:
+        scored = pd.read_csv(from_scored)
+        print(f"loaded scored universe: {from_scored} (n={len(scored)})")
+        if scored.empty:
+            print("[오류] scored CSV가 비었습니다")
+            return {"ok": False}
     else:
-        print("broad scan: Trend Template without RS gate (1–7)...")
-        stage2, diagnostics = broad_stage2_tech(
-            params, full=full, universe_path=universe_path, as_of=as_of, update=update
-        )
-        tech_path = out / f"stage2_tech_{stamp}.csv"
-        diag_path = out / f"diagnostics_tech_{stamp}.csv"
-        stage2.to_csv(tech_path, index=False)
-        diagnostics.to_csv(diag_path, index=False)
-        print(f"tech Stage2: {len(stage2)}  → {tech_path}")
+        if from_stage2_tech:
+            stage2 = pd.read_csv(from_stage2_tech)
+            print(f"loaded tech Stage2: {from_stage2_tech} (n={len(stage2)})")
+        else:
+            print("broad scan: Trend Template without RS gate (1–7)...")
+            stage2, diagnostics = broad_stage2_tech(
+                params, full=full, universe_path=universe_path, as_of=as_of, update=update
+            )
+            tech_path = out / f"stage2_tech_{stamp}.csv"
+            diag_path = out / f"diagnostics_tech_{stamp}.csv"
+            stage2.to_csv(tech_path, index=False)
+            diagnostics.to_csv(diag_path, index=False)
+            print(f"tech Stage2: {len(stage2)}  → {tech_path}")
 
-    if stage2.empty:
-        print("[오류] tech Stage2가 비었습니다")
-        return {"ok": False}
+        if stage2.empty:
+            print("[오류] tech Stage2가 비었습니다")
+            return {"ok": False}
 
-    print(f"scoring fundamentals once for {len(stage2)} names...")
-    scored = score_once(stage2, params, refresh=refresh_fundamentals)
-    scored_path = out / f"fundamental_tech_{stamp}.csv"
-    scored.to_csv(scored_path, index=False)
-    print(f"scored: {scored_path}")
+        print(f"scoring fundamentals once for {len(stage2)} names...")
+        scored = score_once(stage2, params, refresh=refresh_fundamentals)
+        scored_path = out / f"fundamental_tech_{stamp}.csv"
+        scored.to_csv(scored_path, index=False)
+        print(f"scored: {scored_path}")
 
     slices = []
     for t in thresholds:
@@ -369,12 +687,24 @@ def run_study(
         "fund_only_70": ",".join(sorted(by_t[70]["fund_tickers"] - by_t[80]["fund_tickers"])) if 70 in by_t and 80 in by_t else "",
     }
 
+    dist_cum = fund_dist_cumulative(slices)
+    dist_excl = fund_dist_exclusive(scored, thresholds)
+    dist_removed = fund_dist_removed_on_raise(slices)
+    dist_cum.to_csv(out / f"rs_fund_dist_cumulative_{stamp}.csv", index=False)
+    dist_excl.to_csv(out / f"rs_fund_dist_exclusive_{stamp}.csv", index=False)
+    dist_removed.to_csv(out / f"rs_fund_dist_removed_{stamp}.csv", index=False)
+
     charts = [
         plot_counts(summary, chart_dir / f"rs_counts_{stamp}.png"),
         plot_band_churn(adj_fund, chart_dir / f"rs_churn_fund_{stamp}.png",
                         title="Fund 통과 집합 — RS 상향 시 변화"),
         plot_band_churn(adj_stage, chart_dir / f"rs_churn_stage2_{stamp}.png",
                         title="Stage2 집합 — RS 상향 시 변화"),
+        plot_fund_box(slices, scored, thresholds,
+                      chart_dir / f"rs_fund_box_{stamp}.png"),
+        plot_fund_hist_overlay(slices, chart_dir / f"rs_fund_hist_{stamp}.png"),
+        plot_fund_centiles(dist_cum, chart_dir / f"rs_fund_centiles_{stamp}.png"),
+        plot_removed_vs_kept(dist_removed, chart_dir / f"rs_fund_removed_vs_kept_{stamp}.png"),
     ]
 
     md = write_markdown(
@@ -386,15 +716,31 @@ def run_study(
         adj_stage=adj_stage,
         adj_median=adj_median,
         focus_70_80=focus,
+        dist_cum=dist_cum,
+        dist_excl=dist_excl,
+        dist_removed=dist_removed,
     )
     docs = Path("docs") / f"rs_threshold_study_{stamp}.md"
     docs.write_text(md.read_text(encoding="utf-8"), encoding="utf-8")
 
-    published = publish_many([md, *charts, out / f"rs_summary_{stamp}.csv",
-                              out / f"rs_adjacent_fund_{stamp}.csv"])
+    published = publish_many([
+        md, *charts,
+        out / f"rs_summary_{stamp}.csv",
+        out / f"rs_adjacent_fund_{stamp}.csv",
+        out / f"rs_fund_dist_cumulative_{stamp}.csv",
+        out / f"rs_fund_dist_exclusive_{stamp}.csv",
+        out / f"rs_fund_dist_removed_{stamp}.csv",
+    ])
 
     print("\n=== Adjacent Fund churn ===")
     print(adj_fund[["band", "n_lo", "n_hi", "removed_n", "symdiff_n", "jaccard"]].to_string(index=False))
+    print("\n=== Fund score distribution (cumulative) ===")
+    print(dist_cum[["label", "n", "mean", "median", "p25", "p75", "share_ge_50"]].to_string(index=False))
+    print("\n=== Fund score distribution (exclusive) ===")
+    if not dist_excl.empty:
+        print(dist_excl[["label", "n", "mean", "median", "p25", "p75", "share_ge_50"]].to_string(index=False))
+    print("\n=== Removed vs kept Fund (raise RS) ===")
+    print(dist_removed[["band", "removed_n", "removed_median", "kept_n", "kept_median", "delta_median"]].to_string(index=False))
     if focus["fund_removed"]:
         print(f"\n70→80 Fund 탈락: {focus['fund_removed']}")
     print(f"\nreport: {md}")
@@ -405,6 +751,9 @@ def run_study(
         "ok": True,
         "summary": summary,
         "adj_fund": adj_fund,
+        "dist_cum": dist_cum,
+        "dist_excl": dist_excl,
+        "dist_removed": dist_removed,
         "focus_70_80": focus,
         "report": md,
         "docs": docs,
@@ -417,6 +766,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--full", action="store_true", help="full Nasdaq scan (default if no --universe)")
     parser.add_argument("--universe", default="config/universe.yaml")
     parser.add_argument("--from-stage2-tech", default=None, help="reuse prior tech Stage2 CSV")
+    parser.add_argument("--from-scored", default=None, help="reuse scored fundamental_tech CSV (skip rescore)")
     parser.add_argument("--thresholds", default="50,60,70,80,90", help="comma-separated RS floors")
     parser.add_argument("--as-of", default=None)
     parser.add_argument("--no-update", action="store_true", default=True)
@@ -427,12 +777,13 @@ def main(argv: list[str] | None = None) -> int:
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     thresholds = tuple(int(x) for x in args.thresholds.split(",") if x.strip())
-    full = args.full or args.from_stage2_tech is None
+    full = args.full or (args.from_stage2_tech is None and args.from_scored is None)
     run_study(
         config=args.config,
         full=full,
         universe_path=args.universe,
         from_stage2_tech=args.from_stage2_tech,
+        from_scored=args.from_scored,
         thresholds=thresholds,
         as_of=args.as_of,
         update=bool(args.update),
