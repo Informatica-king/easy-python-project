@@ -102,3 +102,32 @@ def test_rejects_too_deep_base():
     res = detect_vcp(df, P)
     assert not res.valid
     assert "베이스 낙폭 과다" in res.reason
+
+
+def test_rejects_shallow_first_contraction():
+    import dataclasses
+
+    df = make_vcp_frame(depths=(0.20, 0.10, 0.05), last_rally_to=94.0)
+    p = dataclasses.replace(P, t1_depth_min=0.25)
+    res = detect_vcp(df, p)
+    assert not res.valid
+    assert "첫 수축 깊이 부족" in res.reason
+
+
+def test_rejects_short_contraction_duration():
+    import dataclasses
+
+    df = make_vcp_frame(depths=(0.20, 0.10, 0.05), last_rally_to=94.0)
+    # Synthetic legs are ~10 bars; requiring 20 days forces rejection.
+    p = dataclasses.replace(P, min_contraction_days=20)
+    res = detect_vcp(df, p)
+    assert not res.valid
+    assert "수축 기간 부족" in res.reason
+
+
+def test_phase2_defaults_still_pass_textbook_setup():
+    df = make_vcp_frame(depths=(0.20, 0.10, 0.05), last_rally_to=94.0)
+    res = detect_vcp(df, P)
+    assert res.valid, res.reason
+    assert res.contractions[0].depth >= P.t1_depth_min
+    assert all(c.duration_days >= P.min_contraction_days for c in res.contractions)

@@ -42,6 +42,8 @@ OAT_GRID: dict[str, list] = {
     "contraction_decay": [0.50, 0.65, 0.75, 0.90, 1.00, 1.25],
     "contraction_min_retrace": [0.30, 0.40, 0.50, 0.65, 0.80],
     "final_contraction_max": [0.08, 0.10, 0.12, 0.15],
+    "min_contraction_days": [3, 5, 7, 10],
+    "t1_depth_min": [0.05, 0.08, 0.10, 0.12],
     "dryup_ratio": [0.45, 0.55, 0.60, 0.70, 0.80],
     "dryup_days": [3, 5, 8, 10],
     "watch_zone_pct": [0.03, 0.05, 0.08, 0.10],

@@ -51,6 +51,11 @@ class Contraction:
     def depth(self) -> float:
         return (self.high - self.low) / self.high
 
+    @property
+    def duration_days(self) -> int:
+        """Trading bars from swing high to swing low (inclusive span length)."""
+        return max(0, self.low_pos - self.high_pos)
+
 
 @dataclass
 class VCPResult:
@@ -252,6 +257,25 @@ def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
         return VCPResult(
             valid=False,
             reason=f"수축 횟수 {n}회 (허용 {p.min_contractions}~{p.max_contractions}회)",
+        )
+
+    # Phase-2: first contraction must be a real base leg (not a shallow wiggle)
+    t1 = contractions[0].depth
+    if t1 < p.t1_depth_min:
+        return VCPResult(
+            valid=False,
+            reason=f"첫 수축 깊이 부족 ({t1:.1%}, 최소 {p.t1_depth_min:.0%})",
+        )
+
+    # Phase-2: each major contraction must last long enough (drop 1-day noise)
+    short = [c for c in contractions if c.duration_days < p.min_contraction_days]
+    if short:
+        days_list = "/".join(str(c.duration_days) for c in contractions)
+        return VCPResult(
+            valid=False,
+            reason=(
+                f"수축 기간 부족 ({days_list}일, 최소 {p.min_contraction_days}일)"
+            ),
         )
 
     depths = [c.depth for c in contractions]

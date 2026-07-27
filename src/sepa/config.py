@@ -49,6 +49,9 @@ class VCPParams:
     contraction_decay: float = 0.75
     contraction_min_retrace: float = 0.5
     final_contraction_max: float = 0.10
+    # Phase-2 noise filters (tradermonty-style)
+    min_contraction_days: int = 5  # each major contraction leg must span ≥ N bars
+    t1_depth_min: float = 0.08  # first contraction depth must be ≥ 8%
     dryup_days: int = 5
     dryup_ratio: float = 0.6
     pivot_buffer: float = 0.001

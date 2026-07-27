@@ -118,6 +118,8 @@ rs_rank = 유니버스 내 rs_raw의 백분위 순위 (0~100)
 3. **소수축 병합** *(실데이터 검증 중 추가)*: 수축 사이의 반등이 직전 하락폭의 `contraction_min_retrace` 미만이면 별개 수축이 아니라 같은 하락의 연장으로 보고 직전 수축에 병합 (고점 유지, 더 깊은 저점 채택). ZigZag만으로는 실제 차트의 잔파동이 수축 7~20개로 과다 집계되어 유효 셋업이 전부 기각되는 문제를 해결
 4. 판정 조건:
    - 수축 횟수가 `min_contractions` ~ `max_contractions` 범위
+   - **첫 수축 깊이 ≥ `t1_depth_min`** *(2단계)* — 너무 얕은 “잔물결 베이스” 제외
+   - **각 수축 기간(고→저) ≥ `min_contraction_days`** *(2단계)* — 하루짜리 노이즈 수축 제외
    - 각 수축 깊이 ≤ 직전 수축 깊이 × `contraction_decay` (순차적 수축 — 미너비니의 "절반 룰"은 decay=0.5, 관대하게는 0.75)
    - 마지막 수축 깊이 ≤ `final_contraction_max` (타이트할수록 좋음)
 
@@ -176,6 +178,8 @@ def detect_vcp(df: pd.DataFrame, p: VCPParams) -> VCPResult:
 | `contraction_decay` | 수축 깊이 감소 비율 상한 | 0.75 | 0.5(엄격)~1.0 | **0.75 (유지)** |
 | `contraction_min_retrace` | 별개 수축 인정 최소 반등 비율 | 0.5 | 0.3~0.7 | 0.5 |
 | `final_contraction_max` | 마지막 수축 최대 깊이 | 10% | 3~15% | 0.10 |
+| `min_contraction_days` | 수축(고→저) 최소 거래일 | 5일 | 3~10일 | **5 (2단계)** |
+| `t1_depth_min` | 첫 수축 최소 깊이 | 8% | 5~15% | **0.08 (2단계)** |
 | `dryup_days` | 거래량 고갈 측정 기간 | 5일 | 3~10일 | 5 |
 | `dryup_ratio` | 고갈 판정: 50일 평균 대비 | 0.6 | 0.4~0.8 | 0.6 |
 | `pivot_buffer` | 돌파 인정 여유폭 | 0.1% | 0~0.5% | 0.001 |

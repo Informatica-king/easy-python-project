@@ -30,6 +30,8 @@ vcp:
   contraction_decay: 0.75  # 각 수축 깊이 <= 직전 수축 x 0.75
   contraction_min_retrace: 0.5  # 직전 하락폭의 50% 이상 반등해야 별개 수축으로 인정 (노이즈 병합)
   final_contraction_max: 0.10
+  min_contraction_days: 5  # 수축(고→저) 최소 거래일 — 잔물결 제외
+  t1_depth_min: 0.08       # 첫 수축 최소 깊이 8% — 너무 얕은 베이스 제외
   dryup_days: 5
   dryup_ratio: 0.6         # 최근 평균 거래량 <= 50일 평균 x 0.6
   pivot_buffer: 0.001      # 돌파 인정 여유폭 (+0.1%)
