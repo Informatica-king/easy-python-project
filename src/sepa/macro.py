@@ -169,6 +169,31 @@ def _tool_vcp(args: list, kwargs: dict) -> None:
     vcp_timing.main(argv)
 
 
+def _tool_rs_study(args: list, kwargs: dict) -> None:
+    from sepa import rs_threshold_study
+
+    argv: list[str] = []
+    if args:
+        a0 = str(args[0])
+        if a0.endswith(".csv"):
+            argv += ["--from-stage2-tech", a0]
+        elif a0.lower() == "full":
+            argv.append("--full")
+        else:
+            raise MacroError('!sepa.rs_study() 또는 !sepa.rs_study("reports/stage2_tech_....csv")')
+    else:
+        argv.append("--full")
+    if kwargs.get("thresholds"):
+        argv += ["--thresholds", str(kwargs["thresholds"]).replace(" ", "")]
+    if kwargs.get("as_of"):
+        argv += ["--as-of", str(kwargs["as_of"])]
+    if kwargs.get("update"):
+        argv.append("--update")
+    if kwargs.get("refresh"):
+        argv.append("--refresh-fundamentals")
+    rs_threshold_study.main(argv)
+
+
 def _tool_vcp_study(args: list, kwargs: dict) -> None:
     from sepa import vcp_study
 
@@ -451,6 +476,12 @@ REGISTRY: list[MacroSpec] = [
         '!sepa.vcp_study()  |  !sepa.vcp_study("reports/stage2_20260726.csv")',
         "VCP 파라미터 민감도/품질 스터디 — live 수치 변경 없음",
         _tool_vcp_study, aliases=("vcp_study",),
+    ),
+    MacroSpec(
+        "sepa.rs_study",
+        '!sepa.rs_study()  |  !sepa.rs_study(thresholds=50,60,70,80,90)',
+        "RS 하한 10점 단위 스윕 — Stage2→Fund 티커 집합 비교 (anal PDF 생략)",
+        _tool_rs_study, aliases=("rs_study", "sepa.rs_threshold_study"),
     ),
     MacroSpec(
         "sepa.chart", '!sepa.chart("SNDK")  |  !sepa.chart(sandisk, months=12)',
