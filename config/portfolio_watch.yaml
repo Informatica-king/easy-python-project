@@ -6,125 +6,208 @@
 # stop / tp1 / tp2: 가격 도달 시 STOP / TP 훅 태그
 # band: 추가매수 허용 구간 (BAND) — NESR만
 
-as_of: "2026-07-25"
-as_of_note: "앱 스냅 · 평가 $936.39 (−2.9%) · ASTH 청산·CRDO 진입·AMRX 8→9"
-fx_krw_per_usd: 1480
+as_of: "2026-07-27"
+as_of_note: "자본OS 재정리 · 평가~$969 · USD$221.59 · MU 1회 예외 반등작전 · LASR 코어 이관은 MU청산 후"
+fx_krw_per_usd: 1476
+cost_basis_source: "app 내 평균 (2026-07-27 캡처)"
+
+# ---------------------------------------------------------------------------
+# Capital Operating System (locked 2026-07-27)
+# ---------------------------------------------------------------------------
+strategy:
+  identity: "짧~중기 모멘텀 + 실적필터 + 비중/손절 생존 OS (이벤트 갭베팅 본선 아님)"
+  constraints:
+    - "군인 · 폰 ~21시 통제 → 저녁/장전 루틴"
+    - "소액 · 매월 10일 ₩30만 적립"
+  book:
+    equity_usd_approx: 969
+    cash_usd: 221.59
+    cash_krw: 150459
+    liquid_usd_approx: 1191
+    cash_floor_usd: 150
+    cash_deployable_usd: 70
+  roles:
+    core: [NEO, ECPG, AMRX]
+    satellite: [MU, CRDO, NESR]
+    buffer: [SCHD]
+    candidate_core: [LASR]
+  active_exception:
+    name: MU_bounce_exit_once
+    status: armed
+    add_usd: 70
+    add_limit: 875
+    add_limit_backup: 860
+    new_avg_approx: 916
+    take_profit: [938.20, 945]
+    breakeven_exit: 916
+    hard_stop: 830
+    time_stop_trading_days: 5
+    note: "종료 즉시 물타기금지·위성≤10 복원"
+  migration_lasr_core:
+    status: queued_after_mu_exit
+    path: "ECPG 2→1주(≤10%) + MU 전량 → LASR ~20%"
+    phase1_pct: 10
+    phase2_pct: 20
+    lasr_earn: "2026-08-06"
+    blockers: ["NEO 07-28", "AMRX 07-30", "MU 예외 미청산"]
 
 cash:
-  usd: 247.86
+  usd: 221.59
   krw: 150459
-  note: "평가합 $936.39 + USD현금 → 유동 ~$1,184 (현금비중 ~21%)"
+  floor_usd: 150
+  note: "유동 ~$1,191 · 바닥 $150 · 예외 투입 가능 ~$70"
+
+contribution:
+  payday: "매월 10일"
+  monthly_krw: 300000
+  monthly_usd_approx: 203
+  note: "바닥현금 → SCHD → 코어 부족 → 위성 계획자리만"
+
+allocation:
+  basis: "주식 평가금 대비 비중 (현금 별도)"
+  core_target_pct: 20
+  core_band_pct: [15, 25]
+  satellite_max_pct: 10
+  schd_target_pct: 10
+  schd_role: "변동성 완충"
+  core_tickers: [NEO, ECPG, AMRX]
+  satellite_tickers: [MU, CRDO, NESR]
+  buffer_tickers: [SCHD]
+  candidate_core: [LASR]
+  note: |
+    코어 ~20%(15–25). 위성 ≤10. SCHD 목표 10%.
+    LASR 코어는 MU 예외 청산 + ECPG 위성 강등 후.
 
 rules:
-  - "물타기 금지 · 손절가 위에서만 추가"
+  - "물타기 금지 · 손절가 위에서만 추가 (MU_bounce_exit_once 예외만)"
   - "실적 D-5 구간 분할 차단 (EARN_D5)"
-  - "종목>30% 또는 HC합>65% → 강제 축소"
+  - "비중: 코어~20%(15–25) · 위성≤10% · SCHD 완충 목표10%"
+  - "단일 코어>25% 또는 HC합>65% → 강제 축소"
+  - "현금바닥 $150 유지"
   - "NEO 07-28 · AMRX 07-30 실적 전 즉흥 금지"
-  - "CRDO 소액 위성 · NO_ADD until NEO"
-  - "ECPG $80 / NESR 밴드밖 · 보유분 추가금지 유지"
+  - "CRDO 소액 위성 · NO_ADD"
+  - "ECPG stop $80 / NESR 밴드 $25–27만"
   - "SLS 바이너리 금지"
+  - "SCHD 추격금지 · 월적립 DCA로 10%"
+  - "월 30만원: 바닥현금 → SCHD → 코어 부족 → 위성 계획자리만"
+  - "실적은 편입/유지 필터 · 갭 올인 엔진 아님"
+  - "LASR 코어(20%)는 MU 익절·무손실 전량 전 금지"
 
 holdings:
   - ticker: NEO
     role: hold
+    sleeve: core
     shares: 18
     cost_approx: 14.45
-    mark_approx: 13.86
-    value_approx: 249.51
-    weight_approx: 0.266
+    mark_approx: 13.89
+    value_approx: 250.02
+    weight_approx: 0.258
     stop: 12.0
     tp1: 16.0
     tp2: 18.0
     no_add: true
     earn_date: "2026-07-28"
-    note: "코어 1순위 · D-3 실적 · 추가금지 · tp1 절반익절 · stop 12"
+    note: "평단 $14.45 · 코어 · 실적 07-28 · 추가금지 · stop 12"
 
   - ticker: ECPG
     role: hold
+    sleeve: core
     shares: 2
-    cost_approx: 92.30
-    mark_approx: 89.97
-    value_approx: 179.94
-    weight_approx: 0.192
+    cost_approx: 92.32
+    mark_approx: 90.15
+    value_approx: 180.30
+    weight_approx: 0.186
     stop: 80.0
     tp1: 105.0
     tp2: 110.0
     no_add: true
     earn_date: "2026-08-05"
-    note: "비중 부담 · 추가금지 · stop $80 감시"
+    note: "평단 $92.32 · 코어 · LASR 이관 시 1주 매도→위성 강등 후보 · stop 80"
 
   - ticker: AMRX
     role: hold
+    sleeve: core
     shares: 9
-    cost_approx: 18.40
-    mark_approx: 17.89
-    value_approx: 160.97
-    weight_approx: 0.172
+    cost_approx: 18.36
+    mark_approx: 18.02
+    value_approx: 162.18
+    weight_approx: 0.167
     stop: 15.5
     tp1: 19.0
     tp2: 20.0
     no_add: true
     earn_date: "2026-07-30"
-    note: "8→9주 추가됨 · 실적 07-30 · 추가금지 재잠금 · tp1 절반+"
+    note: "평단 $18.36 · 코어 · 실적 07-30 · 추가금지"
 
   - ticker: MU
     role: hold
+    sleeve: satellite_overweight
     shares: 0.143743
-    cost_approx: 938.0
-    mark_approx: 919.14
-    value_approx: 132.12
-    weight_approx: 0.141
+    cost_approx: 938.20
+    mark_approx: 882.44
+    value_approx: 126.84
+    weight_approx: 0.14
     stop: 830.0
     tp1: 1100.0
     tp2: 1170.0
-    no_add: true
+    no_add: false
     earn_date: "2026-09-23"
-    note: "반도체 좌석 · 추가금지"
+    note: "평단 $938.20 · 예외작전: +$70@$875 → 신평단~$916 · TP $938/$945 · BE $916 · stop $830 · 5일"
 
   - ticker: CRDO
     role: hold
+    sleeve: satellite
     shares: 0.426226
-    cost_approx: 212.8
-    mark_approx: 212.80
-    value_approx: 90.70
+    cost_approx: 222.90
+    mark_approx: 221.40
+    value_approx: 94.37
     weight_approx: 0.097
     stop: 190.0
     tp1: 260.0
     tp2: 290.0
     no_add: true
     earn_date: "2026-09-02"
-    note: "ASTH 대체 위성 · $80대 분할매수 체결 · NEO 전 NO_ADD"
+    note: "평단 $222.90 · 위성 ≤10% · 유지 · NO_ADD"
 
   - ticker: NESR
     role: hold
+    sleeve: satellite
     shares: 3
-    cost_approx: 28.00
-    mark_approx: 27.57
-    value_approx: 82.71
-    weight_approx: 0.088
+    cost_approx: 28.01
+    mark_approx: 27.34
+    value_approx: 82.02
+    weight_approx: 0.085
     stop: 24.0
     tp1: 32.0
     tp2: 33.0
     no_add: false
     band: [25.0, 27.0]
     earn_date: "2026-08-18"
-    note: "밴드 밖(~$27.6) · 추격/추가 금지 · 밴드 재진입만"
+    note: "평단 $28.01 · 밴드 $25–27만"
 
-  - ticker: INDV
+  - ticker: SCHD
     role: hold
-    shares: 1
-    cost_approx: 41.00
-    mark_approx: 40.44
-    value_approx: 40.44
-    weight_approx: 0.043
-    stop: 34.0
-    tp1: 50.0
-    tp2: 52.0
+    sleeve: buffer
+    shares: 2
+    cost_approx: 33.33
+    mark_approx: 33.30
+    value_approx: 66.60
+    weight_approx: 0.069
+    stop: 30.0
+    tp1: 36.0
+    tp2: 38.0
     no_add: true
-    earn_date: "2026-08-06"
-    note: "시드 · 추가금지"
+    note: "평단 $33.33 · 완충 목표 10% · 월적립 DCA"
 
 exited:
+  - ticker: INDV
+    role: exited
+    shares: 0
+    shares_was: 1
+    cost_approx: 41.00
+    exit_as_of: "2026-07-27"
+    note: "전량매도 · SCHD 2주로 회전"
+
   - ticker: ASTH
     role: exited
     shares: 0
@@ -136,18 +219,24 @@ exited:
     note: "전량매도 · CRDO로 회전"
 
 watchlist:
-  - ticker: AMAT
-    role: watch
-    note: "CRDO 대타 · 메가캡 장비 · 신규 보류"
-  - ticker: ALKS
-    role: watch
-    note: "07-28 실적 동시"
-  - ticker: ACHC
-    role: watch
-    note: "07-28 실적 · 과열주의"
   - ticker: LASR
     role: watch
-    note: "Chase1 · 08-06 · 분할후보"
+    note: "코어 이관 1순위 · Chase#1 · 08-06 · MU청산 전 ≤10%만"
+  - ticker: AMAT
+    role: watch
+    note: "CRDO 대타 · 보류"
+  - ticker: ALKS
+    role: watch
+    note: "07-28 워치"
+  - ticker: ACHC
+    role: watch
+    note: "07-28 · 과열주의"
+  - ticker: RAPP
+    role: watch
+    note: "임상 위성 · 극소"
   - ticker: SLS
     role: watch
     note: "바이너리 · 코어금지"
+  - ticker: INDV
+    role: watch
+    note: "청산 후 워치"
