@@ -37,6 +37,17 @@ logger = logging.getLogger(__name__)
 DEFAULT_THRESHOLDS = (50, 60, 70, 80, 90)
 
 
+def _setup_korean_font() -> None:
+    import glob
+    from matplotlib import font_manager as fm
+
+    for path in glob.glob("/usr/share/fonts/truetype/nanum/NanumGothic*.ttf"):
+        fm.fontManager.addfont(path)
+    if any(f.name == "NanumGothic" for f in fm.fontManager.ttflist):
+        plt.rcParams["font.family"] = "NanumGothic"
+    plt.rcParams["axes.unicode_minus"] = False
+
+
 def broad_stage2_tech(
     params: Params,
     *,
