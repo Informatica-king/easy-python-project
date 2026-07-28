@@ -169,6 +169,27 @@ def _tool_vcp(args: list, kwargs: dict) -> None:
     vcp_timing.main(argv)
 
 
+def _tool_rs_fund_study(args: list, kwargs: dict) -> None:
+    from sepa import rs_fund_region_study
+
+    argv: list[str] = []
+    if args:
+        a0 = str(args[0])
+        if a0.endswith(".csv"):
+            argv += ["--scored", a0]
+        else:
+            raise MacroError('!sepa.rs_fund_study() 또는 !sepa.rs_fund_study(".../fundamental_tech_....csv")')
+    if kwargs.get("scored"):
+        argv += ["--scored", str(kwargs["scored"])]
+    if kwargs.get("as_of"):
+        argv += ["--as-of", str(kwargs["as_of"])]
+    if kwargs.get("benchmark"):
+        argv += ["--benchmark", str(kwargs["benchmark"])]
+    if kwargs.get("skip_forward"):
+        argv.append("--skip-forward")
+    rs_fund_region_study.main(argv)
+
+
 def _tool_rs_study(args: list, kwargs: dict) -> None:
     from sepa import rs_threshold_study
 
@@ -491,6 +512,12 @@ REGISTRY: list[MacroSpec] = [
         _tool_rs_study, aliases=("rs_study", "sepa.rs_threshold_study"),
     ),
     MacroSpec(
+        "sepa.rs_fund_study",
+        '!sepa.rs_fund_study()  |  !sepa.rs_fund_study("reports/rs_study/fundamental_tech_....csv")',
+        "RS×Fund 영역별 SPX 상대수익 — trailing A/D/E + short forward B",
+        _tool_rs_fund_study, aliases=("rs_fund_study",),
+    ),
+    MacroSpec(
         "sepa.chart", '!sepa.chart("SNDK")  |  !sepa.chart(sandisk, months=12)',
         "SEPA 일봉 분석 차트 — SMA·52주·ZigZag·Trend Template 스코어카드",
         _tool_chart, aliases=("chart",),
@@ -503,7 +530,7 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.fundamental",
         '!sepa.fund()  |  !sepa.fund("reports/stage2_20260716.csv")  |  !sepa.fundamental()',
-        "Stage 2·RS≥80 정량 펀더멘털 점수 — fund_score 내림차순, RS 병기",
+        "Stage 2·RS≥70 정량 펀더멘털 점수 — fund_score 내림차순, RS 병기",
         _tool_fundamental,
         aliases=("fundamental", "sepa.fund", "fund"),
     ),
