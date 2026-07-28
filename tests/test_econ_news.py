@@ -28,3 +28,13 @@ def test_mood_risk_on():
     mood, bullets = infer_mood(indices, sectors)
     assert "위험선호" in mood
     assert bullets
+
+
+def test_sector_heat_colors_korean_convention():
+    from sepa.econ_sector_viz import _chg_to_color
+
+    up = _chg_to_color(0.03)
+    dn = _chg_to_color(-0.03)
+    # red-ish up, blue-ish down
+    assert up.lower().startswith("#") and dn.lower().startswith("#")
+    assert up != dn

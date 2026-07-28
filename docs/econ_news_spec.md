@@ -26,5 +26,11 @@
 `--skip-github-release` 로 업로드 생략 가능.
 
 ## 섹션
-1. 표지 3불릿 2. 자금이동 3. 핫/콜드 섹터+뉴스 4. 대표지수
+1. 표지 3불릿 2. 자금이동 2-A. **GICS 섹터 AUM 트리맵(표+히트맵)** 3. 핫/콜드 섹터+뉴스 4. 대표지수
 5. 포트 영향(보유+워치) 6. 다음 장 체크리스트 7. 헤드라인 부록
+
+### 섹터 트리맵 (1-A)
+- 유니버스: S&P **GICS 11** Select Sector ETF (`XLK XLF XLE XLV XLI XLY XLP XLU XLB XLRE XLC`)
+- **면적** = ETF `totalAssets` 비중 (시가총액 근사 프록시)
+- **색** = 세션 종가 등락률 (한국형: 빨강↑ 파랑↓)
+- 왼쪽 랭킹 표 + 오른쪽 treemap · `sepa.econ_sector_viz`
