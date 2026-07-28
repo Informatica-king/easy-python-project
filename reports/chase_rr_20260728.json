@@ -1,0 +1,321 @@
+{
+  "as_of": "2026-07-28",
+  "source": "심층분석",
+  "rows": [
+    {
+      "rank": 1,
+      "ticker": "ROKU",
+      "chase": "상·08-06",
+      "px": 142.92,
+      "earn_date": "2026-08-06"
+    },
+    {
+      "rank": 2,
+      "ticker": "ECPG",
+      "chase": "최상·코어·강등후보",
+      "px": 94.45,
+      "earn_date": "2026-08-05"
+    },
+    {
+      "rank": 3,
+      "ticker": "ACHC",
+      "chase": "중·07-28실적당일",
+      "px": 32.5,
+      "earn_date": "2026-07-28"
+    },
+    {
+      "rank": 4,
+      "ticker": "ALKS",
+      "chase": "중·07-28실적당일",
+      "px": 52.73,
+      "earn_date": "2026-07-28"
+    },
+    {
+      "rank": 5,
+      "ticker": "HST",
+      "chase": "중상·눌림",
+      "px": 24.97,
+      "earn_date": "2026-08-05"
+    },
+    {
+      "rank": 6,
+      "ticker": "INDV",
+      "chase": "중·청산후워치",
+      "px": 40.03,
+      "earn_date": "2026-08-04"
+    },
+    {
+      "rank": 7,
+      "ticker": "TXG",
+      "chase": "하·과열",
+      "px": 45.92,
+      "earn_date": "2026-08-06"
+    },
+    {
+      "rank": 8,
+      "ticker": "SBLK",
+      "chase": "중상",
+      "px": 27.1,
+      "earn_date": "2026-08-05"
+    },
+    {
+      "rank": 9,
+      "ticker": "VCYT",
+      "chase": "중하·07-30과열",
+      "px": 55.61,
+      "earn_date": "2026-07-30"
+    },
+    {
+      "rank": 10,
+      "ticker": "NESR",
+      "chase": "상·분할·밴드대기",
+      "px": 26.87,
+      "earn_date": "2026-08-18"
+    },
+    {
+      "rank": 11,
+      "ticker": "AMRX",
+      "chase": "중·07-30보유·추가금지",
+      "px": 18.09,
+      "earn_date": "2026-07-30"
+    },
+    {
+      "rank": 12,
+      "ticker": "CHEF",
+      "chase": "중·07-29실적",
+      "px": 95.68,
+      "earn_date": "2026-07-29"
+    },
+    {
+      "rank": 13,
+      "ticker": "CASY",
+      "chase": "중·고점",
+      "px": 853.38,
+      "earn_date": "2026-09-09"
+    },
+    {
+      "rank": 14,
+      "ticker": "DDOG",
+      "chase": "중·눌림",
+      "px": 251.86,
+      "earn_date": "2026-08-06"
+    },
+    {
+      "rank": 15,
+      "ticker": "PGNY",
+      "chase": "중·눌림",
+      "px": 31.59,
+      "earn_date": "2026-08-06"
+    },
+    {
+      "rank": 16,
+      "ticker": "FA",
+      "chase": "중·눌림",
+      "px": 20.01,
+      "earn_date": "2026-08-06"
+    },
+    {
+      "rank": 17,
+      "ticker": "VTRS",
+      "chase": "중·눌림",
+      "px": 17.635,
+      "earn_date": "2026-08-06"
+    },
+    {
+      "rank": 18,
+      "ticker": "TVTX",
+      "chase": "중상",
+      "px": 56.68,
+      "earn_date": "2026-08-06"
+    },
+    {
+      "rank": 19,
+      "ticker": "LIND",
+      "chase": "중·고점",
+      "px": 28.09,
+      "earn_date": "2026-08-03"
+    },
+    {
+      "rank": 20,
+      "ticker": "FTNT",
+      "chase": "하·과열",
+      "px": 152.38,
+      "earn_date": "2026-07-29"
+    },
+    {
+      "rank": 21,
+      "ticker": "ENLT",
+      "chase": "중하·프리미엄",
+      "px": 91.33,
+      "earn_date": "2026-08-04"
+    },
+    {
+      "rank": 22,
+      "ticker": "KRYS",
+      "chase": "중·고점",
+      "px": 351.82,
+      "earn_date": "2026-08-03"
+    },
+    {
+      "rank": 23,
+      "ticker": "DRH",
+      "chase": "중상",
+      "px": 12.91,
+      "earn_date": "2026-07-30"
+    },
+    {
+      "rank": 24,
+      "ticker": "RAPP",
+      "chase": "상·08-06위성",
+      "px": 42.125,
+      "earn_date": "2026-08-06"
+    },
+    {
+      "rank": 25,
+      "ticker": "ANDE",
+      "chase": "중상",
+      "px": 74.6,
+      "earn_date": "2026-08-03"
+    },
+    {
+      "rank": 26,
+      "ticker": "ATLC",
+      "chase": "중상·위성",
+      "px": 104.2,
+      "earn_date": "2026-08-06"
+    },
+    {
+      "rank": 27,
+      "ticker": "CLMT",
+      "chase": "하·고점",
+      "px": 41.28,
+      "earn_date": "2026-08-07"
+    },
+    {
+      "rank": 28,
+      "ticker": "CMPR",
+      "chase": "중",
+      "px": 99.42,
+      "earn_date": "2026-07-29"
+    },
+    {
+      "rank": 29,
+      "ticker": "STLD",
+      "chase": "중",
+      "px": 250.27,
+      "earn_date": "2026-10-19"
+    },
+    {
+      "rank": 30,
+      "ticker": "BTSG",
+      "chase": "매도·추격금지",
+      "px": 71.98,
+      "earn_date": "2026-07-31"
+    },
+    {
+      "rank": 31,
+      "ticker": "JAZZ",
+      "chase": "중·고점",
+      "px": 255.43,
+      "earn_date": "2026-08-03"
+    },
+    {
+      "rank": 32,
+      "ticker": "INCY",
+      "chase": "중·고점",
+      "px": 118.87,
+      "earn_date": "2026-07-28"
+    },
+    {
+      "rank": 33,
+      "ticker": "CSX",
+      "chase": "중·고점",
+      "px": 51.8,
+      "earn_date": "2026-10-22"
+    },
+    {
+      "rank": 34,
+      "ticker": "SCSC",
+      "chase": "중",
+      "px": 55.62,
+      "earn_date": "2026-08-20"
+    },
+    {
+      "rank": 35,
+      "ticker": "GPRE",
+      "chase": "중하",
+      "px": 16.44,
+      "earn_date": "2026-08-06"
+    },
+    {
+      "rank": 36,
+      "ticker": "CBRL",
+      "chase": "하·과열",
+      "px": 52.43,
+      "earn_date": "2026-09-16"
+    },
+    {
+      "rank": 37,
+      "ticker": "FTRE",
+      "chase": "중·과열주의",
+      "px": 19.2,
+      "earn_date": "2026-07-29"
+    },
+    {
+      "rank": 38,
+      "ticker": "CDNA",
+      "chase": "하·07-30과열",
+      "px": 36.36,
+      "earn_date": "2026-07-30"
+    },
+    {
+      "rank": 39,
+      "ticker": "PTGX",
+      "chase": "중하·과열",
+      "px": 135.56,
+      "earn_date": "2026-08-06"
+    },
+    {
+      "rank": 40,
+      "ticker": "LQDA",
+      "chase": "하·과열",
+      "px": 84.42,
+      "earn_date": "2026-08-12"
+    },
+    {
+      "rank": 41,
+      "ticker": "BRKR",
+      "chase": "중하·관망",
+      "px": 60.05,
+      "earn_date": "2026-08-04"
+    },
+    {
+      "rank": 42,
+      "ticker": "DNTH",
+      "chase": "중·임상변동",
+      "px": 104.49,
+      "earn_date": "2026-08-06"
+    },
+    {
+      "rank": 43,
+      "ticker": "KNSA",
+      "chase": "중하",
+      "px": 63.535,
+      "earn_date": "2026-07-28"
+    },
+    {
+      "rank": 44,
+      "ticker": "SEPN",
+      "chase": "중·서프약",
+      "px": 33.49,
+      "earn_date": "2026-08-10"
+    },
+    {
+      "rank": 45,
+      "ticker": "SENEA",
+      "chase": "중하·데이터약",
+      "px": 166.27,
+      "earn_date": "2026-08-06"
+    }
+  ]
+}
