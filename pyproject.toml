@@ -10,6 +10,10 @@ dependencies = [
     "pyarrow>=16.0",
     "PyYAML>=6.0",
     "requests>=2.31",
+    "matplotlib>=3.8",
+    "squarify>=0.4.3",
+    "weasyprint>=62.0",
+    "feedparser>=6.0",
 ]
 
 [project.scripts]

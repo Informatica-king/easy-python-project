@@ -102,6 +102,8 @@ class EconNewsBundle:
     portfolio: list[PortfolioRow]
     mood: str
     bullets: list[str]
+    # GICS sector board PNG (table + treemap); optional for older callers
+    sector_board_png: Path | None = None
 
 
 def _last_session_date(as_of: date | None = None) -> date:
@@ -335,6 +337,28 @@ def build_bundle(
     if headlines:
         bullets.append(f"헤드라인: {headlines[0].title[:80]}")
 
+    # Sector AUM treemap board (latest close session)
+    sector_board_png: Path | None = None
+    try:
+        from sepa.econ_sector_viz import collect_sector_board, render_sector_board_figure
+
+        board = collect_sector_board(sess)
+        if board:
+            chart_dir = Path("reports/charts/econ")
+            chart_dir.mkdir(parents=True, exist_ok=True)
+            sector_board_png = render_sector_board_figure(
+                board,
+                sess,
+                chart_dir / f"sector_board_{sess.isoformat()}.png",
+            )
+            hot_w = board[0]
+            bullets.insert(
+                1,
+                f"최대 AUM 섹터 {hot_w.name} 비중 {hot_w.weight*100:.1f}% · 등락 {hot_w.change_pct*100:+.2f}%",
+            )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("sector board viz fail: %s", exc)
+
     return EconNewsBundle(
         session_date=sess,
         generated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
@@ -343,5 +367,6 @@ def build_bundle(
         headlines=headlines[:40],
         portfolio=portfolio,
         mood=mood,
-        bullets=bullets,
+        bullets=bullets[:6],
+        sector_board_png=sector_board_png,
     )

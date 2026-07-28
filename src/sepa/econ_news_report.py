@@ -8,6 +8,7 @@ from pathlib import Path
 from weasyprint import HTML
 
 from sepa.econ_news_data import BarSnap, EconNewsBundle, Headline
+from sepa.econ_sector_viz import board_to_data_uri
 
 FONT_REG = "/tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
 FONT_BOLD = "/tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf"
@@ -69,6 +70,8 @@ def _css() -> str:
     .tag {{ display:inline-block; background:#dbeafe; padding:1px 6px; border-radius:3px; font-size:7.5pt; margin:1px; }}
     .section {{ page-break-inside:avoid; }}
     ul.tight li {{ margin:2px 0; }}
+    .sector-board {{ page-break-inside:avoid; margin:8px 0 12px; }}
+    .sector-board img {{ width:100%; height:auto; border:1px solid #e2e8f0; border-radius:4px; }}
     """
 
 
@@ -244,6 +247,18 @@ def render_html(bundle: EconNewsBundle) -> str:
 
     bullets = "".join(f"<li>{esc(b)}</li>" for b in bundle.bullets)
 
+    sector_board_html = ""
+    if bundle.sector_board_png and Path(bundle.sector_board_png).exists():
+        uri = board_to_data_uri(Path(bundle.sector_board_png))
+        sector_board_html = f"""
+<h2>1-A. 섹터 시총 비중 · 등락 히트맵</h2>
+<div class="easy"><b>쉽게:</b> 왼쪽은 <b>큰 업종 순위</b>, 오른쪽은 <b>넓이=자금 규모(ETF AUM)</b>·
+색=<b>전일 등락</b>(빨강↑ 파랑↓). S&amp;P GICS 11섹터 Select Sector ETF 기준.</div>
+<div class="sector-board"><img src="{uri}" alt="sector board treemap"/></div>
+<p class="small">비중 = 각 섹터 ETF totalAssets / 합계(시가총액 근사 프록시). 등락 = 세션 종가 vs 직전 종가.
+진짜 S&amp;P 구성비와는 다를 수 있음 · 로테이션·온도 파악용.</p>
+"""
+
     return f"""<!DOCTYPE html>
 <html lang="ko"><head><meta charset="utf-8"/><title>경제뉴스 {sess}</title>
 <style>{_css()}</style></head><body>
@@ -269,6 +284,7 @@ def render_html(bundle: EconNewsBundle) -> str:
   {_bar_rows(bundle.sectors)}
 </table>
 <p class="small">vs20일 = 당일 거래량 / 최근 20일 평균. 1.3x↑면 관심 증가, 0.7x↓면 한산.</p>
+{sector_board_html}
 
 <h2>2. 주목 섹터 · 이탈 섹터 (+뉴스 해석)</h2>
 <div class="section">
