@@ -1,16 +1,7 @@
 # TA 워치리스트 + 포트 훅 메타 (≤20)
-# hooks: EARN_D5 · BAND · NO_ADD · STOP · TP
-# 상세 시나리오 원본: config/portfolio_watch.yaml (병합됨)
-# 2026-07-27: INDV→SCHD · NEO D-1 earnings · AMRX D-3
+# 2026-07-28: NEO auto-stop exited · cash heavy · LASR candidate core
 
 tickers:
-  - symbol: NEO
-    earn_date: "2026-07-28"
-    stop: 12.0
-    tp1: 16.0
-    tp2: 18.0
-    no_add: true
-
   - symbol: ECPG
     earn_date: "2026-08-05"
     stop: 80.0
@@ -30,21 +21,7 @@ tickers:
     stop: 830.0
     tp1: 1100.0
     tp2: 1170.0
-    no_add: true
-
-  - symbol: NESR
-    earn_date: "2026-08-18"
-    band: [25.0, 27.0]
-    stop: 24.0
-    tp1: 32.0
-    tp2: 33.0
     no_add: false
-
-  - symbol: SCHD
-    stop: 30.0
-    tp1: 36.0
-    tp2: 38.0
-    no_add: true
 
   - symbol: CRDO
     earn_date: "2026-09-02"
@@ -53,18 +30,34 @@ tickers:
     tp2: 290.0
     no_add: true
 
+  - symbol: NESR
+    earn_date: "2026-08-18"
+    band: [25.0, 27.0]
+    stop: 24.0
+    tp1: 32.0
+    tp2: 33.0
+    no_add: true
+
+  - symbol: SCHD
+    stop: 30.0
+    tp1: 36.0
+    tp2: 38.0
+    no_add: true
+
+  - symbol: LASR
+    earn_date: "2026-08-06"
+    no_add: true
+
+  - symbol: NEO
+    earn_date: "2026-07-28"
+    stop: 12.0
+    no_add: true
+
   - symbol: ALKS
     earn_date: "2026-07-28"
     no_add: true
 
-  - symbol: AMAT
-    earn_date: "2026-08-13"
-    stop: 503.0
-    tp1: 623.0
-    tp2: 700.0
-    no_add: true
-
-  - symbol: LASR
+  - symbol: ROKU
     earn_date: "2026-08-06"
     no_add: true
 
