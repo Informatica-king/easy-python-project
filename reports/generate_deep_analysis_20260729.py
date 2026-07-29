@@ -170,6 +170,60 @@ LABEL_OVERRIDE = {
     "SENEA": "중하·데이터약",
 }
 
+# One-line+ Chase detail (표시용). 짧은 라벨(chase)은 TA 선정용으로 유지.
+CHASE_DETAIL = {
+    "ALKS": "중·실적직후워치 — 실적 직후라 신규 분할 보류. 보유/관심은 가이던스·반응 확인 후 눌림만.",
+    "ECPG": "최상·코어·강등후보 — RR·Beat 상위이나 포트 코어 과비중. 추가금지·1주 축소로 ~20% 유도.",
+    "ROKU": "상·08-06 — 플랫폼 RR 양호하나 1주 가격이 소액북 코어급. NO_ADD·실적 전 추격 금지.",
+    "ACHC": "중·실적직후 — 실적 직후 소화 구간. 추격보다 반응·가이던스 확인 후 재평가.",
+    "HST": "중상·눌림 — 호텔 섹터 RR 중상. 고점 근접이면 분할보다 눌림 대기.",
+    "INDV": "중·청산후워치 — 기청산 종목. 재진입은 새 셋업·비중 여유 있을 때만.",
+    "RELY": "상·08-05 — 송금 핀테크 Beat·업사이드 큼. 위성급 눌림·실적창 주의.",
+    "TXG": "하·과열 — PT 대비 프리미엄·고점권. RR 점수와 무관하게 추격 비추천.",
+    "ADPT": "중·07-29실적 — 실적 D-0. EARN_D5로 분할 차단. 결과 확인 전 신규 금지.",
+    "VCYT": "중하·07-30과열 — 실적 임박·고점권. 이벤트 갭 베팅 금지.",
+    "SBLK": "중상 — 건화물 베타·업사이드 양호. 위성·테마 온도 확인 후 눌림.",
+    "CASY": "중·고점 — Beat는 좋으나 고가·고점 근접. 추격보다 관망.",
+    "AMRX": "중·07-30보유·추가금지 — 보유 코어. 실적 D-1~0 즉흥·추가 매수 금지.",
+    "PGNY": "중·눌림 — RR 중간. 셋업 대기·분할은 눌림에서만.",
+    "DDOG": "중·눌림 — 클라우드 관측. 품질은 있으나 추격보다 눌림.",
+    "CHEF": "중·07-29실적 — 실적일. 결과 전 신규 금지·보유만.",
+    "VTRS": "중·눌림 — 제네릭. 방어적·고점 근처면 대기.",
+    "IART": "중·고점 — 의료기기. 업사이드 음수·고점권 → 관망.",
+    "FTNT": "하·과열 — 보안주 프리미엄. 고점·비싸면 추격 금지.",
+    "PEBO": "중 — 지방은행. RR 무난·방어적. 급등 추격 불필요.",
+    "TVTX": "중상 — 바이오·업사이드. 위성·변동 허용 시에만.",
+    "FA": "중·눌림 — 교육/서비스. 눌림 대기.",
+    "LIND": "중·고점 — 크루즈/여행. 고점권이면 관망.",
+    "RAPP": "상·08-06위성 — 임상 바이너리. 극소 위성·실적/촉매 추격 금지.",
+    "ANDE": "중상 — 농산물 유통. TA 분할후보여도 EARN_D5면 대기.",
+    "DRH": "중상 — 호텔 리츠. 중상 RR·고점이면 눌림.",
+    "KRYS": "중·고점 — 피부과 바이오. 고가·고점 → 관망 우위.",
+    "ATLC": "중상·위성 — 특화금융. 위성 한도 내·추격 금지.",
+    "CLMT": "하·고점 — 에너지 인프라. 고점·프리미엄 → 하향.",
+    "CMPR": "중 — 인쇄/커머스. RR 중간·특별 촉매 없으면 대기.",
+    "BTSG": "매도·추격금지 — 모멘텀 소진/리스크. 신규·추격 금지.",
+    "STLD": "중 — 철강. 경기민감·중간 RR.",
+    "JAZZ": "중·고점 — 제약. 고점권 관망.",
+    "INCY": "중·고점 — 바이오. 업사이드 음수면 추격 비추.",
+    "SCSC": "중 — IT 유통. 중간·눌림.",
+    "CNXN": "중하 — IT 리셀. 업사이드 약·관망.",
+    "GPRE": "중하 — 에탄올/에너지. RR 하위·관망.",
+    "CBRL": "하·과열 — 레스토랑 프리미엄·약세. 추격 금지.",
+    "FTRE": "중·과열주의 — 진단 아웃소싱. 변동·과열 주의.",
+    "CDNA": "하·과열 — 이식 진단. 고점·이벤트 주의.",
+    "PAGP": "중하 — MLP/에너지. RR 약·관망.",
+    "PTGX": "중하·과열 — 바이오. 과열·임상 변동.",
+    "LQDA": "하·과열 — 호흡기 바이오. 고점 추격 금지.",
+    "BRKR": "중하·관망 — 분석기기. 촉매 약하면 대기.",
+    "CRSR": "하·과열 — 게이밍 HW. 프리미엄·약세 추격 금지.",
+    "KNSA": "중하 — 바이오. 서프/업사이드 약.",
+    "DNTH": "중·임상변동 — 임상 이벤트 지배. 위성·소액만.",
+    "SEPN": "중·서프약 — 업사이드 있어도 서프라이즈 약. 신중.",
+    "SENEA": "중하·데이터약 — EPS 이력 빈약. 데이터 보강 전 관망.",
+}
+
+
 def fmt_usd_price(v) -> str:
     if v is None or (isinstance(v, float) and math.isnan(v)):
         return "—"
@@ -225,6 +279,32 @@ def assign_chase(r: dict) -> str:
     return "중하"
 
 
+def build_chase_detail(label: str, r: dict) -> str:
+    """Display line (≥1 sentence). Keep short `label` for TA rules."""
+    t = r["t"]
+    if t in CHASE_DETAIL:
+        return CHASE_DETAIL[t]
+    ups = fmt_pct(r.get("upside"))
+    near = fmt_ratio(r.get("near_high"))
+    earn = r.get("earnDate") or "—"
+    beat = f"{r.get('epsBeat') or 0}/{r.get('epsN') or 0}"
+    bits = {
+        "최상": "Chase RR 최상위권. 실행은 포트 비중·이벤트 창을 먼저 본다.",
+        "상": f"RR 상위. 업사이드 {ups} · 고점근접 {near} · 실적 {earn}. 추격보다 눌림·비중 확인.",
+        "중상": f"RR 중상. EPS {beat} · 업사이드 {ups}. 위성·분할 후보이나 고점이면 대기.",
+        "중하": f"RR 중하위. 업사이드 {ups} · 고점 {near}. 신규보다 관망.",
+        "중": f"RR 중간. EPS {beat} · 실적 {earn}. 셋업·눌림 확인 후.",
+        "하": f"RR 하향/비선호. 업사이드 {ups} · 고점 {near}. 추격 금지.",
+        "매도": "모멘텀·리스크 비적합. 신규·추격 금지.",
+    }
+    for k, v in bits.items():
+        if label.startswith(k) or k in label[:4]:
+            return f"{label} — {v}"
+    if "과열" in label:
+        return f"{label} — 고점·프리미엄 구간. 점수와 별개로 추격 비추천."
+    return f"{label} — 업사이드 {ups} · 고점근접 {near} · EPS {beat} · 실적 {earn}."
+
+
 def merge(r: dict, qual: dict) -> dict:
     t = r["t"]
     q = dict(qual.get(t, {}))
@@ -254,6 +334,7 @@ def merge(r: dict, qual: dict) -> dict:
     rec = r.get("rec") or "—"
     q["cons"] = q.get("cons") or f"{rec} PT평균{fmt_usd_price(r['ptA'])} ({fmt_pct(r['upside'])})"
     q["chase"] = assign_chase(r)
+    q["chase_detail"] = build_chase_detail(q["chase"], r)
     q["item"] = q.get("item") or q.get("name") or t
     q["fin"] = q.get("fin") or "—"
     q["strat"] = q.get("strat") or "—"
@@ -295,6 +376,7 @@ def build_css() -> str:
     th,td {{ border:1px solid #ccc; padding:3px 5px; vertical-align:top; }}
     th {{ background:#edf2f7; font-weight:bold; }}
     tr:nth-child(even) td {{ background:#fafafa; }}
+    td.chase {{ font-size:7.5pt; line-height:1.35; min-width:42%; }}
     .ticker-section {{ page-break-before:always; }}
     .ticker-head {{ background:#2c5282; color:#fff; padding:8px 10px; margin:0 0 8px; font-size:12pt; font-weight:bold; }}
     .tag {{ display:inline-block; background:#bee3f8; padding:1px 6px; border-radius:3px; font-size:8pt; margin:1px; }}
@@ -341,7 +423,7 @@ def ticker_section(q: dict) -> str:
         <tr><td>EPS</td><td>{esc(q.get('eps'))}</td></tr>
         <tr><td>신규진입</td><td>{esc(q.get('entry'))}</td></tr>
         <tr><td>탈락</td><td>{esc(q.get('drop'))}</td></tr>
-        <tr><td>Chase</td><td><b>{esc(q.get('chase'))}</b></td></tr>
+        <tr><td>Chase</td><td><b>{esc(q.get('chase'))}</b><br/><span class="small">{esc(q.get('chase_detail'))}</span></td></tr>
       </table>
     </section>
     """
@@ -362,6 +444,7 @@ def main() -> None:
             "rank": r["rank"],
             "ticker": r["t"],
             "chase": q["chase"],
+            "chase_detail": q.get("chase_detail"),
             "px": r["px"],
             "earn_date": r.get("earnDate"),
         })
@@ -380,7 +463,8 @@ def main() -> None:
             f"<td>{fmt_usd_price(q['px'])}</td><td>{fmt_usd_price(q['ptA'])}</td>"
             f"<td>{fmt_pct(q['upside'])}</td>"
             f"<td>{q.get('epsBeat','—')}/{q.get('epsN','—')}</td>"
-            f"<td>{esc(q.get('earnDate'))}</td><td>{esc(q.get('chase'))}</td></tr>"
+            f"<td>{esc(q.get('earnDate'))}</td>"
+            f"<td class='chase'><b>{esc(q.get('chase'))}</b><br/>{esc(q.get('chase_detail'))}</td></tr>"
         )
 
     body = "".join(ticker_section(tickers[t]) for t in order)
@@ -390,7 +474,8 @@ def main() -> None:
         final_rows.append(
             f"<tr><td>{q['rank']}</td><td><b>{esc(t)}</b></td>"
             f"<td>{fmt_usd_price(q['px'])}</td><td>{fmt_usd_price(q['ptA'])}</td>"
-            f"<td>{fmt_pct(q['upside'])}</td><td>{esc(q['chase'])}</td></tr>"
+            f"<td>{fmt_pct(q['upside'])}</td>"
+            f"<td class='chase'><b>{esc(q['chase'])}</b><br/>{esc(q.get('chase_detail'))}</td></tr>"
         )
 
     doc = f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"/>
