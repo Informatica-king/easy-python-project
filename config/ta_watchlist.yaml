@@ -1,5 +1,5 @@
 # TA 워치리스트 + 포트 훅 메타 (≤20)
-# 2026-07-28: NEO auto-stop exited · cash heavy · LASR candidate core
+# 2026-07-29: confirmed snap · MU/CRDO full-sell queued
 
 tickers:
   - symbol: ECPG
@@ -16,18 +16,9 @@ tickers:
     tp2: 20.0
     no_add: true
 
-  - symbol: MU
-    earn_date: "2026-09-23"
-    stop: 830.0
-    tp1: 1100.0
-    tp2: 1170.0
-    no_add: false
-
-  - symbol: CRDO
-    earn_date: "2026-09-02"
-    stop: 190.0
-    tp1: 260.0
-    tp2: 290.0
+  - symbol: LASR
+    earn_date: "2026-08-06"
+    stop: 60.50
     no_add: true
 
   - symbol: NESR
@@ -44,17 +35,17 @@ tickers:
     tp2: 38.0
     no_add: true
 
-  - symbol: LASR
-    earn_date: "2026-08-06"
+  - symbol: MU
+    earn_date: "2026-09-23"
+    stop: 830.0
+    no_add: true
+
+  - symbol: CRDO
+    earn_date: "2026-09-02"
+    stop: 190.0
     no_add: true
 
   - symbol: NEO
-    earn_date: "2026-07-28"
-    stop: 12.0
-    no_add: true
-
-  - symbol: ALKS
-    earn_date: "2026-07-28"
     no_add: true
 
   - symbol: ROKU
@@ -63,6 +54,9 @@ tickers:
 
   - symbol: RAPP
     earn_date: "2026-08-06"
+    no_add: true
+
+  - symbol: ALKS
     no_add: true
 
   - symbol: SLS
