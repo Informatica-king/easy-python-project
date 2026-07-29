@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import base64
+import sys
 from pathlib import Path
 
 import matplotlib
@@ -15,9 +16,15 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch
 from weasyprint import HTML
 
+_SRC = Path(__file__).resolve().parents[1] / "src"
+if str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
+
+from sepa.rev_compete import build_compete_charts  # noqa: E402
+
 FONT_REG = "/tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
 FONT_BOLD = "/tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf"
-ASOF = "2026-07-28"
+ASOF = "2026-07-29"
 OUT_PDF = [
     Path("/opt/cursor/artifacts/ROKU_Revenue_Structure_Analysis.pdf"),
     Path("/workspace/reports/ROKU_Revenue_Structure_Analysis.pdf"),
@@ -310,7 +317,7 @@ def fig_block(path: Path, caption: str) -> str:
     )
 
 
-def build_html(charts: dict[str, Path]) -> str:
+def build_html(charts: dict[str, Path], *, compete_html: str = "") -> str:
     css = f"""
     @font-face {{ font-family:'NanumGothic'; src:url('file://{FONT_REG}'); font-weight:normal; }}
     @font-face {{ font-family:'NanumGothic'; src:url('file://{FONT_BOLD}'); font-weight:bold; }}
@@ -403,6 +410,8 @@ Q1'26부터 Platform을 <b>Advertising / Subscriptions</b>로 분리 공시.
     ("Premium Subscriptions", "Roku Channel 안에서 파트너 SVOD를 묶어 가입·결제."),
 ])}
 
+{compete_html}
+
 <h2>2. 성장 엔진 — 광고·구독·스케일</h2>
 {fig_block(charts['03'], '플랫폼 추이·성장률')}
 {fig_block(charts['05'], '총이익 브리지')}
@@ -470,11 +479,61 @@ Devices GM 하이 −20%s(2H 메모리 원가↑).</div>
 <h2>부록 · 출처</h2>
 <p class="small">
 Roku Q1 2026 Shareholder Letter (2026-04-30) · SEC Exhibit 99.1 / 10-Q segment breakout ·
-Variety / company outlook commentary · yfinance 가격·PT ({ASOF}).
+Pixalate CTV Device SOV (Q1'26 vs Q1'25) · 피어 매출믹스 근사(SPOT/NFLX/FUBO) ·
+yfinance TTM 매출·가격·PT ({ASOF}).
 시나리오는 예시 밴드(투자 권유 아님).
 </p>
-<p class="small">생성: 수익구조분석() · 티커 ROKU · 기준 {ASOF} · WeasyPrint + NanumGothic</p>
+<p class="small">생성: 수익구조분석() · 티커 ROKU · 기준 {ASOF} · WeasyPrint + NanumGothic · sepa.rev_compete</p>
 </body></html>
+"""
+
+
+def _compete_section(charts: dict[str, Path], bundle) -> str:
+    if bundle is None or "share" not in charts:
+        return ""
+    share_rows = "".join(
+        f"<tr><td>{r.name}</td><td>{r.current:.0f}%</td><td>{r.prior:.0f}%</td>"
+        f"<td>{r.delta_pp:+.0f}pp</td></tr>"
+        for r in bundle.share_rows
+    )
+    mix_head = "".join(f"<th>{b}</th>" for b in bundle.mix_buckets)
+    mix_body = []
+    for r in bundle.mix_rows:
+        cells = "".join(f"<td>{r['mix'].get(b, 0):.1f}%</td>" for b in bundle.mix_buckets)
+        tag = " <b>(대상)</b>" if r.get("subject") else ""
+        mix_body.append(f"<tr><td>{r['name']}{tag}</td>{cells}<td class='small'>{r.get('note','')}</td></tr>")
+    ttm_fig = fig_block(charts["ttm"], "TTM 매출 규모") if "ttm" in charts else ""
+    return f"""
+<h2>1-B. 심층 섹터 경쟁 점유율 · 변화</h2>
+<p><b>섹터</b> {bundle.sector_ko}</p>
+<div class="easy"><b>쉽게:</b> CTV에서 <b>누가 OS·디바이스 레이어를 쥐고 광고 인벤토리를 먹나</b>를 본다.
+ROKU는 콘텐츠 회사가 아니라 <b>플랫폼 레이어</b>라 Fire TV·삼성·애플·LG와 점유율을 겨룬다.</div>
+{fig_block(charts['share'], bundle.share_title)}
+{fig_block(charts['delta'], '점유율 변화 (pp)')}
+<table>
+  <tr><th>플레이어</th><th>현재</th><th>전년동기</th><th>Δ</th></tr>
+  {share_rows}
+</table>
+<p class="small">{bundle.share_note}<br/>출처: {bundle.share_source} · {bundle.share_as_of}</p>
+{gloss([
+    ("SOV (Share of Voice)", "프로그램매틱 CTV 거래에서 해당 디바이스·OS가 차지하는 비중."),
+    ("pp", "percentage points. 36%→38%면 +2pp (상대 % 변화와 다름)."),
+])}
+
+<h2>1-C. 경쟁사 매출 구조 비율 비교</h2>
+<div class="easy"><b>쉽게:</b> 같은 ‘스트리밍’이라도 <b>광고 vs 구독 vs 기기</b> 비중이 다르다.
+ROKU는 광고+구독 투트랙, NFLX/SPOT는 구독 편중, FUBO는 구독+광고 하이브리드에 가깝다.</div>
+{fig_block(charts['mix'], '매출 믹스 스택 비교')}
+{ttm_fig}
+<table>
+  <tr><th>티커</th>{mix_head}<th>메모</th></tr>
+  {''.join(mix_body)}
+</table>
+<p class="small">{bundle.mix_note} · {bundle.mix_as_of}</p>
+{gloss([
+    ("정규화 버킷", "공시 세그먼트명이 달라도 Ad/Sub/Devices·Other로 맞춰 비교."),
+    ("TTM", "Trailing Twelve Months — 최근 12개월 매출. 스케일 감각용."),
+])}
 """
 
 
@@ -490,7 +549,10 @@ def main() -> None:
         "08": chart_catalysts(),
         "09": chart_position(),
     }
-    html = build_html(charts)
+    bundle, cpaths = build_compete_charts("ROKU", CHART_DIR)
+    charts.update(cpaths)
+    compete_html = _compete_section(charts, bundle)
+    html = build_html(charts, compete_html=compete_html)
     OUT_HTML.write_text(html, encoding="utf-8")
     print(f"HTML {OUT_HTML} {OUT_HTML.stat().st_size}")
     doc = HTML(filename=str(OUT_HTML))
