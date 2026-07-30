@@ -21,6 +21,7 @@ if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
 from sepa.rev_compete import build_compete_charts  # noqa: E402
+from sepa.rev_price_chart import build_and_insert_price  # noqa: E402
 
 FONT_REG = "/tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
 FONT_BOLD = "/tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf"
@@ -502,6 +503,11 @@ def main() -> None:
     charts.update(cpaths)
     compete_html = _compete_section(charts, bundle)
     html = build_html(charts, compete_html=compete_html)
+    html, _px = build_and_insert_price("PEBO", CHART_DIR, html)
+    if _px.ok:
+        print(f"price-charts {_px.candle_path} {_px.momentum_path}")
+    else:
+        print(f"price-charts SKIP {_px.error}")
     OUT_HTML.write_text(html, encoding="utf-8")
     print(f"HTML {OUT_HTML} {OUT_HTML.stat().st_size}")
     doc = HTML(filename=str(OUT_HTML))

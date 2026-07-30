@@ -7,6 +7,14 @@ from __future__ import annotations
 import base64
 import io
 from pathlib import Path
+import sys
+
+_SRC = Path(__file__).resolve().parents[1] / "src"
+if str(_SRC) not in sys.path:
+    sys.path.insert(0, str(_SRC))
+
+from sepa.rev_price_chart import build_and_insert_price  # noqa: E402
+
 
 import matplotlib
 
@@ -866,6 +874,11 @@ def main() -> None:
         "pos": chart_position(),
     }
     html = build_html(charts)
+    html, _px = build_and_insert_price("INDV", CHART_DIR, html)
+    if _px.ok:
+        print(f"price-charts {_px.candle_path} {_px.momentum_path}")
+    else:
+        print(f"price-charts SKIP {_px.error}")
     OUT_HTML.write_text(html, encoding="utf-8")
     print("HTML:", OUT_HTML, OUT_HTML.stat().st_size)
     for out in OUT_PDF:
