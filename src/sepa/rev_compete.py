@@ -99,6 +99,56 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "피어는 공시 세그먼트가 달라 근사치 — 방향 비교용."
         ),
     },
+    "RELY": {
+        "sector_ko": "핀테크·크로스보더 송금 (심층: 금융)",
+        "share_title": "글로벌 송금 시장 점유율 (추정)",
+        "share_as_of": "2026 est. vs 2025 est. · VMR 계열 근사",
+        "share_note": (
+            "전 세계 송금(현금·디지털 혼재) 추정 점유율. "
+            "정의가 리포트마다 달라 절대치보다 Δpp·상대 순위 비교용. "
+            "Remitly는 디지털·지갑 지급 강세, WU는 에이전트 네트워크 규모."
+        ),
+        "share_rows": [
+            ("Western Union", 11.5, 12.0),
+            ("Wise", 4.0, 4.2),
+            ("Remitly", 2.3, 1.9),
+            ("MoneyGram", 2.1, 2.2),
+            ("WorldRemit", 1.1, 1.3),
+        ],
+        "share_source": "Verified Market Research digital remittance share estimates (2026 vs prior)",
+        "mix_buckets": ["Consumer Remittance", "Business/Platform", "Other"],
+        "mix_as_of": "Q1'26 / 최근 공시 근사",
+        "mix_rows": [
+            {
+                "key": "RELY",
+                "name": "RELY",
+                "subject": True,
+                "yf": "RELY",
+                "mix": {"Consumer Remittance": 95.0, "Business/Platform": 5.0, "Other": 0.0},
+                "note": "단일세그먼트 · Growth Accelerators(~5% FY26 가이던스) 포함",
+            },
+            {
+                "key": "TW",
+                "name": "TW",
+                "subject": False,
+                "yf": "TW",
+                "mix": {"Consumer Remittance": 62.0, "Business/Platform": 38.0, "Other": 0.0},
+                "note": "Personal vs Platform/Business 근사 (공시 혼합)",
+            },
+            {
+                "key": "WU",
+                "name": "WU",
+                "subject": False,
+                "yf": "WU",
+                "mix": {"Consumer Remittance": 78.0, "Business/Platform": 22.0, "Other": 0.0},
+                "note": "Consumer Money Transfer 중심 · B2B/기타 근사",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Consumer Remittance / Business·Platform / Other로 정규화. "
+            "RELY Growth Accelerators(고액송금·비즈니스·리시버 등)~5%를 Business/Platform에 배치."
+        ),
+    },
 }
 
 
@@ -199,7 +249,14 @@ def chart_share_level(bundle: CompeteBundle, out: Path, *, prop, prop_b) -> Path
     fig, ax = plt.subplots(figsize=(9.0, 4.0))
     names = [r.name for r in bundle.share_rows]
     vals = [r.current for r in bundle.share_rows]
-    colors = ["#6c2bd9" if "Roku" in n or n.upper() == bundle.ticker else "#64748b" for n in names]
+    colors = []
+    for n in names:
+        hit = (
+            n.upper() == bundle.ticker
+            or ("Roku" in n and bundle.ticker == "ROKU")
+            or ("Remitly" in n and bundle.ticker == "RELY")
+        )
+        colors.append(("#6c2bd9" if bundle.ticker == "ROKU" else "#0ea5e9") if hit else "#64748b")
     bars = ax.barh(names[::-1], vals[::-1], color=colors[::-1], height=0.55)
     ax.set_xlabel("%", fontproperties=prop)
     ax.set_title(bundle.share_title, fontproperties=prop_b, fontsize=11)
