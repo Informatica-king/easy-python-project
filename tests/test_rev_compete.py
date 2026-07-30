@@ -23,6 +23,13 @@ def test_rely_profile_exists():
     assert p["share_rows"][2][0] == "Remitly"
 
 
+def test_pebo_profile_exists():
+    p = get_profile("PEBO")
+    assert p is not None
+    assert any(r.get("subject") for r in p["mix_rows"])
+    assert abs(p["mix_rows"][0]["mix"]["Net Interest Income"] - 76.2) < 0.1
+
+
 def test_load_bundle_offline_share(monkeypatch):
     monkeypatch.setattr("sepa.rev_compete._ttm_revenue", lambda _t: None)
     b = load_compete_bundle("RELY")
