@@ -189,7 +189,7 @@ def chart_pnl_stack() -> Path:
     # Simplified illustrative levels ($M)
     q26 = [452.8, 144.9, 307.9, 86.4, None, 101.6]
     # show key bars
-    names = ["Revenue", "Txn Exp", "RLTE\n(Rev−Txn)", "Marketing", "Adj.\nEBITDA"]
+    names = ["Revenue", "Txn Exp", "RLTE\n(Rev-Txn)", "Marketing", "Adj.\nEBITDA"]
     vals = [452.8, 144.9, 307.9, 86.4, 101.6]
     colors = [C["rely"], C["red"], C["teal"], C["gold"], C["green"]]
     bars = ax.bar(names, vals, color=colors, width=0.55)
