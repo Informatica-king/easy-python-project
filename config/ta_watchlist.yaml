@@ -1,5 +1,5 @@
 # TA 워치리스트 + 포트 훅 메타 (≤20)
-# 2026-07-29: confirmed snap · MU/CRDO full-sell queued
+# 2026-07-30: confirmed snap · MU/CRDO filled · LASR invalidation breach
 
 tickers:
   - symbol: ECPG
@@ -61,4 +61,20 @@ tickers:
 
   - symbol: SLS
     earn_date: "2026-08-11"
+    no_add: true
+
+  - symbol: RELY
+    earn_date: "2026-08-05"
+    no_add: true          # 실적 전 NO_ADD · 소화 후 수동 해제
+
+  - symbol: APA
+    earn_date: "2026-08-05"
+    no_add: true
+
+  - symbol: SBLK
+    earn_date: "2026-08-05"
+    no_add: true
+
+  - symbol: TVTX
+    earn_date: "2026-08-04"
     no_add: true
