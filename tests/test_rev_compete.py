@@ -30,9 +30,23 @@ def test_pebo_profile_exists():
     assert abs(p["mix_rows"][0]["mix"]["Net Interest Income"] - 76.2) < 0.1
 
 
+def test_sblk_profile_exists():
+    p = get_profile("SBLK")
+    assert p is not None
+    assert any(r.get("subject") for r in p["mix_rows"])
+    assert p["share_rows"][0][0] == "Star Bulk"
+    assert "Cape/Newcastlemax" in p["mix_buckets"]
+    assert abs(p["mix_rows"][0]["mix"]["Cape/Newcastlemax"] - 33.0) < 0.1
+
+
 def test_load_bundle_offline_share(monkeypatch):
     monkeypatch.setattr("sepa.rev_compete._ttm_revenue", lambda _t: None)
     b = load_compete_bundle("RELY")
     assert b is not None
     assert b.share_rows[2].name == "Remitly"
     assert abs(b.share_rows[2].delta_pp - 0.4) < 1e-9
+
+    b2 = load_compete_bundle("SBLK")
+    assert b2 is not None
+    assert b2.share_rows[0].name == "Star Bulk"
+    assert abs(b2.share_rows[0].delta_pp - 2.0) < 1e-9
