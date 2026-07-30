@@ -1,12 +1,10 @@
 """1-year price analysis panels for 수익구조분석() early pages.
 
-Option C (peers excluded):
-  - Daily candles + MA20/60/150/200
-  - Volume
-  - Earnings markers
-  - SPY relative strength
-  - RSI(14)
-  - Swing high/low levels
+Option C (peers excluded), readability-first chart layout:
+  - 1y close **line** + MA20/60/150/200 (not full-year daily candles)
+  - Recent ~90 sessions as candles (detail zoom)
+  - Weekly volume bars
+  - Earnings markers, SPY relative strength, RSI(14), swing highs/lows
   - KPI strip + short auto commentary
 
 Usage::
@@ -303,6 +301,38 @@ def build_commentary(k: PriceKpis, swings_hi, swings_lo) -> list[str]:
     return lines
 
 
+RECENT_CANDLE_DAYS = 90
+
+
+def _draw_candles(ax, df: pd.DataFrame, *, width: float = 0.6) -> None:
+    x = mdates.date2num(df.index.to_pydatetime())
+    for i, (_, row) in enumerate(df.iterrows()):
+        o, h, l, c = float(row.Open), float(row.High), float(row.Low), float(row.Close)
+        col = C_UP if c >= o else C_DN
+        ax.vlines(x[i], l, h, color=col, linewidth=0.8, zorder=2)
+        bottom = min(o, c)
+        height = abs(c - o) or (h - l) * 0.02 or 0.01
+        ax.add_patch(
+            plt.Rectangle(
+                (x[i] - width / 2, bottom), width, height,
+                facecolor=col, edgecolor=col, linewidth=0.35, zorder=3,
+            )
+        )
+    return x
+
+
+def _weekly_volume(px: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate daily volume to weekly bars (Fri). Color by week close vs open."""
+    w = pd.DataFrame(
+        {
+            "Volume": px["Volume"].resample("W-FRI").sum(),
+            "Open": px["Open"].resample("W-FRI").first(),
+            "Close": px["Close"].resample("W-FRI").last(),
+        }
+    ).dropna(subset=["Volume"])
+    return w
+
+
 def chart_candle_volume(
     px: pd.DataFrame,
     past_earnings: list[pd.Timestamp],
@@ -315,64 +345,80 @@ def chart_candle_volume(
     prop,
     prop_b,
 ) -> Path:
-    fig = plt.figure(figsize=(9.4, 5.6))
-    gs = fig.add_gridspec(2, 1, height_ratios=[3.2, 1.0], hspace=0.05)
+    """1y line+MA overview, recent candles zoom, weekly volume."""
+    fig = plt.figure(figsize=(9.4, 7.2))
+    gs = fig.add_gridspec(3, 1, height_ratios=[2.6, 1.6, 0.9], hspace=0.08)
     ax = fig.add_subplot(gs[0])
-    ax_v = fig.add_subplot(gs[1], sharex=ax)
+    ax_c = fig.add_subplot(gs[1])
+    ax_v = fig.add_subplot(gs[2], sharex=ax)
 
     x = mdates.date2num(px.index.to_pydatetime())
-    width = 0.65
-    for i, (dt, row) in enumerate(px.iterrows()):
-        o, h, l, c = float(row.Open), float(row.High), float(row.Low), float(row.Close)
-        col = C_UP if c >= o else C_DN
-        ax.vlines(x[i], l, h, color=col, linewidth=0.7, zorder=2)
-        bottom = min(o, c)
-        height = abs(c - o) or (h - l) * 0.02 or 0.01
-        ax.add_patch(
-            plt.Rectangle((x[i] - width / 2, bottom), width, height, facecolor=col, edgecolor=col, linewidth=0.4, zorder=3)
-        )
+    close = px["Close"].values
+    ax.plot(x, close, color="#0c4a6e", lw=1.6, label="종가", zorder=5)
+    ax.fill_between(x, close, close.min() * 0.995, color="#0c4a6e", alpha=0.08, zorder=0)
 
     for w, col in C_MA.items():
         s = px[f"MA{w}"]
-        ax.plot(x, s.values, color=col, lw=1.15 if w >= 150 else 1.0, label=f"MA{w}", zorder=4)
+        ax.plot(x, s.values, color=col, lw=1.2 if w >= 150 else 1.05, label=f"MA{w}", zorder=4)
 
     for _, price in swings_hi:
-        ax.axhline(price, color=C_SWING_HI, lw=0.8, ls="--", alpha=0.75, zorder=1)
+        ax.axhline(price, color=C_SWING_HI, lw=0.8, ls="--", alpha=0.7, zorder=1)
         ax.text(x[-1], price, f"  H ${price:.2f}", color=C_SWING_HI, fontsize=7, fontproperties=prop, va="bottom")
     for _, price in swings_lo:
-        ax.axhline(price, color=C_SWING_LO, lw=0.8, ls="--", alpha=0.75, zorder=1)
+        ax.axhline(price, color=C_SWING_LO, lw=0.8, ls="--", alpha=0.7, zorder=1)
         ax.text(x[-1], price, f"  L ${price:.2f}", color=C_SWING_LO, fontsize=7, fontproperties=prop, va="top")
 
-    # earnings markers on price pane
     for ed in past_earnings:
         if ed < px.index[0] or ed > px.index[-1]:
             continue
-        # map to nearest session
         loc = px.index.searchsorted(ed)
         if loc >= len(x):
             continue
-        ax.axvline(x[min(loc, len(x) - 1)], color=C_EARN, lw=0.7, alpha=0.55, zorder=1)
+        ax.axvline(x[min(loc, len(x) - 1)], color=C_EARN, lw=0.7, alpha=0.5, zorder=1)
     if past_earnings:
         ax.plot([], [], color=C_EARN, lw=1.2, label="실적일")
 
     ax.set_ylabel("가격 ($)", fontproperties=prop)
-    ax.set_title(f"{ticker} 최근 1년 일봉 · MA20/60/150/200 · 스윙 고저", fontproperties=prop_b, fontsize=11)
+    ax.set_title(
+        f"{ticker} 최근 1년 종가·이평 (일봉 풀캔들 대신 라인) · 스윙 고저",
+        fontproperties=prop_b, fontsize=11,
+    )
     ax.legend(loc="upper left", fontsize=7, prop=prop, ncol=3, framealpha=0.9)
     ax.grid(True, alpha=0.25)
     plt.setp(ax.get_xticklabels(), visible=False)
 
-    # volume
-    vol_colors = []
-    for i, row in px.iterrows():
-        hot = pd.notna(row.VolMA20) and row.Volume > 1.5 * row.VolMA20
-        up = row.Close >= row.Open
-        if hot:
-            vol_colors.append(C_VOL_HOT)
-        else:
-            vol_colors.append(C_UP if up else C_DN)
-    ax_v.bar(x, px["Volume"].values, width=0.7, color=vol_colors, alpha=0.75)
-    ax_v.plot(x, px["VolMA20"].values, color="#334155", lw=0.9, label="Vol MA20")
-    ax_v.set_ylabel("거래량", fontproperties=prop)
+    # --- recent candles (readable zoom) ---
+    recent = px.iloc[-RECENT_CANDLE_DAYS:]
+    _draw_candles(ax_c, recent, width=0.55)
+    xr = mdates.date2num(recent.index.to_pydatetime())
+    for w, col in C_MA.items():
+        ax_c.plot(xr, recent[f"MA{w}"].values, color=col, lw=1.0, alpha=0.95)
+    # shade recent window on overview via vertical span hint
+    ax.axvspan(xr[0], xr[-1], color="#0369a1", alpha=0.06, zorder=0)
+    ax_c.set_ylabel("가격 ($)", fontproperties=prop)
+    ax_c.set_title(
+        f"최근 {len(recent)}거래일 일봉 확대 (단기 진입·손절 감각)",
+        fontproperties=prop_b, fontsize=10,
+    )
+    ax_c.grid(True, alpha=0.25)
+    ax_c.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d"))
+    ax_c.xaxis.set_major_locator(mdates.WeekdayLocator(interval=2))
+    for lbl in ax_c.get_xticklabels():
+        lbl.set_fontproperties(prop)
+        lbl.set_fontsize(7)
+
+    # --- weekly volume ---
+    weekly = _weekly_volume(px)
+    xw = mdates.date2num(weekly.index.to_pydatetime())
+    vol_colors = [
+        C_UP if float(r.Close) >= float(r.Open) else C_DN
+        for _, r in weekly.iterrows()
+    ]
+    ax_v.bar(xw, weekly["Volume"].values, width=4.0, color=vol_colors, alpha=0.75, align="center")
+    # weekly vol MA (~20 weeks ≈ 100 trading days — use 8w for short signal)
+    vol_ma = weekly["Volume"].rolling(8, min_periods=3).mean()
+    ax_v.plot(xw, vol_ma.values, color="#334155", lw=0.95, label="Vol MA8w")
+    ax_v.set_ylabel("주간 거래량", fontproperties=prop)
     ax_v.legend(loc="upper left", fontsize=7, prop=prop)
     ax_v.grid(True, alpha=0.2)
     ax_v.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
@@ -380,7 +426,9 @@ def chart_candle_volume(
     for lbl in ax_v.get_xticklabels():
         lbl.set_fontproperties(prop)
         lbl.set_fontsize(8)
-    ax_v.yaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _: f"{v/1e6:.1f}M" if v >= 1e6 else f"{v/1e3:.0f}K"))
+    ax_v.yaxis.set_major_formatter(
+        mticker.FuncFormatter(lambda v, _: f"{v/1e6:.1f}M" if v >= 1e6 else f"{v/1e3:.0f}K")
+    )
 
     if next_earn is not None:
         fig.text(
@@ -388,7 +436,7 @@ def chart_candle_volume(
             ha="right", fontsize=7, fontproperties=prop, color=C_EARN,
         )
 
-    fig.subplots_adjust(left=0.08, right=0.98, top=0.92, bottom=0.08)
+    fig.subplots_adjust(left=0.08, right=0.98, top=0.94, bottom=0.06)
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=160, bbox_inches="tight", facecolor="white")
     plt.close(fig)
@@ -480,8 +528,8 @@ def render_price_html(
   .px-small {{ font-size:8pt; color:#555; }}
 </style>
 <h2>0-A. 최근 1년 주가 · 기술 위치</h2>
-<div class="px-easy"><b>쉽게:</b> 수익구조를 보기 전에, 차트로 <b>지금 추세·과열·실적 위치</b>를 먼저 확인한다.
-피어 비교는 뒤쪽 경쟁 섹션(있는 경우)에서 다룬다.</div>
+<div class="px-easy"><b>쉽게:</b> 1년 전체는 <b>종가 라인+이평</b>으로 추세를 보고,
+최근 ~90일은 <b>일봉 확대</b>로 단기 모양을 본다. (1년 풀 캔들은 너무 빽빽해서 쓰지 않음)</div>
 <p>
   <span class="px-kpi"><div class="l">현재가</div><div class="v">${k.last:.2f}</div><div class="s">1Y {k.ticker_1y_pct:+.1f}%</div></span>
   <span class="px-kpi"><div class="l">고점 대비</div><div class="v">{k.pct_from_high:+.1f}%</div><div class="s">저점 +{k.pct_from_low:.1f}%</div></span>
@@ -489,17 +537,19 @@ def render_price_html(
   <span class="px-kpi"><div class="l">RSI(14)</div><div class="v">{k.rsi:.0f}</div><div class="s">상대 SPY {k.rel_spy_1y_pct:+.1f}%p</div></span>
   <span class="px-kpi"><div class="l">다음 실적</div><div class="v" style="font-size:10pt">{earn}</div><div class="s">추정</div></span>
 </p>
-{_fig_block(candle, f"{ticker} 일봉 + MA + 스윙 고저 + 거래량 + 실적 마커")}
+{_fig_block(candle, f"{ticker} 1년 종가·이평 + 최근 90일 일봉 확대 + 주간 거래량")}
 {_fig_block(momentum, f"{ticker} RSI(14) · SPY 대비 1년 누적 수익률")}
 <div class="px-box"><b>차트 자동 해석</b><ul style="margin:6px 0 0 16px">{comment_lis}</ul></div>
 <div class="px-gloss"><div style="font-weight:700;color:#0c4a6e;margin-bottom:4px">이 블록 용어 주석</div>
 <ul>
-<li><span class="term">MA20/60/150/200</span> — 20·60·150·200일 이동평균. 단기→장기 추세.</li>
+<li><span class="term">1년 종가 라인</span> — 풀 일봉 대신 추세·이평 위치 가독성 우선.</li>
+<li><span class="term">최근 90일 일봉</span> — 단기 고저·캔들 패턴 확인용 확대 창.</li>
+<li><span class="term">MA20/60/150/200</span> — 일 기준 이동평균. 단기→장기 추세.</li>
 <li><span class="term">RSI(14)</span> — 상대강도지수. 보통 70↑ 과열, 30↓ 과매도 참고.</li>
 <li><span class="term">스윙 고저</span> — 최근 국소 고점·저점. 저항·지지 후보(확정 아님).</li>
 <li><span class="term">상대강도 vs SPY</span> — 같은 기간 시장 대비 초과/미달 수익.</li>
 </ul></div>
-<p class="px-small">데이터: yfinance 일봉(adjusted) · 실적일은 calendar/earnings_dates 추정 · 투자 권유 아님.</p>
+<p class="px-small">데이터: yfinance 일봉(adjusted) · 거래량은 주간 합산 · 실적일은 calendar/earnings_dates 추정 · 투자 권유 아님.</p>
 """
 
 def build_price_analysis(ticker: str, chart_dir: str | Path) -> PriceSection:
