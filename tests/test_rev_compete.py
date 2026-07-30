@@ -16,10 +16,16 @@ def test_share_delta_pp():
     assert r.delta_pp == -2.0
 
 
+def test_rely_profile_exists():
+    p = get_profile("RELY")
+    assert p is not None
+    assert any(r.get("subject") for r in p["mix_rows"])
+    assert p["share_rows"][2][0] == "Remitly"
+
+
 def test_load_bundle_offline_share(monkeypatch):
-    # skip yfinance by returning None
     monkeypatch.setattr("sepa.rev_compete._ttm_revenue", lambda _t: None)
-    b = load_compete_bundle("ROKU")
+    b = load_compete_bundle("RELY")
     assert b is not None
-    assert b.share_rows[0].name == "Roku"
-    assert abs(b.share_rows[0].delta_pp - (-2.0)) < 1e-9
+    assert b.share_rows[2].name == "Remitly"
+    assert abs(b.share_rows[2].delta_pp - 0.4) < 1e-9
