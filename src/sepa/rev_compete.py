@@ -149,6 +149,63 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "RELY Growth Accelerators(고액송금·비즈니스·리시버 등)~5%를 Business/Platform에 배치."
         ),
     },
+    "PEBO": {
+        "sector_ko": "금융·지역은행 (심층: 오하이오 커뮤니티뱅크)",
+        "share_title": "오하이오·인접 지역은행 예금 점유 (추정)",
+        "share_as_of": "2026 est. vs 2025 est. · 방향 비교용",
+        "share_note": (
+            "오하이오+인접 예금 시장 추정 점유율. 대형(HBAN/FITB/KEY)과 커뮤니티(PEBO/WSBC)를 한 차트에 둔 "
+            "상대 위치용. 절대치보다 Δpp·순위 감각이 목적."
+        ),
+        "share_rows": [
+            ("Huntington", 15.2, 15.0),
+            ("Fifth Third", 10.8, 11.0),
+            ("KeyCorp", 7.3, 7.5),
+            ("WesBanco", 2.9, 2.8),
+            ("Peoples", 1.6, 1.5),
+        ],
+        "share_source": "Directional OH+contiguous deposit-share estimates (community/regional set)",
+        "mix_buckets": ["Net Interest Income", "Fee Income", "Other/Gains"],
+        "mix_as_of": "Q2'26 (또는 최근 분기 근사)",
+        "mix_rows": [
+            {
+                "key": "PEBO",
+                "name": "PEBO",
+                "subject": True,
+                "yf": "PEBO",
+                "mix": {"Net Interest Income": 76.2, "Fee Income": 23.8, "Other/Gains": 0.0},
+                "note": "NII $92.7M + Fee ex G/L $29.0M (증권매각손실은 제외 정의)",
+            },
+            {
+                "key": "HBAN",
+                "name": "HBAN",
+                "subject": False,
+                "yf": "HBAN",
+                "mix": {"Net Interest Income": 72.0, "Fee Income": 26.0, "Other/Gains": 2.0},
+                "note": "대형 지역은행 · 수수료 다각화 근사",
+            },
+            {
+                "key": "FITB",
+                "name": "FITB",
+                "subject": False,
+                "yf": "FITB",
+                "mix": {"Net Interest Income": 70.0, "Fee Income": 28.0, "Other/Gains": 2.0},
+                "note": "대형 지역은행 · 카드·WM 수수료 비중 상대 큼(근사)",
+            },
+            {
+                "key": "WSBC",
+                "name": "WSBC",
+                "subject": False,
+                "yf": "WSBC",
+                "mix": {"Net Interest Income": 78.0, "Fee Income": 21.0, "Other/Gains": 1.0},
+                "note": "중형 커뮤니티 · NII 편중 유사",
+            },
+        ],
+        "mix_note": (
+            "버킷은 NII / Fee(ex gains) / Other·Gains로 정규화. "
+            "PEBO Q2는 AFS 매각손실($8.2M)이 GAAP 비이자에 잡히나, 운영 믹스는 Fee ex G/L 기준으로 표시."
+        ),
+    },
 }
 
 
@@ -255,6 +312,7 @@ def chart_share_level(bundle: CompeteBundle, out: Path, *, prop, prop_b) -> Path
             n.upper() == bundle.ticker
             or ("Roku" in n and bundle.ticker == "ROKU")
             or ("Remitly" in n and bundle.ticker == "RELY")
+            or ("Peoples" in n and bundle.ticker == "PEBO")
         )
         colors.append(("#6c2bd9" if bundle.ticker == "ROKU" else "#0ea5e9") if hit else "#64748b")
     bars = ax.barh(names[::-1], vals[::-1], color=colors[::-1], height=0.55)
