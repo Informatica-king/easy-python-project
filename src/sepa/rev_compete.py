@@ -206,6 +206,64 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "PEBO Q2는 AFS 매각손실($8.2M)이 GAAP 비이자에 잡히나, 운영 믹스는 Fee ex G/L 기준으로 표시."
         ),
     },
+    "SBLK": {
+        "sector_ko": "산업·해운 건화물 (심층: Dry Bulk)",
+        "share_title": "상장 건화물 피어셋 DWT·스케일 점유 (추정)",
+        "share_as_of": "2026 · fully-delivered 기준 근사",
+        "share_note": (
+            "미국·유럽 상장 순수 건화물 피어 대비 상대 스케일. "
+            "SBLK는 fully delivered ~141척·14.0M dwt로 피어셋 내 최대급. "
+            "절대 글로벌 해운 점유와 다름 — 상장 피어 비교용."
+        ),
+        "share_rows": [
+            ("Star Bulk", 32.0, 30.0),
+            ("Genco", 14.0, 14.5),
+            ("Safe Bulkers", 9.0, 9.5),
+            ("Diana Shipping", 7.0, 8.0),
+            ("Others (listed)", 38.0, 38.0),
+        ],
+        "share_source": "Directional share of selected US-listed dry-bulk peer DWT/scale (est.)",
+        "mix_buckets": ["Cape/Newcastlemax", "Panamax/Kamsarmax", "Ultramax/Supramax"],
+        "mix_as_of": "Q1'26 revenue contribution",
+        "mix_rows": [
+            {
+                "key": "SBLK",
+                "name": "SBLK",
+                "subject": True,
+                "yf": "SBLK",
+                "mix": {"Cape/Newcastlemax": 33.0, "Panamax/Kamsarmax": 29.0, "Ultramax/Supramax": 38.0},
+                "note": "Q1'26 rev mix · TCE Cape $26.6k / Panamax $15.8k / Ultra $16.1k",
+            },
+            {
+                "key": "GNK",
+                "name": "GNK",
+                "subject": False,
+                "yf": "GNK",
+                "mix": {"Cape/Newcastlemax": 22.0, "Panamax/Kamsarmax": 40.0, "Ultramax/Supramax": 38.0},
+                "note": "중형 편중 근사 (공개 세그먼트 혼합)",
+            },
+            {
+                "key": "SB",
+                "name": "SB",
+                "subject": False,
+                "yf": "SB",
+                "mix": {"Cape/Newcastlemax": 15.0, "Panamax/Kamsarmax": 45.0, "Ultramax/Supramax": 40.0},
+                "note": "Panamax·Handy 성격 강 (근사)",
+            },
+            {
+                "key": "DSX",
+                "name": "DSX",
+                "subject": False,
+                "yf": "DSX",
+                "mix": {"Cape/Newcastlemax": 25.0, "Panamax/Kamsarmax": 35.0, "Ultramax/Supramax": 40.0},
+                "note": "다변화 선대 · 소형 시총 (근사)",
+            },
+        ],
+        "mix_note": (
+            "버킷은 선급(Cape / Panamax / Ultramax) 매출 기여로 정규화. "
+            "피어는 공시 포맷이 달라 근사 — 방향 비교용."
+        ),
+    },
 }
 
 
@@ -313,6 +371,7 @@ def chart_share_level(bundle: CompeteBundle, out: Path, *, prop, prop_b) -> Path
             or ("Roku" in n and bundle.ticker == "ROKU")
             or ("Remitly" in n and bundle.ticker == "RELY")
             or ("Peoples" in n and bundle.ticker == "PEBO")
+            or ("Star Bulk" in n and bundle.ticker == "SBLK")
         )
         colors.append(("#6c2bd9" if bundle.ticker == "ROKU" else "#0ea5e9") if hit else "#64748b")
     bars = ax.barh(names[::-1], vals[::-1], color=colors[::-1], height=0.55)
