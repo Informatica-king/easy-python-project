@@ -65,8 +65,16 @@ tickers:
 
   - symbol: RELY
     earn_date: "2026-08-05"
-    no_add: true
+    no_add: true          # 실적 전 NO_ADD · 소화 후 수동 해제
 
   - symbol: APA
     earn_date: "2026-08-05"
+    no_add: true
+
+  - symbol: SBLK
+    earn_date: "2026-08-05"
+    no_add: true
+
+  - symbol: TVTX
+    earn_date: "2026-08-04"
     no_add: true

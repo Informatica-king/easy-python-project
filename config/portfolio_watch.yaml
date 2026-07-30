@@ -235,34 +235,94 @@ exited:
     exit_as_of: "2026-07-24"
     note: "전량매도 · CRDO 회전"
 
+# 매수 워치 (심층 2026-07-30 + TA) — 지금은 관망, 눌림·실적소화 후 위성만
+buy_watch_priority:
+  - ticker: RELY
+    tier: 1
+    chase: "상·08-05"
+    ta: "분할OK · entry 22.69–23.39 · stop 21.41"
+    sleeve: satellite
+    size_usd_max: 70
+    gate: "08-05 실적·가이던스 소화 후 · 밴드 재진입만 · 추격 금지"
+  - ticker: APA
+    tier: 1
+    chase: "중상·08-05"
+    ta: "대기 · entry 34.37–35.39 · stop 34.14"
+    sleeve: satellite
+    size_usd_max: 70
+    gate: "고점 아님(near~0.80) · 눌림+실적 후 · 에너지 베타 한도"
+  - ticker: SBLK
+    tier: 2
+    chase: "중상"
+    ta: "대기 · entry 26.22–26.95 · stop 25.41"
+    sleeve: satellite
+    size_usd_max: 65
+    gate: "near 0.96 고점권 · 반드시 눌림 후"
+  - ticker: ALKS
+    tier: 2
+    chase: "중·워치(#1)"
+    ta: "대기·약 · reclaim 50.36–51.92 필요"
+    sleeve: satellite_or_core_later
+    size_usd_max: 70
+    gate: "TA 약세 · $50+ 재탈환 전 매수 금지"
+  - ticker: TVTX
+    tier: 3
+    chase: "중상"
+    ta: "EARN_D5(~08-04) · entry 54.81–56.81"
+    sleeve: satellite
+    size_usd_max: 60
+    gate: "실적창 종료+소화 후 · 바이오 변동 허용 시만"
+
+buy_watch_exclude:
+  - "ECPG/AMRX/NESR/SCHD — 보유·과비중·NO_ADD"
+  - "LASR — 무효이탈 · 추가금지"
+  - "MU/CRDO/NEO — 청산 · 재진입 금지"
+  - "ROKU — 1주가 코어급 · 08-06 · 고점 · 코어 금지"
+  - "HST — 업사이드 음수·고점근접 0.99"
+  - "RAPP — 바이너리 · NO_ADD"
+  - "INDV — 기청산 · EARN_D5"
+  - "TXG/FTNT/CBRL/CRSR/LQDA 등 과열·하향"
+  - "VCYT/ADPT/LAUR — 실적 당일·직후 갭베팅 금지"
+
 watchlist:
-  - ticker: NEO
+  - ticker: RELY
     role: watch
-    note: "손절 후 워치 · 재진입 금지"
-  - ticker: MU
+    priority: 1
+    note: "1순위 위성 · 상·08-05 · TA분할OK · 실적 후 눌림만"
+  - ticker: APA
     role: watch
-    note: "청산 완료 · 추격 재매수 금지"
-  - ticker: CRDO
+    priority: 1
+    note: "1순위 위성 · 중상·08-05 · near여유 · 눌림 대기"
+  - ticker: SBLK
     role: watch
-    note: "청산 완료 · 추격 재매수 금지"
-  - ticker: ROKU
-    role: watch
-    note: "상·08-06 · NO_ADD · 코어 아님"
-  - ticker: RAPP
-    role: watch
-    note: "임상 위성 · 극소"
+    priority: 2
+    note: "2순위 · 중상 · 고점근접 → 눌림 필수"
   - ticker: ALKS
     role: watch
-    note: "워치"
+    priority: 2
+    note: "Chase#1이나 TA약 · $50 재탈환 전 금지"
+  - ticker: TVTX
+    role: watch
+    priority: 3
+    note: "중상 · EARN_D5 후 위성"
+  - ticker: ROKU
+    role: watch
+    note: "상·08-06 · 관망만 · 소액북 코어 금지"
+  - ticker: RAPP
+    role: watch
+    note: "임상 바이너리 · NO_ADD"
+  - ticker: INDV
+    role: watch
+    note: "청산 후 워치 · 급재진입 금지"
+  - ticker: NEO
+    role: watch
+    note: "손절 후 · 재진입 금지"
+  - ticker: MU
+    role: watch
+    note: "청산 · 재진입 금지"
+  - ticker: CRDO
+    role: watch
+    note: "청산 · 재진입 금지"
   - ticker: SLS
     role: watch
     note: "바이너리 · 코어금지"
-  - ticker: INDV
-    role: watch
-    note: "청산 후 워치"
-  - ticker: APA
-    role: watch
-    note: "중상·08-05 · 위성 후보만"
-  - ticker: RELY
-    role: watch
-    note: "상·08-05 · 위성·눌림"
