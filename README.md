@@ -1,1 +1,111 @@
-# easy-python-project
+# SEPA Screener — Minervini Stage 2 + VCP
+
+마크 미너비니의 SEPA 전략을 정량화한 나스닥 종목 분석 도구입니다.
+자동 매매가 아닌 **추천 전용**이며, 최종 판단은 사용자가 직접 합니다.
+(개인 투자 참고용 · 비상업)
+
+두 개의 독립 도구로 구성됩니다.
+
+1. **Stage 2 스크리너**: Trend Template 8조건을 통과한 상승 추세 기업을
+   "회사명-티커" 리스트로 출력 → 사용자가 펀더멘털을 직접 검토·순위화
+2. **VCP 타이밍**: 검토를 마친 상위권 shortlist에 대해서만 VCP(변동성 수축
+   패턴) 셋업과 피벗 돌파 타이밍을 계산
+3. **TA 봇** (`!sepa.ta` / **`기술적분석()`**): 보유·관심 **≤20종목**만 4축 스코어 —
+   전종목 스캔 금지, parquet 캐시 재사용, 차트 기본 OFF.
+   `심층분석` 후 Chase RR 자동 선정은 `docs/korean_commands.md` 참조.
+
+## 설치
+
+```bash
+python -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/pip install -e .
+```
+
+## 사용법
+
+### 매크로 콘솔 (가장 간단한 방법)
+
+`sepa` 명령으로 대화형 콘솔을 열고 `!명령어` 형식으로 모든 도구를 실행할 수
+있습니다. 인자는 따옴표 없이도 되고, 티커 대신 **기업 이름**도 인식합니다.
+
+```bash
+$ sepa
+sepa> !tools                        # 도구 목록과 사용법
+sepa> !sepa.screener(full)          # 나스닥 전 종목 Stage 2 스크리닝
+sepa> !sepa.vcp("NVDA,MSFT")        # shortlist VCP 타이밍
+sepa> !sepa.ta("ECPG,NESR")         # TA 4축 (워치리스트≤20)
+sepa> !sepa.ta(watchlist, no_update=1)
+sepa> !sepa.chart(sandisk)          # 기업 이름으로 SEPA 분석 차트
+sepa> !sepa.update()                # 전 종목 데이터만 증분 업데이트
+sepa> !exit
+
+$ sepa '!sepa.chart("SNDK")'        # 일회성 실행도 지원
+```
+
+### TA 봇 (연산량 최소화)
+
+```bash
+python -m sepa.ta_bot --tickers ECPG,ASTH,NESR,NEO --no-update
+python -m sepa.ta_bot --watchlist
+```
+
+전종목 TA는 거부합니다. 스펙: `docs/ta_bot_spec.md`.
+### 1단계 — Stage 2 스크리닝
+
+```bash
+python -m sepa.screener                                   # 파일럿 유니버스(10종목)
+python -m sepa.screener --full                            # 나스닥 전 종목 (ETF 제외, ~3,300개)
+python -m sepa.screener --universe config/universe.yaml   # 유니버스 파일 지정
+python -m sepa.screener --as-of 2025-02-18                # 과거 시점 기준 (검증용)
+python -m sepa.screener --no-update                       # 캐시만 사용
+```
+
+`--full`은 Nasdaq Trader 심볼 파일에서 전 종목을 받아 청크 배치로 수집한 뒤
+(최초 약 3분, 이후 증분 업데이트), 유동성 필터(주가 $10 이상 · 50일 평균
+거래대금 $10M 이상, `config/params.yaml`의 `universe_filter`)를 거쳐
+스크리닝합니다.
+
+출력: "회사명-티커" 리스트(RS 순위 내림차순) + `reports/stage2_YYYYMMDD.csv`,
+`reports/diagnostics_YYYYMMDD.csv`(전 종목 조건별 진단).
+
+### 2단계 — shortlist VCP 타이밍
+
+```bash
+python -m sepa.vcp_timing --tickers NVDA,MSFT,AVGO
+python -m sepa.vcp_timing --tickers-file shortlist.txt --as-of 2025-02-18
+```
+
+출력: 종목별 시그널 테이블 + `reports/vcp_YYYYMMDD.csv`.
+
+| 시그널 | 의미 |
+|---|---|
+| `BREAKOUT` | 피벗을 평균 1.5배 이상 거래량으로 돌파 — 진입 후보 |
+| `WATCHLIST` | 셋업 완성, 피벗 근접 — 돌파 감시 |
+| `FORMING` | 수축 구조는 유효하나 아직 피벗에서 먼 상태 |
+| `EXTENDED` | 피벗 돌파 후 5% 초과 이격 — 추격 금지 |
+| `NONE` | 유효한 VCP 셋업 없음 (`note`에 사유) |
+
+## 구조
+
+```
+config/          # 파라미터(params.yaml)·유니버스(universe.yaml)
+src/sepa/
+  data/          # 데이터 수집 (yfinance→Stooq 폴백, Parquet 캐시, 나스닥 유니버스·회사명)
+  indicators.py  # SMA, 52주 고저, RS 순위
+  trend_template.py  # Stage 2 판별 (8조건)
+  screener.py    # [도구 1] Stage 2 스크리너 — "회사명-티커" 리스트
+  vcp.py         # VCP 탐지기 (ZigZag 수축 분석 + 거래량 고갈)
+  vcp_timing.py  # [도구 2] shortlist VCP 진입 타이밍
+docs/            # 개발 노트, 전략 명세서
+tests/           # 단위 테스트 (합성 데이터 기반)
+```
+
+전략 정의와 파라미터 의미는 `docs/strategy_spec.md`, 개발 로드맵은
+`docs/DEVELOPMENT_NOTE.md`를 참고하세요.
+
+## 테스트
+
+```bash
+.venv/bin/python -m pytest tests/
+```

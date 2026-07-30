@@ -1,0 +1,60 @@
+# SEPA 스크리너 파라미터 (docs/strategy_spec.md 참조)
+# 현재 값 = 권장 기본값 (2026-07-15 사용자 승인). Phase 5 백테스트에서 조정 예정.
+
+data:
+  lookback_years: 3        # 최초 수집 기간 (200일 SMA 웜업 + 여유)
+  cache_dir: data/raw
+  min_history_days: 280    # 이보다 짧은 종목은 스크리닝 제외 (252일 지표 + trend_days)
+
+universe_filter:            # 스크리닝 전 유동성 필터 (전 종목 실행용)
+  min_price: 10.0           # 저가주 제외 (미너비니는 저가주 회피)
+  min_avg_dollar_volume: 10000000  # 50일 평균 거래대금 $10M 이상
+
+trend_template:
+  sma_short: 50
+  sma_mid: 150
+  sma_long: 200
+  trend_days: 21           # 200일 SMA 상승 판정 기간 (거래일)
+  low_52w_min_pct: 0.30    # 52주 저점 대비 최소 +30%
+  high_52w_max_pct: 0.25   # 52주 고점 대비 -25% 이내
+  rs_enabled: true
+  rs_rank_min: 80          # RS 백분위 순위 하한
+
+vcp:
+  base_min_weeks: 5
+  base_max_weeks: 26
+  max_base_depth: 0.35     # 베이스 전체 최대 낙폭
+  swing_threshold: 0.03    # ZigZag 스윙 인정 최소 반전폭
+  min_contractions: 2
+  max_contractions: 6
+  contraction_decay: 0.75  # 각 수축 깊이 <= 직전 수축 x 0.75
+  contraction_min_retrace: 0.5  # 직전 하락폭의 50% 이상 반등해야 별개 수축으로 인정 (노이즈 병합)
+  final_contraction_max: 0.10
+  dryup_days: 5
+  dryup_ratio: 0.6         # 최근 평균 거래량 <= 50일 평균 x 0.6
+  pivot_buffer: 0.001      # 돌파 인정 여유폭 (+0.1%)
+  breakout_vol_mult: 1.5   # 돌파일 거래량 >= 50일 평균 x 1.5
+  watch_zone_pct: 0.05     # 피벗 아래 5% 이내면 WATCHLIST
+  max_extension: 0.05      # 피벗 위 5% 초과면 EXTENDED (추격 금지)
+
+fundamental:                 # docs/fundamental_spec.md (2026-07-19 연구 반영)
+  rs_min: 80                 # Stage 2 중 RS 이 값 이상만 펀더멘털 채점
+  eps_surprise: 47           # S — EPS 컨센서스 surprise
+  eps_dyoy: 14               # B — EPS YoY 가속도 (ΔYoY)
+  sales_dyoy: 14             # D — 매출 YoY 가속도 (ΔYoY)
+  opm_delta: 25              # E — 영업이익률 YoY 변화 (없으면 NPM)
+  # phase-1 제외 (연구: 수준 YoY·ROE 설명력 약함)
+  eps_yoy: 0
+  sales_yoy: 0
+  roe: 0
+  roe_target: 0.17
+
+report:
+  output_dir: reports
+
+# TA bot (docs/ta_bot_spec.md) — shortlist only; not loaded into Params dataclass yet.
+# CLI defaults: tail_bars=280, max_tickers=20, watchlist=config/ta_watchlist.yaml
+ta:
+  max_tickers: 20
+  tail_bars: 280
+  watchlist: config/ta_watchlist.yaml
