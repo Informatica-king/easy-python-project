@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""NASDAQ 심층분석 PDF — 2026-07-31 (53종목 · 매수시나리오 점검) + Chase 스냅샷 + 기술적분석 훅."""
+"""NASDAQ 심층분석 PDF — 2026-07-31 (53종목 · 매수시나리오 A′ 점검) + Chase 스냅샷 + 기술적분석 훅."""
 
 from __future__ import annotations
 
@@ -135,7 +135,7 @@ LABEL_OVERRIDE = {
     "PLPC": "중",
     "BUSE": "중",
     "EXEL": "중·고점주의",
-    "TFSL": "중하·실적직후",
+    "TFSL": "중·A′후보·실적직후주의",
 }
 
 # One-line+ Chase detail (표시용). 짧은 라벨(chase)은 TA 선정용으로 유지.
@@ -405,11 +405,15 @@ def ticker_section(q: dict) -> str:
     """
 
 
+
 def load_buy_scenarios() -> list[dict]:
     p = Path("/workspace/reports/buy_scenarios_20260731.json")
     if not p.exists():
         return []
-    return json.loads(p.read_text(encoding="utf-8"))
+    raw = json.loads(p.read_text(encoding="utf-8"))
+    if isinstance(raw, dict):
+        return list(raw.get("rows") or [])
+    return list(raw)
 
 
 def buy_scenario_section(scenarios: list[dict]) -> str:
@@ -417,19 +421,26 @@ def buy_scenario_section(scenarios: list[dict]) -> str:
     b = [s for s in scenarios if s.get("scenario") == "B"]
     soft = [s for s in scenarios if s.get("scenario") == "SOFT"]
     if a or b:
+        names_a = ", ".join(s.get("t", "") for s in a) or "—"
+        names_b = ", ".join(s.get("t", "") for s in b) or "—"
         head = (
             f"<div class='portfolio-box' style='border-color:#166534;background:#ecfdf5'>"
-            f"<b>매수 시나리오 해당</b> — A {len(a)}건 · B {len(b)}건 (적극 고지)</div>"
+            f"<b>매수 시나리오 해당 (A′ 게이트)</b> — A {len(a)}건 ({esc(names_a)}) · "
+            f"B {len(b)}건 ({esc(names_b)}) (적극 고지)</div>"
         )
     else:
         head = (
             "<div class='portfolio-box' style='border-color:#9f1239;background:#fff1f2'>"
-            "<b>매수 시나리오 A/B: 0건</b> — 오늘은 신규 분할 진입 시그널 없음. "
-            "이평·스윙L·RSI·거래량·EARN_D5 조건을 동시에 충족한 종목 없음. "
-            "SOFT(근접)만 참고 · 추격 매수 비추.</div>"
+            "<b>매수 시나리오 A′/B: 0건</b> — RS≥70용 얕은 눌림·돌파 조건 미충족. "
+            "SOFT만 참고 · 추격 매수 비추.</div>"
         )
     rows = []
     for s in a + b + soft:
+        note = s.get("caution") or (
+            "MA20근처" if s.get("near_ma20") else ("스윙L" if s.get("near_l") else "")
+        )
+        if s.get("above200") and s.get("align"):
+            note = (note + " · " if note else "") + "정배열"
         rows.append(
             "<tr>"
             f"<td><b>{esc(s.get('scenario'))}</b></td>"
@@ -437,24 +448,26 @@ def buy_scenario_section(scenarios: list[dict]) -> str:
             f"<td>{fmt_usd_price(s.get('last') or s.get('px'))}</td>"
             f"<td>{s.get('rsi', 0):.0f}</td>"
             f"<td>{s.get('pct_hi', 0)*100:+.1f}%</td>"
-            f"<td>{'Y' if s.get('near_l') else '—'}</td>"
+            f"<td>{'Y' if s.get('near_l') or s.get('near_ma20') else '—'}</td>"
             f"<td>{'Y' if s.get('breakout') else '—'}</td>"
             f"<td>D{s.get('edays')}</td>"
-            f"<td class='small'>{'MA200위·정배열' if s.get('above200') and s.get('align') else '조건부분'}</td>"
+            f"<td class='small'>{esc(note or '—')}</td>"
             "</tr>"
         )
     table = ""
     if rows:
         table = (
             "<table><tr><th>유형</th><th>티커</th><th>가격</th><th>RSI</th>"
-            "<th>고점대비</th><th>nearL</th><th>돌파</th><th>실적</th><th>메모</th></tr>"
+            "<th>고점대비</th><th>지지</th><th>돌파</th><th>실적</th><th>메모</th></tr>"
             + "".join(rows) + "</table>"
         )
     gloss = (
-        "<p class='small'>A=눌림매수(이평정배열+스윙L근처+RSI35–58+고점아님+거래량OK+실적D−5밖). "
-        "B=돌파매수(거래량급증+RSI&lt;70+실적창밖). SOFT=방향만 근접·진입 미충족.</p>"
+        "<p class='small'>A′=RS≥70용 얕은 눌림(MA200위+정배열+(MA20|스윙L)+RSI42–62+고점−1%~−8%+거래량OK+실적D−5밖). "
+        "B=돌파(거래량급증+RSI&lt;70+실적창밖; RSI≥68 주의). SOFT=A′ 근접.</p>"
     )
-    return f"<h2>0. 매수 시나리오 점검 (적극 고지)</h2>{head}{table}{gloss}"
+    return f"<h2>0. 매수 시나리오 점검 A′ (적극 고지)</h2>{head}{table}{gloss}"
+
+
 
 
 def main() -> None:
@@ -528,7 +541,7 @@ def main() -> None:
         LASR: 회복 보유 · 새 무효화(스윙L/MA20) 재설정<br/>
         보유 실적창: RELY·ECPG 08-05 — 추가금지 · ENLT 아님<br/>
         08-04 INDV · 08-05 HST/APA/SBLK · 08-06 ROKU/RAPP/TXG/PGNY — EARN_D5<br/>
-        B고지: ADPT·SHOO·PAGP — 고점/실적직후라 소액·후순위
+        A′고지: TFSL · B주의: ADPT·SHOO·PAGP(고점/RSI)
       </div>
     </section>
     {buy_scenario_section(scenarios)}
