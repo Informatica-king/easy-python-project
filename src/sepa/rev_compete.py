@@ -264,6 +264,63 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "피어는 공시 포맷이 달라 근사 — 방향 비교용."
         ),
     },
+    "CLMT": {
+        "sector_ko": "소재·특수석유제품 / 재생연료 (심층: Specialty + Renewables)",
+        "share_title": "특수제품·재생연료 상장 피어셋 스케일 점유 (추정)",
+        "share_as_of": "2026 · TTM 매출/스케일 근사",
+        "share_note": (
+            "특수 윤활·용제·왁스 + 재생디젤/SAF 성격의 상장 피어 대비 상대 스케일. "
+            "절대 시장점유가 아님 — 피어셋 비교용."
+        ),
+        "share_rows": [
+            ("PBF Energy", 28.0, 27.0),
+            ("HF Sinclair", 22.0, 22.5),
+            ("Calumet", 14.0, 12.0),
+            ("Green Plains", 9.0, 10.0),
+            ("Others (listed)", 27.0, 28.5),
+        ],
+        "share_source": "Directional share of selected US-listed specialty/renewables-adjacent peers (est.)",
+        "mix_buckets": ["Specialty Products", "Montana/Renewables", "Performance Brands"],
+        "mix_as_of": "Q1'26 sales mix (SPS disclosed; PB/MR approx)",
+        "mix_rows": [
+            {
+                "key": "CLMT",
+                "name": "CLMT",
+                "subject": True,
+                "yf": "CLMT",
+                "mix": {"Specialty Products": 68.5, "Montana/Renewables": 25.0, "Performance Brands": 6.5},
+                "note": "SPS sales $705M / total $1.03B · Adj EBITDA+TaxAttr $50.1M",
+            },
+            {
+                "key": "PBF",
+                "name": "PBF",
+                "subject": False,
+                "yf": "PBF",
+                "mix": {"Specialty Products": 15.0, "Montana/Renewables": 75.0, "Performance Brands": 10.0},
+                "note": "정유·연료 중심 근사 (재생 일부)",
+            },
+            {
+                "key": "DINO",
+                "name": "DINO",
+                "subject": False,
+                "yf": "DINO",
+                "mix": {"Specialty Products": 20.0, "Montana/Renewables": 70.0, "Performance Brands": 10.0},
+                "note": "정유·윤활 혼합 근사",
+            },
+            {
+                "key": "GPRE",
+                "name": "GPRE",
+                "subject": False,
+                "yf": "GPRE",
+                "mix": {"Specialty Products": 10.0, "Montana/Renewables": 85.0, "Performance Brands": 5.0},
+                "note": "바이오연료/에탄올 편중 근사",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Specialty Products / Montana·Renewables / Performance Brands로 정규화. "
+            "피어는 공시 세그먼트가 달라 근사 — 방향 비교용."
+        ),
+    },
 }
 
 
@@ -372,6 +429,7 @@ def chart_share_level(bundle: CompeteBundle, out: Path, *, prop, prop_b) -> Path
             or ("Remitly" in n and bundle.ticker == "RELY")
             or ("Peoples" in n and bundle.ticker == "PEBO")
             or ("Star Bulk" in n and bundle.ticker == "SBLK")
+            or ("Calumet" in n and bundle.ticker == "CLMT")
         )
         colors.append(("#6c2bd9" if bundle.ticker == "ROKU" else "#0ea5e9") if hit else "#64748b")
     bars = ax.barh(names[::-1], vals[::-1], color=colors[::-1], height=0.55)
