@@ -445,6 +445,63 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "ACHC Q2'26 공시 라인 합산. 피어는 공시 세그먼트가 달라 근사."
         ),
     },
+    "NESR": {
+        "sector_ko": "에너지·오일필드 서비스 (심층: MENA OFS)",
+        "share_title": "상장 OFS 피어셋 스케일 점유 (추정)",
+        "share_as_of": "2026 · TTM/스케일 근사 vs 전년",
+        "share_note": (
+            "글로벌·MENA OFS 상장 피어셋 상대 스케일. "
+            "SLB/HAL/BKR는 글로벌 메이저라 NESR MENA 현지 점유와 다름 — 방향 비교용."
+        ),
+        "share_rows": [
+            ("SLB", 38.0, 38.5),
+            ("Halliburton", 24.0, 24.5),
+            ("Baker Hughes", 20.0, 19.5),
+            ("NESR", 8.0, 6.5),
+            ("Others (listed)", 10.0, 11.0),
+        ],
+        "share_source": "Directional share of selected US-listed OFS peers by scale (est.)",
+        "mix_buckets": ["Production Services", "Drilling & Evaluation", "Other"],
+        "mix_as_of": "Q1'26 (또는 최근 공시 근사)",
+        "mix_rows": [
+            {
+                "key": "NESR",
+                "name": "NESR",
+                "subject": True,
+                "yf": "NESR",
+                "mix": {"Production Services": 60.0, "Drilling & Evaluation": 40.0, "Other": 0.0},
+                "note": "Q1'26 Prod ~$241M / D&E ~$164M · MENA ~99.6%",
+            },
+            {
+                "key": "SLB",
+                "name": "SLB",
+                "subject": False,
+                "yf": "SLB",
+                "mix": {"Production Services": 35.0, "Drilling & Evaluation": 45.0, "Other": 20.0},
+                "note": "글로벌 · 디지털/장비 포함 근사",
+            },
+            {
+                "key": "HAL",
+                "name": "HAL",
+                "subject": False,
+                "yf": "HAL",
+                "mix": {"Production Services": 55.0, "Drilling & Evaluation": 35.0, "Other": 10.0},
+                "note": "Completion/Production 강세 근사",
+            },
+            {
+                "key": "BKR",
+                "name": "BKR",
+                "subject": False,
+                "yf": "BKR",
+                "mix": {"Production Services": 40.0, "Drilling & Evaluation": 35.0, "Other": 25.0},
+                "note": "OFSE+산업/에너지기술 혼합 근사",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Production / Drilling&Evaluation / Other로 정규화. "
+            "NESR는 MENA 생산서비스 편중. 피어는 공시 세그먼트가 달라 근사."
+        ),
+    },
 }
 
 
@@ -556,6 +613,7 @@ def chart_share_level(bundle: CompeteBundle, out: Path, *, prop, prop_b) -> Path
             or ("Calumet" in n and bundle.ticker == "CLMT")
             or ("10x" in n and bundle.ticker == "TXG")
             or ("Acadia" in n and bundle.ticker == "ACHC")
+            or ("NESR" in n and bundle.ticker == "NESR")
         )
         colors.append(("#6c2bd9" if bundle.ticker == "ROKU" else "#0ea5e9") if hit else "#64748b")
     bars = ax.barh(names[::-1], vals[::-1], color=colors[::-1], height=0.55)
