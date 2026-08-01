@@ -13,6 +13,8 @@ from pathlib import Path
 
 from weasyprint import HTML
 
+from sepa.share_gain import annotate_text, assess_share_gain, enrich_qual_fields
+
 FONT_REG = "/tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
 FONT_BOLD = "/tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf"
 
@@ -259,11 +261,12 @@ def assign_chase(r: dict) -> str:
     return "중하"
 
 
-def build_chase_detail(label: str, r: dict) -> str:
+def build_chase_detail(label: str, r: dict, share_note: str = "") -> str:
     """Display line (≥1 sentence). Keep short `label` for TA rules."""
     t = r["t"]
     if t in CHASE_DETAIL:
-        return CHASE_DETAIL[t]
+        base = CHASE_DETAIL[t]
+        return annotate_text(base, share_note) if share_note else base
     ups = fmt_pct(r.get("upside"))
     near = fmt_ratio(r.get("near_high"))
     earn = r.get("earnDate") or "—"
@@ -277,18 +280,27 @@ def build_chase_detail(label: str, r: dict) -> str:
         "하": f"RR 하향/비선호. 업사이드 {ups} · 고점 {near}. 추격 금지.",
         "매도": "모멘텀·리스크 비적합. 신규·추격 금지.",
     }
+    detail = ""
     for k, v in bits.items():
         if label.startswith(k) or k in label[:4]:
-            return f"{label} — {v}"
-    if "과열" in label:
-        return f"{label} — 고점·프리미엄 구간. 점수와 별개로 추격 비추천."
-    return f"{label} — 업사이드 {ups} · 고점근접 {near} · EPS {beat} · 실적 {earn}."
+            detail = f"{label} — {v}"
+            break
+    if not detail:
+        if "과열" in label:
+            detail = f"{label} — 고점·프리미엄 구간. 점수와 별개로 추격 비추천."
+        else:
+            detail = f"{label} — 업사이드 {ups} · 고점근접 {near} · EPS {beat} · 실적 {earn}."
+    return annotate_text(detail, share_note) if share_note else detail
 
 
 def merge(r: dict, qual: dict) -> dict:
     t = r["t"]
     q = dict(qual.get(t, {}))
     q.update(NEW_Q.get(t, {}))
+    # 경쟁점유 꾸준 상승 → 전략 코멘트·가산 메타
+    sg = assess_share_gain(t)
+    if sg.strat_note:
+        q = enrich_qual_fields(q, sg)
     q["t"] = t
     q["rank"] = r["rank"]
     q["px"] = r["px"]
@@ -314,7 +326,7 @@ def merge(r: dict, qual: dict) -> dict:
     rec = r.get("rec") or "—"
     q["cons"] = q.get("cons") or f"{rec} PT평균{fmt_usd_price(r['ptA'])} ({fmt_pct(r['upside'])})"
     q["chase"] = assign_chase(r)
-    q["chase_detail"] = build_chase_detail(q["chase"], r)
+    q["chase_detail"] = build_chase_detail(q["chase"], r, share_note=sg.chase_note)
     q["item"] = q.get("item") or q.get("name") or t
     q["fin"] = q.get("fin") or "—"
     q["strat"] = q.get("strat") or "—"
@@ -326,6 +338,8 @@ def merge(r: dict, qual: dict) -> dict:
     q["entry"] = q.get("entry") or "—"
     q["drop"] = q.get("drop") or "—"
     q["abc"] = q.get("abc") or f"{fmt_usd_price(r['ptA'])}"
+    q["share_delta_pp"] = r.get("share_delta_pp", sg.delta_pp)
+    q["share_bonus"] = r.get("share_bonus", sg.bonus)
     return q
 
 
@@ -550,7 +564,8 @@ def main() -> None:
     </section>
     {buy_scenario_section(scenarios)}
     <h2>Surprise / Chase 요약</h2>
-    <p class="small">정렬: Chase RR. 가격·PT는 {DATE_TAG} 라이브. 51종 · 신규/교체: CGNX·CMPR·IESC·LAUR 등.</p>
+    <p class="small">정렬: Chase RR. 가격·PT는 {DATE_TAG} 라이브. 51종 · 신규/교체: CGNX·CMPR·IESC·LAUR 등.<br/>
+    가산: 경쟁점유 Δ≥+0.3pp → +0.35 (마진유지 시 +0.15 추가 · 마진악화 시 가산취소). 해당 종목 strat/Chase에 코멘트.</p>
     <table>
       <tr><th>#</th><th>티커</th><th>가격</th><th>PT</th><th>업사이드</th><th>EPS B/N</th><th>실적일</th><th>Chase</th></tr>
       {''.join(summary_rows)}

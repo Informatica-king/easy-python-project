@@ -689,6 +689,64 @@ def get_profile(ticker: str) -> dict[str, Any] | None:
     return PEER_PROFILES.get(ticker.upper())
 
 
+# Name hints for share-row subject matching (display names ≠ ticker).
+SUBJECT_SHARE_ALIASES: dict[str, tuple[str, ...]] = {
+    "ROKU": ("roku",),
+    "RELY": ("remitly",),
+    "PEBO": ("peoples",),
+    "SBLK": ("star bulk",),
+    "CLMT": ("calumet",),
+    "TXG": ("10x",),
+    "ACHC": ("acadia",),
+    "NESR": ("nesr",),
+    "LASR": ("nlight",),
+    "ECPG": ("encore",),
+    "AMRX": ("amneal",),
+}
+
+
+def is_subject_share_name(ticker: str, name: str) -> bool:
+    """True if *name* is the subject company in a share panel."""
+    t = ticker.upper()
+    n = (name or "").strip()
+    nu = n.upper()
+    if not n:
+        return False
+    if nu == t or t in nu:
+        return True
+    for hint in SUBJECT_SHARE_ALIASES.get(t, ()):
+        if hint.lower() in n.lower():
+            return True
+    return False
+
+
+def subject_share_row_from_profile(ticker: str, prof: dict[str, Any] | None = None) -> ShareRow | None:
+    """Return the subject's ShareRow from a PEER_PROFILES entry (offline)."""
+    t = ticker.upper()
+    prof = prof or get_profile(t)
+    if not prof:
+        return None
+    rows = [ShareRow(n, c, p) for n, c, p in prof.get("share_rows", [])]
+    for r in rows:
+        if is_subject_share_name(t, r.name):
+            return r
+    # Fallback: mix_rows subject display name ↔ share row
+    for m in prof.get("mix_rows", []):
+        if not m.get("subject"):
+            continue
+        key = str(m.get("name") or m.get("key") or "")
+        for r in rows:
+            ru, ku = r.name.upper(), key.upper()
+            if ku and (ku in ru or ru in ku or is_subject_share_name(t, r.name)):
+                return r
+    return None
+
+
+def subject_share_delta(ticker: str) -> float | None:
+    row = subject_share_row_from_profile(ticker)
+    return None if row is None else float(row.delta_pp)
+
+
 def _setup_font():
     fm.fontManager.addfont(FONT_REG)
     fm.fontManager.addfont(FONT_BOLD)
@@ -757,20 +815,7 @@ def chart_share_level(bundle: CompeteBundle, out: Path, *, prop, prop_b) -> Path
     vals = [r.current for r in bundle.share_rows]
     colors = []
     for n in names:
-        hit = (
-            n.upper() == bundle.ticker
-            or ("Roku" in n and bundle.ticker == "ROKU")
-            or ("Remitly" in n and bundle.ticker == "RELY")
-            or ("Peoples" in n and bundle.ticker == "PEBO")
-            or ("Star Bulk" in n and bundle.ticker == "SBLK")
-            or ("Calumet" in n and bundle.ticker == "CLMT")
-            or ("10x" in n and bundle.ticker == "TXG")
-            or ("Acadia" in n and bundle.ticker == "ACHC")
-            or ("NESR" in n and bundle.ticker == "NESR")
-            or ("nLIGHT" in n and bundle.ticker == "LASR")
-            or ("Encore" in n and bundle.ticker == "ECPG")
-            or ("Amneal" in n and bundle.ticker == "AMRX")
-        )
+        hit = is_subject_share_name(bundle.ticker, n)
         colors.append(("#6c2bd9" if bundle.ticker == "ROKU" else "#0ea5e9") if hit else "#64748b")
     bars = ax.barh(names[::-1], vals[::-1], color=colors[::-1], height=0.55)
     ax.set_xlabel("%", fontproperties=prop)

@@ -2,6 +2,34 @@
   "as_of": "2026-08-01",
   "rows": [
     {
+      "t": "ECPG",
+      "name": "Encore Capital Group Inc",
+      "sector": "Financial Services",
+      "industry": "Credit Services",
+      "px": 94.08,
+      "h": 98.02,
+      "l": 36.07,
+      "ptA": 113.33333,
+      "ptL": 105.0,
+      "ptH": 120.0,
+      "rec": "buy",
+      "mcap": 2017113984,
+      "earnDate": "2026-08-05",
+      "epsBeat": 4,
+      "epsN": 4,
+      "avgSurp": 0.8744750000000001,
+      "upside": 0.20464849064625867,
+      "near_high": 0.9598041216078351,
+      "prem": -0.16988232852595087,
+      "chase_raw": 4.469319369038423,
+      "rank": 1,
+      "share_delta_pp": 3.0,
+      "share_bonus": 0.35,
+      "share_rising": true,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
+    },
+    {
       "t": "ACHC",
       "name": "Acadia Healthcare Company, Inc.",
       "sector": "Healthcare",
@@ -22,7 +50,12 @@
       "near_high": 0.826681551772258,
       "prem": -0.11298403311366556,
       "chase_raw": 4.300693870239896,
-      "rank": 1
+      "rank": 2,
+      "share_delta_pp": -1.0,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "ALKS",
@@ -45,30 +78,40 @@
       "near_high": 0.8800071851984911,
       "prem": -0.12517857142857136,
       "chase_raw": 4.263083241419186,
-      "rank": 2
+      "rank": 3,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
-      "t": "ECPG",
-      "name": "Encore Capital Group Inc",
-      "sector": "Financial Services",
-      "industry": "Credit Services",
-      "px": 94.08,
-      "h": 98.02,
-      "l": 36.07,
-      "ptA": 113.33333,
-      "ptL": 105.0,
-      "ptH": 120.0,
+      "t": "TXG",
+      "name": "10x Genomics, Inc.",
+      "sector": "Healthcare",
+      "industry": "Health Information Services",
+      "px": 47.27,
+      "h": 50.34,
+      "l": 11.16,
+      "ptA": 41.53846,
+      "ptL": 25.0,
+      "ptH": 50.0,
       "rec": "buy",
-      "mcap": 2017113984,
-      "earnDate": "2026-08-05",
+      "mcap": 6001219072,
+      "earnDate": "2026-08-06",
       "epsBeat": 4,
       "epsN": 4,
-      "avgSurp": 0.8744750000000001,
-      "upside": 0.20464849064625867,
-      "near_high": 0.9598041216078351,
-      "prem": -0.16988232852595087,
-      "chase_raw": 4.119319369038424,
-      "rank": 3
+      "avgSurp": 1.0,
+      "upside": -0.12125111064099858,
+      "near_high": 0.9390147000397299,
+      "prem": 0.13798152362894545,
+      "chase_raw": 4.151752665690326,
+      "rank": 4,
+      "share_delta_pp": 3.0,
+      "share_bonus": 0.35,
+      "share_rising": true,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "ROKU",
@@ -91,7 +134,12 @@
       "near_high": 0.9740059108006448,
       "prem": -0.08456860176991832,
       "chase_raw": 4.048925237827209,
-      "rank": 4
+      "rank": 5,
+      "share_delta_pp": -2.0,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "HST",
@@ -114,7 +162,12 @@
       "near_high": 0.9774406845585375,
       "prem": 0.007100196651041113,
       "chase_raw": 4.008408979514655,
-      "rank": 5
+      "rank": 6,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "INDV",
@@ -137,30 +190,96 @@
       "near_high": 0.9345947208596121,
       "prem": -0.21291798117494953,
       "chase_raw": 3.9509459052351144,
-      "rank": 6
+      "rank": 7,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
-      "t": "TXG",
-      "name": "10x Genomics, Inc.",
-      "sector": "Healthcare",
-      "industry": "Health Information Services",
-      "px": 47.27,
-      "h": 50.34,
-      "l": 11.16,
-      "ptA": 41.53846,
-      "ptL": 25.0,
-      "ptH": 50.0,
-      "rec": "buy",
-      "mcap": 6001219072,
-      "earnDate": "2026-08-06",
+      "t": "NESR",
+      "name": "National Energy Services Reunit",
+      "sector": "Energy",
+      "industry": "Oil & Gas Equipment & Services",
+      "px": 26.96,
+      "h": 30.31,
+      "l": 6.24,
+      "ptA": 33.0,
+      "ptL": 30.0,
+      "ptH": 36.0,
+      "rec": "none",
+      "mcap": 2718841856,
+      "earnDate": "2026-08-18",
       "epsBeat": 4,
       "epsN": 4,
-      "avgSurp": 1.0,
-      "upside": -0.12125111064099858,
-      "near_high": 0.9390147000397299,
-      "prem": 0.13798152362894545,
-      "chase_raw": 3.801752665690326,
-      "rank": 7
+      "avgSurp": 0.18165,
+      "upside": 0.22403560830860525,
+      "near_high": 0.8894754206532498,
+      "prem": -0.183030303030303,
+      "chase_raw": 3.866210187655355,
+      "rank": 8,
+      "share_delta_pp": 1.5,
+      "share_bonus": 0.35,
+      "share_rising": true,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
+    },
+    {
+      "t": "SBLK",
+      "name": "Star Bulk Carriers Corp.",
+      "sector": "Industrials",
+      "industry": "Marine Shipping",
+      "px": 28.75,
+      "h": 29.34,
+      "l": 16.72,
+      "ptA": 31.98,
+      "ptL": 25.9,
+      "ptH": 37.0,
+      "rec": "strong_buy",
+      "mcap": 3206514176,
+      "earnDate": "2026-08-05",
+      "epsBeat": 4,
+      "epsN": 4,
+      "avgSurp": 0.3631500025,
+      "upside": 0.11234782608695659,
+      "near_high": 0.979890933878664,
+      "prem": -0.10100062539086929,
+      "chase_raw": 3.845606894708293,
+      "rank": 9,
+      "share_delta_pp": 2.0,
+      "share_bonus": 0.35,
+      "share_rising": true,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
+    },
+    {
+      "t": "AMRX",
+      "name": "Amneal Pharmaceuticals, Inc.",
+      "sector": "Healthcare",
+      "industry": "Drug Manufacturers - Specialty & Generic",
+      "px": 18.32,
+      "h": 19.26,
+      "l": 7.8,
+      "ptA": 20.25,
+      "ptL": 16.0,
+      "ptH": 23.0,
+      "rec": "strong_buy",
+      "mcap": 5850150400,
+      "earnDate": "2026-10-29",
+      "epsBeat": 4,
+      "epsN": 4,
+      "avgSurp": 0.31715,
+      "upside": 0.10534934497816595,
+      "near_high": 0.9511941848390446,
+      "prem": -0.09530864197530864,
+      "chase_raw": 3.821305160139121,
+      "rank": 10,
+      "share_delta_pp": 1.5,
+      "share_bonus": 0.35,
+      "share_rising": true,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "APA",
@@ -183,7 +302,12 @@
       "near_high": 0.8173455978975034,
       "prem": -0.10342342342342337,
       "chase_raw": 3.6972080973516923,
-      "rank": 8
+      "rank": 11,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "DRH",
@@ -206,53 +330,12 @@
       "near_high": 0.9821958456973293,
       "prem": 0.024523565589627205,
       "chase_raw": 3.5891440328218045,
-      "rank": 9
-    },
-    {
-      "t": "NESR",
-      "name": "National Energy Services Reunit",
-      "sector": "Energy",
-      "industry": "Oil & Gas Equipment & Services",
-      "px": 26.96,
-      "h": 30.31,
-      "l": 6.24,
-      "ptA": 33.0,
-      "ptL": 30.0,
-      "ptH": 36.0,
-      "rec": "none",
-      "mcap": 2718841856,
-      "earnDate": "2026-08-18",
-      "epsBeat": 4,
-      "epsN": 4,
-      "avgSurp": 0.18165,
-      "upside": 0.22403560830860525,
-      "near_high": 0.8894754206532498,
-      "prem": -0.183030303030303,
-      "chase_raw": 3.516210187655355,
-      "rank": 10
-    },
-    {
-      "t": "SBLK",
-      "name": "Star Bulk Carriers Corp.",
-      "sector": "Industrials",
-      "industry": "Marine Shipping",
-      "px": 28.75,
-      "h": 29.34,
-      "l": 16.72,
-      "ptA": 31.98,
-      "ptL": 25.9,
-      "ptH": 37.0,
-      "rec": "strong_buy",
-      "mcap": 3206514176,
-      "earnDate": "2026-08-05",
-      "epsBeat": 4,
-      "epsN": 4,
-      "avgSurp": 0.3631500025,
-      "upside": 0.11234782608695659,
-      "near_high": 0.979890933878664,
-      "prem": -0.10100062539086929,
-      "chase_raw": 3.4956068947082928,
-      "rank": 11
+      "rank": 12,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "CGNX",
@@ -275,30 +358,12 @@
       "near_high": 0.8951701427003292,
       "prem": -0.15503753179780022,
       "chase_raw": 3.4866893789998548,
-      "rank": 12
-    },
-    {
-      "t": "AMRX",
-      "name": "Amneal Pharmaceuticals, Inc.",
-      "sector": "Healthcare",
-      "industry": "Drug Manufacturers - Specialty & Generic",
-      "px": 18.32,
-      "h": 19.26,
-      "l": 7.8,
-      "ptA": 20.25,
-      "ptL": 16.0,
-      "ptH": 23.0,
-      "rec": "strong_buy",
-      "mcap": 5850150400,
-      "earnDate": "2026-10-29",
-      "epsBeat": 4,
-      "epsN": 4,
-      "avgSurp": 0.31715,
-      "upside": 0.10534934497816595,
-      "near_high": 0.9511941848390446,
-      "prem": -0.09530864197530864,
-      "chase_raw": 3.4713051601391207,
-      "rank": 13
+      "rank": 13,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "IESC",
@@ -321,7 +386,12 @@
       "near_high": 0.926044776119403,
       "prem": 0.06362857142857137,
       "chase_raw": 3.373929480372621,
-      "rank": 14
+      "rank": 14,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "LAUR",
@@ -344,7 +414,12 @@
       "near_high": 0.9361026267562615,
       "prem": -0.05739901178214324,
       "chase_raw": 3.3455916622206376,
-      "rank": 15
+      "rank": 15,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "CASY",
@@ -367,7 +442,12 @@
       "near_high": 0.938729320472059,
       "prem": -0.09023386421129387,
       "chase_raw": 3.3342042641174934,
-      "rank": 16
+      "rank": 16,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "PGNY",
@@ -390,7 +470,12 @@
       "near_high": 0.9414789051867534,
       "prem": -0.08441176470588241,
       "chase_raw": 3.3059401223694627,
-      "rank": 17
+      "rank": 17,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "CHEF",
@@ -413,7 +498,12 @@
       "near_high": 0.9968026270307638,
       "prem": 0.01580230857916587,
       "chase_raw": 3.2751135841126535,
-      "rank": 18
+      "rank": 18,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "DDOG",
@@ -436,7 +526,12 @@
       "near_high": 0.9612983859858574,
       "prem": -0.002167066583052657,
       "chase_raw": 3.1852483869738024,
-      "rank": 19
+      "rank": 19,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "FA",
@@ -459,7 +554,12 @@
       "near_high": 0.870939420544337,
       "prem": 0.05212137153354113,
       "chase_raw": 3.1772248934059926,
-      "rank": 20
+      "rank": 20,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "VTRS",
@@ -482,7 +582,12 @@
       "near_high": 0.971776425013835,
       "prem": -0.021045296167247485,
       "chase_raw": 3.162221298081837,
-      "rank": 21
+      "rank": 21,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "FTNT",
@@ -505,7 +610,12 @@
       "near_high": 0.9506897563839154,
       "prem": 0.0551416574096093,
       "chase_raw": 3.139458633179692,
-      "rank": 22
+      "rank": 22,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "PEBO",
@@ -528,7 +638,12 @@
       "near_high": 0.9851028611965003,
       "prem": -0.03116279069767447,
       "chase_raw": 3.132362285226928,
-      "rank": 23
+      "rank": 23,
+      "share_delta_pp": 0.10000000000000009,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "TVTX",
@@ -551,7 +666,12 @@
       "near_high": 0.9299500831946755,
       "prem": -0.05500004565217165,
       "chase_raw": 3.1282510261272067,
-      "rank": 24
+      "rank": 24,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "LIND",
@@ -574,7 +694,12 @@
       "near_high": 0.971747700394218,
       "prem": 0.04893617021276597,
       "chase_raw": 2.932662985376789,
-      "rank": 25
+      "rank": 25,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "CMPR",
@@ -597,7 +722,12 @@
       "near_high": 0.9260649277538,
       "prem": -0.10678733031674204,
       "chase_raw": 2.739214277906788,
-      "rank": 26
+      "rank": 26,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "KRYS",
@@ -620,7 +750,12 @@
       "near_high": 0.8917353967610806,
       "prem": -0.09457199734571997,
       "chase_raw": 2.6168896501432344,
-      "rank": 27
+      "rank": 27,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "RAPP",
@@ -643,7 +778,40 @@
       "near_high": 0.9254742547425473,
       "prem": -0.3005134518022533,
       "chase_raw": 2.6029958035726066,
-      "rank": 28
+      "rank": 28,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
+    },
+    {
+      "t": "CLMT",
+      "name": "Calumet, Inc",
+      "sector": "Basic Materials",
+      "industry": "Specialty Chemicals",
+      "px": 44.19,
+      "h": 45.2,
+      "l": 12.94,
+      "ptA": 39.6,
+      "ptL": 26.0,
+      "ptH": 60.0,
+      "rec": "buy",
+      "mcap": 3851032064,
+      "earnDate": "2026-08-07",
+      "epsBeat": 3,
+      "epsN": 4,
+      "avgSurp": 0.3804250125,
+      "upside": -0.10386965376782065,
+      "near_high": 0.9776548672566371,
+      "prem": 0.11590909090909074,
+      "chase_raw": 2.5329914005664516,
+      "rank": 29,
+      "share_delta_pp": 2.0,
+      "share_bonus": 0.35,
+      "share_rising": true,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "ADPT",
@@ -666,7 +834,12 @@
       "near_high": 0.9186746987951807,
       "prem": -0.05395198250921951,
       "chase_raw": 2.456004125495914,
-      "rank": 29
+      "rank": 30,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "INCY",
@@ -689,7 +862,12 @@
       "near_high": 0.9013574660633484,
       "prem": -0.027214235228583572,
       "chase_raw": 2.4041930978790886,
-      "rank": 30
+      "rank": 31,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "ATLC",
@@ -712,7 +890,12 @@
       "near_high": 0.9367729331320486,
       "prem": -0.1627777777777778,
       "chase_raw": 2.368178081312212,
-      "rank": 31
+      "rank": 32,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "CDNA",
@@ -735,7 +918,12 @@
       "near_high": 0.9713333333333334,
       "prem": 0.23474576271186454,
       "chase_raw": 2.2828042258491053,
-      "rank": 32
+      "rank": 33,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "STLD",
@@ -758,7 +946,12 @@
       "near_high": 0.8701946387753687,
       "prem": -0.07755431107338662,
       "chase_raw": 2.2450050249196085,
-      "rank": 33
+      "rank": 34,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "JAZZ",
@@ -781,30 +974,12 @@
       "near_high": 0.9676999617298125,
       "prem": -0.05260397152491558,
       "chase_raw": 2.2006498443501723,
-      "rank": 34
-    },
-    {
-      "t": "CLMT",
-      "name": "Calumet, Inc",
-      "sector": "Basic Materials",
-      "industry": "Specialty Chemicals",
-      "px": 44.19,
-      "h": 45.2,
-      "l": 12.94,
-      "ptA": 39.6,
-      "ptL": 26.0,
-      "ptH": 60.0,
-      "rec": "buy",
-      "mcap": 3851032064,
-      "earnDate": "2026-08-07",
-      "epsBeat": 3,
-      "epsN": 4,
-      "avgSurp": 0.3804250125,
-      "upside": -0.10386965376782065,
-      "near_high": 0.9776548672566371,
-      "prem": 0.11590909090909074,
-      "chase_raw": 2.1829914005664515,
-      "rank": 35
+      "rank": 35,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "SHOO",
@@ -827,7 +1002,12 @@
       "near_high": 0.9450369155045119,
       "prem": 0.008866995073891548,
       "chase_raw": 2.168157026671597,
-      "rank": 36
+      "rank": 36,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "CNXN",
@@ -850,7 +1030,12 @@
       "near_high": 0.9480240063412977,
       "prem": 0.00867469879518068,
       "chase_raw": 2.1659011968069044,
-      "rank": 37
+      "rank": 37,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "SCSC",
@@ -873,7 +1058,12 @@
       "near_high": 0.9606379368849678,
       "prem": 0.03573164416270447,
       "chase_raw": 1.9827564808985485,
-      "rank": 38
+      "rank": 38,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "GPRE",
@@ -896,7 +1086,12 @@
       "near_high": 0.8575063613231554,
       "prem": -0.048790552711962865,
       "chase_raw": 1.9145618162510285,
-      "rank": 39
+      "rank": 39,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "FTRE",
@@ -919,7 +1114,12 @@
       "near_high": 0.8962131837307153,
       "prem": -0.038440317088977105,
       "chase_raw": 1.5677138637392898,
-      "rank": 40
+      "rank": 40,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "CBRL",
@@ -942,7 +1142,12 @@
       "near_high": 0.8864958339883666,
       "prem": 0.25311111111111106,
       "chase_raw": 1.5036818873902813,
-      "rank": 41
+      "rank": 41,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "KNSA",
@@ -965,7 +1170,12 @@
       "near_high": 0.8963105859657584,
       "prem": -0.24142857142857144,
       "chase_raw": 1.3705568349965769,
-      "rank": 42
+      "rank": 42,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "PAGP",
@@ -988,7 +1198,12 @@
       "near_high": 0.98319641523525,
       "prem": 0.0684636442360993,
       "chase_raw": 1.2099882044566794,
-      "rank": 43
+      "rank": 43,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "PTGX",
@@ -1011,7 +1226,12 @@
       "near_high": 0.953590620420127,
       "prem": 0.02499705568395516,
       "chase_raw": 1.1947498824439273,
-      "rank": 44
+      "rank": 44,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "LQDA",
@@ -1034,7 +1254,12 @@
       "near_high": 0.9232711306256861,
       "prem": -0.009013254786450653,
       "chase_raw": 1.1778240968080318,
-      "rank": 45
+      "rank": 45,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "CRSR",
@@ -1057,7 +1282,12 @@
       "near_high": 0.8099236641221373,
       "prem": 0.09758582841867991,
       "chase_raw": 1.050880993137788,
-      "rank": 46
+      "rank": 46,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "BRKR",
@@ -1080,7 +1310,12 @@
       "near_high": 0.9623277182235835,
       "prem": 0.05171548117154812,
       "chase_raw": 1.0378092975135251,
-      "rank": 47
+      "rank": 47,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "TFSL",
@@ -1103,7 +1338,12 @@
       "near_high": 0.9538860103626943,
       "prem": 0.150625,
       "chase_raw": 0.8618068749393155,
-      "rank": 48
+      "rank": 48,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "DNTH",
@@ -1126,7 +1366,12 @@
       "near_high": 0.9333915320820603,
       "prem": -0.16847697131502182,
       "chase_raw": 0.20622098694712032,
-      "rank": 49
+      "rank": 49,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "SEPN",
@@ -1149,7 +1394,12 @@
       "near_high": 0.9056256572029444,
       "prem": -0.23444444444444434,
       "chase_raw": -0.09938472832050627,
-      "rank": 50
+      "rank": 50,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     },
     {
       "t": "SENEA",
@@ -1172,9 +1422,14 @@
       "near_high": 0.882095837108896,
       "prem": -0.18074257425742568,
       "chase_raw": -0.6614782771354839,
-      "rank": 51
+      "rank": 51,
+      "share_delta_pp": null,
+      "share_bonus": 0.0,
+      "share_rising": false,
+      "share_margin_hold": null,
+      "share_bonus_cancelled": false
     }
   ],
   "failed": [],
-  "formula": "epsBeat + upside - near_high - max(prem,0) + clip(avgSurp)"
+  "formula": "epsBeat + upside - near_high - max(prem,0) + clip(avgSurp) + share_gain_bonus(≥+0.3pp, 마진악화시 취소)"
 }

@@ -94,7 +94,7 @@
     "fin": "Q1 매출$475M(+21%YoY) EPS$3.86",
     "cons": "Buy PT평균$113(+24%)",
     "sur": "EPS4/4 Rev4/4 6연속Beat 평균+56%",
-    "strat": "코어보유·추가금지 · stop80",
+    "strat": "코어보유·추가금지 · stop80 · 경쟁점유 +3.0pp 가산(+0.35)",
     "news": "연속Beat(ChartMill); ~08-06실적",
     "bull": "$110–120",
     "base": "$100–110",
@@ -123,7 +123,11 @@
     "earnDate": "2026-08-05",
     "upside": 0.2570942266097278,
     "prem": -0.20451468248572602,
-    "near_high": 0.9530126849894293
+    "near_high": 0.9530126849894293,
+    "share_gain_note": "경쟁점유 +3.0pp 가산(+0.35)",
+    "share_rising": true,
+    "share_delta_pp": 3.0,
+    "share_bonus": 0.35
   },
   "ALKS": {
     "px": 52.89,
@@ -223,7 +227,7 @@
     "fin": "Q1 EPS+37% RevBeat",
     "cons": "PT$31.6 현재+9%프리미엄",
     "sur": "EPS4/4 5연속 Rev4/4",
-    "strat": "07-28 고점·대기",
+    "strat": "07-28 고점·대기 · 경쟁점유 -1.0pp (하락 모니터)",
     "news": "07-28 실적",
     "bull": "$38–40",
     "base": "$32–36",
@@ -252,7 +256,8 @@
     "earnDate": "2026-07-28",
     "upside": -0.0665230368009273,
     "prem": 0.07126371557467204,
-    "near_high": 0.9631593636617359
+    "near_high": 0.9631593636617359,
+    "share_gain_note": "경쟁점유 -1.0pp (하락 모니터)"
   },
   "TXG": {
     "px": 46.27,
@@ -269,7 +274,7 @@
     "fin": "Q1 매출$151M 손실축소",
     "cons": "PT$34 현재+28%과열",
     "sur": "EPS4/4 Rev4/4",
-    "strat": "Beat강·과열회피",
+    "strat": "Beat강·과열회피 · 경쟁점유 +3.0pp 가산(+0.35)",
     "news": "~08-06실적",
     "bull": "$48–50",
     "base": "$32–40",
@@ -298,7 +303,11 @@
     "earnDate": "2026-08-06",
     "upside": -0.10225934730927166,
     "prem": 0.11390744866323899,
-    "near_high": 0.9347474747474748
+    "near_high": 0.9347474747474748,
+    "share_gain_note": "경쟁점유 +3.0pp 가산(+0.35)",
+    "share_rising": true,
+    "share_delta_pp": 3.0,
+    "share_bonus": 0.35
   },
   "VCYT": {
     "px": 56.61,
@@ -361,7 +370,7 @@
     "fin": "Q1 매출$405M(+34%) EPS~$0.26Beat",
     "cons": "Buy PT$33(+18%)",
     "sur": "EPS4/4 Rev4/4 연속Beat Q1+24%",
-    "strat": "분할 · 밴드 25-27만",
+    "strat": "분할 · 밴드 25-27만 · 경쟁점유 +1.5pp 가산(+0.35)",
     "news": "Jafurah프랙; ~08-19실적",
     "bull": "$33–36",
     "base": "$30–33",
@@ -390,7 +399,11 @@
     "earnDate": "2026-08-18",
     "upside": 0.19478638667632153,
     "prem": -0.16303030303030297,
-    "near_high": 0.9112504124051469
+    "near_high": 0.9112504124051469,
+    "share_gain_note": "경쟁점유 +1.5pp 가산(+0.35)",
+    "share_rising": true,
+    "share_delta_pp": 1.5,
+    "share_bonus": 0.35
   },
   "SEZL": {
     "px": 153.89,
@@ -453,7 +466,7 @@
     "fin": "Q1 EPS$0.27(+56%vs) 매출소폭Miss",
     "cons": "Buy PT$18.2≈현재",
     "sur": "EPS4/4연속 Rev0/4Miss",
-    "strat": "보유·추가금지 · 07-30",
+    "strat": "보유·추가금지 · 07-30 · 경쟁점유 +1.5pp 가산(+0.35)",
     "news": "07-30 실적",
     "bull": "$20–23",
     "base": "$17–19",
@@ -482,7 +495,11 @@
     "earnDate": "2026-07-30",
     "upside": 0.04631696428571419,
     "prem": -0.044266666666666565,
-    "near_high": 0.9744426318651441
+    "near_high": 0.9744426318651441,
+    "share_gain_note": "경쟁점유 +1.5pp 가산(+0.35)",
+    "share_rising": true,
+    "share_delta_pp": 1.5,
+    "share_bonus": 0.35
   },
   "DDOG": {
     "name": "Datadog",
@@ -1019,7 +1036,7 @@
     "fin": "Q1 EPS대형Miss RevBeat",
     "cons": "PT$37.8 현재+13%",
     "sur": "EPS2/4 최근Miss Rev3/4",
-    "strat": "고점·미스→비추격",
+    "strat": "고점·미스→비추격 · 경쟁점유 +2.0pp 가산(+0.35)",
     "news": "~08-07실적",
     "bull": "$45–55",
     "base": "$35–42",
@@ -1048,7 +1065,11 @@
     "earnDate": "2026-08-07",
     "upside": -0.06932118013912214,
     "prem": 0.07448453608247418,
-    "near_high": 0.9223451327433627
+    "near_high": 0.9223451327433627,
+    "share_gain_note": "경쟁점유 +2.0pp 가산(+0.35)",
+    "share_rising": true,
+    "share_delta_pp": 2.0,
+    "share_bonus": 0.35
   },
   "BTSG": {
     "px": 72.91,
@@ -1756,7 +1777,7 @@
     "feat": "Entertainment",
     "item": "Roku, Inc.. 한줄: Roku, Inc., together with its subsidiaries, operates a TV streaming platform in the United States and internationally. T",
     "fin": "EPS 4/4 · upside +10%",
-    "strat": "중 · 라이브 데이터 기반 초안",
+    "strat": "중 · 라이브 데이터 기반 초안 · 경쟁점유 -2.0pp (하락 모니터)",
     "news": "실적·가이던스·섹터 뉴스 모니터",
     "bull": "$174–198",
     "base": "$136–158",
@@ -1766,7 +1787,8 @@
     "entry": "눌림",
     "drop": "가이던스 컷",
     "chase": "중",
-    "abc": "$143/$158/$182"
+    "abc": "$143/$158/$182",
+    "share_gain_note": "경쟁점유 -2.0pp (하락 모니터)"
   },
   "INCY": {
     "name": "Incyte Corporation",
@@ -1810,7 +1832,7 @@
     "feat": "Marine Shipping",
     "item": "Star Bulk Carriers Corp.. 한줄: Star Bulk Carriers Corp., a shipping company, engages in the ocean transportation of dry bulk cargoes through the owners",
     "fin": "EPS 4/4 · upside +19%",
-    "strat": "중 · 라이브 데이터 기반 초안",
+    "strat": "중 · 라이브 데이터 기반 초안 · 경쟁점유 +2.0pp 가산(+0.35)",
     "news": "실적·가이던스·섹터 뉴스 모니터",
     "bull": "$35–40",
     "base": "$26–32",
@@ -1820,7 +1842,11 @@
     "entry": "눌림",
     "drop": "가이던스 컷",
     "chase": "중",
-    "abc": "$29/$32/$37"
+    "abc": "$29/$32/$37",
+    "share_gain_note": "경쟁점유 +2.0pp 가산(+0.35)",
+    "share_rising": true,
+    "share_delta_pp": 2.0,
+    "share_bonus": 0.35
   },
   "VTRS": {
     "name": "Viatris Inc.",
