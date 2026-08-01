@@ -321,6 +321,73 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "피어는 공시 세그먼트가 달라 근사 — 방향 비교용."
         ),
     },
+    "TXG": {
+        "sector_ko": "헬스케어·생명과학 툴 (심층: 단일세포·공간전사체)",
+        "share_title": "상장 단일세포·공간·시퀀싱툴 피어셋 점유 (추정)",
+        "share_as_of": "2026 · SC/Spatial 중심 근사 vs 전년",
+        "share_note": (
+            "단일세포·공간전사체 중심의 상장 툴 피어셋 상대 점유. "
+            "Illumina는 NGS 전체 스케일이 커서 SC 전용 점유와 다름 — 방향·순위 비교용. "
+            "절대 글로벌 시장점유가 아님."
+        ),
+        "share_rows": [
+            ("10x Genomics", 38.0, 35.0),
+            ("Illumina", 24.0, 26.0),
+            ("Bio-Techne", 14.0, 13.5),
+            ("Twist", 12.0, 11.0),
+            ("PacBio", 8.0, 9.5),
+            ("Others (listed)", 4.0, 5.0),
+        ],
+        "share_source": "Directional share of selected US-listed SC/spatial/seq-tools peers (est.)",
+        "mix_buckets": ["Consumables", "Instruments", "Services/Other"],
+        "mix_as_of": "Q1'26 (또는 최근 공시 근사)",
+        "mix_rows": [
+            {
+                "key": "TXG",
+                "name": "TXG",
+                "subject": True,
+                "yf": "TXG",
+                "mix": {"Consumables": 86.0, "Instruments": 7.5, "Services/Other": 6.5},
+                "note": "Q1'26 Cons $129.8M / Inst $11.3M / Svc+Lic ~$9.7M",
+            },
+            {
+                "key": "ILMN",
+                "name": "ILMN",
+                "subject": False,
+                "yf": "ILMN",
+                "mix": {"Consumables": 72.0, "Instruments": 18.0, "Services/Other": 10.0},
+                "note": "NGS 소모품 편중 · 장비·서비스 근사",
+            },
+            {
+                "key": "TECH",
+                "name": "TECH",
+                "subject": False,
+                "yf": "TECH",
+                "mix": {"Consumables": 82.0, "Instruments": 8.0, "Services/Other": 10.0},
+                "note": "시약·키트 중심 근사",
+            },
+            {
+                "key": "TWST",
+                "name": "TWST",
+                "subject": False,
+                "yf": "TWST",
+                "mix": {"Consumables": 88.0, "Instruments": 2.0, "Services/Other": 10.0},
+                "note": "합성 DNA·키트 성격 · 장비 비중 낮음(근사)",
+            },
+            {
+                "key": "PACB",
+                "name": "PACB",
+                "subject": False,
+                "yf": "PACB",
+                "mix": {"Consumables": 55.0, "Instruments": 35.0, "Services/Other": 10.0},
+                "note": "장기 시퀀서 장비 비중 상대 큼(근사)",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Consumables / Instruments / Services·Other로 정규화. "
+            "피어는 공시 세그먼트가 달라 근사 — 방향 비교용. TXG는 소모품 ~86%가 본체."
+        ),
+    },
 }
 
 
@@ -430,6 +497,7 @@ def chart_share_level(bundle: CompeteBundle, out: Path, *, prop, prop_b) -> Path
             or ("Peoples" in n and bundle.ticker == "PEBO")
             or ("Star Bulk" in n and bundle.ticker == "SBLK")
             or ("Calumet" in n and bundle.ticker == "CLMT")
+            or ("10x" in n and bundle.ticker == "TXG")
         )
         colors.append(("#6c2bd9" if bundle.ticker == "ROKU" else "#0ea5e9") if hit else "#64748b")
     bars = ax.barh(names[::-1], vals[::-1], color=colors[::-1], height=0.55)
