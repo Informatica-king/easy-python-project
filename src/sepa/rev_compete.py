@@ -388,6 +388,63 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "피어는 공시 세그먼트가 달라 근사 — 방향 비교용. TXG는 소모품 ~86%가 본체."
         ),
     },
+    "ACHC": {
+        "sector_ko": "헬스케어·행동건강 시설 (심층: Acute·CTC·Specialty·RTC)",
+        "share_title": "상장 행동건강·시설 피어셋 스케일 점유 (추정)",
+        "share_as_of": "2026 · TTM/스케일 근사 vs 전년",
+        "share_note": (
+            "행동건강·시설 성격의 상장 피어셋 상대 스케일. "
+            "UHS는 급성병원+행동건강 혼합이라 절대 행동건강 점유와 다름 — 방향 비교용."
+        ),
+        "share_rows": [
+            ("UHS (beh. incl.)", 34.0, 33.0),
+            ("Acadia", 22.0, 23.0),
+            ("Select/Ensign", 18.0, 18.5),
+            ("Tenet (adj.)", 14.0, 14.5),
+            ("Others (listed)", 12.0, 11.0),
+        ],
+        "share_source": "Directional share of selected US-listed behavioral/facility peers (est.)",
+        "mix_buckets": ["Acute Psych", "Specialty+RTC", "CTC"],
+        "mix_as_of": "Q2'26 revenue mix",
+        "mix_rows": [
+            {
+                "key": "ACHC",
+                "name": "ACHC",
+                "subject": True,
+                "yf": "ACHC",
+                "mix": {"Acute Psych": 57.1, "Specialty+RTC": 26.6, "CTC": 16.3},
+                "note": "Q2'26 Acute $494.6 / Spec $133.5 / RTC $96.5 / CTC $141.2",
+            },
+            {
+                "key": "UHS",
+                "name": "UHS",
+                "subject": False,
+                "yf": "UHS",
+                "mix": {"Acute Psych": 35.0, "Specialty+RTC": 45.0, "CTC": 20.0},
+                "note": "급성병원 본체 + 행동건강 혼합 근사",
+            },
+            {
+                "key": "ENSG",
+                "name": "ENSG",
+                "subject": False,
+                "yf": "ENSG",
+                "mix": {"Acute Psych": 10.0, "Specialty+RTC": 85.0, "CTC": 5.0},
+                "note": "요양·포스트어큐트 편중 근사",
+            },
+            {
+                "key": "THC",
+                "name": "THC",
+                "subject": False,
+                "yf": "THC",
+                "mix": {"Acute Psych": 70.0, "Specialty+RTC": 25.0, "CTC": 5.0},
+                "note": "급성병원 중심 근사",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Acute Psych / Specialty+RTC / CTC로 정규화. "
+            "ACHC Q2'26 공시 라인 합산. 피어는 공시 세그먼트가 달라 근사."
+        ),
+    },
 }
 
 
@@ -498,6 +555,7 @@ def chart_share_level(bundle: CompeteBundle, out: Path, *, prop, prop_b) -> Path
             or ("Star Bulk" in n and bundle.ticker == "SBLK")
             or ("Calumet" in n and bundle.ticker == "CLMT")
             or ("10x" in n and bundle.ticker == "TXG")
+            or ("Acadia" in n and bundle.ticker == "ACHC")
         )
         colors.append(("#6c2bd9" if bundle.ticker == "ROKU" else "#0ea5e9") if hit else "#64748b")
     bars = ax.barh(names[::-1], vals[::-1], color=colors[::-1], height=0.55)
