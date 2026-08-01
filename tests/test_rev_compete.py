@@ -57,6 +57,15 @@ def test_txg_profile_exists():
     assert abs(p["mix_rows"][0]["mix"]["Consumables"] - 86.0) < 0.1
 
 
+def test_achc_profile_exists():
+    p = get_profile("ACHC")
+    assert p is not None
+    assert any(r.get("subject") for r in p["mix_rows"])
+    assert p["share_rows"][1][0] == "Acadia"
+    assert "Acute Psych" in p["mix_buckets"]
+    assert abs(p["mix_rows"][0]["mix"]["Acute Psych"] - 57.1) < 0.1
+
+
 def test_load_bundle_offline_share(monkeypatch):
     monkeypatch.setattr("sepa.rev_compete._ttm_revenue", lambda _t: None)
     b = load_compete_bundle("RELY")
@@ -78,3 +87,8 @@ def test_load_bundle_offline_share(monkeypatch):
     assert b4 is not None
     assert b4.share_rows[0].name == "10x Genomics"
     assert abs(b4.share_rows[0].delta_pp - 3.0) < 1e-9
+
+    b5 = load_compete_bundle("ACHC")
+    assert b5 is not None
+    assert b5.share_rows[1].name == "Acadia"
+    assert abs(b5.share_rows[1].delta_pp - (-1.0)) < 1e-9
