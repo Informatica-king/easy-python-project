@@ -4,14 +4,22 @@
   "rows": [
     {
       "rank": 1,
+      "ticker": "ECPG",
+      "chase": "최상·코어·보유·추가금지",
+      "chase_detail": "최상·코어·추가금지 — RR·Beat 상위·08-05 EARN_D5. 코어 과비중·추가금지. · 점유율 꾸준 상승(+3.0pp) — 경쟁력 가산",
+      "px": 94.08,
+      "earn_date": "2026-08-05"
+    },
+    {
+      "rank": 2,
       "ticker": "ACHC",
       "chase": "상·실적직후",
-      "chase_detail": "상·실적직후 — RR 1위. 실적 직후 소화·눌림 전 추격 비추.",
+      "chase_detail": "상·실적직후 — RR 1위. 실적 직후 소화·눌림 전 추격 비추. · 경쟁점유 -1.0pp (하락 모니터)",
       "px": 29.62,
       "earn_date": "2026-07-28"
     },
     {
-      "rank": 2,
+      "rank": 3,
       "ticker": "ALKS",
       "chase": "중상·SOFT·워치",
       "chase_detail": "중상·SOFT·워치 — RR 2위·A′ 근접(스윙L). 실적 멀다·눌림·비중 여유 시.",
@@ -19,23 +27,23 @@
       "earn_date": "2026-10-28"
     },
     {
-      "rank": 3,
-      "ticker": "ECPG",
-      "chase": "최상·코어·보유·추가금지",
-      "chase_detail": "최상·코어·추가금지 — RR·Beat 상위·08-05 EARN_D5. 코어 과비중·추가금지.",
-      "px": 94.08,
-      "earn_date": "2026-08-05"
-    },
-    {
       "rank": 4,
-      "ticker": "ROKU",
-      "chase": "상·08-06",
-      "chase_detail": "상·08-06 — 플랫폼 RR 양호·EARN_D5. NO_ADD·실적 전 추격 금지.",
-      "px": 145.01,
+      "ticker": "TXG",
+      "chase": "하·과열",
+      "chase_detail": "하·과열 — PT 프리미엄·고점권·08-06. RR와 무관 추격 비추천. · 점유율 꾸준 상승(+3.0pp) — 경쟁력 가산",
+      "px": 47.27,
       "earn_date": "2026-08-06"
     },
     {
       "rank": 5,
+      "ticker": "ROKU",
+      "chase": "상·08-06",
+      "chase_detail": "상·08-06 — 플랫폼 RR 양호·EARN_D5. NO_ADD·실적 전 추격 금지. · 경쟁점유 -2.0pp (하락 모니터)",
+      "px": 145.01,
+      "earn_date": "2026-08-06"
+    },
+    {
+      "rank": 6,
       "ticker": "HST",
       "chase": "중상·08-05·고점",
       "chase_detail": "중상·08-05·고점 — 호텔 RR 중상·업사이드 음수·EARN_D5. 추격 비추.",
@@ -43,7 +51,7 @@
       "earn_date": "2026-08-05"
     },
     {
-      "rank": 6,
+      "rank": 7,
       "ticker": "INDV",
       "chase": "중·청산후워치·08-04",
       "chase_detail": "중·청산후워치·08-04 — 기청산·EARN_D5. 재진입은 새 셋업·비중 여유 시.",
@@ -51,15 +59,31 @@
       "earn_date": "2026-08-04"
     },
     {
-      "rank": 7,
-      "ticker": "TXG",
-      "chase": "하·과열",
-      "chase_detail": "하·과열 — PT 프리미엄·고점권·08-06. RR와 무관 추격 비추천.",
-      "px": 47.27,
-      "earn_date": "2026-08-06"
+      "rank": 8,
+      "ticker": "NESR",
+      "chase": "중상·보유위성·SOFT",
+      "chase_detail": "중상·보유위성·SOFT — 포트 3주. A′ 근접·추가보다 홀드/축소 관찰. · 점유율 꾸준 상승(+1.5pp) — 경쟁력 가산",
+      "px": 26.96,
+      "earn_date": "2026-08-18"
     },
     {
-      "rank": 8,
+      "rank": 9,
+      "ticker": "SBLK",
+      "chase": "중상·08-05·고점주의",
+      "chase_detail": "중상·08-05·고점주의 — 건화물·EARN_D5. 위성·눌림만. · 점유율 꾸준 상승(+2.0pp) — 경쟁력 가산",
+      "px": 28.75,
+      "earn_date": "2026-08-05"
+    },
+    {
+      "rank": 10,
+      "ticker": "AMRX",
+      "chase": "중·보유·추가금지",
+      "chase_detail": "중·보유·추가금지 — 코어 보유. 즉흥·추가 매수 금지. · 점유율 꾸준 상승(+1.5pp) — 경쟁력 가산",
+      "px": 18.32,
+      "earn_date": "2026-10-29"
+    },
+    {
+      "rank": 11,
       "ticker": "APA",
       "chase": "중상·08-05",
       "chase_detail": "중상·08-05 — E&P Beat·업사이드·EARN_D5. 위성 한도·추격 금지.",
@@ -67,7 +91,7 @@
       "earn_date": "2026-08-05"
     },
     {
-      "rank": 9,
+      "rank": 12,
       "ticker": "DRH",
       "chase": "중·실적직후·고점",
       "chase_detail": "중·실적직후·고점 — 호텔 리츠. RSI 과열·추격 비추.",
@@ -75,36 +99,12 @@
       "earn_date": "2026-07-30"
     },
     {
-      "rank": 10,
-      "ticker": "NESR",
-      "chase": "중상·보유위성·SOFT",
-      "chase_detail": "중상·보유위성·SOFT — 포트 3주. A′ 근접·추가보다 홀드/축소 관찰.",
-      "px": 26.96,
-      "earn_date": "2026-08-18"
-    },
-    {
-      "rank": 11,
-      "ticker": "SBLK",
-      "chase": "중상·08-05·고점주의",
-      "chase_detail": "중상·08-05·고점주의 — 건화물·EARN_D5. 위성·눌림만.",
-      "px": 28.75,
-      "earn_date": "2026-08-05"
-    },
-    {
-      "rank": 12,
+      "rank": 13,
       "ticker": "CGNX",
       "chase": "중상·08-05",
       "chase_detail": "중상·08-05 — 머신비전·업사이드·EARN_D5. 위성·실적창 주의.",
       "px": 65.24,
       "earn_date": "2026-08-05"
-    },
-    {
-      "rank": 13,
-      "ticker": "AMRX",
-      "chase": "중·보유·추가금지",
-      "chase_detail": "중·보유·추가금지 — 코어 보유. 즉흥·추가 매수 금지.",
-      "px": 18.32,
-      "earn_date": "2026-10-29"
     },
     {
       "rank": 14,
@@ -228,6 +228,14 @@
     },
     {
       "rank": 29,
+      "ticker": "CLMT",
+      "chase": "하·과열",
+      "chase_detail": "하·과열 — 특수제품+재생. PT 프리미엄·고점·08-07. 추격 금지. · 점유율 꾸준 상승(+2.0pp) — 경쟁력 가산",
+      "px": 44.19,
+      "earn_date": "2026-08-07"
+    },
+    {
+      "rank": 30,
       "ticker": "ADPT",
       "chase": "중·SOFT·실적직후",
       "chase_detail": "중·SOFT·실적직후 — A′ 근접(고점−8% 경계). 소화 확인 후.",
@@ -235,7 +243,7 @@
       "earn_date": "2026-07-29"
     },
     {
-      "rank": 30,
+      "rank": 31,
       "ticker": "INCY",
       "chase": "중·SOFT",
       "chase_detail": "중·SOFT — A′ 근접(고점−10%). 업사이드 작으면 대기.",
@@ -243,7 +251,7 @@
       "earn_date": "2026-10-27"
     },
     {
-      "rank": 31,
+      "rank": 32,
       "ticker": "ATLC",
       "chase": "중상·08-06위성",
       "chase_detail": "중상·08-06위성 — 특화금융·EARN_D5. 위성 한도.",
@@ -251,7 +259,7 @@
       "earn_date": "2026-08-06"
     },
     {
-      "rank": 32,
+      "rank": 33,
       "ticker": "CDNA",
       "chase": "중하·실적직후·과열",
       "chase_detail": "중하·실적직후·과열 — RSI·급등 과열. 추격 금지.",
@@ -259,7 +267,7 @@
       "earn_date": "2026-07-30"
     },
     {
-      "rank": 33,
+      "rank": 34,
       "ticker": "STLD",
       "chase": "중",
       "chase_detail": "중 — 철강. 경기민감·중간 RR.",
@@ -267,20 +275,12 @@
       "earn_date": "2026-10-19"
     },
     {
-      "rank": 34,
+      "rank": 35,
       "ticker": "JAZZ",
       "chase": "중·08-03·고점",
       "chase_detail": "중·08-03·고점 — 제약·EARN_D5. 고점권 관망.",
       "px": 252.86,
       "earn_date": "2026-08-03"
-    },
-    {
-      "rank": 35,
-      "ticker": "CLMT",
-      "chase": "하·과열",
-      "chase_detail": "하·과열 — 특수제품+재생. PT 프리미엄·고점·08-07. 추격 금지.",
-      "px": 44.19,
-      "earn_date": "2026-08-07"
     },
     {
       "rank": 36,

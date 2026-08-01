@@ -9,6 +9,8 @@ from pathlib import Path
 
 import yfinance as yf
 
+from sepa.share_gain import FORMULA_SHARE_SUFFIX, assess_share_gain, enrich_qual_fields, enrich_rank_row
+
 ASOF = date(2026, 8, 1)
 TICKERS = [
     "TXG", "CDNA", "TVTX", "LIND", "FTRE", "AMRX", "JAZZ", "ADPT", "KRYS", "CGNX",
@@ -26,7 +28,10 @@ QUAL_SEEDS = [
     Path("/workspace/reports/qual_20260730b.json"),
 ]
 QUAL_OUT = Path("/tmp/qual_20260801_full.json")
-FORMULA = "epsBeat + upside - near_high - max(prem,0) + clip(avgSurp)"
+FORMULA = (
+    "epsBeat + upside - near_high - max(prem,0) + clip(avgSurp) "
+    + FORMULA_SHARE_SUFFIX
+)
 
 SECTOR_KO = {
     "Technology": "IT·기술",
@@ -129,6 +134,7 @@ def fetch_one(t):
     sur = avg_surp if avg_surp is not None else 0.0
     sur = max(min(sur, 1.0), -0.5)
     row["chase_raw"] = float(beats) + ups - near - max(pr, 0.0) + sur
+    enrich_rank_row(row)  # 경쟁점유 꾸준 상승 가산 (+마진악화 시 취소)
     return row, info
 
 
@@ -201,10 +207,16 @@ def main():
             rows.append(r)
             if t not in qual or not qual[t].get("item"):
                 qual[t] = stub_qual(t, r, info)
+            # 심층 코멘트: 점유 상승 가산 문구
+            sg = assess_share_gain(t)
+            if sg.strat_note:
+                qual[t] = enrich_qual_fields(qual.get(t, {}), sg)
             ups = f"{r['upside']:+.1%}" if r["upside"] is not None else "—"
+            bonus = r.get("share_bonus") or 0.0
+            btxt = f" share+{bonus:.2f}" if bonus else ""
             print(
                 f"OK {t:5} px={r['px']:.2f} ups={ups} beat={r['epsBeat']}/{r['epsN']} "
-                f"raw={r['chase_raw']:.3f} earn={r.get('earnDate')}"
+                f"raw={r['chase_raw']:.3f}{btxt} earn={r.get('earnDate')}"
             )
         except Exception as e:  # noqa: BLE001
             failed.append(t)
