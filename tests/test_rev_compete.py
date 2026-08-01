@@ -48,6 +48,15 @@ def test_clmt_profile_exists():
     assert abs(p["mix_rows"][0]["mix"]["Specialty Products"] - 68.5) < 0.1
 
 
+def test_txg_profile_exists():
+    p = get_profile("TXG")
+    assert p is not None
+    assert any(r.get("subject") for r in p["mix_rows"])
+    assert p["share_rows"][0][0] == "10x Genomics"
+    assert "Consumables" in p["mix_buckets"]
+    assert abs(p["mix_rows"][0]["mix"]["Consumables"] - 86.0) < 0.1
+
+
 def test_load_bundle_offline_share(monkeypatch):
     monkeypatch.setattr("sepa.rev_compete._ttm_revenue", lambda _t: None)
     b = load_compete_bundle("RELY")
@@ -64,3 +73,8 @@ def test_load_bundle_offline_share(monkeypatch):
     assert b3 is not None
     assert b3.share_rows[2].name == "Calumet"
     assert abs(b3.share_rows[2].delta_pp - 2.0) < 1e-9
+
+    b4 = load_compete_bundle("TXG")
+    assert b4 is not None
+    assert b4.share_rows[0].name == "10x Genomics"
+    assert abs(b4.share_rows[0].delta_pp - 3.0) < 1e-9
