@@ -502,6 +502,159 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "NESR는 MENA 생산서비스 편중. 피어는 공시 세그먼트가 달라 근사."
         ),
     },
+    "LASR": {
+        "sector_ko": "테크·광전자 (심층: 고출력 반도체·광섬유 레이저 / A&D)",
+        "share_title": "상장 고출력 레이저·포토닉스 피어셋 스케일 점유 (추정)",
+        "share_as_of": "2026 · TTM/스케일 근사 vs 전년",
+        "share_note": (
+            "고출력 레이저·포토닉스 상장 피어셋 상대 스케일. "
+            "COHR/IPGP는 산업·통신 믹스가 커서 LASR A&D 편중 점유와 다름 — 방향 비교용."
+        ),
+        "share_rows": [
+            ("Coherent", 42.0, 41.0),
+            ("IPG Photonics", 28.0, 30.0),
+            ("Lumentum", 18.0, 17.5),
+            ("nLIGHT", 7.0, 5.5),
+            ("Others (listed)", 5.0, 6.0),
+        ],
+        "share_source": "Directional share of selected US-listed high-power laser/photonics peers (est.)",
+        "mix_buckets": ["Aerospace & Defense", "Industrial", "Microfabrication"],
+        "mix_as_of": "Q1'26 (또는 최근 공시 근사)",
+        "mix_rows": [
+            {
+                "key": "LASR",
+                "name": "LASR",
+                "subject": True,
+                "yf": "LASR",
+                "mix": {"Aerospace & Defense": 69.0, "Industrial": 15.0, "Microfabrication": 16.0},
+                "note": "Q1'26 A&D $55.1M / Ind $12.0M / Micro $13.0M",
+            },
+            {
+                "key": "IPGP",
+                "name": "IPGP",
+                "subject": False,
+                "yf": "IPGP",
+                "mix": {"Aerospace & Defense": 8.0, "Industrial": 78.0, "Microfabrication": 14.0},
+                "note": "산업 절삭·용접 편중 근사",
+            },
+            {
+                "key": "COHR",
+                "name": "COHR",
+                "subject": False,
+                "yf": "COHR",
+                "mix": {"Aerospace & Defense": 18.0, "Industrial": 52.0, "Microfabrication": 30.0},
+                "note": "산업·통신·생명과학 혼합 근사",
+            },
+            {
+                "key": "LITE",
+                "name": "LITE",
+                "subject": False,
+                "yf": "LITE",
+                "mix": {"Aerospace & Defense": 5.0, "Industrial": 25.0, "Microfabrication": 70.0},
+                "note": "통신·옵토 편중 · 버킷 근사",
+            },
+        ],
+        "mix_note": (
+            "버킷은 A&D / Industrial / Microfabrication으로 정규화. "
+            "LASR Q1'26 최종시장 공시. 피어는 공시 세그먼트가 달라 근사 — 방향 비교용."
+        ),
+    },
+    "AMRX": {
+        "sector_ko": "헬스케어·제네릭·스페셜티 제약 (심층: Affordable · Specialty · AvKARE)",
+        "share_title": "상장 제네릭·복합제형 피어셋 스케일 점유 (추정)",
+        "share_as_of": "2026 · TTM/스케일 근사 vs 전년",
+        "share_note": (
+            "미국·글로벌 제네릭/복합제형 상장 피어셋 상대 스케일. "
+            "TEVA·VTRS는 글로벌 대형이라 AMRX 미국 복잡제네릭·Specialty 점유와 다름 — 방향 비교용."
+        ),
+        "share_rows": [
+            ("Teva", 32.0, 33.0),
+            ("Viatris", 26.0, 27.0),
+            ("Amneal", 14.0, 12.5),
+            ("Perrigo", 12.0, 12.5),
+            ("Others (listed)", 16.0, 15.0),
+        ],
+        "share_source": "Directional share of selected US-listed generics/specialty peers by scale (est.)",
+        "mix_buckets": ["Affordable/Generics", "Specialty/Brand", "Dist/Other"],
+        "mix_as_of": "Q2'26 revenue mix",
+        "mix_rows": [
+            {
+                "key": "AMRX",
+                "name": "AMRX",
+                "subject": True,
+                "yf": "AMRX",
+                "mix": {"Affordable/Generics": 61.5, "Specialty/Brand": 18.8, "Dist/Other": 19.7},
+                "note": "Q2'26 AM $490M / Spec $149.3M / AvKARE $157M",
+            },
+            {
+                "key": "TEVA",
+                "name": "TEVA",
+                "subject": False,
+                "yf": "TEVA",
+                "mix": {"Affordable/Generics": 55.0, "Specialty/Brand": 35.0, "Dist/Other": 10.0},
+                "note": "글로벌 제네릭+혁신/Specialty 혼합 근사",
+            },
+            {
+                "key": "VTRS",
+                "name": "VTRS",
+                "subject": False,
+                "yf": "VTRS",
+                "mix": {"Affordable/Generics": 70.0, "Specialty/Brand": 20.0, "Dist/Other": 10.0},
+                "note": "제네릭·브랜드 혼합 · 구조조정 중 근사",
+            },
+            {
+                "key": "PRGO",
+                "name": "PRGO",
+                "subject": False,
+                "yf": "PRGO",
+                "mix": {"Affordable/Generics": 40.0, "Specialty/Brand": 15.0, "Dist/Other": 45.0},
+                "note": "OTC·소비자헬스 편중 근사",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Affordable/Generics / Specialty·Brand / Dist·Other로 정규화. "
+            "AMRX Q2'26 세그먼트 공시. 피어는 공시 세그먼트가 달라 근사."
+        ),
+    },
+    "ECPG": {
+        "sector_ko": "전문금융 · 부실채권(NPL) 매입·회수 (심층: Specialty Finance)",
+        "share_title": "상장 NPL 채무매입 피어셋 스케일 점유 (추정)",
+        "share_as_of": "2026 · 회수/스케일 근사 vs 전년",
+        "share_note": (
+            "미국·글로벌 소비자 NPL 매입 상장 피어셋 상대 스케일. "
+            "사모·지역 매입사·은행 내수 회수는 제외 — 공개 피어 방향 비교용."
+        ),
+        "share_rows": [
+            ("Encore (ECPG)", 38.0, 35.0),
+            ("PRA Group (PRAA)", 28.0, 29.0),
+            ("Others (listed/est.)", 34.0, 36.0),
+        ],
+        "share_source": "Directional share of selected US-listed NPL buyers by collections/scale (est.)",
+        "mix_buckets": ["Debt Purchasing", "Servicing", "Other"],
+        "mix_as_of": "Q1'26 (또는 최근 공시 근사)",
+        "mix_rows": [
+            {
+                "key": "ECPG",
+                "name": "ECPG",
+                "subject": True,
+                "yf": "ECPG",
+                "mix": {"Debt Purchasing": 95.2, "Servicing": 4.3, "Other": 0.4},
+                "note": "Q1'26 Debt purch $452.8M / Servicing $20.6M / Other $2.0M",
+            },
+            {
+                "key": "PRAA",
+                "name": "PRAA",
+                "subject": False,
+                "yf": "PRAA",
+                "mix": {"Debt Purchasing": 92.0, "Servicing": 6.0, "Other": 2.0},
+                "note": "채무매입 중심 · 유럽·미주 믹스 근사",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Debt Purchasing / Servicing / Other로 정규화. "
+            "ECPG는 미국 MCM 회수·ERC 중심. 피어는 공시 세그먼트가 달라 근사."
+        ),
+    },
 }
 
 
@@ -614,6 +767,9 @@ def chart_share_level(bundle: CompeteBundle, out: Path, *, prop, prop_b) -> Path
             or ("10x" in n and bundle.ticker == "TXG")
             or ("Acadia" in n and bundle.ticker == "ACHC")
             or ("NESR" in n and bundle.ticker == "NESR")
+            or ("nLIGHT" in n and bundle.ticker == "LASR")
+            or ("Encore" in n and bundle.ticker == "ECPG")
+            or ("Amneal" in n and bundle.ticker == "AMRX")
         )
         colors.append(("#6c2bd9" if bundle.ticker == "ROKU" else "#0ea5e9") if hit else "#64748b")
     bars = ax.barh(names[::-1], vals[::-1], color=colors[::-1], height=0.55)
