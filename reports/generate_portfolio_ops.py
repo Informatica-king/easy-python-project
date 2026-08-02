@@ -74,26 +74,27 @@ def fmt_pct(x: float | None, signed: bool = True) -> str:
     return f"{x*100:+.1f}%" if signed else f"{x*100:.1f}%"
 
 
-# Style C — Callout & High Legibility (bright bg, strong hue separation)
+# Style B — Warm Paper Mid-Chroma
 PALETTE = [
-    "#00A3A1",  # cyan
-    "#F59E0B",  # orange
-    "#3B82F6",  # blue
-    "#DB2777",  # magenta
-    "#65A30D",  # lime
-    "#6366F1",  # indigo
-    "#0EA5E9",  # sky
-    "#D97706",  # amber
+    "#3D7A5C",  # forest
+    "#C4704B",  # terracotta
+    "#4A6FA5",  # denim
+    "#C4A35A",  # gold
+    "#B56B7A",  # dusty rose
+    "#5A9E8F",  # seafoam
+    "#3E5C76",  # ink blue
+    "#8B7355",  # warm taupe
 ]
-CASH_COLOR = "#78716C"  # stone
-INK = "#111827"
-MUTED = "#6B7280"
-PLOT_BG = "#F8FAFC"
-GRID = "#E5E7EB"
+CASH_COLOR = "#A89F91"  # warm stone
+INK = "#2C2A26"
+MUTED = "#6B6560"
+PLOT_BG = "#FFFDF8"
+GRID = "#E8E2D8"
+PAPER = "#FFFDF8"
 
 
 def _pie_with_callouts(ax, sizes, labels, colors, title, prop, prop_b) -> None:
-    """Pie with outside ticker+% callouts (no dark-on-slice text)."""
+    """Pie with outside ticker+% labels on warm paper (mid-chroma slices)."""
     import numpy as np
 
     total = float(sum(sizes)) or 1.0
@@ -101,7 +102,7 @@ def _pie_with_callouts(ax, sizes, labels, colors, title, prop, prop_b) -> None:
         sizes,
         colors=colors,
         startangle=90,
-        wedgeprops={"edgecolor": "white", "linewidth": 1.6},
+        wedgeprops={"edgecolor": PAPER, "linewidth": 1.8},
     )
     ax.set_title(title, fontproperties=prop_b, fontsize=11, color=INK, pad=10)
     for wedge, lab, sz in zip(wedges, labels, sizes):
@@ -109,7 +110,6 @@ def _pie_with_callouts(ax, sizes, labels, colors, title, prop, prop_b) -> None:
         rad = np.deg2rad(ang)
         x, y = np.cos(rad), np.sin(rad)
         pct = 100.0 * float(sz) / total
-        # Skip tiny callouts clutter — still show if >= 3%
         if pct < 2.5:
             continue
         ha = "left" if x >= 0 else "right"
@@ -137,24 +137,23 @@ def _pie_with_callouts(ax, sizes, labels, colors, title, prop, prop_b) -> None:
 def chart_pies(book: PortfolioBook, prop, prop_b) -> tuple[Path, Path]:
     CHART_DIR.mkdir(parents=True, exist_ok=True)
     holdings = [h for h in book.holdings if h.value]
-    # largest-first for stable color mapping
     holdings = sorted(holdings, key=lambda h: -(h.value or 0))
     labels = [h.ticker for h in holdings]
     sizes = [float(h.value) for h in holdings]
     colors = [PALETTE[i % len(PALETTE)] for i in range(len(labels))]
 
-    fig, ax = plt.subplots(figsize=(5.6, 4.4), facecolor="white")
-    ax.set_facecolor("white")
+    fig, ax = plt.subplots(figsize=(5.6, 4.4), facecolor=PAPER)
+    ax.set_facecolor(PAPER)
     _pie_with_callouts(ax, sizes, labels, colors, "주식만 비중", prop, prop_b)
     p1 = CHART_DIR / "pie_stock.png"
-    fig.savefig(p1, dpi=160, bbox_inches="tight", facecolor="white", pad_inches=0.25)
+    fig.savefig(p1, dpi=160, bbox_inches="tight", facecolor=PAPER, pad_inches=0.25)
     plt.close(fig)
 
     labels2 = labels + ["CASH"]
     sizes2 = sizes + [float(book.cash_usd)]
     cols2 = colors + [CASH_COLOR]
-    fig, ax = plt.subplots(figsize=(5.6, 4.4), facecolor="white")
-    ax.set_facecolor("white")
+    fig, ax = plt.subplots(figsize=(5.6, 4.4), facecolor=PAPER)
+    ax.set_facecolor(PAPER)
     _pie_with_callouts(
         ax,
         sizes2,
@@ -164,7 +163,6 @@ def chart_pies(book: PortfolioBook, prop, prop_b) -> tuple[Path, Path]:
         prop,
         prop_b,
     )
-    # center note for liquid donut feel — light ring already full pie; add total caption
     ax.text(
         0,
         -1.55,
@@ -175,7 +173,7 @@ def chart_pies(book: PortfolioBook, prop, prop_b) -> tuple[Path, Path]:
         color=MUTED,
     )
     p2 = CHART_DIR / "pie_liquid.png"
-    fig.savefig(p2, dpi=160, bbox_inches="tight", facecolor="white", pad_inches=0.25)
+    fig.savefig(p2, dpi=160, bbox_inches="tight", facecolor=PAPER, pad_inches=0.25)
     plt.close(fig)
     return p1, p2
 
@@ -188,24 +186,33 @@ def chart_vs_bench(book: PortfolioBook, prop, prop_b) -> Path | None:
     if not pidx:
         return None
     start_norm = pidx[0][0]
-    fig, ax = plt.subplots(figsize=(9.2, 3.8), facecolor="white")
+    fig, ax = plt.subplots(figsize=(9.2, 3.8), facecolor=PAPER)
     ax.set_facecolor(PLOT_BG)
     ax.grid(True, which="major", linestyle=":", linewidth=0.8, color=GRID)
+    # navy / teal / coral — Style B line identities
     ax.plot(
         [d for d, _ in pidx],
         [v for _, v in pidx],
         label="내 포폴(주식)",
-        color="#1D4ED8",
-        lw=2.6,
+        color="#3E5C76",
+        lw=2.5,
     )
-    bench_styles = [("QQQ", "#00A3A1", 2.3), ("SPY", "#DB2777", 2.3)]
+    bench_styles = [("QQQ", "#5A9E8F", 2.1), ("SPY", "#C4704B", 2.1)]
     for b, color, lw in bench_styles:
         if b not in series:
             continue
         norm = normalize_series(series[b], start_norm)
         if not norm:
             continue
-        ax.plot([d for d, _ in norm], [v for _, v in norm], label=b, lw=lw, color=color)
+        ls = "--" if b == "QQQ" else "-"
+        ax.plot(
+            [d for d, _ in norm],
+            [v for _, v in norm],
+            label=b,
+            lw=lw,
+            color=color,
+            linestyle=ls,
+        )
     ax.axhline(100, color=MUTED, lw=1.0, ls="--")
     ax.set_title(
         "포폴 바스켓 vs QQQ·SPY (시작=100)",
@@ -213,7 +220,7 @@ def chart_vs_bench(book: PortfolioBook, prop, prop_b) -> Path | None:
         fontsize=11,
         color=INK,
     )
-    leg = ax.legend(prop=prop, fontsize=8, frameon=True, fancybox=False, edgecolor=GRID)
+    leg = ax.legend(prop=prop, fontsize=8, frameon=True, fancybox=False, edgecolor=GRID, facecolor=PAPER)
     for t in leg.get_texts():
         t.set_color(INK)
     ax.set_ylabel("지수", fontproperties=prop, color=INK)
@@ -225,7 +232,7 @@ def chart_vs_bench(book: PortfolioBook, prop, prop_b) -> Path | None:
         spine.set_color(GRID)
     fig.tight_layout()
     out = CHART_DIR / "vs_bench.png"
-    fig.savefig(out, dpi=160, bbox_inches="tight", facecolor="white")
+    fig.savefig(out, dpi=160, bbox_inches="tight", facecolor=PAPER)
     plt.close(fig)
     return out
 
@@ -238,26 +245,26 @@ def build_css() -> str:
       @bottom-center {{ content:"포폴() 운영브리프 — " counter(page);
         font-size:8pt; color:#666; font-family:'NanumGothic',sans-serif; }}
     }}
-    body {{ font-family:'NanumGothic',sans-serif; font-size:9.2pt; line-height:1.4; color:#111827; }}
-    h1 {{ font-size:20pt; margin:0 0 6px; color:#111827; }}
-    h2 {{ font-size:12pt; margin:12px 0 6px; border-bottom:2px solid #3B82F6; padding-bottom:2px; color:#111827; }}
-    .sub {{ color:#6B7280; margin:0 0 8px; }}
-    .box {{ border:1px solid #E5E7EB; padding:8px 10px; margin:6px 0; background:#F8FAFC; }}
-    .risk {{ border-color:#DB2777; background:#FFF1F2; }}
-    .forbid {{ border-color:#F59E0B; background:#FFFBEB; }}
-    .ok {{ border-color:#00A3A1; background:#F0FDFA; }}
+    body {{ font-family:'NanumGothic',sans-serif; font-size:9.2pt; line-height:1.4; color:#2C2A26; background:#FFFDF8; }}
+    h1 {{ font-size:20pt; margin:0 0 6px; color:#2C2A26; }}
+    h2 {{ font-size:12pt; margin:12px 0 6px; border-bottom:2px solid #4A6FA5; padding-bottom:2px; color:#2C2A26; }}
+    .sub {{ color:#6B6560; margin:0 0 8px; }}
+    .box {{ border:1px solid #E8E2D8; padding:8px 10px; margin:6px 0; background:#FFFaf3; }}
+    .risk {{ border-color:#B56B7A; background:#FDF2F4; }}
+    .forbid {{ border-color:#C4704B; background:#FFF7F0; }}
+    .ok {{ border-color:#3D7A5C; background:#F3FAF6; }}
     table {{ width:100%; border-collapse:collapse; margin:6px 0 10px; font-size:8.5pt; }}
-    th, td {{ border:1px solid #E5E7EB; padding:3px 5px; text-align:left; vertical-align:top; }}
-    th {{ background:#F8FAFC; color:#111827; }}
+    th, td {{ border:1px solid #E8E2D8; padding:3px 5px; text-align:left; vertical-align:top; }}
+    th {{ background:#F5F0E8; color:#2C2A26; }}
     .r {{ text-align:right; }}
-    .small {{ font-size:7.5pt; color:#6B7280; }}
+    .small {{ font-size:7.5pt; color:#6B6560; }}
     .charts {{ display:flex; gap:8px; justify-content:space-between; }}
     .charts img {{ width:48%; }}
     img.wide {{ width:100%; max-height:240px; object-fit:contain; }}
-    .bucket-run {{ color:#65A30D; font-weight:bold; }}
-    .bucket-watch {{ color:#D97706; }}
-    .bucket-ban {{ color:#DB2777; }}
-    .style-tag {{ display:inline-block; background:#EEF2FF; color:#4338CA; border:1px solid #C7D2FE;
+    .bucket-run {{ color:#3D7A5C; font-weight:bold; }}
+    .bucket-watch {{ color:#C4704B; }}
+    .bucket-ban {{ color:#B56B7A; }}
+    .style-tag {{ display:inline-block; background:#F5F0E8; color:#3E5C76; border:1px solid #E8E2D8;
       padding:2px 8px; font-size:7.5pt; margin:0 0 8px; }}
     """
 
@@ -351,7 +358,7 @@ def build_html(
 <title>포폴() {book.as_of.isoformat()}</title><style>{build_css()}</style></head><body>
 <h1>포폴() 운영브리프</h1>
 <p class="sub">기준 {esc(book.as_of.isoformat())} · 출처 {esc(book.source)} · 심층연동 {esc(scen_path.name if scen_path else '—')}</p>
-<div class="style-tag">차트 Style C — Callout &amp; High Legibility</div>
+<div class="style-tag">차트 Style B — Warm Paper Mid-Chroma</div>
 <div class="box ok">
   <b>북 요약</b> 주식 {fmt_usd(book.equity_usd)} · 현금 {fmt_usd(book.cash_usd)}
   ({fmt_pct(book.cash_pct, False)}) · 유동 {fmt_usd(book.liquid_usd)} · 바닥 ${book.cash_floor_usd:.0f}
