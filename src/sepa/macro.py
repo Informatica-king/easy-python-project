@@ -169,6 +169,30 @@ def _tool_econ_news(args: list, kwargs: dict) -> None:
     econ_news.main(argv)
 
 
+def _tool_portfolio(args: list, kwargs: dict) -> None:
+    """포폴() — portfolio ops brief PDF."""
+    import runpy
+    from pathlib import Path
+
+    argv: list[str] = []
+    if kwargs.get("snap"):
+        argv.extend(["--snap", str(kwargs["snap"])])
+    elif args:
+        s = str(args[0]).strip()
+        if s.endswith(".yaml") or s.endswith(".yml") or s.endswith(".json"):
+            argv.extend(["--snap", s])
+    # Run generator as script with argv
+    gen = Path(__file__).resolve().parents[2] / "reports" / "generate_portfolio_ops.py"
+    if not gen.exists():
+        gen = Path("reports/generate_portfolio_ops.py")
+    old = sys.argv
+    try:
+        sys.argv = [str(gen), *argv]
+        runpy.run_path(str(gen), run_name="__main__")
+    finally:
+        sys.argv = old
+
+
 def _tool_ta(args: list, kwargs: dict) -> None:
     """Lean TA scores / 기술적분석(). docs/korean_commands.md"""
     from sepa import ta_bot, tech_analysis
@@ -509,6 +533,13 @@ REGISTRY: list[MacroSpec] = [
         "경제뉴스() — 직전 미국 정규장 자금이동·섹터·지수·포트영향 + 뉴스 PDF",
         _tool_econ_news,
         aliases=("econ", "sepa.econ", "econ_news", "경제뉴스", "news_brief"),
+    ),
+    MacroSpec(
+        "sepa.portfolio",
+        "!sepa.portfolio()  |  !포폴()  |  !sepa.포폴()",
+        "포폴() — 보유비중·이벤트·매수고려(필터)·차주/5영업일 운영브리프 PDF",
+        _tool_portfolio,
+        aliases=("portfolio", "포폴", "sepa.포폴", "port"),
     ),
     MacroSpec(
         "sepa.chart", '!sepa.chart("SNDK")  |  !sepa.chart(sandisk, months=12)',
