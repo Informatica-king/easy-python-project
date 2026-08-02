@@ -224,13 +224,15 @@ def render_html(bundle: EconNewsBundle) -> str:
             "</tr>"
         )
 
-    # checklist
+    # checklist — aligned to current portfolio_watch.yaml OS
+    held = [p.ticker for p in bundle.portfolio if p.role == "hold"]
+    n_held = len(held) or 7
     checklist = [
-        "장 시작 전: 보유 4종 + 워치(NEO/AMRX/MU) 호가·갭 확인",
-        "NESR: 25–27 USD 밴드만 (상단 돌파 추격 금지)",
-        "NEO/AMRX/ALKS/COCO: 실적 D-데이·D-5 윈도우면 분할 신호 무시(대기)",
-        "MU: 반도체 테마 과열 시 소수점 상한(120–150 USD) 준수",
-        "버퍼 300 USD 유지 · KRW 환전분은 필요 시에만",
+        f"장 시작 전: 보유 {n_held}종(ECPG·AMRX·LASR·SCHD·NESR·TXG·RELY) 호가·갭 확인",
+        "EARN_D5: ECPG·RELY(08-05) · LASR·TXG(08-06) — 추가/분할 금지",
+        "NESR: 25–27 USD 밴드 · NO_ADD · stop $24",
+        "TXG/LASR: 실적·과열 구간 추격·물타기 금지",
+        "현금바닥 $150 유지 · 미체결 1건 확인 전 중복주문 금지",
     ]
 
     headline_rows = []
@@ -314,8 +316,8 @@ def render_html(bundle: EconNewsBundle) -> str:
 </table>
 <div class="box">
 <b>배분과의 연결 (현행 룰)</b><br/>
-코어(ECPG/ASTH/INDV) 추가금지 유지 · NESR은 25–27만 ·
-이벤트(NEO≫AMRX) · MU 소수점 위성 · TXG류 고점 추격 금지
+코어(ECPG/AMRX) · LASR 이관1단계 추가금지 · NESR/TXG/RELY NO_ADD ·
+SCHD 완충 · 현금바닥 $150 · 실적주간(08-05~06) 갭추격 금지
 </div>
 
 <h2>5. 다음 장·오늘은 이렇게</h2>
