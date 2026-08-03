@@ -408,6 +408,14 @@ def _tool_go(args: list, kwargs: dict) -> None:
     print("  SEPA GO — scan(full) → fund → anal")
     print("#" * 64)
 
+    from sepa.result_ledger import save_params_snapshot
+
+    params_pack = save_params_snapshot(DEFAULT_CONFIG, "reports", stamp, publish=True)
+    print(
+        f"params snapshot: sha256={params_pack.get('sha256', '')[:12]}… "
+        f"→ {params_pack.get('yaml')}"
+    )
+
     # 1) Stage 2 scan (full Nasdaq) — includes incremental price update unless no_update
     banner(1, 3, "!sepa.scan(full)")
     scan_argv = ["--full"]

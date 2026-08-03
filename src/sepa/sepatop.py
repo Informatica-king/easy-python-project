@@ -492,6 +492,7 @@ def write_analysis_snapshot_md(
             "- `membership_panel.csv` — cumulative long panel (all stamps on disk)",
             f"- `tenure_{stamp}.csv` — first_seen based (not continuous)",
             f"- `index_{stamp}.csv` — sepaTop vs benchmarks",
+            f"- `membership_event_fwd_{stamp}.csv` — enter/exit forward vs SPX (backfilled)",
             "",
         ]
     )
@@ -805,6 +806,22 @@ def run_sepatop(
     print(f"snapshot md   : {snapshot_md.resolve()}")
     print(f"tenure        : {tenure_path.resolve()}")
 
+    # enter/exit forward returns (backfill when price window exists)
+    from sepa.result_ledger import save_membership_event_forward
+
+    fwd_pack = save_membership_event_forward(
+        sepatop_report, params.data.cache_dir, stamp, publish=True
+    )
+    fwd_summary = fwd_pack.get("summary_row") or {}
+    print(
+        f"\n=== membership event forward "
+        f"(events={fwd_summary.get('n_events', 0)}, "
+        f"ready_5d={fwd_summary.get('ready_5d', 0)}, "
+        f"ready_21d={fwd_summary.get('ready_21d', 0)}) ==="
+    )
+    if fwd_pack.get("panel"):
+        print(f"event fwd panel: {Path(fwd_pack['panel']).resolve()}")
+
     analysis_paths = [
         chart_path,
         rel_path,
@@ -817,6 +834,10 @@ def run_sepatop(
         panel_path,
         snapshot_md,
     ]
+    for key in ("daily", "panel", "summary"):
+        p = fwd_pack.get(key)
+        if p:
+            analysis_paths.append(Path(p))
     published = publish_many(analysis_paths)
     if published:
         print(f"sepaTop artifacts: {len(published)} files published")
@@ -832,6 +853,9 @@ def run_sepatop(
         "always_present": always_path,
         "panel": panel_path,
         "snapshot_md": snapshot_md,
+        "event_fwd": fwd_pack.get("daily"),
+        "event_fwd_panel": fwd_pack.get("panel"),
+        "event_fwd_summary": fwd_pack.get("summary"),
         "analysis_paths": analysis_paths,
         "entered": entered,
         "exited": exited,

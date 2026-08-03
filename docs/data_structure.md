@@ -17,10 +17,18 @@ data/raw/                          # 가격 데이터 캐시 (.gitignore — 재
 
 reports/                           # 실행 결과 (.gitignore — 실행일별 생성)
 ├── stage2_YYYYMMDD.csv            # [도구1] Stage 2 "회사명-티커" 리스트
-├── diagnostics_YYYYMMDD.csv       # [도구1] 전 종목 조건별 진단
+├── diagnostics_YYYYMMDD.csv       # [도구1] 전 종목 조건별 진단 (로컬)
+├── diagnostics_summary_YYYYMMDD.csv  # pass-rate 1행 (아티팩트)
+├── diagnostics_summary_log.csv
 ├── fundamental_YYYYMMDD.csv       # [도구] Stage 2·RS 필터 펀더멘털 점수
 ├── rs_soft_drops_YYYYMMDD.csv     # [도구] RS soft ceiling 탈락
+├── fund_quantile_YYYYMMDD.csv     # Fund/RS 분위수 1행
+├── fund_quantile_log.csv
 ├── fund_median_tickers_YYYYMMDD.txt
+├── params_hash_log.csv
+├── params_snapshots/
+│   ├── params_YYYYMMDD.yaml
+│   └── params_meta_YYYYMMDD.csv
 ├── analyze_YYYYMMDD.csv           # [도구] 섹터 태그 포함 분석 테이블
 ├── vcp_YYYYMMDD.csv               # [도구2] shortlist VCP 시그널
 └── sepatop/
@@ -29,6 +37,8 @@ reports/                           # 실행 결과 (.gitignore — 실행일별 
     ├── presence_YYYYMMDD.csv      # 연속 체류/always (tenure와 다름)
     ├── always_present_YYYYMMDD.csv
     ├── membership_panel.csv       # 누적 롱 패널
+    ├── membership_event_fwd_YYYYMMDD.csv
+    ├── membership_event_fwd_panel.csv
     ├── analysis_snapshot_YYYYMMDD.md
     ├── tenure_YYYYMMDD.csv        # first_seen 기반 (연속 아님)
     ├── index_YYYYMMDD.csv

@@ -545,6 +545,19 @@ def main(argv: list[str] | None = None) -> int:
     if m:
         stamp = m.group(1)
 
+    from sepa.result_ledger import save_fund_quantile_log, save_params_snapshot
+
+    params_pack = save_params_snapshot(args.config, params.report_dir, stamp, publish=True)
+    print(
+        f"params snapshot: sha256={str(params_pack.get('sha256', ''))[:12]}… "
+        f"→ {params_pack.get('yaml')}"
+    )
+    qlog = save_fund_quantile_log(enriched, params.report_dir, stamp, publish=True)
+    print(
+        f"fund quantile log: n={(qlog.get('row') or {}).get('n')} "
+        f"median={(qlog.get('row') or {}).get('fund_median')} → {qlog.get('log')}"
+    )
+
     out_dir = Path(args.out or params.report_dir)
     chart_dir = out_dir / "charts" if out_dir.name != "charts" else out_dir
     chart_dir.mkdir(parents=True, exist_ok=True)
@@ -640,6 +653,9 @@ def main(argv: list[str] | None = None) -> int:
                     "panel",
                     "snapshot_md",
                     "index_csv",
+                    "event_fwd",
+                    "event_fwd_panel",
+                    "event_fwd_summary",
                 ):
                     p = sepatop_result.get(key)
                     if p:
@@ -702,7 +718,22 @@ def main(argv: list[str] | None = None) -> int:
                     fund_csv = Path(params.report_dir) / f"fundamental_{stamp}.csv"
                     soft_csv = Path(params.report_dir) / f"rs_soft_drops_{stamp}.csv"
                     stage2_csv = Path(params.report_dir) / f"stage2_{stamp}.csv"
-                    for extra in (fund_csv, soft_csv, stage2_csv):
+                    ledger_extras = [
+                        fund_csv,
+                        soft_csv,
+                        stage2_csv,
+                        Path(params.report_dir) / f"fund_quantile_{stamp}.csv",
+                        Path(params.report_dir) / "fund_quantile_log.csv",
+                        Path(params.report_dir) / f"diagnostics_summary_{stamp}.csv",
+                        Path(params.report_dir) / "diagnostics_summary_log.csv",
+                        Path(params.report_dir) / "params_hash_log.csv",
+                        Path(params.report_dir) / "params_snapshots" / f"params_{stamp}.yaml",
+                        Path(params.report_dir) / "params_snapshots" / f"params_meta_{stamp}.csv",
+                        Path(params.report_dir) / "sepatop" / "membership_event_fwd_panel.csv",
+                        Path(params.report_dir) / "sepatop" / f"membership_event_fwd_{stamp}.csv",
+                        Path(params.report_dir) / "sepatop" / f"membership_event_fwd_summary_{stamp}.csv",
+                    ]
+                    for extra in ledger_extras:
                         if extra.exists():
                             release_extras.append(extra)
                     seen: set[str] = set()

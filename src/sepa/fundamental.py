@@ -364,8 +364,15 @@ def main(argv: list[str] | None = None) -> int:
         print(f"RS soft drops: {soft_drop_path}")
 
     from sepa.artifacts import publish_many
+    from sepa.result_ledger import save_fund_quantile_log
 
     publish_many([out_path] + ([soft_drop_path] if soft_drop_path else []))
+    if not scored.empty:
+        qlog = save_fund_quantile_log(scored, out_dir, stamp, publish=True)
+        med = (qlog.get("row") or {}).get("fund_median")
+        print(
+            f"fund quantile log: n={len(scored)} median={med} → {qlog.get('log')}"
+        )
 
     if args.compare_legacy and not scored.empty and "fund_score_v2" in scored.columns:
         cmp_path = out_dir / f"fundamental_v21_compare_{stamp}.csv"

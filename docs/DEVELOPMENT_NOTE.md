@@ -287,6 +287,7 @@ sepa-bot/
 | 2026-07-28 | D22: RS×Fund 영역 수익 계획 | `docs/rs_fund_region_return_study_plan.md` — trailing/forward·SPX·셀정의 메뉴 (실행 전 선택) |
 | 2026-07-28 | D23: RS×Fund 영역 수익 실행 | `!sepa.rs_fund_study` — A/D/E trailing + light B forward vs `^GSPC` |
 | 2026-08-03 | D24: go 분석 아티팩트 축적 | 다음 `!sepa.go`부터 sepaTop membership/presence/changes/panel + fund/soft-drops를 Cursor artifact 및 `sepa-anal-YYYYMMDD` 릴리즈에 저장. 후보 목록: `docs/result_data_accumulation.md` |
+| 2026-08-03 | D25: 가성비 축적 4종 ON | params 스냅샷·Fund 분위수 로그·diagnostics pass-rate 요약·enter/exit forward 패널을 go/anal에 자동 저장 (`sepa.result_ledger`) |
 
 ## 6. 진행 현황
 

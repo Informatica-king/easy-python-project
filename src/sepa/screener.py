@@ -65,9 +65,10 @@ def screen_stage2(
     data = {t: df for t, df in data.items() if len(df) >= params.data.min_history_days}
     n_history = len(data)
     data = {t: df for t, df in data.items() if passes_liquidity(df, params.universe_filter)}
+    n_liquidity = len(data)
     logger.info(
         "universe funnel: loaded=%d -> history>=%dd: %d -> liquidity: %d",
-        n_loaded, params.data.min_history_days, n_history, len(data),
+        n_loaded, params.data.min_history_days, n_history, n_liquidity,
     )
     rs_ranks = indicators.compute_rs_ranks(data)
     names = names or {}
@@ -95,7 +96,14 @@ def screen_stage2(
     stage2 = pd.DataFrame(stage2_rows, columns=["ticker", "name", "close", "rs_rank"])
     if not stage2.empty:
         stage2 = stage2.sort_values("rs_rank", ascending=False).reset_index(drop=True)
-    return stage2, pd.DataFrame(diag_rows)
+    diagnostics = pd.DataFrame(diag_rows)
+    diagnostics.attrs["funnel"] = {
+        "n_universe": len(tickers),
+        "n_loaded": n_loaded,
+        "n_history": n_history,
+        "n_liquidity": n_liquidity,
+    }
+    return stage2, diagnostics
 
 
 RS_HIGHLIGHT_MIN = 90.0  # 결과 제시 시 이 점수 이상은 항상 전부 나열 (사용자 지정 기준)
@@ -189,10 +197,31 @@ def main(argv: list[str] | None = None) -> int:
     stage2.to_csv(stage2_path, index=False)
     diagnostics.to_csv(diag_path, index=False)
 
+    from sepa.artifacts import publish_many
+    from sepa.result_ledger import save_diagnostics_summary
+
+    funnel = getattr(diagnostics, "attrs", {}).get("funnel") or {}
+    diag_sum = save_diagnostics_summary(
+        diagnostics,
+        out_dir,
+        stamp,
+        n_universe=funnel.get("n_universe", len(tickers)),
+        n_history=funnel.get("n_history"),
+        n_liquidity=funnel.get("n_liquidity", len(diagnostics)),
+        publish=True,
+    )
+    publish_many([stage2_path])  # full diagnostics stay local; summary is the artifact
+
     print(f"\n=== SEPA Stage 2 screen ({args.as_of or 'latest'}) — universe: {len(tickers)} tickers ===\n")
     print(f"--- Stage 2 진입 기업 ({len(stage2)}) — RS 순위 내림차순 ---")
     print_stage2_sections(stage2)
     print(f"\nreports: {stage2_path}, {diag_path}")
+    if diag_sum.get("daily"):
+        row = diag_sum.get("row") or {}
+        print(
+            f"diagnostics summary: stage2={row.get('n_stage2')}/{row.get('n_screened')} "
+            f"(rate={row.get('stage2_rate')}) → {diag_sum['daily']}"
+        )
     return 0
 
 
