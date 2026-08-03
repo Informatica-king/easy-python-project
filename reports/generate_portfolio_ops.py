@@ -343,7 +343,7 @@ def build_html(
     fresh_warn: str | None,
     scen_path: Path | None,
 ) -> str:
-    mode = week_plan_mode(book.as_of)
+    mode = week_plan_mode(book.effective_date)
     plan_title = "차주 운영계획" if mode == "next_week" else "향후 5영업일 브리프"
     risk_html = "".join(f"<li>{esc(r)}</li>" for r in book.risks) or "<li>특이 리스크 스트립 없음</li>"
     forbid_html = "".join(f"<li>{esc(r)}</li>" for r in book.forbid)
@@ -355,10 +355,13 @@ def build_html(
                       f"<p class='small'>현금·중간매매 미반영 근사 · 수량 고정 바스켓 · 투자권유 아님</p>"
     warn = f"<div class='box risk'><b>freshness</b> {esc(fresh_warn)}</div>" if fresh_warn else ""
     return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"/>
-<title>포폴() {book.as_of.isoformat()}</title><style>{build_css()}</style></head><body>
+<title>포폴() {book.effective_date.isoformat()}</title><style>{build_css()}</style></head><body>
 <h1>포폴() 운영브리프</h1>
-<p class="sub">기준 {esc(book.as_of.isoformat())} · 출처 {esc(book.source)} · 심층연동 {esc(scen_path.name if scen_path else '—')}</p>
+<p class="sub">운영일 {esc(book.effective_date.isoformat())} · 보유스냅 {esc(book.as_of.isoformat())} · 출처 {esc(book.source)} · 심층연동 {esc(scen_path.name if scen_path else '—')}</p>
 <div class="style-tag">차트 Style B — Warm Paper Mid-Chroma</div>
+<div class="box ok">
+  <b>우리의 OS</b> {esc(book.identity or book.identity_short or "규칙형 챌린저 모멘텀 생존 OS")}
+</div>
 <div class="box ok">
   <b>북 요약</b> 주식 {fmt_usd(book.equity_usd)} · 현금 {fmt_usd(book.cash_usd)}
   ({fmt_pct(book.cash_pct, False)}) · 유동 {fmt_usd(book.liquid_usd)} · 바닥 ${book.cash_floor_usd:.0f}
@@ -397,8 +400,12 @@ def main(argv: list[str] | None = None) -> int:
     if "--snap" in argv:
         i = argv.index("--snap")
         snap = Path(argv[i + 1])
+    ops_date = date.today()
+    if "--as-of" in argv:
+        i = argv.index("--as-of")
+        ops_date = date.fromisoformat(argv[i + 1][:10])
     book = load_book(snap)
-    book = enrich_marks(book)
+    book = enrich_marks(book, ops_date=ops_date)
     prop, prop_b = _fonts()
     pie_s, pie_l = chart_pies(book, prop, prop_b)
     bench = chart_vs_bench(book, prop, prop_b)
@@ -406,12 +413,12 @@ def main(argv: list[str] | None = None) -> int:
     scenarios, scen_path = load_buy_scenarios("reports")
     chase, _ = load_chase("reports")
     as_of_s = (scenarios or {}).get("as_of") or (chase or {}).get("as_of")
-    fresh = freshness_warning(as_of_s, book.as_of)
+    fresh = freshness_warning(as_of_s, book.effective_date)
     ideas = filter_buy_ideas(book, scenarios, chase)
     plan = build_ops_plan(book, ideas)
 
     html_doc = build_html(book, ideas, pie_s, pie_l, bench, plan, fresh, scen_path)
-    tag = book.as_of.isoformat()
+    tag = book.effective_date.isoformat()
     html_path = Path(f"/workspace/reports/Portfolio_Ops_{tag}.html")
     pdfs = [
         Path(f"/opt/cursor/artifacts/Portfolio_Ops_{tag}.pdf"),
@@ -427,7 +434,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"PDF {p} {p.stat().st_size}")
     print(
         f"포폴 equity={book.equity_usd:.2f} cash={book.cash_usd:.2f} "
-        f"ideas_run={sum(1 for i in ideas if i.bucket=='실행후보')} mode={week_plan_mode(book.as_of)}"
+        f"ideas_run={sum(1 for i in ideas if i.bucket=='실행후보')} "
+        f"mode={week_plan_mode(book.effective_date)} ops={book.effective_date} snap={book.as_of}"
     )
     return 0
 

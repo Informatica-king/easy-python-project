@@ -69,6 +69,13 @@ class PortfolioBook:
     risks: list[str] = field(default_factory=list)
     forbid: list[str] = field(default_factory=list)
     actions: list[str] = field(default_factory=list)
+    ops_date: date | None = None  # 실행일(스텐스·계획·D5). None이면 as_of
+    identity: str = ""
+    identity_short: str = ""
+
+    @property
+    def effective_date(self) -> date:
+        return self.ops_date or self.as_of
 
 
 @dataclass
@@ -139,6 +146,7 @@ def load_book(path: str | Path = "config/portfolio_watch.yaml") -> PortfolioBook
     pending = ""
     if book_block.get("pending_orders_note"):
         pending = str(book_block["pending_orders_note"])
+    strat = raw.get("strategy") or {}
     return PortfolioBook(
         as_of=as_of,
         source=str(raw.get("source") or raw.get("as_of_note") or path),
@@ -148,6 +156,8 @@ def load_book(path: str | Path = "config/portfolio_watch.yaml") -> PortfolioBook
         note=str(raw.get("as_of_note") or ""),
         holdings=holdings,
         pending_note=pending,
+        identity=str(strat.get("identity") or ""),
+        identity_short=str(strat.get("identity_short") or ""),
     )
 
 
@@ -168,8 +178,18 @@ def _last_close(ticker: str) -> float | None:
     return None
 
 
-def enrich_marks(book: PortfolioBook, *, use_snap_marks: bool = True) -> PortfolioBook:
+def enrich_marks(
+    book: PortfolioBook,
+    *,
+    use_snap_marks: bool = True,
+    ops_date: date | None = None,
+) -> PortfolioBook:
     """Fill px/value/weights/pnl. Prefer live last; fall back to yaml mark via value/shares."""
+    if ops_date is not None:
+        book.ops_date = ops_date
+    elif book.ops_date is None:
+        book.ops_date = date.today()
+    asof = book.effective_date
     raw = load_portfolio_yaml()
     snap_marks = {
         str(h["ticker"]).upper(): float(h["mark_approx"])
@@ -200,10 +220,10 @@ def enrich_marks(book: PortfolioBook, *, use_snap_marks: bool = True) -> Portfol
             continue
         h.w_stock = h.value / equity if equity else 0.0
         h.w_liquid = h.value / liquid if liquid else 0.0
-        h.stance = stance_for(h, book.as_of)
+        h.stance = stance_for(h, asof)
         if h.earn_date:
             h.d5_start = h.earn_date - timedelta(days=D5_WINDOW_DAYS - 1)
-            h.earn_d5 = h.d5_start <= book.as_of <= h.earn_date
+            h.earn_d5 = h.d5_start <= asof <= h.earn_date
     book.risks = build_risks(book)
     book.forbid = build_forbid(book)
     book.actions = build_actions(book)
@@ -277,9 +297,10 @@ def build_actions(book: PortfolioBook) -> list[str]:
     do_list: list[str] = []
     dont: list[str] = []
     nxt: list[str] = []
-    earn_soon = [h for h in book.holdings if h.earn_date and 0 <= (h.earn_date - book.as_of).days <= 7]
+    asof = book.effective_date
+    earn_soon = [h for h in book.holdings if h.earn_date and 0 <= (h.earn_date - asof).days <= 7]
     if earn_soon:
-        names = ", ".join(f"{h.ticker}({h.earn_date})" for h in sorted(earn_soon, key=lambda x: x.earn_date or book.as_of))
+        names = ", ".join(f"{h.ticker}({h.earn_date})" for h in sorted(earn_soon, key=lambda x: x.earn_date or asof))
         do_list.append(f"실적 임박 홀드·관망: {names}")
     else:
         do_list.append("보유 6~7종 stop·비중만 점검")
@@ -367,7 +388,7 @@ def filter_buy_ideas(
         if t in held and t in no_add:
             bucket = "금지"
             reason = f"보유·NO_ADD · {reason}"
-        elif in_earn_d5(_parse_date(earn), book.as_of):
+        elif in_earn_d5(_parse_date(earn), book.effective_date):
             bucket = "금지"
             reason = f"EARN_D5 · {reason}"
         elif any(x in str(chase_lab) for x in ("과열", "매도", "중하", "하·")):
@@ -411,14 +432,15 @@ def week_plan_mode(as_of: date) -> str:
 
 
 def build_ops_plan(book: PortfolioBook, ideas: list[BuyIdea]) -> list[str]:
-    mode = week_plan_mode(book.as_of)
+    asof = book.effective_date
+    mode = week_plan_mode(asof)
     lines: list[str] = []
     if mode == "next_week":
         lines.append("모드: 금·토·일 → 차주(월~금) 운영계획")
         lines.append("월~화: 실적 임박 보유 관망 · 신규 기본 OFF")
         earn = sorted(
-            [h for h in book.holdings if h.earn_date and book.as_of <= h.earn_date <= book.as_of + timedelta(days=7)],
-            key=lambda h: h.earn_date or book.as_of,
+            [h for h in book.holdings if h.earn_date and asof <= h.earn_date <= asof + timedelta(days=7)],
+            key=lambda h: h.earn_date or asof,
         )
         for h in earn:
             lines.append(f"  · {h.earn_date}: {h.ticker} 실적 — 홀드, 갭추격 금지")
@@ -427,6 +449,12 @@ def build_ops_plan(book: PortfolioBook, ideas: list[BuyIdea]) -> list[str]:
     else:
         lines.append("모드: 월~목 → 향후 5영업일 브리프")
         lines.append("보유 stop·EARN_D5만 매일 확인 · 신규는 실행후보만")
+        earn = sorted(
+            [h for h in book.holdings if h.earn_date and asof <= h.earn_date <= asof + timedelta(days=5)],
+            key=lambda h: h.earn_date or asof,
+        )
+        for h in earn:
+            lines.append(f"  · {h.earn_date}: {h.ticker} — 홀드, 갭추격 금지")
     execs = [i for i in ideas if i.bucket == "실행후보"]
     if execs:
         lines.append("매수 예외: " + ", ".join(f"{i.ticker}({i.scenario})" for i in execs[:5]) + " — 실적창 밖·소액·추격금지")
