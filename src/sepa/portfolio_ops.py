@@ -88,6 +88,10 @@ class BuyIdea:
     upside: float | None = None
     earn_date: str | None = None
     chase: str | None = None
+    sector: str | None = None
+    # filled by buy_score layer
+    buy_score: Any = None
+    score_recommend: str | None = None
 
 
 def _parse_date(raw: Any) -> date | None:
@@ -226,7 +230,7 @@ def enrich_marks(
             h.earn_d5 = h.d5_start <= asof <= h.earn_date
     book.risks = build_risks(book)
     book.forbid = build_forbid(book)
-    book.actions = build_actions(book)
+    book.actions = build_actions(book, ideas=None)
     return book
 
 
@@ -293,7 +297,7 @@ def build_forbid(book: PortfolioBook) -> list[str]:
     return out
 
 
-def build_actions(book: PortfolioBook) -> list[str]:
+def build_actions(book: PortfolioBook, ideas: list[BuyIdea] | None = None) -> list[str]:
     do_list: list[str] = []
     dont: list[str] = []
     nxt: list[str] = []
@@ -304,11 +308,25 @@ def build_actions(book: PortfolioBook) -> list[str]:
         do_list.append(f"실적 임박 홀드·관망: {names}")
     else:
         do_list.append("보유 6~7종 stop·비중만 점검")
+
+    top = None
+    if ideas:
+        from sepa.buy_score import top_exec_recommendation
+
+        scored_pairs = [(i, i.buy_score) for i in ideas if i.buy_score is not None]
+        top = top_exec_recommendation(scored_pairs) if scored_pairs else None
+    if top and top.recommend == "1순위":
+        do_list.append(f"실행 1순위: {top.ticker} ({top.score_label})")
+    elif top and top.recommend == "극소/워치":
+        do_list.append(f"실행 약한후보: {top.ticker} ({top.score_label}) · 극소만")
+    else:
+        do_list.append("이번 주 실행 1순위 없음 (점수·게이트)")
+
     dont.append("EARN_D5·NO_ADD 종목 추가/물타기")
-    dont.append("과열·업사이드 음수 추격")
+    dont.append("L1=0·마진악화·과열·업사이드 음수 추격")
     if any(h.earn_date for h in book.holdings):
-        nxt.append("실적 발표 다음날 숫자 1줄 + 홀드/축소만 재평가")
-    nxt.append("A′ 실행후보는 실적창 밖·위성한도·현금여유 확인 후")
+        nxt.append("실적 D+1~D+3: data/earn_guide_grades.yaml 등급 입력")
+    nxt.append("A′ 실행은 total≥2·실적창 밖·위성한도·현금여유 확인 후")
     return [
         "할 일: " + " · ".join(do_list),
         "하지 말 일: " + " · ".join(dont),
@@ -416,12 +434,49 @@ def filter_buy_ideas(
                 upside=float(ups) if ups is not None else None,
                 earn_date=str(earn)[:10] if earn else None,
                 chase=str(chase_lab) if chase_lab else None,
+                sector=str(r.get("sector") or "") or None,
             )
         )
 
     order = {"실행후보": 0, "워치": 1, "금지": 2}
     ideas.sort(key=lambda x: (order.get(x.bucket, 9), x.ticker))
     return ideas
+
+
+def apply_buy_scores(
+    ideas: list[BuyIdea],
+    *,
+    as_of: date,
+    grades_path: str | Path = "data/earn_guide_grades.yaml",
+    fetch_closes=None,
+) -> list[BuyIdea]:
+    """Score 실행후보 (L1/L2/L3) and re-order; attach score on each idea."""
+    from sepa.buy_score import score_buy_ideas
+
+    sectors = {i.ticker: (i.sector or "") for i in ideas if i.sector}
+    scored = score_buy_ideas(
+        ideas,
+        as_of=as_of,
+        sectors=sectors,
+        grades_path=grades_path,
+        fetch_closes=fetch_closes,
+    )
+    out: list[BuyIdea] = []
+    for idea, sc in scored:
+        if sc is not None:
+            idea.buy_score = sc
+            idea.score_recommend = sc.recommend
+            if sc.recommend == "패스" and idea.bucket == "실행후보":
+                idea.reason = f"{idea.reason} · 점수패스({sc.score_label})"
+            elif sc.recommend == "1순위":
+                idea.reason = f"{idea.reason} · 1순위({sc.score_label})"
+            elif sc.recommend == "극소/워치":
+                idea.reason = f"{idea.reason} · 극소({sc.score_label})"
+            elif sc.recommend == "축소후보":
+                idea.bucket = "워치"
+                idea.reason = f"가이드C·축소 · {idea.reason}"
+        out.append(idea)
+    return out
 
 
 def week_plan_mode(as_of: date) -> str:
@@ -456,11 +511,22 @@ def build_ops_plan(book: PortfolioBook, ideas: list[BuyIdea]) -> list[str]:
         for h in earn:
             lines.append(f"  · {h.earn_date}: {h.ticker} — 홀드, 갭추격 금지")
     execs = [i for i in ideas if i.bucket == "실행후보"]
-    if execs:
-        lines.append("매수 예외: " + ", ".join(f"{i.ticker}({i.scenario})" for i in execs[:5]) + " — 실적창 밖·소액·추격금지")
+    ranked = [i for i in execs if i.buy_score and i.score_recommend in ("1순위", "극소/워치")]
+    if ranked:
+        top = ranked[0]
+        sc = top.buy_score
+        lines.append(
+            f"매수 예외: {top.ticker}({top.scenario}) 권고={sc.recommend} Σ{sc.total} "
+            f"— 실적창 밖·소액·추격금지"
+        )
+        others = [i.ticker for i in ranked[1:3]]
+        if others:
+            lines.append("차순위: " + ", ".join(others))
+    elif execs:
+        lines.append("매수 예외: 실행후보 있으나 점수 패스(L1=0/마진악화/Σ낮음) → 이번 주 신규 0")
     else:
         lines.append("매수 예외: 없음 (기본 신규 0)")
-    lines.append("금지: 코어/위성 NO_ADD · 과열 · 업사이드 음수 · 현금바닥 파괴")
+    lines.append("금지: 코어/위성 NO_ADD · 과열 · 업사이드 음수 · 현금바닥 파괴 · L1=0")
     return lines
 
 

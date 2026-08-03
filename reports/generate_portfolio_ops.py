@@ -25,6 +25,8 @@ from sepa.portfolio_ops import (  # noqa: E402
     BENCH,
     BuyIdea,
     PortfolioBook,
+    apply_buy_scores,
+    build_actions,
     build_ops_plan,
     enrich_marks,
     fetch_bench_series,
@@ -317,20 +319,52 @@ def event_table(book: PortfolioBook) -> str:
 def buy_table(ideas: list[BuyIdea]) -> str:
     if not ideas:
         return "<p class='small'>매수시나리오 파일 없음.</p>"
-    rows = []
+    exec_rows = []
+    other_rows = []
     for i in ideas:
         cls = {"실행후보": "bucket-run", "워치": "bucket-watch", "금지": "bucket-ban"}.get(i.bucket, "")
-        rows.append(
-            f"<tr><td class='{cls}'>{esc(i.bucket)}</td><td><b>{esc(i.ticker)}</b></td>"
-            f"<td>{esc(i.scenario)}</td><td class='r'>{fmt_usd(i.px)}</td>"
-            f"<td class='r'>{fmt_pct(i.upside)}</td><td>{esc(i.earn_date)}</td>"
-            f"<td class='small'>{esc(i.reason)}</td></tr>"
+        sc = i.buy_score
+        if sc is not None and i.bucket == "실행후보":
+            exec_rows.append(
+                f"<tr><td class='{cls}'>{esc(i.bucket)}</td><td><b>{esc(i.ticker)}</b></td>"
+                f"<td>{esc(i.scenario)}</td>"
+                f"<td class='r'>{sc.l1}</td><td class='small'>{esc(sc.l1_note)}</td>"
+                f"<td class='r'>{sc.l2}</td><td class='small'>{esc(sc.l2_note)}</td>"
+                f"<td class='r'>{sc.l3}</td><td>{esc(sc.l3_grade)}</td>"
+                f"<td class='r'><b>{sc.total}</b></td>"
+                f"<td><b>{esc(sc.recommend)}</b></td>"
+                f"<td class='r'>{fmt_usd(i.px)}</td>"
+                f"<td class='r'>{fmt_pct(i.upside)}</td>"
+                f"<td class='small'>{esc(i.reason)}</td></tr>"
+            )
+        else:
+            other_rows.append(
+                f"<tr><td class='{cls}'>{esc(i.bucket)}</td><td><b>{esc(i.ticker)}</b></td>"
+                f"<td>{esc(i.scenario)}</td><td class='r'>{fmt_usd(i.px)}</td>"
+                f"<td class='r'>{fmt_pct(i.upside)}</td><td>{esc(i.earn_date)}</td>"
+                f"<td class='small'>{esc(i.reason)}</td></tr>"
+            )
+    html = ""
+    if exec_rows:
+        html += (
+            "<p class='small'>L1 상대강도(1M+3M vs SPY±섹터) · L2 점유↑+마진 · L3 실적후 가이드(A/B/C) · "
+            "Σ=L1+L2+L3 · L1=0 또는 마진악화 → 패스</p>"
+            "<table><tr><th>구분</th><th>티커</th><th>게이트</th>"
+            "<th>L1</th><th>RS메모</th><th>L2</th><th>점유메모</th>"
+            "<th>L3</th><th>등급</th><th>Σ</th><th>권고</th>"
+            "<th>가격</th><th>업사이드</th><th>근거</th></tr>"
+            + "".join(exec_rows)
+            + "</table>"
         )
-    return (
-        "<table><tr><th>구분</th><th>티커</th><th>게이트</th><th>가격</th><th>업사이드</th><th>실적</th><th>근거</th></tr>"
-        + "".join(rows)
-        + "</table>"
-    )
+    if other_rows:
+        html += (
+            "<h3 style='font-size:10.5pt;margin:10px 0 4px'>워치 · 금지</h3>"
+            "<table><tr><th>구분</th><th>티커</th><th>게이트</th><th>가격</th>"
+            "<th>업사이드</th><th>실적</th><th>근거</th></tr>"
+            + "".join(other_rows)
+            + "</table>"
+        )
+    return html
 
 
 def build_html(
@@ -385,7 +419,7 @@ def build_html(
 <h2>2. 이벤트 캘린더</h2>
 {event_table(book)}
 
-<h2>3. 매수고려 (심층 ∩ 포폴필터)</h2>
+<h2>3. 매수고려 (심층 ∩ 포폴필터 ∩ 3레이어점수)</h2>
 {buy_table(ideas)}
 
 <h2>4. {esc(plan_title)}</h2>
@@ -415,6 +449,13 @@ def main(argv: list[str] | None = None) -> int:
     as_of_s = (scenarios or {}).get("as_of") or (chase or {}).get("as_of")
     fresh = freshness_warning(as_of_s, book.effective_date)
     ideas = filter_buy_ideas(book, scenarios, chase)
+    ideas = apply_buy_scores(ideas, as_of=book.effective_date)
+    book.actions = build_actions(book, ideas)
+    # shrink C grades into risks
+    for i in ideas:
+        sc = i.buy_score
+        if sc and sc.recommend == "축소후보":
+            book.risks.append(f"{i.ticker} 가이드C·축소후보")
     plan = build_ops_plan(book, ideas)
 
     html_doc = build_html(book, ideas, pie_s, pie_l, bench, plan, fresh, scen_path)
