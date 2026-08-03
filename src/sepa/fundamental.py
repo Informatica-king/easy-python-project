@@ -322,9 +322,11 @@ def main(argv: list[str] | None = None) -> int:
         )
         soft_max = float(getattr(params.fundamental, "rs_soft_max", 0.0) or 0.0)
         soft_on = bool(getattr(params.fundamental, "rs_high_requires_fund_median", True))
+        soft_dropped = scored.iloc[0:0].copy()
+        soft_med = float("nan")
         if soft_max > 0 and soft_on and not scored.empty:
             before_soft = len(scored)
-            scored, soft_dropped, med = apply_rs_soft_ceiling(
+            scored, soft_dropped, soft_med = apply_rs_soft_ceiling(
                 scored, rs_soft_max=soft_max, enabled=True
             )
             tickers = (
@@ -332,7 +334,7 @@ def main(argv: list[str] | None = None) -> int:
                 if not soft_dropped.empty else ""
             )
             print(
-                f"RS soft ceiling: RS≥{soft_max:.0f} 은 Fund≥중앙값({med:.1f})만 유지  "
+                f"RS soft ceiling: RS≥{soft_max:.0f} 은 Fund≥중앙값({soft_med:.1f})만 유지  "
                 f"{before_soft} → {len(scored)}"
                 + (f"  탈락: {tickers}" if tickers else "  (탈락 0)")
             )
@@ -346,6 +348,24 @@ def main(argv: list[str] | None = None) -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"fundamental_{stamp}.csv"
     scored.to_csv(out_path, index=False)
+
+    soft_drop_path = None
+    if "soft_dropped" in locals() and soft_dropped is not None and not soft_dropped.empty:
+        soft_drop_path = out_dir / f"rs_soft_drops_{stamp}.csv"
+        drop_cols = [
+            c for c in ("ticker", "name", "fund_score", "rs_rank", "market_cap", "close")
+            if c in soft_dropped.columns
+        ]
+        soft_out = soft_dropped[drop_cols].copy()
+        soft_out["as_of"] = f"{stamp[:4]}-{stamp[4:6]}-{stamp[6:8]}" if len(stamp) == 8 else stamp
+        soft_out["pool_fund_median"] = soft_med
+        soft_out["rs_soft_max"] = soft_max
+        soft_out.to_csv(soft_drop_path, index=False)
+        print(f"RS soft drops: {soft_drop_path}")
+
+    from sepa.artifacts import publish_many
+
+    publish_many([out_path] + ([soft_drop_path] if soft_drop_path else []))
 
     if args.compare_legacy and not scored.empty and "fund_score_v2" in scored.columns:
         cmp_path = out_dir / f"fundamental_v21_compare_{stamp}.csv"

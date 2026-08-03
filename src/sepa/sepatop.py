@@ -284,6 +284,221 @@ def previous_membership(sepatop_report: Path, current_stamp: str) -> tuple[set[s
     return prev, stamp
 
 
+def load_membership_history(sepatop_report: Path) -> list[tuple[str, set[str]]]:
+    """Load (stamp, ticker_set) pairs sorted by stamp from membership_*.csv."""
+    out: list[tuple[str, set[str]]] = []
+    for path in list_membership_files(sepatop_report):
+        stamp = path.stem.replace("membership_", "")
+        try:
+            tickers = set(pd.read_csv(path)["ticker"].astype(str).str.upper())
+        except Exception:  # noqa: BLE001
+            logger.warning("skip unreadable membership file: %s", path)
+            continue
+        out.append((stamp, tickers))
+    return out
+
+
+def membership_changes_frame(
+    *,
+    stamp: str,
+    as_of: str,
+    prev_stamp: str | None,
+    entered: list[str],
+    exited: list[str],
+) -> pd.DataFrame:
+    rows: list[dict] = []
+    for t in entered:
+        rows.append(
+            {
+                "stamp": stamp,
+                "as_of": as_of,
+                "prev_stamp": prev_stamp or "",
+                "action": "enter",
+                "ticker": t,
+            }
+        )
+    for t in exited:
+        rows.append(
+            {
+                "stamp": stamp,
+                "as_of": as_of,
+                "prev_stamp": prev_stamp or "",
+                "action": "exit",
+                "ticker": t,
+            }
+        )
+    return pd.DataFrame(rows, columns=["stamp", "as_of", "prev_stamp", "action", "ticker"])
+
+
+def append_membership_panel(
+    panel_path: Path,
+    constituents: pd.DataFrame,
+    *,
+    stamp: str,
+    as_of: str,
+) -> pd.DataFrame:
+    """Append today's membership rows to a long panel (dedupe by stamp+ticker)."""
+    cols = [c for c in ["ticker", "name", "fund_score", "rs_rank", "market_cap", "close"] if c in constituents.columns]
+    today = constituents[cols].copy()
+    today["stamp"] = stamp
+    today["as_of"] = as_of
+    today["ticker"] = today["ticker"].astype(str).str.upper()
+
+    if panel_path.exists():
+        try:
+            hist = pd.read_csv(panel_path)
+            hist["ticker"] = hist["ticker"].astype(str).str.upper()
+            hist["stamp"] = hist["stamp"].astype(str)
+            hist = hist.loc[hist["stamp"] != stamp]
+            panel = pd.concat([hist, today], ignore_index=True)
+        except Exception:  # noqa: BLE001
+            logger.warning("rebuild membership panel from today only (%s)", panel_path)
+            panel = today
+    else:
+        panel = today
+
+    ordered = ["stamp", "as_of", "ticker"] + [c for c in cols if c != "ticker"]
+    panel = panel[[c for c in ordered if c in panel.columns]].sort_values(
+        ["stamp", "ticker"]
+    ).reset_index(drop=True)
+    panel.to_csv(panel_path, index=False)
+    return panel
+
+
+def presence_table(history: list[tuple[str, set[str]]]) -> pd.DataFrame:
+    """True snapshot presence stats (unlike first_seen tenure, exits reset streak).
+
+    Columns:
+      n_snapshots, n_present, presence_rate,
+      always_present (in every snapshot on disk),
+      streak_from_end (contiguous presence ending at latest stamp),
+      first_stamp, last_stamp
+    """
+    if not history:
+        return pd.DataFrame(
+            columns=[
+                "ticker",
+                "n_snapshots",
+                "n_present",
+                "presence_rate",
+                "always_present",
+                "streak_from_end",
+                "first_stamp",
+                "last_stamp",
+            ]
+        )
+
+    n_snap = len(history)
+    stamps = [s for s, _ in history]
+    all_tickers = sorted(set().union(*(s for _, s in history)))
+    rows = []
+    for t in all_tickers:
+        flags = [t in s for _, s in history]
+        n_present = int(sum(flags))
+        streak = 0
+        for f in reversed(flags):
+            if f:
+                streak += 1
+            else:
+                break
+        present_stamps = [stamps[i] for i, f in enumerate(flags) if f]
+        rows.append(
+            {
+                "ticker": t,
+                "n_snapshots": n_snap,
+                "n_present": n_present,
+                "presence_rate": round(n_present / n_snap, 4) if n_snap else 0.0,
+                "always_present": bool(n_present == n_snap and n_snap > 0),
+                "streak_from_end": streak,
+                "first_stamp": present_stamps[0] if present_stamps else "",
+                "last_stamp": present_stamps[-1] if present_stamps else "",
+            }
+        )
+    return (
+        pd.DataFrame(rows)
+        .sort_values(
+            ["always_present", "streak_from_end", "presence_rate", "ticker"],
+            ascending=[False, False, False, True],
+        )
+        .reset_index(drop=True)
+    )
+
+
+def write_analysis_snapshot_md(
+    path: Path,
+    *,
+    stamp: str,
+    as_of: str,
+    n_constituents: int,
+    prev_stamp: str | None,
+    entered: list[str],
+    exited: list[str],
+    presence: pd.DataFrame,
+    n_snapshots: int,
+) -> Path:
+    always = (
+        presence.loc[presence["always_present"], "ticker"].astype(str).tolist()
+        if not presence.empty and "always_present" in presence.columns
+        else []
+    )
+    current = (
+        presence.loc[presence["last_stamp"].astype(str) == stamp]
+        if not presence.empty and "last_stamp" in presence.columns
+        else presence.iloc[0:0]
+    )
+    top_streak = current.head(15) if not current.empty else presence.head(15)
+
+    lines = [
+        f"# sepaTop analysis snapshot — {as_of}",
+        "",
+        f"- stamp: `{stamp}`",
+        f"- constituents: **{n_constituents}**",
+        f"- membership snapshots on disk: **{n_snapshots}**",
+        f"- prev snapshot: `{prev_stamp or '(none)'}`",
+        f"- entered ({len(entered)}): {', '.join(entered) if entered else '(none)'}",
+        f"- exited ({len(exited)}): {', '.join(exited) if exited else '(none)'}",
+        "",
+        "## Always present (every membership_*.csv on disk)",
+        "",
+        f"- count: **{len(always)}**",
+        f"- tickers: {', '.join(always) if always else '(none yet — need ≥1 snapshot)'}",
+        "",
+        "> Note: `tenure_*.csv` / `first_seen` is **first appearance**, not continuous presence.",
+        "> Use `presence_*.csv` / `always_present_*.csv` for never-missed / streak analysis.",
+        "",
+        "## Longest current streaks (ending today)",
+        "",
+        "| ticker | streak_from_end | n_present | presence_rate | always |",
+        "|---|---:|---:|---:|:---:|",
+    ]
+    if top_streak.empty:
+        lines.append("| (none) | | | | |")
+    else:
+        for _, row in top_streak.iterrows():
+            lines.append(
+                f"| {row['ticker']} | {int(row['streak_from_end'])} | "
+                f"{int(row['n_present'])} | {float(row['presence_rate']):.2%} | "
+                f"{'Y' if row['always_present'] else ''} |"
+            )
+    lines.extend(
+        [
+            "",
+            "## Artifact files this run",
+            "",
+            f"- `membership_{stamp}.csv` — today's sepaTop constituents",
+            f"- `membership_changes_{stamp}.csv` — enter/exit vs previous stamp",
+            f"- `presence_{stamp}.csv` — presence rate / streak / always_present",
+            f"- `always_present_{stamp}.csv` — never-missed subset",
+            "- `membership_panel.csv` — cumulative long panel (all stamps on disk)",
+            f"- `tenure_{stamp}.csv` — first_seen based (not continuous)",
+            f"- `index_{stamp}.csv` — sepaTop vs benchmarks",
+            "",
+        ]
+    )
+    path.write_text("\n".join(lines), encoding="utf-8")
+    return path
+
+
 def seed_first_seen_from_fundamentals(report_dir: Path, first_seen: dict[str, str]) -> dict[str, str]:
     """Backfill first_seen from historical fundamental_*.csv dates."""
     out = dict(first_seen)
@@ -529,16 +744,82 @@ def run_sepatop(
         title=f"sepaTop 상대강도 vs Benchmarks  (@ {base_date.date()}=1.0)",
     )
 
+    # --- longitudinal analysis pack (survives as Cursor artifacts + release assets) ---
+    changes = membership_changes_frame(
+        stamp=stamp,
+        as_of=as_of,
+        prev_stamp=prev_stamp,
+        entered=entered,
+        exited=exited,
+    )
+    changes_path = sepatop_report / f"membership_changes_{stamp}.csv"
+    changes.to_csv(changes_path, index=False)
+
+    panel_path = sepatop_report / "membership_panel.csv"
+    append_membership_panel(panel_path, constituents, stamp=stamp, as_of=as_of)
+
+    history = load_membership_history(sepatop_report)
+    presence = presence_table(history)
+    presence_path = sepatop_report / f"presence_{stamp}.csv"
+    presence.to_csv(presence_path, index=False)
+    always = (
+        presence.loc[presence["always_present"]].copy()
+        if not presence.empty
+        else presence
+    )
+    always_path = sepatop_report / f"always_present_{stamp}.csv"
+    always.to_csv(always_path, index=False)
+
+    snapshot_md = write_analysis_snapshot_md(
+        sepatop_report / f"analysis_snapshot_{stamp}.md",
+        stamp=stamp,
+        as_of=as_of,
+        n_constituents=len(constituents),
+        prev_stamp=prev_stamp,
+        entered=entered,
+        exited=exited,
+        presence=presence,
+        n_snapshots=len(history),
+    )
+
     print_membership_changes(entered, exited, prev_stamp)
     print_tenure(tenure)
+    n_always = int(always["always_present"].sum()) if not always.empty else 0
+    print(
+        f"\n=== sepaTop presence (snapshots={len(history)}, "
+        f"always_present={n_always}) ===\n"
+    )
+    if n_always:
+        print(f"  never-missed: {', '.join(always['ticker'].astype(str).tolist())}")
+    else:
+        print("  never-missed: (none — need overlapping history on disk)")
     print_performance(combined)
     print(f"\nsepaTop charts: {chart_path.resolve()}")
     print(f"               {rel_path.resolve()}")
     print(f"sepaTop index : {index_csv.resolve()}")
     print(f"membership    : {mem_path.resolve()}")
+    print(f"changes       : {changes_path.resolve()}")
+    print(f"presence      : {presence_path.resolve()}")
+    print(f"always_present: {always_path.resolve()}")
+    print(f"panel         : {panel_path.resolve()}")
+    print(f"snapshot md   : {snapshot_md.resolve()}")
     print(f"tenure        : {tenure_path.resolve()}")
 
-    publish_many([chart_path, rel_path, index_csv, mem_path, tenure_path])
+    analysis_paths = [
+        chart_path,
+        rel_path,
+        index_csv,
+        mem_path,
+        tenure_path,
+        changes_path,
+        presence_path,
+        always_path,
+        panel_path,
+        snapshot_md,
+    ]
+    published = publish_many(analysis_paths)
+    if published:
+        print(f"sepaTop artifacts: {len(published)} files published")
     return {
         "ok": True,
         "chart": chart_path,
@@ -546,9 +827,17 @@ def run_sepatop(
         "index_csv": index_csv,
         "membership": mem_path,
         "tenure": tenure_path,
+        "changes": changes_path,
+        "presence": presence_path,
+        "always_present": always_path,
+        "panel": panel_path,
+        "snapshot_md": snapshot_md,
+        "analysis_paths": analysis_paths,
         "entered": entered,
         "exited": exited,
         "combined": combined,
+        "n_always_present": n_always,
+        "n_snapshots": len(history),
     }
 
 

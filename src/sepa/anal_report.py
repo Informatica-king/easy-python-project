@@ -411,15 +411,27 @@ def pdf_direct_download_url(repo: str, stamp: str, pdf_name: str | None = None) 
     return f"https://github.com/{repo}/releases/download/{pdf_release_tag(stamp)}/{name}"
 
 
+def _release_asset_args(paths: list[Path]) -> list[str]:
+    """Build ``path#name`` args for gh release create/upload."""
+    args: list[str] = []
+    for p in paths:
+        p = Path(p)
+        if p.exists() and p.is_file():
+            args.append(f"{p}#{p.name}")
+    return args
+
+
 def publish_pdf_github_release(
     pdf_path: Path,
     *,
     stamp: str,
     repo: str | None = None,
+    extra_assets: list[Path] | None = None,
 ) -> dict:
-    """Upload PDF to GitHub Release and return download URLs.
+    """Upload PDF (+ optional analysis CSVs) to GitHub Release.
 
-    Creates tag ``sepa-anal-YYYYMMDD`` (or re-uploads asset with --clobber).
+    Creates tag ``sepa-anal-YYYYMMDD`` (or re-uploads assets with --clobber).
+    Extra assets keep longitudinal sepaTop membership history across VM wipes.
     """
     import shutil
     import subprocess
@@ -434,16 +446,22 @@ def publish_pdf_github_release(
     if not repo:
         return {"ok": False, "error": "cannot resolve GitHub repo slug"}
 
+    extras = [Path(p) for p in (extra_assets or []) if Path(p).exists()]
+    all_assets = _release_asset_args([pdf_path, *extras])
+    if not all_assets:
+        return {"ok": False, "error": "no release assets to upload"}
+
     tag = pdf_release_tag(stamp)
     title = f"SEPA Analyze Report {stamp}"
     as_of = f"{stamp[:4]}-{stamp[4:6]}-{stamp[6:8]}" if len(stamp) == 8 else stamp
+    extra_names = ", ".join(p.name for p in extras) if extras else "(none)"
     notes = (
-        f"SEPA `!sepa.anal` charts PDF ({as_of}).\n\n"
-        f"Direct download: {pdf_direct_download_url(repo, stamp, pdf_path.name)}\n"
+        f"SEPA `!sepa.anal` / `!sepa.go` pack ({as_of}).\n\n"
+        f"PDF: {pdf_direct_download_url(repo, stamp, pdf_path.name)}\n"
+        f"Analysis extras: {extra_names}\n"
     )
-    asset_arg = f"{pdf_path}#{pdf_path.name}"
 
-    # Create release if missing; otherwise clobber-upload the PDF asset
+    # Create release if missing; otherwise clobber-upload assets
     view = subprocess.run(
         ["gh", "release", "view", tag, "--repo", repo],
         capture_output=True,
@@ -454,7 +472,7 @@ def publish_pdf_github_release(
         created = subprocess.run(
             [
                 "gh", "release", "create", tag,
-                asset_arg,
+                *all_assets,
                 "--repo", repo,
                 "--title", title,
                 "--notes", notes,
@@ -462,7 +480,7 @@ def publish_pdf_github_release(
             ],
             capture_output=True,
             text=True,
-            timeout=180,
+            timeout=300,
         )
         if created.returncode != 0:
             return {
@@ -475,13 +493,13 @@ def publish_pdf_github_release(
         uploaded = subprocess.run(
             [
                 "gh", "release", "upload", tag,
-                asset_arg,
+                *all_assets,
                 "--repo", repo,
                 "--clobber",
             ],
             capture_output=True,
             text=True,
-            timeout=180,
+            timeout=300,
         )
         if uploaded.returncode != 0:
             return {
@@ -490,7 +508,6 @@ def publish_pdf_github_release(
                 "repo": repo,
                 "tag": tag,
             }
-        # refresh notes with latest link
         subprocess.run(
             ["gh", "release", "edit", tag, "--repo", repo, "--notes", notes],
             capture_output=True,
@@ -507,4 +524,5 @@ def publish_pdf_github_release(
         "download_url": download,
         "release_url": page,
         "pdf_name": pdf_path.name,
+        "extra_assets": [p.name for p in extras],
     }

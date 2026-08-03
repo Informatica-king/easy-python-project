@@ -580,9 +580,11 @@ def main(argv: list[str] | None = None) -> int:
     print(f"report: {csv_path.resolve()}")
 
     core_charts = [bar_path, scatter_path, fund_hist_path, mcap_hist_path]
-    publish_many(core_charts + [csv_path])
+    publish_many(core_charts + [csv_path, median_export])
 
     all_chart_paths: list[Path] = list(core_charts)
+    sepatop_result: dict = {}
+    release_extras: list[Path] = [csv_path, median_export]
 
     if not args.skip_sector_share:
         from sepa.sector_share import run_sector_share
@@ -623,11 +625,25 @@ def main(argv: list[str] | None = None) -> int:
                 as_of=as_of,
                 lookback_days=args.sepatop_days,
             )
-            if top.get("ok"):
+            sepatop_result = top if isinstance(top, dict) else {}
+            if sepatop_result.get("ok"):
                 for key in ("chart", "relative_chart"):
-                    p = top.get(key)
+                    p = sepatop_result.get(key)
                     if p:
                         all_chart_paths.append(Path(p))
+                for key in (
+                    "membership",
+                    "tenure",
+                    "changes",
+                    "presence",
+                    "always_present",
+                    "panel",
+                    "snapshot_md",
+                    "index_csv",
+                ):
+                    p = sepatop_result.get(key)
+                    if p:
+                        release_extras.append(Path(p))
         except Exception as exc:  # noqa: BLE001
             logger.exception("sepaTop failed")
             print(f"[경고] sepaTop 실행 실패: {exc}")
@@ -681,12 +697,36 @@ def main(argv: list[str] | None = None) -> int:
 
                 if pack.get("pdf") and not args.skip_github_release:
                     print("\n" + "=" * 64)
-                    print("  PDF 직접 다운로드 링크 (GitHub Release)")
+                    print("  PDF + analysis pack (GitHub Release)")
                     print("=" * 64)
-                    rel = publish_pdf_github_release(Path(pack["pdf"]), stamp=stamp)
+                    fund_csv = Path(params.report_dir) / f"fundamental_{stamp}.csv"
+                    soft_csv = Path(params.report_dir) / f"rs_soft_drops_{stamp}.csv"
+                    stage2_csv = Path(params.report_dir) / f"stage2_{stamp}.csv"
+                    for extra in (fund_csv, soft_csv, stage2_csv):
+                        if extra.exists():
+                            release_extras.append(extra)
+                    seen: set[str] = set()
+                    unique_extras: list[Path] = []
+                    for p in release_extras:
+                        path = Path(p)
+                        if not path.exists():
+                            continue
+                        key = str(path.resolve())
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        unique_extras.append(path)
+                    rel = publish_pdf_github_release(
+                        Path(pack["pdf"]),
+                        stamp=stamp,
+                        extra_assets=unique_extras,
+                    )
                     if rel.get("ok"):
                         print(f"\n  PDF 직접 다운로드:\n  {rel['download_url']}\n")
                         print(f"  릴리즈 페이지: {rel['release_url']}")
+                        extras = rel.get("extra_assets") or []
+                        if extras:
+                            print(f"  분석 부가파일 ({len(extras)}): {', '.join(extras)}")
                         pack["download_url"] = rel["download_url"]
                         pack["release_url"] = rel["release_url"]
                     else:

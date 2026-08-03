@@ -2,18 +2,20 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import pytest
 
 from sepa.sepatop import (
     BASE_LEVEL,
+    append_membership_panel,
     build_cap_weighted_index,
     estimate_shares,
+    load_membership_history,
+    membership_changes_frame,
     membership_diff,
+    presence_table,
     previous_membership,
     rebase_to,
     tenure_table,
@@ -94,3 +96,78 @@ def test_previous_membership(tmp_path: Path):
     prev2, stamp2 = previous_membership(report, "20260716")
     assert stamp2 is None
     assert prev2 == set()
+
+
+def test_presence_table_always_and_streak():
+    history = [
+        ("20260716", {"A", "B", "C"}),
+        ("20260717", {"A", "B"}),
+        ("20260718", {"A", "D"}),
+    ]
+    out = presence_table(history)
+    a = out.loc[out["ticker"] == "A"].iloc[0]
+    assert bool(a["always_present"]) is True
+    assert int(a["streak_from_end"]) == 3
+    assert float(a["presence_rate"]) == pytest.approx(1.0)
+
+    b = out.loc[out["ticker"] == "B"].iloc[0]
+    assert bool(b["always_present"]) is False
+    assert int(b["streak_from_end"]) == 0
+    assert int(b["n_present"]) == 2
+
+    d = out.loc[out["ticker"] == "D"].iloc[0]
+    assert int(d["streak_from_end"]) == 1
+
+
+def test_membership_changes_frame():
+    df = membership_changes_frame(
+        stamp="20260718",
+        as_of="2026-07-18",
+        prev_stamp="20260717",
+        entered=["X"],
+        exited=["Y", "Z"],
+    )
+    assert list(df["action"]) == ["enter", "exit", "exit"]
+    assert set(df.loc[df["action"] == "exit", "ticker"]) == {"Y", "Z"}
+
+
+def test_append_membership_panel_dedupes_stamp(tmp_path: Path):
+    path = tmp_path / "membership_panel.csv"
+    cons = pd.DataFrame(
+        {
+            "ticker": ["AAA"],
+            "name": ["A"],
+            "fund_score": [10.0],
+            "rs_rank": [80.0],
+            "market_cap": [2e9],
+        }
+    )
+    append_membership_panel(path, cons, stamp="20260718", as_of="2026-07-18")
+    cons2 = cons.copy()
+    cons2["fund_score"] = [12.0]
+    panel = append_membership_panel(path, cons2, stamp="20260718", as_of="2026-07-18")
+    assert len(panel) == 1
+    assert float(panel.iloc[0]["fund_score"]) == 12.0
+
+    cons3 = pd.DataFrame(
+        {
+            "ticker": ["BBB"],
+            "name": ["B"],
+            "fund_score": [9.0],
+            "rs_rank": [75.0],
+            "market_cap": [3e9],
+        }
+    )
+    panel2 = append_membership_panel(path, cons3, stamp="20260719", as_of="2026-07-19")
+    assert len(panel2) == 2
+    assert set(panel2["stamp"].astype(str)) == {"20260718", "20260719"}
+
+
+def test_load_membership_history(tmp_path: Path):
+    report = tmp_path / "sepatop"
+    report.mkdir()
+    pd.DataFrame({"ticker": ["A"]}).to_csv(report / "membership_20260716.csv", index=False)
+    pd.DataFrame({"ticker": ["A", "B"]}).to_csv(report / "membership_20260717.csv", index=False)
+    hist = load_membership_history(report)
+    assert [s for s, _ in hist] == ["20260716", "20260717"]
+    assert hist[1][1] == {"A", "B"}

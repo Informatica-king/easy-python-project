@@ -445,6 +445,17 @@ def _tool_go(args: list, kwargs: dict) -> None:
     median_export = Path(f"reports/fund_median_tickers_{stamp}.txt")
     print_fund_median_copy_list(fund_df, out_path=median_export)
 
+    from sepa.artifacts import publish_many
+
+    soft_drops = Path(f"reports/rs_soft_drops_{stamp}.csv")
+    go_artifacts = [stage2, fund_csv, median_export]
+    if soft_drops.exists():
+        go_artifacts.append(soft_drops)
+    published = publish_many(go_artifacts)
+    if published:
+        print(f"\ngo mid-pack artifacts: {len(published)} files "
+              f"({', '.join(p.name for p in published)})")
+
     # 3) Sector + RS×Fund analysis
     banner(3, 3, "!sepa.anal()")
     anal_argv = ["--from-fundamental", str(fund_csv)]

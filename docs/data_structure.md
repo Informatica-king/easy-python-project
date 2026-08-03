@@ -18,9 +18,21 @@ data/raw/                          # 가격 데이터 캐시 (.gitignore — 재
 reports/                           # 실행 결과 (.gitignore — 실행일별 생성)
 ├── stage2_YYYYMMDD.csv            # [도구1] Stage 2 "회사명-티커" 리스트
 ├── diagnostics_YYYYMMDD.csv       # [도구1] 전 종목 조건별 진단
-├── fundamental_YYYYMMDD.csv       # [도구] Stage 2·RS≥80 펀더멘털 점수
+├── fundamental_YYYYMMDD.csv       # [도구] Stage 2·RS 필터 펀더멘털 점수
+├── rs_soft_drops_YYYYMMDD.csv     # [도구] RS soft ceiling 탈락
+├── fund_median_tickers_YYYYMMDD.txt
 ├── analyze_YYYYMMDD.csv           # [도구] 섹터 태그 포함 분석 테이블
-└── vcp_YYYYMMDD.csv               # [도구2] shortlist VCP 시그널
+├── vcp_YYYYMMDD.csv               # [도구2] shortlist VCP 시그널
+└── sepatop/
+    ├── membership_YYYYMMDD.csv
+    ├── membership_changes_YYYYMMDD.csv
+    ├── presence_YYYYMMDD.csv      # 연속 체류/always (tenure와 다름)
+    ├── always_present_YYYYMMDD.csv
+    ├── membership_panel.csv       # 누적 롱 패널
+    ├── analysis_snapshot_YYYYMMDD.md
+    ├── tenure_YYYYMMDD.csv        # first_seen 기반 (연속 아님)
+    ├── index_YYYYMMDD.csv
+    └── charts/
 
 reports/charts/
 ├── analyze_sectors_YYYYMMDD.png   # 섹터/테마 막대 차트
