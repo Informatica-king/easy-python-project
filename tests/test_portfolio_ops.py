@@ -42,6 +42,18 @@ def test_week_plan_mode():
     assert week_plan_mode(date(2026, 8, 3)) == "next_5bd"  # Monday
 
 
+def test_ops_date_overrides_plan_mode():
+    book = load_book("config/portfolio_watch.yaml")
+    # snap as_of is Sunday 8/2; ops Monday 8/3 → 5bd plan
+    from sepa.portfolio_ops import build_ops_plan, enrich_marks
+
+    book = enrich_marks(book, ops_date=date(2026, 8, 3), use_snap_marks=True)
+    assert book.effective_date == date(2026, 8, 3)
+    assert week_plan_mode(book.effective_date) == "next_5bd"
+    plan = build_ops_plan(book, [])
+    assert any("향후 5영업일" in p for p in plan)
+
+
 def test_stance_earn_d5_no_add():
     h = HoldingRow(
         ticker="ECPG",
