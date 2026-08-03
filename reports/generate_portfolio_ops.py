@@ -360,6 +360,9 @@ def build_html(
 <p class="sub">운영일 {esc(book.effective_date.isoformat())} · 보유스냅 {esc(book.as_of.isoformat())} · 출처 {esc(book.source)} · 심층연동 {esc(scen_path.name if scen_path else '—')}</p>
 <div class="style-tag">차트 Style B — Warm Paper Mid-Chroma</div>
 <div class="box ok">
+  <b>우리의 OS</b> {esc(book.identity or book.identity_short or "규칙형 챌린저 모멘텀 생존 OS")}
+</div>
+<div class="box ok">
   <b>북 요약</b> 주식 {fmt_usd(book.equity_usd)} · 현금 {fmt_usd(book.cash_usd)}
   ({fmt_pct(book.cash_pct, False)}) · 유동 {fmt_usd(book.liquid_usd)} · 바닥 ${book.cash_floor_usd:.0f}
 </div>

@@ -70,6 +70,8 @@ class PortfolioBook:
     forbid: list[str] = field(default_factory=list)
     actions: list[str] = field(default_factory=list)
     ops_date: date | None = None  # 실행일(스텐스·계획·D5). None이면 as_of
+    identity: str = ""
+    identity_short: str = ""
 
     @property
     def effective_date(self) -> date:
@@ -144,6 +146,7 @@ def load_book(path: str | Path = "config/portfolio_watch.yaml") -> PortfolioBook
     pending = ""
     if book_block.get("pending_orders_note"):
         pending = str(book_block["pending_orders_note"])
+    strat = raw.get("strategy") or {}
     return PortfolioBook(
         as_of=as_of,
         source=str(raw.get("source") or raw.get("as_of_note") or path),
@@ -153,6 +156,8 @@ def load_book(path: str | Path = "config/portfolio_watch.yaml") -> PortfolioBook
         note=str(raw.get("as_of_note") or ""),
         holdings=holdings,
         pending_note=pending,
+        identity=str(strat.get("identity") or ""),
+        identity_short=str(strat.get("identity_short") or ""),
     )
 
 

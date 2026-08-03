@@ -26,6 +26,8 @@ def test_load_book_snap_20260802():
     txg = next(h for h in book.holdings if h.ticker == "TXG")
     assert txg.shares == 2
     assert txg.no_add is True
+    assert "생존형 포트 OS" in book.identity
+    assert "챌린저" in book.identity
 
 
 def test_earn_d5_window():
