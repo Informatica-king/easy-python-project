@@ -6,14 +6,14 @@
 # stop / tp1 / tp2: 가격 도달 시 STOP / TP 훅 태그
 # band: 추가매수 허용 구간 (BAND)
 
-as_of: "2026-08-02"
-as_of_note: "앱 캡처 확정 · 평가 $895.21 (−0.04%) · USD$629.05 · 해외주식 미체결 1건 · TXG 신규편입"
+as_of: "2026-08-03"
+as_of_note: "CMPR 1주 예약매수@98.63 반영 · 현금 $530.42 · 주식평가 ~$994 · 유동 ~$1,524"
 fx_krw_per_usd: 1460.0
-cost_basis_source: "앱 평가·손익 역산 (2026-08-02 캡처)"
-source: "app_screenshot_2026-08-02"
+cost_basis_source: "앱 캡처 2026-08-02 + CMPR 사용자 체결 평단 2026-08-03"
+source: "app_screenshot_2026-08-02 + user_cmpr_fill_2026-08-03"
 
 # ---------------------------------------------------------------------------
-# Capital Operating System (confirmed snap 2026-08-02)
+# Capital Operating System (snap 2026-08-03 · CMPR 편입)
 # ---------------------------------------------------------------------------
 strategy:
   identity: "짧~중기 모멘텀을 실적·비중·손절로 걸러, 비대장주 챌린저를 규칙으로만 운영하는 생존형 포트 OS"
@@ -23,28 +23,28 @@ strategy:
     - "군인 · 폰 ~21시 통제 → 저녁/장전 루틴"
     - "소액 · 매월 10일 ₩30만 적립"
   book:
-    equity_usd: 895.21
+    equity_usd: 993.84
     equity_pnl_usd: -0.41
     equity_pnl_pct: -0.0004
-    cash_usd: 629.05
+    cash_usd: 530.42
     cash_krw: 24
     liquid_usd: 1524.26
     cash_floor_usd: 150
-    cash_deployable_usd: 479.05
-    cash_pct_of_liquid: 0.413
-    pending_orders_note: "해외주식 미체결 1건 — 체결 확인 전 중복매수 주의"
+    cash_deployable_usd: 380.42
+    cash_pct_of_liquid: 0.348
+    pending_orders_note: "CMPR 예약매수 반영(08-03 장전@98.63) · 앱 체결·잔고 재확인 권장"
   roles:
     core: [ECPG, AMRX]
     core_phase1: [LASR]
-    satellite: [NESR, TXG, RELY]
+    satellite: [NESR, TXG, RELY, CMPR]
     buffer: [SCHD]
     candidate_core: []
 
 cash:
-  usd: 629.05
+  usd: 530.42
   krw: 24
   floor_usd: 150
-  note: "현금비중 ~41% · 바닥 $150 유지 · 실적주간 여유 활용은 A′만"
+  note: "현금비중 ~35% · 바닥 $150 유지 · CMPR 1주 집행 후 여유 $380"
 
 contribution:
   payday: "매월 10일"
@@ -60,12 +60,12 @@ allocation:
   schd_target_pct: 10
   schd_role: "변동성 완충"
   core_tickers: [ECPG, AMRX, LASR]
-  satellite_tickers: [NESR, TXG, RELY]
+  satellite_tickers: [NESR, TXG, RELY, CMPR]
   buffer_tickers: [SCHD]
   note: |
-    2026-08-02 종가: ECPG 21.0% · AMRX 18.4% · LASR 15.4% · SCHD 15.0% ·
-    NESR 12.0% · TXG 10.6% · RELY 7.6%. 현금 $629 (유동 41%).
-    NESR 위성 한도 상단 · SCHD 목표 상회 · ECPG 코어 밴드 상단.
+    2026-08-03 (08-02 마크 + CMPR@98.63): ECPG 18.9% · AMRX 16.6% · LASR 13.8% ·
+    SCHD 13.5% · NESR 10.9% · CMPR 9.9% · TXG 9.5% · RELY 6.9%.
+    현금 $530 (유동 35%). NESR·CMPR 위성 한도 근처 · SCHD 목표 상회.
 
 rules:
   - "물타기 금지"
@@ -76,7 +76,8 @@ rules:
   - "NESR 밴드여도 추가금지 · stop $24"
   - "ECPG stop $80 · 추가금지"
   - "TXG 신규 · Chase 하·과열 시 추격·추가 금지"
-  - "미체결 1건 확인 전 동일종목 중복 주문 금지"
+  - "CMPR 위성 소액 1주 · 추가·물타기 금지 · stop $90"
+  - "앱 잔고·체결 재확인 전 동일종목 중복 주문 금지"
 
 holdings:
   - ticker: ECPG
@@ -86,7 +87,7 @@ holdings:
     cost_approx: 92.32
     mark_approx: 94.08
     value_approx: 188.16
-    weight_approx: 0.210
+    weight_approx: 0.189
     pnl_usd: 3.52
     pnl_pct: 0.019
     stop: 80.0
@@ -94,7 +95,7 @@ holdings:
     tp2: 110.0
     no_add: true
     earn_date: "2026-08-05"
-    note: "평단 $92.32 · +1.9% · 코어 21% · 08-05 EARN_D5"
+    note: "평단 $92.32 · +1.9% · 코어 · 08-05 EARN_D5"
 
   - ticker: AMRX
     role: hold
@@ -103,7 +104,7 @@ holdings:
     cost_approx: 18.36
     mark_approx: 18.32
     value_approx: 164.88
-    weight_approx: 0.184
+    weight_approx: 0.166
     pnl_usd: -0.39
     pnl_pct: -0.002
     stop: 15.5
@@ -111,7 +112,7 @@ holdings:
     tp2: 20.0
     no_add: true
     earn_date: "2026-10-29"
-    note: "평단 $18.36 · −0.2% · 코어 18.4% · 추가금지"
+    note: "평단 $18.36 · −0.2% · 코어 · 추가금지"
 
   - ticker: LASR
     role: hold
@@ -120,7 +121,7 @@ holdings:
     cost_approx: 66.44
     mark_approx: 68.80
     value_approx: 137.60
-    weight_approx: 0.154
+    weight_approx: 0.138
     pnl_usd: 4.72
     pnl_pct: 0.036
     no_add: true
@@ -135,14 +136,14 @@ holdings:
     cost_approx: 33.40
     mark_approx: 33.47
     value_approx: 133.88
-    weight_approx: 0.150
+    weight_approx: 0.135
     pnl_usd: 0.27
     pnl_pct: 0.002
     stop: 30.0
     tp1: 36.0
     tp2: 38.0
     no_add: true
-    note: "4주 · +0.2% · 완충 15% (목표 8–10% 상회)"
+    note: "4주 · +0.2% · 완충 13.5% (목표 8–10% 상회)"
 
   - ticker: NESR
     role: hold
@@ -151,7 +152,7 @@ holdings:
     cost_approx: 27.34
     mark_approx: 26.96
     value_approx: 107.84
-    weight_approx: 0.120
+    weight_approx: 0.109
     pnl_usd: -1.53
     pnl_pct: -0.014
     stop: 24.0
@@ -160,7 +161,24 @@ holdings:
     no_add: true
     band: [25.0, 27.0]
     earn_date: "2026-08-18"
-    note: "4주 · −1.4% · 위성 12% 한도상단 · 추가금지"
+    note: "4주 · −1.4% · 위성 10.9% · 추가금지"
+
+  - ticker: CMPR
+    role: hold
+    sleeve: satellite
+    shares: 1
+    cost_approx: 98.63
+    mark_approx: 98.63
+    value_approx: 98.63
+    weight_approx: 0.099
+    pnl_usd: 0.0
+    pnl_pct: 0.0
+    stop: 90.0
+    tp1: 110.0
+    tp2: 120.0
+    no_add: true
+    earn_date: "2026-10-28"
+    note: "08-03 장전 예약매수 1주@98.63 · 위성~10% · A′소액 · 추가·물타기 금지"
 
   - ticker: TXG
     role: hold
@@ -169,7 +187,7 @@ holdings:
     cost_approx: 49.99
     mark_approx: 47.27
     value_approx: 94.54
-    weight_approx: 0.106
+    weight_approx: 0.095
     pnl_usd: -5.44
     pnl_pct: -0.054
     stop: 42.0
@@ -184,7 +202,7 @@ holdings:
     cost_approx: 23.29
     mark_approx: 22.77
     value_approx: 68.31
-    weight_approx: 0.076
+    weight_approx: 0.069
     pnl_usd: -1.56
     pnl_pct: -0.022
     stop: 20.0
@@ -217,6 +235,9 @@ exited:
     note: "전량매도 · SCHD 회전"
 
 watchlist:
+  - ticker: CMPR
+    role: watch
+    note: "보유 · 위성소액 · 추가금지"
   - ticker: TXG
     role: watch
     note: "보유·과열/실적창 · 추가금지"
@@ -232,9 +253,6 @@ watchlist:
   - ticker: ALKS
     role: watch
     note: "SOFT 워치"
-  - ticker: CMPR
-    role: watch
-    note: "A′ 실행후보 워치"
   - ticker: LAUR
     role: watch
-    note: "A′ · 업사이드 작음"
+    note: "A′ · L1패스 · 업사이드 작음"

@@ -226,13 +226,14 @@ def render_html(bundle: EconNewsBundle) -> str:
 
     # checklist — aligned to current portfolio_watch.yaml OS
     held = [p.ticker for p in bundle.portfolio if p.role == "hold"]
-    n_held = len(held) or 7
+    n_held = len(held) or 8
     checklist = [
-        f"장 시작 전: 보유 {n_held}종(ECPG·AMRX·LASR·SCHD·NESR·TXG·RELY) 호가·갭 확인",
+        f"장 시작 전: 보유 {n_held}종(ECPG·AMRX·LASR·SCHD·NESR·CMPR·TXG·RELY) 호가·갭 확인",
         "EARN_D5: ECPG·RELY(08-05) · LASR·TXG(08-06) — 추가/분할 금지",
         "NESR: 25–27 USD 밴드 · NO_ADD · stop $24",
+        "CMPR: 위성 소액 1주@98.63 · NO_ADD · stop $90",
         "TXG/LASR: 실적·과열 구간 추격·물타기 금지",
-        "현금바닥 $150 유지 · 미체결 1건 확인 전 중복주문 금지",
+        "현금바닥 $150 유지 · 앱 체결·잔고 재확인 전 중복주문 금지",
     ]
 
     headline_rows = []
@@ -316,7 +317,7 @@ def render_html(bundle: EconNewsBundle) -> str:
 </table>
 <div class="box">
 <b>배분과의 연결 (현행 룰)</b><br/>
-코어(ECPG/AMRX) · LASR 이관1단계 추가금지 · NESR/TXG/RELY NO_ADD ·
+코어(ECPG/AMRX) · LASR 이관1단계 추가금지 · NESR/CMPR/TXG/RELY NO_ADD ·
 SCHD 완충 · 현금바닥 $150 · 실적주간(08-05~06) 갭추격 금지
 </div>
 

@@ -13,12 +13,12 @@ from sepa.portfolio_ops import (
 )
 
 
-def test_load_book_snap_20260802():
+def test_load_book_snap_20260803():
     book = load_book("config/portfolio_watch.yaml")
-    assert book.as_of == date(2026, 8, 2)
-    assert abs(book.cash_usd - 629.05) < 1e-6
+    assert book.as_of == date(2026, 8, 3)
+    assert abs(book.cash_usd - 530.42) < 1e-6
     tickers = {h.ticker for h in book.holdings}
-    assert tickers == {"ECPG", "AMRX", "LASR", "SCHD", "NESR", "TXG", "RELY"}
+    assert tickers == {"ECPG", "AMRX", "LASR", "SCHD", "NESR", "CMPR", "TXG", "RELY"}
     schd = next(h for h in book.holdings if h.ticker == "SCHD")
     assert schd.shares == 4
     nesr = next(h for h in book.holdings if h.ticker == "NESR")
@@ -26,6 +26,11 @@ def test_load_book_snap_20260802():
     txg = next(h for h in book.holdings if h.ticker == "TXG")
     assert txg.shares == 2
     assert txg.no_add is True
+    cmpr = next(h for h in book.holdings if h.ticker == "CMPR")
+    assert cmpr.shares == 1
+    assert abs((cmpr.cost or 0) - 98.63) < 1e-6
+    assert cmpr.no_add is True
+    assert cmpr.sleeve == "satellite"
     assert "생존형 포트 OS" in book.identity
     assert "챌린저" in book.identity
 
@@ -46,7 +51,7 @@ def test_week_plan_mode():
 
 def test_ops_date_overrides_plan_mode():
     book = load_book("config/portfolio_watch.yaml")
-    # snap as_of is Sunday 8/2; ops Monday 8/3 → 5bd plan
+    # snap as_of is Monday 8/3; ops same day → 5bd plan
     from sepa.portfolio_ops import build_ops_plan, enrich_marks
 
     book = enrich_marks(book, ops_date=date(2026, 8, 3), use_snap_marks=True)
