@@ -132,6 +132,16 @@ def test_apply_buy_scores_integration():
     scenarios = {
         "rows": [
             {
+                "t": "LAUR",
+                "scenario": "A",
+                "upside": 0.12,
+                "rsi": 52,
+                "pct_hi": -0.07,
+                "px": 28.0,
+                "earnDate": "2026-10-29",
+                "sector": "Consumer Defensive",
+            },
+            {
                 "t": "CMPR",
                 "scenario": "A",
                 "upside": 0.12,
@@ -139,7 +149,6 @@ def test_apply_buy_scores_integration():
                 "pct_hi": -0.07,
                 "px": 98.7,
                 "earnDate": "2026-10-28",
-                "sector": "Industrials",
             },
             {
                 "t": "FTNT",
@@ -153,15 +162,18 @@ def test_apply_buy_scores_integration():
     ideas = filter_buy_ideas(book, scenarios, None)
 
     def fetch(t, start, end):
-        if t in ("SPY", "XLI"):
+        if t in ("SPY", "XLP"):
             return _series(100, 102)
         return _series(50, 65)
 
     out = apply_buy_scores(ideas, as_of=date(2026, 8, 3), fetch_closes=fetch)
+    laur = next(i for i in out if i.ticker == "LAUR")
+    assert laur.bucket == "실행후보"
+    assert laur.buy_score is not None
+    assert laur.buy_score.l1 >= 1
     cmpr = next(i for i in out if i.ticker == "CMPR")
-    assert cmpr.bucket == "실행후보"
-    assert cmpr.buy_score is not None
-    assert cmpr.buy_score.l1 >= 1
+    assert cmpr.bucket == "금지"  # held NO_ADD after 08-03 fill
+    assert cmpr.buy_score is None
     ftnt = next(i for i in out if i.ticker == "FTNT")
     assert ftnt.bucket == "금지"
     assert ftnt.buy_score is None
