@@ -1,0 +1,14 @@
+# 실적 후 가이드 등급 (L3) — D+1~D+3 창에서 포폴() 점수에 반영
+# grade: A | B | C
+# A=가이드↑/톤강 · B=인라인 · C=가이드↓/톤약 → 축소후보
+#
+# 예:
+# grades:
+#   ECPG:
+#     grade: A
+#     note: "collections 가이던스↑"
+#     graded_on: "2026-08-06"
+#     earn_date: "2026-08-05"
+
+as_of: "2026-08-03"
+grades: {}
