@@ -713,6 +713,55 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "FTRE는 공시상 단일 세그먼트라 전달모델 서술에 맞춘 근사 — 방향 비교용."
         ),
     },
+    "CMPR": {
+        "sector_ko": "산업재 · 대량맞춤 인쇄·프로모 (심층: Mass Customization)",
+        "share_title": "상장 특수인쇄·마케팅제품 피어셋 스케일 점유 (추정)",
+        "share_as_of": "FY'25–26 · 매출 스케일 근사 vs 전년",
+        "share_note": (
+            "상장 특수인쇄·마케팅 제품 피어셋 상대 스케일. "
+            "Canva·로컬카피숍·아마존 인쇄는 비상장/혼재로 제외. "
+            "절대 시장점유율이 아니라 피어셋 방향 비교용."
+        ),
+        "share_rows": [
+            ("Cimpress (CMPR)", 52.0, 50.5),
+            ("Deluxe (DLX)", 30.0, 31.0),
+            ("Ennis (EBF)", 5.5, 5.8),
+            ("Others (listed/est.)", 12.5, 12.7),
+        ],
+        "share_source": "Directional share of selected US-listed specialty print/marketing peers by revenue scale (est.)",
+        "mix_buckets": ["Vista (DTC)", "Upload & Print", "National Pen+Other"],
+        "mix_as_of": "Q4 FY'26 (FY ends Jun) · 세그먼트 매출(내부거래 제거 전) 정규화",
+        "mix_rows": [
+            {
+                "key": "CMPR",
+                "name": "CMPR",
+                "subject": True,
+                "yf": "CMPR",
+                "mix": {"Vista (DTC)": 49.0, "Upload & Print": 34.4, "National Pen+Other": 16.6},
+                "note": "Q4: Vista $486M / U&P $342M / NP+Other $164M (elim 전)",
+            },
+            {
+                "key": "DLX",
+                "name": "DLX",
+                "subject": False,
+                "yf": "DLX",
+                "mix": {"Vista (DTC)": 25.0, "Upload & Print": 35.0, "National Pen+Other": 40.0},
+                "note": "수표·마케팅솔루션·프로모 혼재 → 버킷 근사",
+            },
+            {
+                "key": "EBF",
+                "name": "EBF",
+                "subject": False,
+                "yf": "EBF",
+                "mix": {"Vista (DTC)": 10.0, "Upload & Print": 75.0, "National Pen+Other": 15.0},
+                "note": "상업인쇄·양식 중심",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Vista(DTC) / Upload&Print(PrintBrothers+Print Group) / National Pen+Other로 정규화. "
+            "피어는 공시 세그먼트가 달라 근사 — 방향 비교용."
+        ),
+    },
 }
 
 
@@ -761,6 +810,7 @@ SUBJECT_SHARE_ALIASES: dict[str, tuple[str, ...]] = {
     "ECPG": ("encore",),
     "AMRX": ("amneal",),
     "FTRE": ("fortrea",),
+    "CMPR": ("cimpress", "vistaprint", "vista"),
 }
 
 
