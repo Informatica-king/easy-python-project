@@ -48,11 +48,9 @@ BENCHMARKS: list[tuple[str, str]] = [
 
 
 def _setup_korean_font() -> None:
-    for path in glob.glob("/usr/share/fonts/truetype/nanum/NanumGothic*.ttf"):
-        fm.fontManager.addfont(path)
-    if any(f.name == "NanumGothic" for f in fm.fontManager.ttflist):
-        plt.rcParams["font.family"] = "NanumGothic"
-        plt.rcParams["axes.unicode_minus"] = False
+    from sepa.fonts import setup_korean_matplotlib
+
+    setup_korean_matplotlib(allow_install=True)
 
 
 def sepatop_dirs(report_dir: str | Path, cache_dir: str | Path) -> tuple[Path, Path]:

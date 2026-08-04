@@ -408,7 +408,14 @@ def _tool_go(args: list, kwargs: dict) -> None:
     print("  SEPA GO — scan(full) → fund → anal")
     print("#" * 64)
 
+    from sepa.fonts import KoreanFontError, assert_korean_font_ready
     from sepa.result_ledger import save_params_snapshot
+
+    try:
+        assert_korean_font_ready(context="sepa.go")
+        print("Korean font: OK (analyze PDF Hangul ready)")
+    except KoreanFontError as exc:
+        print(f"[경고] 한글 폰트 미준비 — PDF 한글이 깨질 수 있음: {exc}")
 
     params_pack = save_params_snapshot(DEFAULT_CONFIG, "reports", stamp, publish=True)
     print(

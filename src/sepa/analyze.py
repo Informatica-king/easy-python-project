@@ -31,11 +31,9 @@ logger = logging.getLogger(__name__)
 
 
 def _setup_korean_font() -> None:
-    for path in glob.glob("/usr/share/fonts/truetype/nanum/NanumGothic*.ttf"):
-        fm.fontManager.addfont(path)
-    if any(f.name == "NanumGothic" for f in fm.fontManager.ttflist):
-        plt.rcParams["font.family"] = "NanumGothic"
-        plt.rcParams["axes.unicode_minus"] = False
+    from sepa.fonts import setup_korean_matplotlib
+
+    setup_korean_matplotlib(allow_install=True)
 
 
 # (표시 태그, 매칭 키워드) — sector/industry 문자열에 대해 복수 매칭 가능

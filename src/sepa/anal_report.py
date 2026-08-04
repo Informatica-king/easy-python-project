@@ -7,7 +7,6 @@ Android Cursor app often cannot download PDF artifacts, so we also publish:
 
 from __future__ import annotations
 
-import glob
 import logging
 import re
 import zipfile
@@ -18,11 +17,17 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.image as mpimg  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
-from matplotlib import font_manager as fm  # noqa: E402
 from matplotlib.backends.backend_pdf import PdfPages  # noqa: E402
 from PIL import Image  # noqa: E402
 
 from sepa.artifacts import publish, publish_many
+from sepa.fonts import (
+    KoreanFontError,
+    assert_korean_font_ready,
+    discover_korean_font_files,
+    korean_fontproperties,
+    setup_korean_matplotlib,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -69,11 +74,8 @@ MODEL_PAGE_COMMENTS: dict[str, tuple[str, str]] = {
 
 
 def _setup_korean_font() -> None:
-    for path in glob.glob("/usr/share/fonts/truetype/nanum/NanumGothic*.ttf"):
-        fm.fontManager.addfont(path)
-    if any(f.name == "NanumGothic" for f in fm.fontManager.ttflist):
-        plt.rcParams["font.family"] = "NanumGothic"
-        plt.rcParams["axes.unicode_minus"] = False
+    """Register Hangul face for this process (Nanum / WQY / Noto)."""
+    setup_korean_matplotlib(allow_install=True)
 
 
 def chart_page_comment(image_path: Path | str) -> tuple[str, str] | None:
@@ -86,17 +88,21 @@ def chart_page_comment(image_path: Path | str) -> tuple[str, str] | None:
 def _cover_page(pdf: PdfPages, *, title: str, subtitle: str, n_pages: int) -> None:
     _setup_korean_font()
     fig = plt.figure(figsize=(11, 8.5))
-    fig.text(0.5, 0.62, title, ha="center", va="center", fontsize=22, fontweight="bold")
-    fig.text(0.5, 0.52, subtitle, ha="center", va="center", fontsize=12, color="#444")
+    fp_title = korean_fontproperties(bold=True, size=22)
+    fp_sub = korean_fontproperties(size=12)
+    fp_meta = korean_fontproperties(size=11)
+    fp_note = korean_fontproperties(size=10)
+    fig.text(0.5, 0.62, title, ha="center", va="center", fontproperties=fp_title, fontweight="bold")
+    fig.text(0.5, 0.52, subtitle, ha="center", va="center", fontproperties=fp_sub, color="#444")
     fig.text(
         0.5, 0.40,
         f"Charts in this PDF: {n_pages}",
-        ha="center", va="center", fontsize=11, color="#666",
+        ha="center", va="center", fontproperties=fp_meta, color="#666",
     )
     fig.text(
         0.5, 0.28,
         "Android: use .zip or board*.png artifacts (PDF may not download)",
-        ha="center", va="center", fontsize=10, color="#888",
+        ha="center", va="center", fontproperties=fp_note, color="#888",
     )
     pdf.savefig(fig)
     plt.close(fig)
@@ -135,26 +141,35 @@ def _image_page(pdf: PdfPages, image_path: Path) -> bool:
 
     if comment:
         title, body = comment
-        # Leave bottom band for Korean guide
+        # Leave bottom band for Korean guide — always pass Hangul FontProperties
+        # so bold weight cannot fall back to DejaVu Sans.
         ax = fig.add_axes([0.04, 0.22, 0.92, 0.72])
         ax.imshow(img)
         ax.axis("off")
         fig.text(
             0.5, 0.965, title,
-            ha="center", va="top", fontsize=13, fontweight="bold", color="#1a1a1a",
+            ha="center", va="top",
+            fontproperties=korean_fontproperties(bold=True, size=13),
+            color="#1a1a1a",
         )
         fig.text(
             0.05, 0.16, "어떻게 보면 되나",
-            ha="left", va="top", fontsize=9, color="#2E86AB", fontweight="bold",
+            ha="left", va="top",
+            fontproperties=korean_fontproperties(bold=True, size=9),
+            color="#2E86AB",
         )
         fig.text(
             0.05, 0.13, _wrap_comment(body, width=58),
-            ha="left", va="top", fontsize=9.5, color="#333",
+            ha="left", va="top",
+            fontproperties=korean_fontproperties(size=9.5),
+            color="#333",
             linespacing=1.35,
         )
         fig.text(
             0.98, 0.02, image_path.name,
-            ha="right", va="bottom", fontsize=7, color="#999",
+            ha="right", va="bottom",
+            fontproperties=korean_fontproperties(size=7),
+            color="#999",
         )
     else:
         h, w = img.shape[:2]
@@ -168,7 +183,12 @@ def _image_page(pdf: PdfPages, image_path: Path) -> bool:
             ax = fig.add_axes([0.03, 0.04, 0.94, 0.88])
         ax.imshow(img)
         ax.axis("off")
-        fig.text(0.5, 0.97, image_path.name, ha="center", va="top", fontsize=8, color="#555")
+        fig.text(
+            0.5, 0.97, image_path.name,
+            ha="center", va="top",
+            fontproperties=korean_fontproperties(size=8),
+            color="#555",
+        )
 
     pdf.savefig(fig, dpi=140)
     plt.close(fig)
@@ -239,11 +259,17 @@ def build_anal_pdf(
     stamp: str,
     title: str | None = None,
 ) -> Path | None:
-    """Write a multi-page PDF; return path or None if no images."""
+    """Write a multi-page PDF; return path or None if no images.
+
+    Requires a Hangul-capable font. Raises ``KoreanFontError`` rather than
+    producing a PDF with tofu (□) Korean glyphs.
+    """
     images = [Path(p) for p in image_paths if Path(p).exists()]
     if not images:
         logger.warning("build_anal_pdf: no images")
         return None
+
+    assert_korean_font_ready(context="analyze PDF")
 
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -308,9 +334,10 @@ def build_anal_png_boards(
     from PIL import ImageDraw, ImageFont
 
     draw = ImageDraw.Draw(cover)
+    regular, bold = discover_korean_font_files()
     try:
-        font_lg = ImageFont.truetype("/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf", 42)
-        font_sm = ImageFont.truetype("/usr/share/fonts/truetype/nanum/NanumGothic.ttf", 24)
+        font_lg = ImageFont.truetype(bold or regular, 42)
+        font_sm = ImageFont.truetype(regular, 24)
     except Exception:  # noqa: BLE001
         font_lg = ImageFont.load_default()
         font_sm = font_lg
@@ -366,7 +393,13 @@ def build_anal_pack(
     if not images:
         return result
 
-    pdf = build_anal_pdf(images, out_dir / f"analyze_report_{stamp}.pdf", stamp=stamp)
+    try:
+        pdf = build_anal_pdf(images, out_dir / f"analyze_report_{stamp}.pdf", stamp=stamp)
+    except KoreanFontError as exc:
+        logger.exception("analyze PDF blocked: Korean font missing")
+        print(f"[오류] analyze PDF 한글 폰트 실패 — PDF 생성을 중단합니다: {exc}")
+        result["pdf_error"] = str(exc)
+        pdf = None
     zpath = build_anal_zip(images, out_dir / f"analyze_report_{stamp}.zip")
     boards = build_anal_png_boards(images, out_dir, stamp=stamp)
     result.update({"pdf": pdf, "zip": zpath, "boards": boards})

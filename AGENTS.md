@@ -50,6 +50,9 @@
   생략·말줄임(`…`)·샘플링·상위 N개 절단 금지. 파일
   `reports/fund_median_tickers_YYYYMMDD.txt`와 채팅/콘솔 모두 동일 전체 문자열.
   에이전트 요약에서도 이 한 줄은 **반드시 전문을 그대로** 제시할 것.
+- **analyze PDF 한글 폰트 — 필수**: `fonts-nanum`(또는 WQY/Noto CJK) 없으면
+  PDF 한글이 □로 깨진다. `sepa.fonts.assert_korean_font_ready`가 go 시작·PDF
+  생성 시 검사하고, 없으면 apt 설치를 시도한다. 깨진 PDF를 릴리즈하지 말 것.
 
 ## Cursor Cloud specific instructions
 

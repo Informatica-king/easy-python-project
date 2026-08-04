@@ -135,10 +135,9 @@ def analyze(
 
 
 def _setup_korean_font() -> None:
-    for path in glob.glob("/usr/share/fonts/truetype/nanum/NanumGothic*.ttf"):
-        fm.fontManager.addfont(path)
-    if any(f.name == "NanumGothic" for f in fm.fontManager.ttflist):
-        plt.rcParams["font.family"] = "NanumGothic"
+    from sepa.fonts import setup_korean_matplotlib
+
+    setup_korean_matplotlib(allow_install=True)
 
 
 def signal_summary(report: pd.DataFrame) -> dict[str, int]:

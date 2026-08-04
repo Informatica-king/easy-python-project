@@ -45,10 +45,9 @@ CONDITION_LABELS = {
 
 
 def _setup_korean_font() -> None:
-    for path in glob.glob("/usr/share/fonts/truetype/nanum/NanumGothic*.ttf"):
-        fm.fontManager.addfont(path)
-    if any("NanumGothic" == f.name for f in fm.fontManager.ttflist):
-        plt.rcParams["font.family"] = "NanumGothic"
+    from sepa.fonts import setup_korean_matplotlib
+
+    setup_korean_matplotlib(allow_install=True)
     plt.rcParams["axes.unicode_minus"] = False
 
 
