@@ -700,6 +700,52 @@ def main(argv: list[str] | None = None) -> int:
             logger.exception("model metrics failed")
             print(f"[경고] model metrics 실행 실패: {exc}")
 
+    # Longitudinal performance ledger (grows with every go/anal)
+    print("\n" + "=" * 64)
+    print("  Performance ledger — auto update")
+    print("=" * 64)
+    try:
+        from sepa.perf_ledger import ingest_missing_fundamental_stamps, update_perf_ledger
+        from sepa.result_ledger import file_sha256
+
+        soft_path = Path(params.report_dir) / f"rs_soft_drops_{stamp}.csv"
+        soft_df = pd.read_csv(soft_path) if soft_path.exists() else None
+        stage2_path = Path(params.report_dir) / f"stage2_{stamp}.csv"
+        n_stage2 = len(pd.read_csv(stage2_path)) if stage2_path.exists() else None
+        params_sha = ""
+        cfg = Path(args.config)
+        if cfg.exists():
+            params_sha = file_sha256(cfg)
+        missing = ingest_missing_fundamental_stamps(
+            params.report_dir, params.data.cache_dir, publish=False
+        )
+        if missing:
+            print(f"perf ledger backfill stamps: {', '.join(missing)}")
+        perf = update_perf_ledger(
+            report_dir=params.report_dir,
+            cache_dir=params.data.cache_dir,
+            stamp=stamp,
+            fund_df=enriched,
+            soft_drops=soft_df,
+            n_stage2=n_stage2,
+            params_sha=params_sha,
+            publish=True,
+            backfill_all_history=True,
+        )
+        if perf.get("ok"):
+            print(
+                f"perf baskets: {perf.get('n_baskets')}  "
+                f"forward_rows={perf.get('n_forward_rows')}  "
+                f"ready={perf.get('ready_counts')}"
+            )
+            for key in ("pool_log", "members", "forward", "summary_log"):
+                p = perf.get(key)
+                if p:
+                    release_extras.append(Path(p))
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("perf ledger failed")
+        print(f"[경고] performance ledger 갱신 실패: {exc}")
+
     # Mobile-first pack: ZIP + PNG boards + PDF, then GitHub Release direct link
     if not args.skip_pdf:
         from sepa.anal_report import (
@@ -746,6 +792,10 @@ def main(argv: list[str] | None = None) -> int:
                         Path(params.report_dir) / "sepatop" / "membership_event_fwd_panel.csv",
                         Path(params.report_dir) / "sepatop" / f"membership_event_fwd_{stamp}.csv",
                         Path(params.report_dir) / "sepatop" / f"membership_event_fwd_summary_{stamp}.csv",
+                        Path(params.report_dir) / "perf" / "daily_pool_log.csv",
+                        Path(params.report_dir) / "perf" / "basket_members_panel.csv",
+                        Path(params.report_dir) / "perf" / "security_forward_panel.csv",
+                        Path(params.report_dir) / "perf" / "basket_forward_summary_log.csv",
                     ]
                     for extra in ledger_extras:
                         if extra.exists():

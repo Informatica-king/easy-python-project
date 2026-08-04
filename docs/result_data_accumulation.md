@@ -84,7 +84,8 @@
 
 **ON (go/anal 자동)**  
 멤버십 분석 팩 + fund + soft drops + median+ + stage2  
-+ **params 스냅샷** + **Fund 분위수 로그** + **diagnostics 요약** + **enter/exit forward 패널**
++ params 스냅샷 + Fund 분위수 로그 + diagnostics 요약 + enter/exit forward 패널  
++ **성능 검증 패널** `reports/perf/` (`docs/perf_study_framework.md`, `!sepa.perf_study`)
 
 **나중에 / 연구 전용**
 

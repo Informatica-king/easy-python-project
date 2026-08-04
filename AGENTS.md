@@ -53,6 +53,9 @@
 - **analyze PDF 한글 폰트 — 필수**: `fonts-nanum`(또는 WQY/Noto CJK) 없으면
   PDF 한글이 □로 깨진다. `sepa.fonts.assert_korean_font_ready`가 go 시작·PDF
   생성 시 검사하고, 없으면 apt 설치를 시도한다. 깨진 PDF를 릴리즈하지 말 것.
+- **성능 검증 장기 프레임**: `!sepa.go`마다 `reports/perf/` 패널 자동 갱신
+  (`sepa.perf_ledger`). 요약은 `!sepa.perf_study()`. 스키마:
+  `docs/perf_study_framework.md`. 표본이 작을 때는 확증이 아님을 명시할 것.
 
 ## Cursor Cloud specific instructions
 

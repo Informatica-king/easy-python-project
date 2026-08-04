@@ -382,6 +382,17 @@ def _tool_sepatop(args: list, kwargs: dict) -> None:
     sepatop.main(argv)
 
 
+def _tool_perf_study(args: list, kwargs: dict) -> None:
+    from sepa import perf_study
+
+    argv: list[str] = []
+    if kwargs.get("stamp") or (args and str(args[0]).isdigit() and len(str(args[0])) == 8):
+        argv += ["--stamp", str(kwargs.get("stamp") or args[0])]
+    if kwargs.get("refresh") or kwargs.get("refresh_ledger"):
+        argv.append("--refresh-ledger")
+    perf_study.main(argv)
+
+
 def _latest_report(pattern: str) -> Path | None:
     paths = sorted(Path("reports").glob(pattern))
     return paths[-1] if paths else None
@@ -594,9 +605,16 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.go",
         "!sepa.go()  |  !sepa.go",
-        "일일 파이프라인 — scan(full) → fund → anal(+sectorShare+sepaTop) 을 순서대로 실행·출력. Fund 중앙값 이상 티커를 쉼표 목록으로 출력·export",
+        "일일 파이프라인 — scan(full) → fund → anal(+sectorShare+sepaTop+perf ledger) 순서 실행. Fund 중앙값 이상 티커 전체 문자열 export",
         _tool_go,
         aliases=("go",),
+    ),
+    MacroSpec(
+        "sepa.perf_study",
+        "!sepa.perf_study()  |  !sepa.perf_study(refresh=1)",
+        "누적 reports/perf 패널로 바스켓/이벤트 성과 요약 (표본 작아도 실행; 확증 아님)",
+        _tool_perf_study,
+        aliases=("perf_study", "sepa.perf", "perf"),
     ),
 ]
 
