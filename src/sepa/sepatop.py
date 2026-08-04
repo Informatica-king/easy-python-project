@@ -244,7 +244,11 @@ def save_membership(path: Path, constituents: pd.DataFrame, as_of: str) -> None:
 
 
 def list_membership_files(sepatop_report: Path) -> list[Path]:
-    return sorted(sepatop_report.glob("membership_*.csv"))
+    """Strict daily membership snapshots only (not changes/event/panel)."""
+    return sorted(
+        p for p in Path(sepatop_report).glob("membership_*.csv")
+        if re.fullmatch(r"membership_\d{8}\.csv", p.name)
+    )
 
 
 def load_first_seen(data_dir: Path) -> dict[str, str]:

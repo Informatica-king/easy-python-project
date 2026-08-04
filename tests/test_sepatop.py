@@ -98,6 +98,18 @@ def test_previous_membership(tmp_path: Path):
     assert prev2 == set()
 
 
+def test_list_membership_files_ignores_changes_and_events(tmp_path: Path):
+    from sepa.sepatop import list_membership_files
+
+    report = tmp_path / "sepatop"
+    report.mkdir()
+    pd.DataFrame({"ticker": ["A"]}).to_csv(report / "membership_20260804.csv", index=False)
+    pd.DataFrame({"ticker": ["B"]}).to_csv(report / "membership_changes_20260804.csv", index=False)
+    pd.DataFrame({"ticker": ["C"]}).to_csv(report / "membership_event_fwd_20260804.csv", index=False)
+    pd.DataFrame({"ticker": ["D"]}).to_csv(report / "membership_panel.csv", index=False)
+    assert [p.name for p in list_membership_files(report)] == ["membership_20260804.csv"]
+
+
 def test_presence_table_always_and_streak():
     history = [
         ("20260716", {"A", "B", "C"}),
