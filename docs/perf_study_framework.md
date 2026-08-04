@@ -49,11 +49,14 @@ go/anal이 이미 쌓는 원본(`fundamental_*`, `membership_*`, `presence_*`, `
 
 ## 4. 스터디 메뉴 (데이터가 늘수록 채워짐)
 
-1. 바스켓별 SPX 초과수익 (5/10/21d) — mean / win / n  
-2. enter/exit 이벤트 forward (sepaTop membership_changes)  
-3. 체류 streak (`presence`) × excess  
-4. soft_drop 사후 성과 vs rs90_ok  
-5. (향후) 섹터 편중·IR·분위 예측력 확장  
+1. **A** 바스켓별 SPX 초과수익 (5/10/21d) — mean / win / n  
+2. **B** enter/exit 이벤트 forward (sepaTop membership_changes)  
+3. **C** 체류 streak (`presence`) × excess  
+4. **D** soft_drop 사후 성과 vs rs90_ok  
+5. **E** 풀·필터 안정성 (`daily_pool_log`)  
+6. **F** (향후) 섹터 편중·IR·분위 예측력 확장  
+
+구현 범위·페이즈·API·표본 게이트: **`docs/perf_study_dev_plan.md`** (D29).
 
 ---
 
@@ -64,4 +67,5 @@ go/anal이 이미 쌓는 원본(`fundamental_*`, `membership_*`, `presence_*`, `
 !sepa.perf_study()  → 누적 패널로 요약 MD/차트 (N 작아도 실행)
 ```
 
-결정 로그: **D28** — 성능 검증 장기 프레임 (`sepa.perf_ledger` / `sepa.perf_study`).
+결정 로그: **D28** — 성능 검증 장기 프레임 (`sepa.perf_ledger` / `sepa.perf_study`).  
+결정 로그: **D29** — 검증·분석 함수 개발 계획 (`docs/perf_study_dev_plan.md`).
