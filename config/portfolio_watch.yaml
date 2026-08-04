@@ -5,6 +5,7 @@
 # no_add: true → 분할OK 차단 (NO_ADD)
 # stop / tp1 / tp2: 가격 도달 시 STOP / TP 훅 태그
 # band: 추가매수 허용 구간 (BAND)
+# grade / max_pct: 품질등급·구조한도 (A≤18% B≤10% C≤6%). 하드게이트 시 유효등급=금지(ADD 0%)
 
 as_of: "2026-08-04"
 as_of_note: "앱 캡처 · 평가 $927.40 (+2.1%·+$19.67) · USD$566.34 · SCHD 청산 · TXG 3주·평단$48.99 · CMPR 평단$98.70"
@@ -18,7 +19,7 @@ source: "app_screenshot_2026-08-04"
 strategy:
   identity: "짧~중기 모멘텀을 실적·비중·손절로 걸러, 비대장주 챌린저를 규칙으로만 운영하는 생존형 포트 OS"
   identity_short: "규칙형 챌린저 모멘텀 생존 OS"
-  identity_note: "워런버핏=가치투자에 대응 · 이벤트 갭베팅 본선 아님 · 물타기 금지 · EARN_D5 · 코어≤20%·위성≤10% · SCHD 비필수(청산)"
+  identity_note: "워런버핏=가치투자에 대응 · 이벤트 갭베팅 본선 아님 · 물타기 금지 · EARN_D5 · A≤18%·B≤10%·C≤6%·금지=ADD0 · 절대천장20% · Top3≤50% · SCHD 비필수(청산)"
   constraints:
     - "군인 · 폰 ~21시 통제 → 저녁/장전 루틴"
     - "소액 · 매월 10일 ₩30만 적립"
@@ -36,12 +37,6 @@ strategy:
     cash_deployable_usd: 416.34
     cash_pct_of_liquid: 0.379
     pending_orders_note: ""
-  roles:
-    core: [ECPG, AMRX]
-    core_phase1: [LASR]
-    satellite: [NESR, TXG, RELY, CMPR]
-    buffer: []
-    candidate_core: []
 
 cash:
   usd: 566.34
@@ -56,36 +51,40 @@ contribution:
   note: "바닥현금 → (SCHD 생략) → 계획 실행후보만"
 
 allocation:
-  basis: "주식 평가금 대비 비중 (현금 별도)"
-  core_target_pct: 20
-  core_band_pct: [15, 25]
-  satellite_max_pct: 10
+  basis: "주식 평가금 대비 비중 (현금 별도) · 코어/위성 슬리브 폐기"
+  grade_caps_pct:
+    A: 18
+    B: 10
+    C: 6
+    금지: 0
+  absolute_max_pct: 20
+  top3_sum_max_pct: 50
   schd_target_pct: 0
   schd_role: "폐기 · 완충은 현금바닥+$150"
-  core_tickers: [ECPG, AMRX, LASR]
-  satellite_tickers: [NESR, TXG, RELY, CMPR]
-  buffer_tickers: []
   note: |
     2026-08-04: ECPG 20.8% · AMRX 18.4% · LASR 15.2% · TXG 15.0% ·
     NESR 12.0% · CMPR 10.7% · RELY 7.9%. 현금 $566 (유동 38%).
-    TXG·NESR·CMPR 위성 한도 상회/상단 · ECPG 코어 상단.
+    ECPG 절대천장(20%) 상회 · TXG/LASR/NESR/CMPR 품질한도 대비 과비중.
+    전원 NO_ADD → 유효등급 금지(ADD 0%). 품질등급은 게이트 해제 후 한도 힌트.
 
 rules:
   - "물타기 금지"
   - "실적 D-5 구간 분할 차단 (EARN_D5)"
-  - "비중: 코어~20%(15–25) · 위성≤10% · SCHD 목표 0 (청산)"
+  - "비중: A≤18% · B≤10% · C≤6% · 금지=ADD 0% · 절대천장 20% · Top-3 합 ≤50%"
+  - "하드게이트(EARN_D5·NO_ADD·L1=0·마진↓·가이드C·업사이드음수·손절없음·과열) → 유효 금지"
   - "현금바닥 $150 유지 · 완충=현금"
   - "LASR 추가금지 · 08-06 추격 금지"
   - "NESR 밴드여도 추가금지 · stop $24"
-  - "ECPG stop $80 · 추가금지"
-  - "TXG 3주·위성OVER · 추가·물타기 금지 · stop $42 · 08-06 EARN_D5"
-  - "CMPR 위성 소액 1주 · 추가금지 · stop $90"
+  - "ECPG stop $80 · 추가금지 · 천장 주의(>20%)"
+  - "TXG 3주·비중OVER · 추가·물타기 금지 · stop $42 · 08-06 EARN_D5"
+  - "CMPR 소액 1주 · 추가금지 · stop $90"
   - "동일종목 중복 주문 금지"
 
 holdings:
   - ticker: ECPG
     role: hold
-    sleeve: core
+    grade: A
+    max_pct: 18
     shares: 2
     cost_approx: 92.32
     mark_approx: 96.28
@@ -98,11 +97,12 @@ holdings:
     tp2: 110.0
     no_add: true
     earn_date: "2026-08-05"
-    note: "평단 $92.32 · +4.2% · 코어 20.8% · 08-05 EARN_D5"
+    note: "평단 $92.32 · +4.2% · 품질A·천장초과 20.8% · 08-05 EARN_D5 · 유효금지"
 
   - ticker: AMRX
     role: hold
-    sleeve: core
+    grade: B
+    max_pct: 10
     shares: 9
     cost_approx: 18.36
     mark_approx: 18.97
@@ -115,11 +115,12 @@ holdings:
     tp2: 20.0
     no_add: true
     earn_date: "2026-10-29"
-    note: "평단 $18.36 · +3.3% · 코어 18.4% · 추가금지"
+    note: "평단 $18.36 · +3.3% · 품질B·한도10% 대비 OVER · 추가금지"
 
   - ticker: LASR
     role: hold
-    sleeve: core_phase1
+    grade: B
+    max_pct: 10
     shares: 2
     cost_approx: 66.44
     mark_approx: 70.32
@@ -130,11 +131,12 @@ holdings:
     no_add: true
     earn_date: "2026-08-06"
     invalidation: 60.50
-    note: "평단 $66.44 · +5.8% · 이관1단계 · 08-06 추격금지"
+    note: "평단 $66.44 · +5.8% · 품질B · stop미설정(invalidation만) · 08-06 추격금지"
 
   - ticker: TXG
     role: hold
-    sleeve: satellite
+    grade: C
+    max_pct: 6
     shares: 3
     cost_approx: 48.99
     mark_approx: 46.43
@@ -145,11 +147,12 @@ holdings:
     stop: 42.0
     no_add: true
     earn_date: "2026-08-06"
-    note: "3주 · 평단 $48.99 · −5.2% · 위성 15% OVER · 08-06 EARN_D5 · 추가·물타기 금지"
+    note: "3주 · 평단 $48.99 · −5.2% · 품질C·15% OVER · 08-06 EARN_D5 · 추가·물타기 금지"
 
   - ticker: NESR
     role: hold
-    sleeve: satellite
+    grade: C
+    max_pct: 6
     shares: 4
     cost_approx: 27.34
     mark_approx: 27.86
@@ -163,11 +166,12 @@ holdings:
     no_add: true
     band: [25.0, 27.0]
     earn_date: "2026-08-18"
-    note: "4주 · +1.8% · 위성 12% · 추가금지"
+    note: "4주 · +1.8% · 품질C·12% OVER · 추가금지"
 
   - ticker: CMPR
     role: hold
-    sleeve: satellite
+    grade: C
+    max_pct: 6
     shares: 1
     cost_approx: 98.70
     mark_approx: 99.24
@@ -180,11 +184,12 @@ holdings:
     tp2: 120.0
     no_add: true
     earn_date: "2026-10-28"
-    note: "1주 · 평단 $98.70 · +0.5% · 위성 10.7% · 추가금지"
+    note: "1주 · 평단 $98.70 · +0.5% · 품질C·10.7% · L1=0 시 유효금지 · 추가금지"
 
   - ticker: RELY
     role: hold
-    sleeve: satellite
+    grade: C
+    max_pct: 6
     shares: 3
     cost_approx: 23.29
     mark_approx: 24.50
@@ -195,7 +200,7 @@ holdings:
     stop: 20.0
     no_add: true
     earn_date: "2026-08-05"
-    note: "평단 $23.29 · +5.1% · 08-05 EARN_D5 · 추가금지"
+    note: "평단 $23.29 · +5.1% · 품질C · 08-05 EARN_D5 · 추가금지"
 
 exited:
   - ticker: SCHD
@@ -230,10 +235,10 @@ exited:
 watchlist:
   - ticker: TXG
     role: watch
-    note: "보유 3주·위성OVER·실적창 · 추가금지"
+    note: "보유 3주·품질C한도OVER·실적창 · 추가금지"
   - ticker: CMPR
     role: watch
-    note: "보유 · 위성소액 · 추가금지"
+    note: "보유 · 품질C 소액 · 추가금지"
   - ticker: SCHD
     role: watch
     note: "청산 후 · 재매수 비우선"
@@ -245,7 +250,7 @@ watchlist:
     note: "매도 후 워치 · 추격 재매수 금지"
   - ticker: ROKU
     role: watch
-    note: "상·08-06 · NO_ADD · 코어 아님"
+    note: "상·08-06 · NO_ADD · 등급후보 아님"
   - ticker: ALKS
     role: watch
     note: "SOFT 워치"
