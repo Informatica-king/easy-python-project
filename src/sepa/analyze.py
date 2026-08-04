@@ -270,24 +270,41 @@ def print_fund_median_copy_list(
     df: pd.DataFrame,
     *,
     out_path: Path | None = None,
-) -> Path | None:
-    """Print (and optionally export) comma-separated tickers at/above median fund score."""
+    banner: bool = True,
+) -> tuple[list[str], float, str]:
+    """Print (and optionally export) ALL median+ tickers as one copyable CSV line.
+
+    Hard requirement for ``!sepa.go`` / ``!sepa.anal``: never truncate or omit
+    tickers. Returns ``(tickers, median, comma_joined_line)``.
+    """
     tickers, med = fund_median_tickers(df)
     med_s = "n/a" if med != med else f"{med:.1f}"
-    print(f"\n=== Fund ≥ 중앙값({med_s}) 티커 (복사용, 쉼표 구분) — {len(tickers)}종 ===\n")
     line = ",".join(tickers)
-    if not tickers:
-        print("  (해당 없음)")
+    if banner:
+        print("\n" + "=" * 64)
+        print(f"  Fund ≥ 중앙값({med_s}) 티커 — 복사용 전체 문자열 ({len(tickers)}종)")
+        print("  (생략 없음 · 한 줄 전부 복사)")
+        print("=" * 64)
     else:
+        print(f"\n=== Fund ≥ 중앙값({med_s}) 티커 (복사용, 쉼표 구분) — {len(tickers)}종 ===\n")
+    if not tickers:
+        print("(해당 없음)")
+    else:
+        # Single uninterrupted line — do not wrap, ellipsize, or sample.
         print(line)
     print()
-    if out_path is None:
-        return None
-    out_path = Path(out_path)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text((line + "\n") if line else "")
-    print(f"export: {out_path}")
-    return out_path
+    if out_path is not None:
+        out_path = Path(out_path)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text((line + "\n") if line else "")
+        print(f"export: {out_path}")
+    return tickers, med, line
+
+
+def format_fund_median_copy_line(df: pd.DataFrame) -> tuple[list[str], float, str]:
+    """Return median+ tickers and comma-joined copy string (no printing)."""
+    tickers, med = fund_median_tickers(df)
+    return tickers, med, ",".join(tickers)
 
 
 def latest_fundamental_csv(report_dir: str | Path) -> Path | None:

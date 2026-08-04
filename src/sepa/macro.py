@@ -444,14 +444,16 @@ def _tool_go(args: list, kwargs: dict) -> None:
     if fund_csv is None or not fund_csv.exists():
         raise MacroError("fund 후 fundamental 리포트가 없습니다 — reports/fundamental_*.csv 확인")
 
-    # Copy-friendly median+ ticker export (also printed again inside anal)
+    # Copy-friendly median+ ticker export (also printed again inside anal + go footer)
     import pandas as pd
 
     from sepa.analyze import print_fund_median_copy_list
 
     fund_df = pd.read_csv(fund_csv)
     median_export = Path(f"reports/fund_median_tickers_{stamp}.txt")
-    print_fund_median_copy_list(fund_df, out_path=median_export)
+    _tickers, _med, median_line = print_fund_median_copy_list(
+        fund_df, out_path=median_export, banner=True
+    )
 
     from sepa.artifacts import publish_many
 
@@ -471,6 +473,7 @@ def _tool_go(args: list, kwargs: dict) -> None:
         anal_argv.append("--refresh-sectors")
     analyze.main(anal_argv)
 
+    # HARD RULE: reprint full median+ copy string at the very end (never omit).
     print("\n" + "#" * 64)
     print("  SEPA GO 완료")
     print(f"  stage2 : {stage2}")
@@ -488,7 +491,14 @@ def _tool_go(args: list, kwargs: dict) -> None:
             sectors = found
     print(f"  charts : {sectors}")
     print(f"           {scatter}")
-    print("#" * 64 + "\n")
+    print("#" * 64)
+    print("\n" + "=" * 64)
+    med_s = "n/a" if _med != _med else f"{_med:.1f}"
+    print(f"  [필수] Fund ≥ 중앙값({med_s}) 복사용 전체 문자열 — {len(_tickers)}종")
+    print("  (생략 없음 · 아래 한 줄을 전부 복사)")
+    print("=" * 64)
+    print(median_line if median_line else "(해당 없음)")
+    print("=" * 64 + "\n")
 
 
 @dataclass(frozen=True)

@@ -85,5 +85,20 @@ def test_fund_median_tickers_and_export(tmp_path):
     assert med == 25.0
     assert tickers == ["D", "C"]
     out = tmp_path / "fund_median_tickers.txt"
-    print_fund_median_copy_list(df, out_path=out)
+    got_tickers, got_med, line = print_fund_median_copy_list(df, out_path=out)
     assert out.read_text().strip() == "D,C"
+    assert line == "D,C"
+    assert got_tickers == ["D", "C"]
+    assert got_med == 25.0
+    # never truncate: longer list stays complete in one line
+    many = pd.DataFrame(
+        {
+            "ticker": [f"T{i}" for i in range(40)],
+            "fund_score": list(range(40)),
+            "rs_rank": list(range(40)),
+        }
+    )
+    _, _, long_line = print_fund_median_copy_list(many, banner=False)
+    assert long_line.count(",") == 19  # 20 tickers >= median 19.5 → scores 20..39
+    assert "…" not in long_line and "..." not in long_line
+    assert long_line.startswith("T39,") and long_line.endswith(",T20")
