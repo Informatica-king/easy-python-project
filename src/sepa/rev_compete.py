@@ -655,6 +655,64 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "ECPG는 미국 MCM 회수·ERC 중심. 피어는 공시 세그먼트가 달라 근사."
         ),
     },
+    "FTRE": {
+        "sector_ko": "헬스케어 · CRO 임상개발 아웃소싱 (심층: Clinical Services)",
+        "share_title": "글로벌 임상 CRO 피어셋 스케일 점유 (추정)",
+        "share_as_of": "2025–26 · 임상/개발 매출 스케일 근사 vs 전년",
+        "share_note": (
+            "상장 대형·중형 CRO 임상개발 매출 스케일 상대 점유. "
+            "전임상(CRL 일부)·랩 진단(LH)은 정의가 달라 제외·축소. "
+            "절대 시장점유율이 아니라 피어셋 방향 비교용."
+        ),
+        "share_rows": [
+            ("IQVIA (IQV)", 28.0, 27.5),
+            ("ICON (ICLR)", 14.0, 13.5),
+            ("Medpace (MEDP)", 4.5, 4.0),
+            ("Fortrea (FTRE)", 4.2, 4.4),
+            ("Others (listed/est.)", 49.3, 50.6),
+        ],
+        "share_source": "Directional share of selected listed CROs by clinical/dev revenue scale (est.)",
+        "mix_buckets": ["Full-service/Hybrid", "FSP", "ClinPharm/Other"],
+        "mix_as_of": "Q2'26 서술·피어 공시 근사 (FTRE는 단일 Clinical Services 세그먼트)",
+        "mix_rows": [
+            {
+                "key": "FTRE",
+                "name": "FTRE",
+                "subject": True,
+                "yf": "FTRE",
+                "mix": {"Full-service/Hybrid": 72.0, "FSP": 18.0, "ClinPharm/Other": 10.0},
+                "note": "단일 Clinical Services · FSP 수요↓ · ClinPharm 상쇄(서술 근사)",
+            },
+            {
+                "key": "IQV",
+                "name": "IQV",
+                "subject": False,
+                "yf": "IQV",
+                "mix": {"Full-service/Hybrid": 55.0, "FSP": 15.0, "ClinPharm/Other": 30.0},
+                "note": "Research+Tech 혼재 → ClinPharm/Other에 테크·데이터 흡수 근사",
+            },
+            {
+                "key": "ICLR",
+                "name": "ICLR",
+                "subject": False,
+                "yf": "ICLR",
+                "mix": {"Full-service/Hybrid": 80.0, "FSP": 12.0, "ClinPharm/Other": 8.0},
+                "note": "풀서비스 임상 중심",
+            },
+            {
+                "key": "MEDP",
+                "name": "MEDP",
+                "subject": False,
+                "yf": "MEDP",
+                "mix": {"Full-service/Hybrid": 90.0, "FSP": 5.0, "ClinPharm/Other": 5.0},
+                "note": "고마진 풀서비스 · 치료영역 집중",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Full-service/Hybrid / FSP / ClinPharm·Other로 정규화. "
+            "FTRE는 공시상 단일 세그먼트라 전달모델 서술에 맞춘 근사 — 방향 비교용."
+        ),
+    },
 }
 
 
@@ -702,6 +760,7 @@ SUBJECT_SHARE_ALIASES: dict[str, tuple[str, ...]] = {
     "LASR": ("nlight",),
     "ECPG": ("encore",),
     "AMRX": ("amneal",),
+    "FTRE": ("fortrea",),
 }
 
 
