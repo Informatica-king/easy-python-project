@@ -289,7 +289,7 @@ sepa-bot/
 | 2026-08-03 | D24: go 분석 아티팩트 축적 | 다음 `!sepa.go`부터 sepaTop membership/presence/changes/panel + fund/soft-drops를 Cursor artifact 및 `sepa-anal-YYYYMMDD` 릴리즈에 저장. 후보 목록: `docs/result_data_accumulation.md` |
 | 2026-08-03 | D25: 가성비 축적 4종 ON | params 스냅샷·Fund 분위수 로그·diagnostics pass-rate 요약·enter/exit forward 패널을 go/anal에 자동 저장 (`sepa.result_ledger`) |
 | 2026-08-04 | D26: go median+ 복사용 전체 문자열 필수 | `!sepa.go` 종료 시 Fund≥중앙값 티커를 쉼표 한 줄로 **생략 없이** 재출력. 에이전트 요약도 전문 제시 (`AGENTS.md`) |
-| 2026-08-04 | D27: analyze PDF 한글 폰트 가드 | 원인: VM에 Nanum 미설치 → DejaVu 폴백으로 □. `sepa.fonts`로 탐지·apt 설치·PDF `FontProperties` 강제, go/PDF 진입 시 `assert_korean_font_ready` |
+| 2026-08-04 | D27: analyze PDF·차트 한글 폰트 가드 | 원인1: VM Nanum 미설치→DejaVu □. 원인2: PDF만 고쳐도 **이전 go PNG에 깨진 한글이 임베드**. `sepa.fonts` 탐지/apt + sans-serif 체인 + `savefig_korean`(legend/tick 강제) 후 차트 재생성 |
 
 ## 6. 진행 현황
 

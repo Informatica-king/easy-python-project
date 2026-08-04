@@ -24,6 +24,7 @@ import numpy as np
 import pandas as pd
 
 from sepa.artifacts import publish_many
+from sepa.fonts import savefig_korean, setup_korean_matplotlib
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +37,6 @@ MONTH_SPAN_DAYS = 28
 
 
 def _setup_korean_font() -> None:
-    from sepa.fonts import setup_korean_matplotlib
-
     setup_korean_matplotlib(allow_install=True)
 
 
@@ -257,7 +256,7 @@ def plot_period_compare(
     fig.suptitle(title, fontsize=12)
     fig.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    savefig_korean(fig, out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return out_path
 
@@ -532,7 +531,7 @@ def plot_share_lines(
         fig, ax = plt.subplots(figsize=(10, 4))
         ax.text(0.5, 0.5, "데이터 없음", ha="center", va="center")
         ax.set_axis_off()
-        fig.savefig(out_path, dpi=140)
+        savefig_korean(fig, out_path, dpi=140)
         plt.close(fig)
         return out_path
 
@@ -570,7 +569,7 @@ def plot_share_lines(
     ax.legend(loc="center left", bbox_to_anchor=(1.01, 0.5), fontsize=7, frameon=False)
     fig.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    savefig_korean(fig, out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return out_path
 
@@ -614,7 +613,7 @@ def plot_delta_bars(
         ax.grid(axis="x", alpha=0.3)
     fig.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=140, bbox_inches="tight")
+    savefig_korean(fig, out_path, dpi=140, bbox_inches="tight")
     plt.close(fig)
     return out_path
 
@@ -658,7 +657,7 @@ def plot_share_heatmap(
                         ax.text(j, i, f"{val:.0f}", ha="center", va="center", fontsize=7, color="#222")
     fig.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    savefig_korean(fig, out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return out_path
 

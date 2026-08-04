@@ -123,12 +123,33 @@ def font_has_hangul(path: str, sample: str = _HANGUL_PROBE) -> bool:
         return False
 
 
+def _invalidate_matplotlib_font_cache() -> None:
+    """Drop on-disk fontlist cache so newly installed Nanum is visible."""
+    try:
+        import matplotlib as mpl
+
+        cache_dir = Path(mpl.get_cachedir())
+        for p in cache_dir.glob("fontlist-*.json"):
+            try:
+                p.unlink()
+            except OSError:
+                pass
+        # Rebuild in-process manager (API differs slightly across mpl versions).
+        if hasattr(fm, "_load_fontmanager"):
+            fm.fontManager = fm._load_fontmanager(try_read_cache=False)
+        else:
+            fm.fontManager = fm.FontManager()
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("font cache invalidate skipped: %s", exc)
+
+
 @lru_cache(maxsize=1)
 def _resolved() -> tuple[str, str | None, str]:
     """Cached ``(regular, bold, family_name)`` after registration."""
     regular, bold = discover_korean_font_files()
     if not regular:
         return "", None, ""
+    _invalidate_matplotlib_font_cache()
     fm.fontManager.addfont(regular)
     if bold:
         fm.fontManager.addfont(bold)
@@ -151,6 +172,7 @@ def ensure_korean_font(*, allow_install: bool = True) -> tuple[str, str | None, 
     if (not regular or not font_has_hangul(regular)) and allow_install:
         if try_install_nanum_fonts():
             clear_font_cache()
+            _invalidate_matplotlib_font_cache()
             regular, bold, family = _resolved()
     if not regular:
         raise KoreanFontError(
@@ -165,15 +187,27 @@ def ensure_korean_font(*, allow_install: bool = True) -> tuple[str, str | None, 
 
 
 def setup_korean_matplotlib(*, allow_install: bool = True) -> FontProperties:
-    """Register Hangul font and set matplotlib rcParams. Returns regular FontProperties."""
+    """Register Hangul font and set matplotlib rcParams for axes/legends/ticks.
+
+    Uses the ``sans-serif`` family chain (Nanum first) so legend labels and
+    tick labels pick up Hangul — setting ``font.family='NanumGothic'`` alone
+    still lets some artists fall back to DejaVu when weight/style differs.
+    """
     regular, bold, family = ensure_korean_font(allow_install=allow_install)
-    # Prefer explicit file-backed properties; also set family for axes labels.
-    plt.rcParams["font.family"] = family
-    # Keep a sans-serif fallback chain that still prefers our face first.
-    sans = list(plt.rcParams.get("font.sans-serif", []))
-    if family not in sans:
-        plt.rcParams["font.sans-serif"] = [family, *sans]
+    # Primary: sans-serif chain (legends, ticklabels, pandas plots).
+    plt.rcParams["font.family"] = "sans-serif"
+    sans = [family]
+    for name in list(plt.rcParams.get("font.sans-serif", [])):
+        if name and name not in sans:
+            sans.append(name)
+    # Keep DejaVu as last-resort for missing glyphs (symbols), never first.
+    if "DejaVu Sans" not in sans:
+        sans.append("DejaVu Sans")
+    plt.rcParams["font.sans-serif"] = sans
     plt.rcParams["axes.unicode_minus"] = False
+    # Also expose the concrete family for code that sets family=NanumGothic.
+    if family:
+        plt.rcParams["font.serif"] = list(plt.rcParams.get("font.serif", []))
     return FontProperties(fname=regular)
 
 
@@ -185,6 +219,46 @@ def korean_fontproperties(*, bold: bool = False, size: float | None = None) -> F
     if size is not None:
         props.set_size(size)
     return props
+
+
+def finalize_korean_figure(fig) -> None:
+    """Force Hangul FontProperties onto titles, axis labels, ticks, and legends.
+
+    Call immediately before ``savefig`` so baked chart PNGs cannot ship tofu
+    even if an artist ignored rcParams.
+    """
+    setup_korean_matplotlib(allow_install=True)
+    fp = korean_fontproperties()
+    for ax in fig.get_axes():
+        for label in list(ax.get_xticklabels()) + list(ax.get_yticklabels()):
+            label.set_fontproperties(fp)
+        if ax.xaxis.label.get_text():
+            ax.xaxis.label.set_fontproperties(fp)
+        if ax.yaxis.label.get_text():
+            ax.yaxis.label.set_fontproperties(fp)
+        if ax.title.get_text():
+            ax.title.set_fontproperties(fp)
+        for text in getattr(ax, "texts", []):
+            text.set_fontproperties(fp)
+        leg = ax.get_legend()
+        if leg is not None:
+            for text in leg.get_texts():
+                text.set_fontproperties(fp)
+            title = leg.get_title()
+            if title is not None and title.get_text():
+                title.set_fontproperties(fp)
+    for text in list(fig.texts):
+        # Keep PDF page guides that already set fontproperties; still safe to reset.
+        text.set_fontproperties(fp)
+
+
+def savefig_korean(fig, path: str | Path, **kwargs):
+    """``fig.savefig`` after applying Hangul fonts to all text artists."""
+    finalize_korean_figure(fig)
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path, **kwargs)
+    return path
 
 
 def assert_korean_font_ready(*, context: str = "chart/PDF") -> None:

@@ -26,13 +26,12 @@ import pandas as pd
 from sepa.config import load_params
 from sepa.artifacts import publish_many
 from sepa.candidates import apply_candidate_filters, summarize_drops
+from sepa.fonts import savefig_korean, setup_korean_matplotlib
 
 logger = logging.getLogger(__name__)
 
 
 def _setup_korean_font() -> None:
-    from sepa.fonts import setup_korean_matplotlib
-
     setup_korean_matplotlib(allow_install=True)
 
 
@@ -344,7 +343,7 @@ def plot_sector_bars(counts: pd.Series, out_path: Path) -> Path:
     ax.grid(axis="x", alpha=0.3)
     fig.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=140)
+    savefig_korean(fig, out_path, dpi=140)
     plt.close(fig)
     return out_path
 
@@ -403,7 +402,7 @@ def plot_rs_fund_scatter(df: pd.DataFrame, out_path: Path) -> tuple[Path, float,
     ax.legend(loc="center left", bbox_to_anchor=(1.01, 0.5), fontsize=7, frameon=False)
     fig.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=160, bbox_inches="tight")
+    savefig_korean(fig, out_path, dpi=160, bbox_inches="tight")
     plt.close(fig)
     return out_path, cx, cy
 
@@ -427,7 +426,7 @@ def plot_fund_histogram(scores: pd.Series, out_path: Path) -> Path:
             ax.text(i, v + 0.3, str(int(v)), ha="center", va="bottom", fontsize=9)
     fig.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=140)
+    savefig_korean(fig, out_path, dpi=140)
     plt.close(fig)
     return out_path
 
@@ -450,7 +449,7 @@ def plot_mcap_histogram(market_caps: pd.Series, out_path: Path) -> Path:
             ax.text(i, v + 0.3, str(int(v)), ha="center", va="bottom", fontsize=9)
     fig.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=140)
+    savefig_korean(fig, out_path, dpi=140)
     plt.close(fig)
     return out_path
 

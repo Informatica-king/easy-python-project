@@ -28,6 +28,7 @@ import pandas as pd
 from sepa.artifacts import publish_many
 from sepa.config import load_params
 from sepa.data import store
+from sepa.fonts import savefig_korean, setup_korean_matplotlib
 
 logger = logging.getLogger(__name__)
 
@@ -48,8 +49,6 @@ BENCHMARKS: list[tuple[str, str]] = [
 
 
 def _setup_korean_font() -> None:
-    from sepa.fonts import setup_korean_matplotlib
-
     setup_korean_matplotlib(allow_install=True)
 
 
@@ -577,7 +576,7 @@ def plot_index_chart(combined: pd.DataFrame, out_path: Path, title: str) -> Path
     ax.legend(loc="best", fontsize=7, ncol=2)
     fig.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150)
+    savefig_korean(fig, out_path, dpi=150)
     plt.close(fig)
     return out_path
 
@@ -621,7 +620,7 @@ def plot_relative_chart(combined: pd.DataFrame, out_path: Path, title: str) -> P
     ax.legend(loc="best", fontsize=7, ncol=2)
     fig.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150)
+    savefig_korean(fig, out_path, dpi=150)
     plt.close(fig)
     return out_path
 

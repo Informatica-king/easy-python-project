@@ -44,6 +44,23 @@ def test_assert_korean_font_ready():
     assert_korean_font_ready(context="unit-test")
 
 
+def test_savefig_korean_applies_to_legend_and_ticks(tmp_path: Path):
+    clear_font_cache()
+    from sepa.fonts import savefig_korean
+
+    fig, ax = plt.subplots(figsize=(5, 3))
+    ax.plot([1, 2, 3], [1, 2, 1], label="나스닥100")
+    ax.set_ylabel("지수")
+    ax.set_xlabel("종목 수")
+    ax.legend()
+    out = tmp_path / "legend_hangul.png"
+    savefig_korean(fig, out, dpi=100)
+    plt.close(fig)
+    assert out.exists() and out.stat().st_size > 800
+    # legend text must resolve to Hangul face
+    assert "DejaVu" not in findfont(korean_fontproperties())
+
+
 def test_pdf_comment_text_uses_hangul_font(tmp_path: Path):
     """Smoke: rendering Hangul with explicit FontProperties must not warn DejaVu."""
     clear_font_cache()

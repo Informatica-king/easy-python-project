@@ -25,6 +25,7 @@ import numpy as np
 import pandas as pd
 
 from sepa.artifacts import publish_many
+from sepa.fonts import savefig_korean, setup_korean_matplotlib
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +40,6 @@ HORIZONS = (1, 5, 20)
 
 
 def _setup_korean_font() -> None:
-    from sepa.fonts import setup_korean_matplotlib
-
     setup_korean_matplotlib(allow_install=True)
 
 
@@ -117,7 +116,7 @@ def plot_factor_decomposition(
     fig.tight_layout()
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    savefig_korean(fig, out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return out_path
 
@@ -141,7 +140,7 @@ def plot_factor_distributions(df: pd.DataFrame, out_path: Path) -> Path | None:
     fig.tight_layout()
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    savefig_korean(fig, out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return out_path
 
@@ -175,7 +174,7 @@ def plot_rs_factor_scatter_matrix(df: pd.DataFrame, out_path: Path) -> Path | No
     fig.tight_layout()
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    savefig_korean(fig, out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return out_path
 
@@ -277,7 +276,7 @@ def plot_rank_stability(
     fig.tight_layout()
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    savefig_korean(fig, out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return out_path
 
@@ -460,7 +459,7 @@ def plot_sepatop_attribution(
     fig.tight_layout()
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    savefig_korean(fig, out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return out_path
 
@@ -587,7 +586,7 @@ def plot_quantile_forward_returns(
     fig.tight_layout()
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    savefig_korean(fig, out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return out_path
 
@@ -697,7 +696,7 @@ def plot_data_coverage(df: pd.DataFrame, out_path: Path) -> Path | None:
     fig.tight_layout()
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    savefig_korean(fig, out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return out_path
 
