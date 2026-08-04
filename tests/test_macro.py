@@ -67,6 +67,8 @@ def test_short_aliases_resolve():
     assert _LOOKUP["sepa.top"] is _LOOKUP["sepa.sepatop"]
     assert _LOOKUP["sepa.sectorshare"] is _LOOKUP["sector"]
     assert _LOOKUP["sepa.sectorshare"] is _LOOKUP["sectorshare"]
+    assert _LOOKUP["perf"] is _LOOKUP["sepa.perf_study"]
+    assert _LOOKUP["sepa.perf"] is _LOOKUP["sepa.perf_study"]
 
 
 def test_parse_sepatop():
