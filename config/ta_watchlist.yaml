@@ -1,5 +1,5 @@
 # TA 워치리스트 + 포트 훅 메타 (≤20)
-# 2026-08-03: CMPR 1주@98.63 편입 · NO_ADD
+# 2026-08-04: SCHD 청산 · TXG 3주 · CMPR 평단$98.70
 
 tickers:
   - symbol: ECPG
@@ -29,10 +29,9 @@ tickers:
     tp2: 33.0
     no_add: true
 
-  - symbol: SCHD
-    stop: 30.0
-    tp1: 36.0
-    tp2: 38.0
+  - symbol: TXG
+    earn_date: "2026-08-06"
+    stop: 42.0
     no_add: true
 
   - symbol: CMPR
@@ -40,11 +39,6 @@ tickers:
     stop: 90.0
     tp1: 110.0
     tp2: 120.0
-    no_add: true
-
-  - symbol: TXG
-    earn_date: "2026-08-06"
-    stop: 42.0
     no_add: true
 
   - symbol: RELY
@@ -76,4 +70,7 @@ tickers:
     no_add: true
 
   - symbol: NEO
+    no_add: true
+
+  - symbol: SCHD
     no_add: true
