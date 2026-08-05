@@ -5,6 +5,7 @@ from datetime import date
 from sepa.portfolio_ops import (
     HoldingRow,
     PortfolioBook,
+    apply_holding_grade,
     filter_buy_ideas,
     in_earn_d5,
     load_book,
@@ -13,9 +14,9 @@ from sepa.portfolio_ops import (
 )
 
 
-def test_load_book_snap_20260804():
+def test_load_book_snap_20260805():
     book = load_book("config/portfolio_watch.yaml")
-    assert book.as_of == date(2026, 8, 4)
+    assert book.as_of == date(2026, 8, 5)
     assert abs(book.cash_usd - 566.34) < 1e-6
     tickers = {h.ticker for h in book.holdings}
     assert tickers == {"ECPG", "AMRX", "LASR", "NESR", "CMPR", "TXG", "RELY"}
@@ -30,9 +31,20 @@ def test_load_book_snap_20260804():
     assert cmpr.shares == 1
     assert abs((cmpr.cost or 0) - 98.70) < 1e-6
     assert cmpr.no_add is True
-    assert cmpr.sleeve == "satellite"
+    assert cmpr.quality_grade == "C"
+    assert abs(cmpr.quality_max_pct - 0.06) < 1e-9
     assert "생존형 포트 OS" in book.identity
     assert "챌린저" in book.identity
+
+
+def test_holding_grade_no_add_effective_ban():
+    book = load_book("config/portfolio_watch.yaml")
+    ecpg = next(h for h in book.holdings if h.ticker == "ECPG")
+    assert ecpg.quality_grade == "A"
+    apply_holding_grade(ecpg)  # no_add True → 금지
+    assert ecpg.grade == "금지"
+    assert ecpg.max_pct == 0.0
+    assert ecpg.quality_grade == "A"
 
 
 def test_earn_d5_window():
@@ -51,7 +63,6 @@ def test_week_plan_mode():
 
 def test_ops_date_overrides_plan_mode():
     book = load_book("config/portfolio_watch.yaml")
-    # snap as_of is Tuesday 8/4; ops same day → 5bd plan
     from sepa.portfolio_ops import build_ops_plan, enrich_marks
 
     book = enrich_marks(book, ops_date=date(2026, 8, 4), use_snap_marks=True)
@@ -59,6 +70,8 @@ def test_ops_date_overrides_plan_mode():
     assert week_plan_mode(book.effective_date) == "next_5bd"
     plan = build_ops_plan(book, [])
     assert any("향후 5영업일" in p for p in plan)
+    # snap enrich should mark effective 금지 under NO_ADD
+    assert all(h.grade == "금지" for h in book.holdings)
 
 
 def test_stance_earn_d5_no_add():
@@ -66,7 +79,10 @@ def test_stance_earn_d5_no_add():
         ticker="ECPG",
         shares=2,
         cost=92.32,
-        sleeve="core",
+        grade="A",
+        max_pct=0.18,
+        quality_grade="A",
+        quality_max_pct=0.18,
         stop=80.0,
         no_add=True,
         earn_date=date(2026, 8, 5),
@@ -74,9 +90,12 @@ def test_stance_earn_d5_no_add():
         value=188.16,
         w_stock=0.21,
     )
+    apply_holding_grade(h)
     s = stance_for(h, date(2026, 8, 2))
     assert "EARN_D5" in s
     assert "NO_ADD" in s
+    assert "유효금지" in s
+    assert "비중OVER" in s or "천장OVER" in s
 
 
 def test_filter_buy_ideas_buckets():
@@ -88,7 +107,17 @@ def test_filter_buy_ideas_buckets():
         cash_krw=0,
         note="",
         holdings=[
-            HoldingRow("NESR", 4, 27.0, "satellite", no_add=True, earn_date=date(2026, 8, 18)),
+            HoldingRow(
+                "NESR",
+                4,
+                27.0,
+                grade="C",
+                max_pct=0.06,
+                quality_grade="C",
+                quality_max_pct=0.06,
+                no_add=True,
+                earn_date=date(2026, 8, 18),
+            ),
         ],
     )
     scenarios = {

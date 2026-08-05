@@ -43,7 +43,8 @@
 
 ### 3.1 포트 스냅 (필수)
 - 경로(안): `config/portfolio_watch.yaml` → 발전 시 `data/portfolio_snap_YYYYMMDD.json`
-- 필수 필드(종목): `ticker, shares, cost(평단), sleeve, stop, tp1/tp2?, no_add, earn_date?, band?, invalidation?`
+- 필수 필드(종목): `ticker, shares, cost(평단), grade, max_pct, stop, tp1/tp2?, no_add, earn_date?, band?, invalidation?`
+- ~~sleeve(core/satellite)~~ → **폐기**. 비중은 A/B/C/금지 기계 등급 (`reports/POSITION_GRADE_SIZING.md`)
 - 필수 필드(북): `as_of, cash_usd, cash_floor_usd(=150), note/source`
 - **현금은 추정 금지** — 스냅의 `cash_usd`만 사용. 없으면 주식-only 파이만 그리고 경고.
 
@@ -74,7 +75,7 @@
   · 포폴 바스켓 vs QQQ·SPY (스냅일=100 누적수익률, 현금 제외 가중)
 
 1. 현재 스냅 표
-  · 수량·평단·종가·평가·비중(주식/유동)·손익%·sleeve·스텐스
+  · 수량·평단·종가·평가·비중(주식/유동)·손익%·등급(품질→유효)·스텐스
 
 2. 이벤트 캘린더
   · 종목별 실적일 · D-5 시작 · 임박 플래그
@@ -96,10 +97,10 @@
 - 종목평가 `value = shares × last_close`
 - `w_stock = value / Σstocks` (파이 A)
 - `w_liquid = value / (Σstocks + cash_usd)` (파이 B)
-- OS 한도 판정 기준: **주식 평가금 대비** (기존 규칙)
-  - 코어 목표 ~20% (밴드 15–25, **>25% OVER**)
-  - 위성 ≤10% (±2 → 12%까지 soft)
-  - SCHD 목표 8–10%
+- OS 한도 판정 기준: **주식 평가금 대비** (기계 등급)
+  - A ≤18% · B ≤10% · C ≤6% · 금지 = ADD 0%
+  - 절대천장 20% · Top-3 합 ≤50%
+  - SCHD 목표 0 (청산 · 완충=현금)
 
 ### 5.2 포폴 지수 (벤치 비교)
 - 구성: **현재 주식 보유** (현금 제외)
@@ -113,7 +114,7 @@
 우선순위 예:
 1. STOP 근접/이탈 → 축소검토  
 2. EARN_D5 → 추가금지·관망  
-3. NO_ADD / 코어과비중 → 추가금지  
+3. NO_ADD / 비중OVER(품질한도) / 유효금지 → 추가금지  
 4. TP1 이상 → 익절검토  
 5. 그 외 → 홀드 / 워치
 
@@ -125,7 +126,7 @@
 - 업사이드 음수(기본 제외, 예외 표시 가능)
 
 남으면:
-- A′/B → **실행후보** (위성 한도·현금바닥 여유 검사)
+- A′/B → **실행후보** (등급한도 A/B/C·현금바닥 여유 검사)
 - SOFT → **워치**
 
 ---

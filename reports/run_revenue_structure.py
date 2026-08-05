@@ -78,7 +78,7 @@ def list_available() -> list[GenInfo]:
 
 
 def load_portfolio_tickers(yaml_path: Path | None = None) -> list[str]:
-    """Prefer portfolio_watch.yaml roles; fall back to DEFAULT_PORTFOLIO."""
+    """Prefer portfolio_watch.yaml holdings; fall back to DEFAULT_PORTFOLIO."""
     path = yaml_path or (ROOT / "config" / "portfolio_watch.yaml")
     if not path.exists():
         return list(DEFAULT_PORTFOLIO)
@@ -90,13 +90,14 @@ def load_portfolio_tickers(yaml_path: Path | None = None) -> list[str]:
         return list(DEFAULT_PORTFOLIO)
 
     tickers: list[str] = []
+    # legacy roles block (optional; grade-era yaml may omit)
     strat = data.get("strategy") or {}
     roles = strat.get("roles") or {}
-    for key in ("core", "satellite", "buffer", "candidate_core"):
+    for key in ("core", "satellite", "buffer", "candidate_core", "A", "B", "C"):
         for t in roles.get(key) or []:
             if isinstance(t, str) and t.upper() not in tickers:
                 tickers.append(t.upper())
-    # also holdings blocks if present
+    # holdings blocks if present
     for block in ("holdings", "positions", "names"):
         raw = data.get(block)
         if isinstance(raw, dict):

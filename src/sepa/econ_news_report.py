@@ -231,8 +231,8 @@ def render_html(bundle: EconNewsBundle) -> str:
         f"장 시작 전: 보유 {n_held}종(ECPG·AMRX·LASR·TXG·NESR·CMPR·RELY) 호가·갭 확인",
         "EARN_D5: ECPG·RELY(08-05) · LASR·TXG(08-06) — 추가/분할 금지",
         "NESR: 25–27 USD 밴드 · NO_ADD · stop $24",
-        "TXG: 3주·위성OVER(~15%) · NO_ADD·물타기 금지 · stop $42",
-        "CMPR: 위성 1주@98.70 · NO_ADD · stop $90",
+        "TXG: 3주·품질C한도OVER(~15%) · NO_ADD·물타기 금지 · stop $42",
+        "CMPR: 품질C 1주@98.70 · NO_ADD · stop $90",
         "SCHD 청산 유지 · 완충=현금바닥 $150",
         "현금바닥 $150 유지 · 동일종목 중복주문 금지",
     ]
@@ -318,8 +318,9 @@ def render_html(bundle: EconNewsBundle) -> str:
 </table>
 <div class="box">
 <b>배분과의 연결 (현행 룰)</b><br/>
-코어(ECPG/AMRX) · LASR 이관1단계 추가금지 · NESR/CMPR/TXG/RELY NO_ADD ·
-SCHD 청산(완충=현금) · 현금바닥 $150 · 실적주간(08-05~06) 갭추격 금지
+품질등급 A≤18%·B≤10%·C≤6% · 절대천장20% · Top3≤50% · 전원 NO_ADD(유효금지) ·
+ECPG/AMRX/LASR/TXG/NESR/CMPR/RELY · SCHD 청산(완충=현금) · 현금바닥 $150 ·
+실적주간(08-05~06) 갭추격 금지
 </div>
 
 <h2>5. 다음 장·오늘은 이렇게</h2>

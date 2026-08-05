@@ -276,7 +276,7 @@ def snap_table(book: PortfolioBook) -> str:
     for h in sorted(book.holdings, key=lambda x: -(x.value or 0)):
         rows.append(
             "<tr>"
-            f"<td><b>{esc(h.ticker)}</b><br/><span class='small'>{esc(h.sleeve)}</span></td>"
+            f"<td><b>{esc(h.ticker)}</b><br/><span class='small'>{esc(h.grade_label)}</span></td>"
             f"<td class='r'>{h.shares:g}</td>"
             f"<td class='r'>{fmt_usd(h.cost)}</td>"
             f"<td class='r'>{fmt_usd(h.px)}</td>"
