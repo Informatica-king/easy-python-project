@@ -7,14 +7,14 @@
 # band: 추가매수 허용 구간 (BAND)
 # grade / max_pct: 품질등급·구조한도 (A≤18% B≤10% C≤6%). 하드게이트 시 유효등급=금지(ADD 0%)
 
-as_of: "2026-08-04"
-as_of_note: "앱 캡처 · 평가 $927.40 (+2.1%·+$19.67) · USD$566.34 · SCHD 청산 · TXG 3주·평단$48.99 · CMPR 평단$98.70"
+as_of: "2026-08-05"
+as_of_note: "앱 캡처 · 평가 $947.28 (+4.3%·+$39.55) · USD$566.34 · 유동 $1,513.62 · 구성 동일(7종)"
 fx_krw_per_usd: 1460.0
-cost_basis_source: "앱 평균단가 화면 2026-08-04"
-source: "app_screenshot_2026-08-04"
+cost_basis_source: "앱 평균단가 화면 2026-08-04 (수량·평단 불변)"
+source: "app_screenshot_2026-08-05"
 
 # ---------------------------------------------------------------------------
-# Capital Operating System (snap 2026-08-04)
+# Capital Operating System (snap 2026-08-05)
 # ---------------------------------------------------------------------------
 strategy:
   identity: "짧~중기 모멘텀을 실적·비중·손절로 걸러, 비대장주 챌린저를 규칙으로만 운영하는 생존형 포트 OS"
@@ -27,22 +27,22 @@ strategy:
     target_krw: 100000000
     note: "1억 · 군적금 27.2(+2000만) · 청년미래적금 29.8(만기 2138만) 주식 재투자"
   book:
-    equity_usd: 927.40
-    equity_pnl_usd: 19.67
-    equity_pnl_pct: 0.021
+    equity_usd: 947.28
+    equity_pnl_usd: 39.55
+    equity_pnl_pct: 0.043
     cash_usd: 566.34
     cash_krw: 0
-    liquid_usd: 1493.74
+    liquid_usd: 1513.62
     cash_floor_usd: 150
     cash_deployable_usd: 416.34
-    cash_pct_of_liquid: 0.379
+    cash_pct_of_liquid: 0.374
     pending_orders_note: ""
 
 cash:
   usd: 566.34
   krw: 0
   floor_usd: 150
-  note: "현금비중 ~38% · 바닥 $150 · SCHD 청산 후 완충=현금"
+  note: "현금비중 ~37% · 바닥 $150 · SCHD 청산 후 완충=현금"
 
 contribution:
   payday: "매월 10일"
@@ -62,10 +62,11 @@ allocation:
   schd_target_pct: 0
   schd_role: "폐기 · 완충은 현금바닥+$150"
   note: |
-    2026-08-04: ECPG 20.8% · AMRX 18.4% · LASR 15.2% · TXG 15.0% ·
-    NESR 12.0% · CMPR 10.7% · RELY 7.9%. 현금 $566 (유동 38%).
-    ECPG 절대천장(20%) 상회 · TXG/LASR/NESR/CMPR 품질한도 대비 과비중.
-    전원 NO_ADD → 유효등급 금지(ADD 0%). 품질등급은 게이트 해제 후 한도 힌트.
+    2026-08-05: ECPG 20.2% · AMRX 17.7% · LASR 16.3% · TXG 14.9% ·
+    NESR 12.3% · CMPR 10.8% · RELY 7.8%. 현금 $566 (유동 37%).
+    ECPG~천장 · LASR/AMRX/TXG/NESR/CMPR 품질한도 OVER.
+    오늘 EARN: ECPG·RELY(08-05) · 내일 LASR·TXG(08-06).
+    전원 NO_ADD → 유효등급 금지(ADD 0%).
 
 rules:
   - "물타기 금지"
@@ -73,10 +74,12 @@ rules:
   - "비중: A≤18% · B≤10% · C≤6% · 금지=ADD 0% · 절대천장 20% · Top-3 합 ≤50%"
   - "하드게이트(EARN_D5·NO_ADD·L1=0·마진↓·가이드C·업사이드음수·손절없음·과열) → 유효 금지"
   - "현금바닥 $150 유지 · 완충=현금"
-  - "LASR 추가금지 · 08-06 추격 금지"
+  - "오늘(08-05) ECPG·RELY 실적 — 갭추격·추가·물타기 금지"
+  - "내일(08-06) LASR·TXG 실적 — 추격 금지"
+  - "LASR 추가금지 · stop 미설정(invalidation $60.50)"
   - "NESR 밴드여도 추가금지 · stop $24"
-  - "ECPG stop $80 · 추가금지 · 천장 주의(>20%)"
-  - "TXG 3주·비중OVER · 추가·물타기 금지 · stop $42 · 08-06 EARN_D5"
+  - "ECPG stop $80 · 추가금지 · 천장 주의(~20%)"
+  - "TXG 3주·비중OVER · 추가·물타기 금지 · stop $42"
   - "CMPR 소액 1주 · 추가금지 · stop $90"
   - "동일종목 중복 주문 금지"
 
@@ -87,17 +90,17 @@ holdings:
     max_pct: 18
     shares: 2
     cost_approx: 92.32
-    mark_approx: 96.28
-    value_approx: 192.56
-    weight_approx: 0.208
-    pnl_usd: 7.92
-    pnl_pct: 0.042
+    mark_approx: 95.54
+    value_approx: 191.08
+    weight_approx: 0.202
+    pnl_usd: 6.44
+    pnl_pct: 0.034
     stop: 80.0
     tp1: 105.0
     tp2: 110.0
     no_add: true
     earn_date: "2026-08-05"
-    note: "평단 $92.32 · +4.2% · 품질A·천장초과 20.8% · 08-05 EARN_D5 · 유효금지"
+    note: "평단 $92.32 · +3.4% · 품질A·~20.2% 천장권 · 오늘 실적 EARN_D5 · 유효금지"
 
   - ticker: AMRX
     role: hold
@@ -105,17 +108,17 @@ holdings:
     max_pct: 10
     shares: 9
     cost_approx: 18.36
-    mark_approx: 18.97
-    value_approx: 170.73
-    weight_approx: 0.184
-    pnl_usd: 5.46
-    pnl_pct: 0.033
+    mark_approx: 18.63
+    value_approx: 167.67
+    weight_approx: 0.177
+    pnl_usd: 2.40
+    pnl_pct: 0.014
     stop: 15.5
     tp1: 19.0
     tp2: 20.0
     no_add: true
     earn_date: "2026-10-29"
-    note: "평단 $18.36 · +3.3% · 품질B·한도10% 대비 OVER · 추가금지"
+    note: "평단 $18.36 · +1.4% · 품질B·17.7% OVER(한도10%) · 추가금지"
 
   - ticker: LASR
     role: hold
@@ -123,15 +126,15 @@ holdings:
     max_pct: 10
     shares: 2
     cost_approx: 66.44
-    mark_approx: 70.32
-    value_approx: 140.64
-    weight_approx: 0.152
-    pnl_usd: 7.76
-    pnl_pct: 0.058
+    mark_approx: 77.00
+    value_approx: 154.00
+    weight_approx: 0.163
+    pnl_usd: 21.12
+    pnl_pct: 0.158
     no_add: true
     earn_date: "2026-08-06"
     invalidation: 60.50
-    note: "평단 $66.44 · +5.8% · 품질B · stop미설정(invalidation만) · 08-06 추격금지"
+    note: "평단 $66.44 · +15.8% · 품질B·16.3% OVER · 내일 실적 · stop미설정 · 추격금지"
 
   - ticker: TXG
     role: hold
@@ -139,15 +142,15 @@ holdings:
     max_pct: 6
     shares: 3
     cost_approx: 48.99
-    mark_approx: 46.43
-    value_approx: 139.29
-    weight_approx: 0.150
-    pnl_usd: -7.70
-    pnl_pct: -0.052
+    mark_approx: 47.17
+    value_approx: 141.51
+    weight_approx: 0.149
+    pnl_usd: -5.48
+    pnl_pct: -0.037
     stop: 42.0
     no_add: true
     earn_date: "2026-08-06"
-    note: "3주 · 평단 $48.99 · −5.2% · 품질C·15% OVER · 08-06 EARN_D5 · 추가·물타기 금지"
+    note: "3주 · 평단 $48.99 · −3.7% · 품질C·14.9% OVER · 내일 실적 · 물타기 금지"
 
   - ticker: NESR
     role: hold
@@ -155,18 +158,18 @@ holdings:
     max_pct: 6
     shares: 4
     cost_approx: 27.34
-    mark_approx: 27.86
-    value_approx: 111.44
-    weight_approx: 0.120
-    pnl_usd: 2.06
-    pnl_pct: 0.018
+    mark_approx: 29.09
+    value_approx: 116.36
+    weight_approx: 0.123
+    pnl_usd: 6.98
+    pnl_pct: 0.063
     stop: 24.0
     tp1: 32.0
     tp2: 33.0
     no_add: true
     band: [25.0, 27.0]
     earn_date: "2026-08-18"
-    note: "4주 · +1.8% · 품질C·12% OVER · 추가금지"
+    note: "4주 · +6.3% · 품질C·12.3% OVER · 추가금지"
 
   - ticker: CMPR
     role: hold
@@ -174,17 +177,17 @@ holdings:
     max_pct: 6
     shares: 1
     cost_approx: 98.70
-    mark_approx: 99.24
-    value_approx: 99.24
-    weight_approx: 0.107
-    pnl_usd: 0.54
-    pnl_pct: 0.005
+    mark_approx: 102.77
+    value_approx: 102.77
+    weight_approx: 0.108
+    pnl_usd: 4.07
+    pnl_pct: 0.041
     stop: 90.0
     tp1: 110.0
     tp2: 120.0
     no_add: true
     earn_date: "2026-10-28"
-    note: "1주 · 평단 $98.70 · +0.5% · 품질C·10.7% · L1=0 시 유효금지 · 추가금지"
+    note: "1주 · 평단 $98.70 · +4.1% · 품질C·10.8% OVER · 추가금지"
 
   - ticker: RELY
     role: hold
@@ -192,15 +195,15 @@ holdings:
     max_pct: 6
     shares: 3
     cost_approx: 23.29
-    mark_approx: 24.50
-    value_approx: 73.50
-    weight_approx: 0.079
-    pnl_usd: 3.63
-    pnl_pct: 0.051
+    mark_approx: 24.63
+    value_approx: 73.89
+    weight_approx: 0.078
+    pnl_usd: 4.02
+    pnl_pct: 0.057
     stop: 20.0
     no_add: true
     earn_date: "2026-08-05"
-    note: "평단 $23.29 · +5.1% · 품질C · 08-05 EARN_D5 · 추가금지"
+    note: "평단 $23.29 · +5.7% · 품질C · 오늘 실적 EARN_D5 · 추가금지"
 
 exited:
   - ticker: SCHD
@@ -235,7 +238,7 @@ exited:
 watchlist:
   - ticker: TXG
     role: watch
-    note: "보유 3주·품질C한도OVER·실적창 · 추가금지"
+    note: "보유 3주·품질C한도OVER·내일실적 · 추가금지"
   - ticker: CMPR
     role: watch
     note: "보유 · 품질C 소액 · 추가금지"

@@ -14,9 +14,9 @@ from sepa.portfolio_ops import (
 )
 
 
-def test_load_book_snap_20260804():
+def test_load_book_snap_20260805():
     book = load_book("config/portfolio_watch.yaml")
-    assert book.as_of == date(2026, 8, 4)
+    assert book.as_of == date(2026, 8, 5)
     assert abs(book.cash_usd - 566.34) < 1e-6
     tickers = {h.ticker for h in book.holdings}
     assert tickers == {"ECPG", "AMRX", "LASR", "NESR", "CMPR", "TXG", "RELY"}
