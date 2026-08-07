@@ -14,23 +14,25 @@ from sepa.portfolio_ops import (
 )
 
 
-def test_load_book_snap_20260806():
+def test_load_book_snap_20260807():
     book = load_book("config/portfolio_watch.yaml")
-    assert book.as_of == date(2026, 8, 6)
-    assert abs(book.cash_usd - 566.34) < 1e-6
+    assert book.as_of == date(2026, 8, 7)
+    assert abs(book.cash_usd - 298.75) < 1e-6
+    assert book.cash_krw is not None and abs(book.cash_krw - 141971) < 1e-3
+    assert book.cash_krw_usd > 90
     tickers = {h.ticker for h in book.holdings}
     assert tickers == {"ECPG", "AMRX", "LASR", "NESR", "CMPR", "TXG", "RELY"}
     assert "SCHD" not in tickers
     nesr = next(h for h in book.holdings if h.ticker == "NESR")
     assert nesr.shares == 4
     txg = next(h for h in book.holdings if h.ticker == "TXG")
-    assert txg.shares == 3
-    assert abs((txg.cost or 0) - 48.99) < 1e-6
+    assert txg.shares == 4
     assert txg.no_add is True
     cmpr = next(h for h in book.holdings if h.ticker == "CMPR")
-    assert cmpr.shares == 1
-    assert abs((cmpr.cost or 0) - 98.70) < 1e-6
+    assert cmpr.shares == 2
     assert cmpr.no_add is True
+    amrx = next(h for h in book.holdings if h.ticker == "AMRX")
+    assert amrx.shares == 10
     assert cmpr.quality_grade == "C"
     assert abs(cmpr.quality_max_pct - 0.06) < 1e-9
     assert "생존형 포트 OS" in book.identity

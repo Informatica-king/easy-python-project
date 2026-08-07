@@ -152,7 +152,7 @@ def chart_pies(book: PortfolioBook, prop, prop_b) -> tuple[Path, Path]:
     plt.close(fig)
 
     labels2 = labels + ["CASH"]
-    sizes2 = sizes + [float(book.cash_usd)]
+    sizes2 = sizes + [float(book.cash_total_usd)]
     cols2 = colors + [CASH_COLOR]
     fig, ax = plt.subplots(figsize=(5.6, 4.4), facecolor=PAPER)
     ax.set_facecolor(PAPER)
@@ -397,7 +397,8 @@ def build_html(
   <b>우리의 OS</b> {esc(book.identity or book.identity_short or "규칙형 챌린저 모멘텀 생존 OS")}
 </div>
 <div class="box ok">
-  <b>북 요약</b> 주식 {fmt_usd(book.equity_usd)} · 현금 {fmt_usd(book.cash_usd)}
+  <b>북 요약</b> 주식 {fmt_usd(book.equity_usd)} · 현금 {fmt_usd(book.cash_total_usd)}
+  (USD {fmt_usd(book.cash_usd)}{" + KRW≈"+fmt_usd(book.cash_krw_usd) if book.cash_krw_usd else ""})
   ({fmt_pct(book.cash_pct, False)}) · 유동 {fmt_usd(book.liquid_usd)} · 바닥 ${book.cash_floor_usd:.0f}
 </div>
 {warn}
@@ -474,7 +475,7 @@ def main(argv: list[str] | None = None) -> int:
         p.write_bytes(pdf_bytes)
         print(f"PDF {p} {p.stat().st_size}")
     print(
-        f"포폴 equity={book.equity_usd:.2f} cash={book.cash_usd:.2f} "
+        f"포폴 equity={book.equity_usd:.2f} cash={book.cash_total_usd:.2f} "
         f"ideas_run={sum(1 for i in ideas if i.bucket=='실행후보')} "
         f"mode={week_plan_mode(book.effective_date)} ops={book.effective_date} snap={book.as_of}"
     )
@@ -487,7 +488,7 @@ def main(argv: list[str] | None = None) -> int:
         notes = (
             f"## 포폴() 운영브리프 ({tag})\n\n"
             f"스냅 {book.as_of.isoformat()} · 주식 ${book.equity_usd:.2f} · "
-            f"현금 ${book.cash_usd:.2f} · 유동 ${book.liquid_usd:.2f}\n"
+            f"현금 ${book.cash_total_usd:.2f} · 유동 ${book.liquid_usd:.2f}\n"
         )
         rel = publish_portfolio_pdf_release(pdf_main, as_of=tag, notes=notes)
         print_release_result(rel, label="포폴 PDF")

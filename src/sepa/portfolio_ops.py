@@ -73,6 +73,8 @@ class PortfolioBook:
     equity_usd: float = 0.0
     liquid_usd: float = 0.0
     cash_pct: float = 0.0
+    fx_krw_per_usd: float | None = None
+    cash_krw_usd: float = 0.0  # KRW cash converted at snap FX
     risks: list[str] = field(default_factory=list)
     forbid: list[str] = field(default_factory=list)
     actions: list[str] = field(default_factory=list)
@@ -83,6 +85,11 @@ class PortfolioBook:
     @property
     def effective_date(self) -> date:
         return self.ops_date or self.as_of
+
+    @property
+    def cash_total_usd(self) -> float:
+        """USD cash + KRW cash (FX-converted)."""
+        return float(self.cash_usd or 0.0) + float(self.cash_krw_usd or 0.0)
 
 
 @dataclass
@@ -128,6 +135,11 @@ def load_book(path: str | Path = "config/portfolio_watch.yaml") -> PortfolioBook
     cash_krw = cash_block.get("krw")
     if cash_krw is not None:
         cash_krw = float(cash_krw)
+    fx = raw.get("fx_krw_per_usd")
+    fx_f = float(fx) if fx is not None else None
+    cash_krw_usd = 0.0
+    if cash_krw and fx_f and fx_f > 0:
+        cash_krw_usd = float(cash_krw) / fx_f
     from sepa.position_grade import GRADE_MAX
 
     holdings: list[HoldingRow] = []
@@ -184,6 +196,8 @@ def load_book(path: str | Path = "config/portfolio_watch.yaml") -> PortfolioBook
         pending_note=pending,
         identity=str(strat.get("identity") or ""),
         identity_short=str(strat.get("identity_short") or ""),
+        fx_krw_per_usd=fx_f,
+        cash_krw_usd=cash_krw_usd,
     )
 
 
@@ -237,10 +251,11 @@ def enrich_marks(
             h.pnl_pct = h.value / basis - 1.0 if basis else None
 
     equity = sum(h.value or 0.0 for h in book.holdings)
-    liquid = equity + book.cash_usd
+    cash_total = book.cash_total_usd
+    liquid = equity + cash_total
     book.equity_usd = equity
     book.liquid_usd = liquid
-    book.cash_pct = (book.cash_usd / liquid) if liquid else 0.0
+    book.cash_pct = (cash_total / liquid) if liquid else 0.0
     for h in book.holdings:
         if h.value is not None and equity:
             h.w_stock = h.value / equity
@@ -321,9 +336,10 @@ def build_risks(book: PortfolioBook) -> list[str]:
     from sepa.position_grade import top3_over_cap, weight_status
 
     out: list[str] = []
-    if book.cash_usd < book.cash_floor_usd:
-        out.append(f"현금 ${book.cash_usd:.0f} < 바닥 ${book.cash_floor_usd:.0f}")
-    elif book.cash_usd < book.cash_floor_usd + 50:
+    cash_tot = book.cash_total_usd
+    if cash_tot < book.cash_floor_usd:
+        out.append(f"현금 ${cash_tot:.0f} < 바닥 ${book.cash_floor_usd:.0f}")
+    elif cash_tot < book.cash_floor_usd + 50:
         out.append(f"현금 여유 얇음 (바닥+50 미만)")
     for h in book.holdings:
         if h.earn_d5:
