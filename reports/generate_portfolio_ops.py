@@ -478,6 +478,19 @@ def main(argv: list[str] | None = None) -> int:
         f"ideas_run={sum(1 for i in ideas if i.bucket=='실행후보')} "
         f"mode={week_plan_mode(book.effective_date)} ops={book.effective_date} snap={book.as_of}"
     )
+
+    skip_release = "--skip-github-release" in argv
+    if not skip_release:
+        from sepa.artifacts import print_release_result, publish_portfolio_pdf_release
+
+        pdf_main = Path(f"/workspace/reports/Portfolio_Ops_{tag}.pdf")
+        notes = (
+            f"## 포폴() 운영브리프 ({tag})\n\n"
+            f"스냅 {book.as_of.isoformat()} · 주식 ${book.equity_usd:.2f} · "
+            f"현금 ${book.cash_usd:.2f} · 유동 ${book.liquid_usd:.2f}\n"
+        )
+        rel = publish_portfolio_pdf_release(pdf_main, as_of=tag, notes=notes)
+        print_release_result(rel, label="포폴 PDF")
     return 0
 
 
