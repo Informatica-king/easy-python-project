@@ -177,3 +177,75 @@ def publish_github_release_asset(
         "release_url": page,
         "asset_name": path.name,
     }
+
+
+def compact_stamp(as_of: str) -> str:
+    """``2026-08-07`` or ``20260807`` → ``20260807``."""
+    return str(as_of).replace("-", "")[:8]
+
+
+def publish_deep_pdf_release(
+    pdf_path: str | Path,
+    *,
+    as_of: str,
+    notes: str = "",
+    title: str | None = None,
+) -> dict:
+    """Upload NASDAQ deep-analysis PDF → ``sepa-deep-YYYYMMDD`` (mobile download)."""
+    pdf_path = Path(pdf_path)
+    stamp = compact_stamp(as_of)
+    tag = f"sepa-deep-{stamp}"
+    repo = github_repo_slug() or "Informatica-king/easy-python-project"
+    download = release_download_url(repo, tag, pdf_path.name)
+    body = notes.strip() or f"NASDAQ 심층분석 ({as_of})."
+    notes_final = f"{body}\n\nDirect download: {download}\n"
+    rel = publish_github_release_asset(
+        pdf_path,
+        tag=tag,
+        title=title or f"SEPA Deep Analysis — {as_of}",
+        notes=notes_final,
+        repo=repo,
+    )
+    if rel.get("ok"):
+        rel["pdf_name"] = pdf_path.name
+    return rel
+
+
+def publish_portfolio_pdf_release(
+    pdf_path: str | Path,
+    *,
+    as_of: str,
+    notes: str = "",
+    title: str | None = None,
+) -> dict:
+    """Upload 포폴() PDF → ``sepa-portfolio-ops-YYYYMMDD`` (mobile download)."""
+    pdf_path = Path(pdf_path)
+    stamp = compact_stamp(as_of)
+    tag = f"sepa-portfolio-ops-{stamp}"
+    repo = github_repo_slug() or "Informatica-king/easy-python-project"
+    download = release_download_url(repo, tag, pdf_path.name)
+    body = notes.strip() or f"포폴() 운영브리프 ({as_of})."
+    notes_final = f"{body}\n\nDirect download: {download}\n"
+    rel = publish_github_release_asset(
+        pdf_path,
+        tag=tag,
+        title=title or f"SEPA Portfolio Ops — {as_of}",
+        notes=notes_final,
+        repo=repo,
+    )
+    if rel.get("ok"):
+        rel["pdf_name"] = pdf_path.name
+    return rel
+
+
+def print_release_result(rel: dict, *, label: str = "PDF") -> None:
+    """Stdout block matching ``!sepa.anal`` mobile UX."""
+    print("\n" + "=" * 64)
+    print(f"  {label} 직접 다운로드 링크 (GitHub Release)")
+    print("=" * 64)
+    if rel.get("ok"):
+        print(f"\n  PDF 직접 다운로드:\n  {rel['download_url']}\n")
+        print(f"  릴리즈 페이지: {rel['release_url']}")
+    else:
+        print(f"[경고] GitHub Release 업로드 실패: {rel.get('error')}")
+        print("  (로컬 PDF/artifacts는 생성됨 — --skip-github-release 로 생략 가능)")

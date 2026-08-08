@@ -139,7 +139,8 @@
 | 생성기 | `reports/generate_portfolio_ops.py` (차트+HTML+WeasyPrint PDF) |
 | 한글 커맨드 | `포폴()` / `portfolio` 별칭 (`macro.py` 등록, 기존 심층·TA 패턴 준수) |
 | 차트 | matplotlib + NanumGothic (수익구조분석과 동일) |
-| 출력 | `reports/Portfolio_Ops_YYYY-MM-DD.pdf` · `/opt/cursor/artifacts/` · `assets/` |
+| 출력 | `reports/Portfolio_Ops_YYYY-MM-DD.pdf` · GitHub Release `sepa-portfolio-ops-YYYYMMDD` **직접 다운로드** · `/opt/cursor/artifacts/`(로컬전용) · `assets/` |
+| 다운로드 UX | **모바일은 GitHub Release URL만** (`/opt/cursor/artifacts/`·PR blob 링크는 수신 불가). `generate_portfolio_ops.py`가 기본 업로드. |
 | 테스트 | 비중 합=100 · D-5 · 매수필터 · 금토일 분기 · 스냅 파싱 |
 
 ### MVP 순서
