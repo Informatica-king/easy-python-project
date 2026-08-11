@@ -7,14 +7,14 @@
 # band: 추가매수 허용 구간 (BAND)
 # grade / max_pct: 품질등급·구조한도 (A≤18% B≤10% C≤6%). 하드게이트 시 유효등급=금지(ADD 0%)
 
-as_of: "2026-08-08"
-as_of_note: "앱 캡처 · 평가 $1,221.19 (+2.1%·+$25.43) · USD$159.54 + ₩141,971 · LASR/RELY 청산 · SCSC3·FTNT1 신규"
+as_of: "2026-08-11"
+as_of_note: "앱 캡처 · 평가 $1,261.47 (+5.4%·+$65.71) · USD$159.54 + ₩341,971 · 구성 동일(7종) · NESR 실적후 +33%"
 fx_krw_per_usd: 1408.38
-cost_basis_source: "앱 손익역산 평단 2026-08-08 (USD 표시)"
-source: "app_screenshot_2026-08-08"
+cost_basis_source: "앱 손익역산 평단 2026-08-11 (USD 표시 · 수량·평단 불변)"
+source: "app_screenshot_2026-08-11"
 
 # ---------------------------------------------------------------------------
-# Capital Operating System (snap 2026-08-08)
+# Capital Operating System (snap 2026-08-11)
 # ---------------------------------------------------------------------------
 strategy:
   identity: "짧~중기 모멘텀을 실적·비중·손절로 걸러, 비대장주 챌린저를 규칙으로만 운영하는 생존형 포트 OS"
@@ -27,23 +27,23 @@ strategy:
     target_krw: 100000000
     note: "1억 · 군적금 27.2(+2000만) · 청년미래적금 29.8(만기 2138만) 주식 재투자"
   book:
-    equity_usd: 1221.19
-    equity_pnl_usd: 25.43
-    equity_pnl_pct: 0.021
+    equity_usd: 1261.47
+    equity_pnl_usd: 65.71
+    equity_pnl_pct: 0.054
     cash_usd: 159.54
-    cash_krw: 141971
-    cash_krw_usd: 100.80
-    liquid_usd: 1481.53
+    cash_krw: 341971
+    cash_krw_usd: 242.81
+    liquid_usd: 1663.82
     cash_floor_usd: 150
-    cash_deployable_usd: 110.34
-    cash_pct_of_liquid: 0.176
-    pending_orders_note: "로테이션: LASR·RELY 청산 → SCSC×3·FTNT×1 신규. 전원 NO_ADD."
+    cash_deployable_usd: 252.35
+    cash_pct_of_liquid: 0.242
+    pending_orders_note: "NESR 08-10 실적 소화(+33%) · 전원 NO_ADD · 추격/물타기 금지"
 
 cash:
   usd: 159.54
-  krw: 141971
+  krw: 341971
   floor_usd: 150
-  note: "USD$159.54 + ₩141,971(≈$101) · 합 ≈$260 · 바닥 $150 · 배치 후 여유 얇음"
+  note: "USD$159.54 + ₩341,971(≈$243) · 합 ≈$402 · 바닥 $150 · 원화 적립 반영"
 
 contribution:
   payday: "매월 10일"
@@ -63,9 +63,9 @@ allocation:
   schd_target_pct: 0
   schd_role: "폐기 · 완충은 현금바닥+$150"
   note: |
-    2026-08-08: TXG 17.0% · ECPG 16.4% · CMPR 15.6% · AMRX 14.9% ·
-    SCSC 13.5% · FTNT 13.1% · NESR 9.5%. 현금합 ≈$260 (유동 ~18%).
-    Top3≈49% · 다수 품질한도 OVER · 전원 유효금지(NO_ADD).
+    2026-08-11: TXG 18.5% · ECPG 15.0% · CMPR 15.0% · AMRX 14.0% ·
+    FTNT 13.0% · SCSC 12.8% · NESR 11.6%. 현금합 ≈$402 (유동 ~24%).
+    TXG 천장권(~18.5%) · 다수 품질한도 OVER · 전원 유효금지(NO_ADD).
 
 rules:
   - "물타기 금지"
@@ -73,11 +73,10 @@ rules:
   - "비중: A≤18% · B≤10% · C≤6% · 금지=ADD 0% · 절대천장 20% · Top-3 합 ≤50%"
   - "하드게이트 → 유효 금지 · 보유 전원 NO_ADD"
   - "현금바닥 $150 유지 (USD+KRW환산 합산)"
-  - "NESR EARN_D5(~08-10) · stop $24 · 추가금지"
-  - "TXG 4주 · stop $42 · 비중OVER · 물타기 금지"
-  - "CMPR 2주 · stop $90 · 추가금지"
-  - "SCSC·FTNT 신규 — 추격 추가 금지 · stop 설정"
-  - "LASR·RELY 청산 후 추격 재매수 금지"
+  - "NESR 실적직후(+33%) — 갭추격·추가 금지 · stop $24 · tp1 $32 도달권 관찰"
+  - "TXG 4주 · +22.7% · 천장권 · stop $42 · 물타기 금지"
+  - "CMPR 2주 · stop $90 경계 · 추가금지"
+  - "SCSC·FTNT — 추격 추가 금지"
   - "동일종목 중복 주문 금지"
 
 holdings:
@@ -87,15 +86,15 @@ holdings:
     max_pct: 6
     shares: 4
     cost_approx: 47.46
-    mark_approx: 52.03
-    value_approx: 208.12
-    weight_approx: 0.170
-    pnl_usd: 18.28
-    pnl_pct: 0.096
+    mark_approx: 58.26
+    value_approx: 233.04
+    weight_approx: 0.185
+    pnl_usd: 43.20
+    pnl_pct: 0.227
     stop: 42.0
     no_add: true
     earn_date: "2026-11-05"
-    note: "4주 · 평단 $47.46 · +9.6% · 품질C·17.0% OVER · 추가금지"
+    note: "4주 · 평단 $47.46 · +22.7% · 품질C·18.5% 천장권 · 추가금지"
 
   - ticker: ECPG
     role: hold
@@ -103,17 +102,17 @@ holdings:
     max_pct: 18
     shares: 2
     cost_approx: 92.32
-    mark_approx: 100.20
-    value_approx: 200.40
-    weight_approx: 0.164
-    pnl_usd: 15.76
-    pnl_pct: 0.085
+    mark_approx: 94.92
+    value_approx: 189.84
+    weight_approx: 0.150
+    pnl_usd: 5.20
+    pnl_pct: 0.028
     stop: 80.0
     tp1: 105.0
     tp2: 110.0
     no_add: true
     earn_date: "2026-11-04"
-    note: "평단 $92.32 · +8.5% · 품질A·16.4% · 추가금지"
+    note: "평단 $92.32 · +2.8% · 품질A·15.0% · 추가금지"
 
   - ticker: CMPR
     role: hold
@@ -121,17 +120,17 @@ holdings:
     max_pct: 6
     shares: 2
     cost_approx: 98.19
-    mark_approx: 95.35
-    value_approx: 190.70
-    weight_approx: 0.156
-    pnl_usd: -5.68
-    pnl_pct: -0.028
+    mark_approx: 94.58
+    value_approx: 189.16
+    weight_approx: 0.150
+    pnl_usd: -7.22
+    pnl_pct: -0.036
     stop: 90.0
     tp1: 110.0
     tp2: 120.0
     no_add: true
     earn_date: "2026-10-28"
-    note: "2주 · 평단 $98.19 · −2.8% · 품질C·15.6% OVER · stop $90 경계 · 추가금지"
+    note: "2주 · 평단 $98.19 · −3.6% · 품질C·15.0% OVER · stop $90 경계 · 추가금지"
 
   - ticker: AMRX
     role: hold
@@ -139,33 +138,17 @@ holdings:
     max_pct: 10
     shares: 10
     cost_approx: 18.37
-    mark_approx: 18.14
-    value_approx: 181.40
-    weight_approx: 0.149
-    pnl_usd: -2.33
-    pnl_pct: -0.012
+    mark_approx: 17.72
+    value_approx: 177.20
+    weight_approx: 0.140
+    pnl_usd: -6.53
+    pnl_pct: -0.035
     stop: 15.5
     tp1: 19.0
     tp2: 20.0
     no_add: true
     earn_date: "2026-10-29"
-    note: "10주 · 평단 $18.37 · −1.2% · 품질B·14.9% OVER · 추가금지"
-
-  - ticker: SCSC
-    role: hold
-    grade: B
-    max_pct: 10
-    shares: 3
-    cost_approx: 57.05
-    mark_approx: 54.95
-    value_approx: 164.85
-    weight_approx: 0.135
-    pnl_usd: -6.30
-    pnl_pct: -0.036
-    stop: 51.0
-    no_add: true
-    earn_date: "2026-08-20"
-    note: "신규 3주 · 평단 $57.05 · −3.6% · 품질B·13.5% OVER · A′로테이션 · 추가금지"
+    note: "10주 · 평단 $18.37 · −3.5% · 품질B·14.0% OVER · 추가금지"
 
   - ticker: FTNT
     role: hold
@@ -173,15 +156,31 @@ holdings:
     max_pct: 10
     shares: 1
     cost_approx: 160.64
-    mark_approx: 159.64
-    value_approx: 159.64
-    weight_approx: 0.131
-    pnl_usd: -1.00
-    pnl_pct: -0.006
+    mark_approx: 164.50
+    value_approx: 164.50
+    weight_approx: 0.130
+    pnl_usd: 3.86
+    pnl_pct: 0.024
     stop: 145.0
     no_add: true
     earn_date: "2026-11-05"
-    note: "신규 1주 · 평단 $160.64 · −0.6% · 품질B·13.1% OVER · A′로테이션 · 추가금지"
+    note: "1주 · 평단 $160.64 · +2.4% · 품질B·13.0% OVER · 추가금지"
+
+  - ticker: SCSC
+    role: hold
+    grade: B
+    max_pct: 10
+    shares: 3
+    cost_approx: 57.05
+    mark_approx: 53.99
+    value_approx: 161.97
+    weight_approx: 0.128
+    pnl_usd: -9.18
+    pnl_pct: -0.053
+    stop: 51.0
+    no_add: true
+    earn_date: "2026-08-20"
+    note: "3주 · 평단 $57.05 · −5.3% · 품질B·12.8% OVER · EARN_D5 임박(~08-20) · 추가금지"
 
   - ticker: NESR
     role: hold
@@ -189,18 +188,18 @@ holdings:
     max_pct: 6
     shares: 4
     cost_approx: 27.34
-    mark_approx: 29.02
-    value_approx: 116.08
-    weight_approx: 0.095
-    pnl_usd: 6.70
-    pnl_pct: 0.061
+    mark_approx: 36.44
+    value_approx: 145.76
+    weight_approx: 0.116
+    pnl_usd: 36.38
+    pnl_pct: 0.332
     stop: 24.0
     tp1: 32.0
     tp2: 33.0
     no_add: true
     band: [25.0, 27.0]
     earn_date: "2026-08-10"
-    note: "4주 · +6.1% · 품질C·9.5% OVER · EARN_D5(~08-10) · 추가금지"
+    note: "4주 · +33.2% · 실적직후 · tp1 $32 상회 · 익절/트레일 검토 · 추가금지"
 
 exited:
   - ticker: LASR
@@ -245,33 +244,27 @@ exited:
     note: "전량매도 · SCHD 회전"
 
 watchlist:
+  - ticker: NESR
+    role: watch
+    note: "실적직후 +33% · tp 상회 · 익절/트레일 · NO_ADD"
+  - ticker: TXG
+    role: watch
+    note: "천장권 · 추가금지"
+  - ticker: SCSC
+    role: watch
+    note: "EARN_D5 ~08-20 · NO_ADD"
+  - ticker: CMPR
+    role: watch
+    note: "stop $90 경계 · 추가금지"
+  - ticker: FTNT
+    role: watch
+    note: "보유 · NO_ADD"
   - ticker: LASR
     role: watch
     note: "청산 후 · 추격 재매수 금지"
   - ticker: RELY
     role: watch
     note: "청산 후 · 추격 재매수 금지"
-  - ticker: SCSC
-    role: watch
-    note: "신규 보유 · NO_ADD · stop $51"
-  - ticker: FTNT
-    role: watch
-    note: "신규 보유 · NO_ADD · stop $145"
-  - ticker: TXG
-    role: watch
-    note: "보유 4주·비중OVER · 추가금지"
-  - ticker: NESR
-    role: watch
-    note: "EARN_D5 ~08-10 · 추가금지"
-  - ticker: CMPR
-    role: watch
-    note: "stop $90 경계 · 추가금지"
-  - ticker: LGND
-    role: watch
-    note: "A′ 워치"
-  - ticker: MNST
-    role: watch
-    note: "A′ 워치"
   - ticker: SCHD
     role: watch
     note: "청산 후 · 재매수 비우선"

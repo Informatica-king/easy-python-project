@@ -14,17 +14,18 @@ from sepa.portfolio_ops import (
 )
 
 
-def test_load_book_snap_20260808():
+def test_load_book_snap_20260811():
     book = load_book("config/portfolio_watch.yaml")
-    assert book.as_of == date(2026, 8, 8)
+    assert book.as_of == date(2026, 8, 11)
     assert abs(book.cash_usd - 159.54) < 1e-6
-    assert book.cash_krw is not None and abs(book.cash_krw - 141971) < 1e-3
-    assert book.cash_krw_usd > 90
+    assert book.cash_krw is not None and abs(book.cash_krw - 341971) < 1e-3
+    assert book.cash_krw_usd > 200
     tickers = {h.ticker for h in book.holdings}
     assert tickers == {"ECPG", "AMRX", "NESR", "CMPR", "TXG", "SCSC", "FTNT"}
     assert "LASR" not in tickers and "RELY" not in tickers and "SCHD" not in tickers
     nesr = next(h for h in book.holdings if h.ticker == "NESR")
     assert nesr.shares == 4
+    assert abs((nesr.cost or 0) - 27.34) < 1e-6
     txg = next(h for h in book.holdings if h.ticker == "TXG")
     assert txg.shares == 4
     assert txg.no_add is True
