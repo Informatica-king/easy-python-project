@@ -1,172 +1,159 @@
-# 개발 계획서 — 빠진 go 날짜 자동 채우기 (gap fill)
+# 개발 계획서 — 빠진 go 날짜 빠른 채우기 (gap fill)
 
-> **상태**: 설계안 (구현 전 — 이 브리핑 확정 후 코딩)  
-> **작성일**: 2026-08-12  
-> **결정**: 권장 조합 = **① 릴리즈 복원 + ② 빈 거래일 as-of 재계산(fund까지) + ③ go 앞단은 옵션**  
+> **상태**: 설계안 (구현 전)  
+> **작성일**: 2026-08-12 (목적·경량화 반영)  
 > **결정 로그**: **D30**
+
+---
+
+## 목적 (이게 전부)
+
+바빠서 **매일 `!sepa.go`를 못 돌릴 수 있다.**  
+나중에 SEPA 모델을 분석하려면 **빠진 거래일의 분석용 숫자만** 이어져 있으면 된다.
+
+그래서 이 기능은:
+
+- ❌ 그날의 풀 go를 다시 재현하는 것이 **아님**
+- ❌ PDF·섹터 차트·model_metrics·릴리즈 업로드를 하는 것이 **아님**
+- ✅ **분석 패널에 필요한 최소 CSV만** 빨리 채우는 것
+
+**원칙: 목적에 필요 없는 연산량은 최대한 줄인다.**
 
 ---
 
 ## 한 문장
 
-오랜만에 `!sepa.go`를 해도, **예전에 돌린 날은 복사본을 되찾고**,  
-**안 돌린 거래일은 그날 기준으로 다시 계산해** 성적 창고가 끊기지 않게 한다.
+빈 거래일만 찾아서, **점수·멤버십·perf에 필요한 최소 계산**만 하고 저장한다.
 
 ---
 
-## 왜 필요한가
+## 꼭 채울 것 (분석 최소 세트)
 
-| 문제 | 예 |
+나중에 `!sepa.perf_study` / membership·soft ceiling 검증에 쓰이는 것:
+
+| 산출물 | 왜 필요 |
 |---|---|
-| VM이 리셋되면 로컬 `reports/`가 사라짐 | 08-11 go 때 sepaTop이 “첫 스냅샷”으로 보임 |
-| 며칠 건너뛰면 거래일 구멍이 생김 | 08-07 다음 거래일 08-10 없음 |
-| perf forward·presence는 **연속 stamp**가 있어야 의미가 커짐 | 구멍 있으면 ready·체류가 늦게/잘못 쌓임 |
+| `stage2_YYYYMMDD.csv` | 그날 Stage2 후보 |
+| `fundamental_YYYYMMDD.csv` | RS·Fund·시총 (바스켓 재료) |
+| `rs_soft_drops_YYYYMMDD.csv` | soft ceiling 탈락 |
+| `fund_median_tickers_YYYYMMDD.txt` | median+ 목록 |
+| `sepatop/membership_YYYYMMDD.csv` | 편입 집합·presence 연속 |
+| `reports/perf/` upsert | daily_pool / basket_members / forward 백필 |
+| (선택) params hash 1줄 | 레짐 구분 |
 
-이미 있는 재료:
+**복원(①)일 때:** 릴리즈에 위 CSV가 있으면 **다운로드만** (계산 0).
 
-- GitHub 릴리즈 `sepa-anal-YYYYMMDD` (그날 실제 go 산출물)
-- `scan` / `fund`의 `--as-of`
-- `perf_ledger`의 forward 백필·fundamental ingest
-
-없는 것: **빈 날을 찾아 → 복원/재계산 → 패널 재조립**하는 한 줄 도구.
+**재계산(②)일 때:** 위 목록만 만들고 **끝**.
 
 ---
 
-## 확정 범위 (권장 조합)
+## 절대 하지 않을 것 (연산 절감)
 
-### ① 릴리즈 복원 (우선 · 정확)
+빠진 날 fill에서 **기본 OFF / 호출 금지**:
 
-- 로컬에 없는 stamp인데 `sepa-anal-YYYYMMDD` 릴리즈가 있으면 자산 다운로드
-- 넣는 것(기본):  
-  `stage2_*`, `fundamental_*`, `rs_soft_drops_*`, `fund_median_tickers_*`,  
-  sepaTop `membership_*` / `changes_*` / `presence_*` / `always_present_*` / event fwd,  
-  perf CSV 조각(있으면), params/diag/quantile 요약(있으면)
-- 안 넣거나 선택: 큰 PDF/차트 ZIP (기본 OFF — 용량·시간)
+| 스킵 | 이유 |
+|---|---|
+| analyze PDF / PNG board / ZIP | 무겁고 분석 패널에 불필요 |
+| 섹터 점유율 차트·히트맵 | 시각화 전용 |
+| sepaTop vs 벤치 성과 차트 | 인덱스 차트 불필요 |
+| model_metrics 1–7 | 당일 진단용 |
+| GitHub Release 업로드 | fill은 로컬 창고만 |
+| Cursor artifact 대량 publish | 선택적·기본 OFF |
+| 가격 전량 재다운로드 | 캐시 있으면 `--no-update` |
+| Fund SEC 전량 refresh | 기본 캐시 재사용 (`--no-update` 계열) |
 
-### ② 빈 거래일 as-of 재계산 (구멍만)
+재계산 경로의 실질 비용 ≈ **as-of Stage2 스크린 + Fund 채점** 정도만 남긴다.
 
-- 캘린더: **거래일만** (주말 제외; 미국 휴장은 v1에서 단순화 가능 — 주말만 제외해도 OK)
-- 아무데도 없는 날만: `scan(full, as_of=D)` → `fund(as_of=D)` → soft ceiling·median+ 저장
-- **anal PDF/차트 전체는 기본 OFF** (느림). sepaTop membership은 fund CSV로 **가볍게 재생성**
-- 결과 메타: `source=asof_rebuild` (당시 live go와 다를 수 있음 표시)
+---
 
-### ③ go 앞단 옵션
+## 동작 조합 (유지)
+
+### ① 릴리즈 복원 (있으면 최우선 · 가장 빠름)
+
+로컬에 없고 `sepa-anal-YYYYMMDD`에 **최소 세트 CSV**만 있으면 받아서 꽂기.  
+PDF/ZIP은 받지 않음.
+
+### ② 빈 거래일 경량 재계산
+
+아무데도 없을 때만:
 
 ```text
-!sepa.go()                    # 기본: 오늘만 (기존과 동일)
-!sepa.go(fill_gaps=1)         # 오늘 전에 fill_gaps 실행
-!sepa.fill_gaps()             # 수동 전용
+가격 캐시 유지 (--no-update)
+→ scan(full, as_of=D, no_update)
+→ fund(from stage2, as_of=D, no_update)  # soft ceiling·median+ 포함
+→ membership CSV만 저장 (차트 없음)
+→ perf_ledger upsert + forward 백필
+→ source=asof_rebuild 표시
+```
+
+### ③ go 앞단은 옵션
+
+```text
+!sepa.fill_gaps()                 # 수동·기본 진입점
 !sepa.fill_gaps(from=..., to=...)
-```
-
-기본 go는 **지금처럼 빠르게**. 채우기는 원할 때만.
-
----
-
-## 비범위 (이번에 안 함)
-
-- 빠진 날 PDF·섹터 차트 전부 재생성
-- 완벽한 재무 PIT(과거 SEC 시점) 재현
-- 미국 전체 휴장 캘린더 정밀화 (v2)
-- live RS/Fund 파라미터 변경
-
----
-
-## 사용자 명령 (완성 후)
-
-```text
-!sepa.fill_gaps()
-!sepa.fill_gaps(from=2026-08-01, to=2026-08-11)
-!sepa.go(fill_gaps=1)          # 옵션
-```
-
-출력 예:
-
-```text
-gap fill: restore 4일 | rebuild 1일 | skip weekend 2일
-  restored: 20260804,20260805,20260806,20260807
-  rebuilt:  20260810 (asof_rebuild)
-  panels:   membership_panel / presence / perf 재조립 완료
+!sepa.go(fill_gaps=1)             # 원할 때만 (기본 go는 오늘만)
 ```
 
 ---
 
-## 구현 페이즈
+## 속도 가드
 
-### Phase 1 — 뼈대 + 릴리즈 복원  ← **1차**
-
-| ID | 작업 |
+| 가드 | 기본 |
 |---|---|
-| G1.1 | `trading_days(from, to)` — 주말 제외 날짜 리스트 |
-| G1.2 | 로컬 stamp 목록 (`fundamental_*.csv`, membership 등) |
-| G1.3 | `gh release` / GitHub API로 `sepa-anal-*` 목록·자산 다운로드 |
-| G1.4 | 자산을 `reports/`·`reports/sepatop/`에 배치 (덮어쓰기 정책: 같은 stamp면 스킵 또는 강제) |
-| G1.5 | 복원 후 `membership_panel` / presence / `perf_ledger` 재조립·ingest |
-| G1.6 | `!sepa.fill_gaps` 매크로 + 단위 테스트(가짜 릴리즈 목록) |
-| G1.7 | 문서·D30 결정 로그 |
-
-**완료 기준**: VM wipe 직후에도 fill_gaps 한 번으로 08-04~07 로컬 복원 + presence 연속성 회복.
-
-### Phase 2 — 빈 날 as-of 재계산
-
-| ID | 작업 |
-|---|---|
-| G2.1 | 복원 후에도 비어 있는 거래일 탐지 |
-| G2.2 | 해당일 `scan --as-of` + `fund --as-of` (+ soft drops / median+ txt) |
-| G2.3 | fund CSV로 sepaTop membership 저장 (차트/PDF 생략) |
-| G2.4 | `source=asof_rebuild` 메타 파일 또는 CSV 컬럼 |
-| G2.5 | 일수 상한(예: 기본 max 10일) · `--dry-run` |
-| G2.6 | perf upsert + forward 백필 |
-
-**완료 기준**: 08-10 같은 구멍이 fundamental+membership+perf에 생기고, 이후 go에서 forward ready가 채워질 준비됨.
-
-### Phase 3 — go 옵션 + UX
-
-| ID | 작업 |
-|---|---|
-| G3.1 | `!sepa.go(fill_gaps=1)` 앞단 호출 |
-| G3.2 | 요약 배너(복원/재계산/스킵 개수) |
-| G3.3 | AGENTS.md / result_data_accumulation 안내 |
+| 주말 스킵 | ON |
+| 이미 로컬에 `fundamental_*` 있으면 스킵 | ON |
+| 한 번 실행 max 일수 | 10 (초과 시 경고 후 자름) |
+| `--dry-run` | 구멍만 보여주고 계산 안 함 |
+| PDF/차트 | 항상 OFF |
+| 가격/재무 강제 refresh | 기본 OFF |
 
 ---
 
-## 모듈·파일 예상
+## 구현 페이즈 (짧고 가볍게)
 
-| 파일 | 역할 |
-|---|---|
-| `src/sepa/gap_fill.py` | 캘린더·탐지·복원·rebuild 오케스트레이션 |
-| `src/sepa/release_restore.py` | `sepa-anal-*` 목록/다운로드/배치 |
-| `src/sepa/macro.py` | `fill_gaps`, go의 `fill_gaps=` |
-| `tests/test_gap_fill.py` | 날짜 구멍·스킵·복원 경로 |
-| `docs/gap_fill_plan.md` | 본 문서 |
+### Phase 1 — 복원 + 탐지 (계산 거의 0)
+
+- 거래일 캘린더 · 로컬/릴리즈 stamp diff  
+- 최소 CSV만 다운로드·배치  
+- membership_panel / perf ingest 재조립  
+- `!sepa.fill_gaps` + 테스트  
+
+### Phase 2 — 경량 rebuild
+
+- 빈 날: scan+fund(+membership)+perf만  
+- `asof_rebuild` 메타  
+- max days / dry-run  
+
+### Phase 3 — UX
+
+- `go(fill_gaps=1)` 옵션  
+- 요약: restore N / rebuild M / skip K · **소요 초**
 
 ---
 
-## 리스크
+## 비범위
 
-| 리스크 | 대응 |
-|---|---|
-| 재계산 ≠ 당시 live go | `asof_rebuild` 표시, 해석 시 구분 |
-| 전종목 as-of가 느림 | max days, dry-run, PDF OFF |
-| gh 인증/네트워크 | 실패 시 해당 일만 스킵·로그 |
-| 릴리즈 자산 이름 변경 | 필수 파일 화이트리스트 + 없으면 warn |
+- 빠진 날 “완전한 go 체험” 재현  
+- 시각 리포트·릴리즈 재발행  
+- live 파라미터 변경  
+- 정밀 휴장 캘린더 (v1은 주말 제외만)
 
 ---
 
-## 지금 바로 할 일 (코딩 순서)
+## 성공 기준
 
-1. Phase 1 구현·테스트·푸시  
-2. 실제 `!sepa.fill_gaps(from=2026-08-04, to=2026-08-11)` 스모크  
-3. Phase 2 → 08-10 rebuild  
-4. Phase 3 go 옵션  
+1. 바쁜 주간에 go를 못 해도, 나중에 `fill_gaps` 한 번으로 **분석용 stamp가 이어진다.**  
+2. 빈 날 1일 채우기 비용이 **풀 go(anal+PDF+릴리즈)보다 훨씬 짧다.**  
+3. 리포트에 `asof_rebuild`와 live go가 구분된다.
 
 ---
 
 ## 한 장 요약
 
 ```text
-[①] 릴리즈에 있는 날 → 받아서 reports에 꽂기     (정확)
-[②] 아무데도 없는 거래일 → as-of scan+fund     (근사, 표시)
-[③] !sepa.go(fill_gaps=1) 은 선택              (기본 go는 그대로)
-[안 함] 매일 PDF 재생성 / 파라미터 변경
+목적: 분석용 구멍만 메우기 (풀 go 대체 아님)
+① 릴리즈 CSV 복원 = 제일 빠름
+② 없으면 as-of scan+fund+membership+perf 만
+③ PDF/차트/metrics/릴리즈/불필요 publish = 전부 스킵
+④ 기본 !go 는 그대로, fill은 별도·옵션
 ```
