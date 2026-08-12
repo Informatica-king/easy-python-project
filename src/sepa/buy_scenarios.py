@@ -231,7 +231,7 @@ def run_scan(
             "A": "타이밍 GO_A 눌림",
             "B": "타이밍 GO_B 돌파 — 프리마켓OS 기본 WAIT",
             "SOFT": "타이밍 WAIT 근접",
-            "earn": "portfolio SSOT=confirmed; rank/yfinance=estimate",
+            "earn": "earn_confirmed.yaml∪portfolio=confirmed; rank/yfinance=estimate",
             "exec_window": "KR 17:30-20:55 premkt limit only",
         },
         "rows": hits,

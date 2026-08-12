@@ -1,0 +1,40 @@
+# Confirmed earnings dates (IR / official / portfolio SSOT).
+# Hot path: local YAML read only — never network.
+# Estimate(yfinance/rank) must NOT be auto-promoted here.
+#
+# Manage:
+#   PYTHONPATH=src python -m sepa.earn_confirm sync-portfolio
+#   PYTHONPATH=src python -m sepa.earn_confirm diff --rank reports/rank_YYYYMMDD.json
+#   PYTHONPATH=src python -m sepa.earn_confirm set TICKER YYYY-MM-DD --note "IR …"
+#   PYTHONPATH=src python -m sepa.earn_confirm show
+
+as_of: "2026-08-12"
+note: >
+  보유 실적일은 portfolio sync. ANAB Yahoo 2026-08-12는 추정(토스 IR 공란)이라
+  여기 넣지 않음. IR 확인 후에만 set.
+
+entries:
+  TXG:
+    earn_date: "2026-11-05"
+    note: "portfolio SSOT"
+    confirmed_on: "2026-08-12"
+  CMPR:
+    earn_date: "2026-10-28"
+    note: "portfolio SSOT"
+    confirmed_on: "2026-08-12"
+  ECPG:
+    earn_date: "2026-11-04"
+    note: "portfolio SSOT"
+    confirmed_on: "2026-08-12"
+  AMRX:
+    earn_date: "2026-10-29"
+    note: "portfolio SSOT"
+    confirmed_on: "2026-08-12"
+  FTNT:
+    earn_date: "2026-11-05"
+    note: "portfolio SSOT"
+    confirmed_on: "2026-08-12"
+  SCSC:
+    earn_date: "2026-08-20"
+    note: "portfolio SSOT · EARN_D5 임박"
+    confirmed_on: "2026-08-12"

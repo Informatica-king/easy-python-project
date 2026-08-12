@@ -50,7 +50,7 @@
 
 ### 3.2 시세 / 이벤트
 - 최근 종가·벤치 시계열: yfinance
-- 실적일: 스냅 `earn_date` = **confirmed SSOT** · yfinance/rank = **estimate** (하드 EARN_D5는 확정만)
+- 실적일: `earn_confirmed.yaml` ∪ 스냅 `earn_date` = **confirmed** · yfinance/rank = **estimate** (하드 EARN_D5는 확정만 · 핫패스 로컬 YAML만)
 
 ### 3.3 심층·매수 게이트 (최신 파일 자동 선택)
 - `reports/buy_scenarios_YYYYMMDD.json` (`sepa.buy_scenarios` / thin `scan_buy_scenarios_*.py`)

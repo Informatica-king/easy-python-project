@@ -43,6 +43,8 @@ buy_score L1/L2/L3 → 실행후보 순위만
 | `sepa.pick_pool` | 좋은 종목 본선 |
 | `sepa.timing_gate` | GO_A/GO_B/WAIT/BLOCK (`ALLOW_GO_B_EXEC=False`) |
 | `sepa.earn_calendar` | confirmed vs estimate · 확정만 하드블록 · `load_confirmed_earn_map` |
+| `sepa.earn_confirm` | 온디맨드 SSOT 관리 (`sync-portfolio`/`diff`/`set`) · **네트워크 없음** |
+| `config/earn_confirmed.yaml` | IR/수동 확정일 SSOT (estimate 자동승격 금지) |
 | `sepa.buy_scenarios` | 공유 타이밍 스캐너 → `buy_scenarios_*.json` (날짜별 스크립트는 thin wrapper) |
 | `sepa.chase_select` | 본선 포함/제외 규칙 |
 | `sepa.portfolio_ops` | 필터·저녁창 액션 |
@@ -68,3 +70,12 @@ CLI: `PYTHONPATH=src python -m sepa.buy_scenarios --asof YYYY-MM-DD --rank repor
 - 갭 +2% 이상 → **VOID** (그날 패스)  
 - 미체결 → 억지 추격 금지 · 다음날 재평가  
 - GO_B(돌파) 기본 **비실행(WAIT)**
+
+---
+
+## 확정 실적일 (저연산)
+
+- 핫패스: `earn_confirmed.yaml` + portfolio yaml **로컬 읽기만**
+- 관리: `PYTHONPATH=src python -m sepa.earn_confirm sync-portfolio|diff|set`
+- `diff`는 이미 있는 `rank_*.json`과 비교 (추가 다운로드 없음)
+- Yahoo/IR 스크래핑·estimate→confirmed 자동승격 **안 함**

@@ -475,13 +475,15 @@ def filter_buy_ideas(
     3. 실행후보 only if pick ∩ timing.is_go
     4. Confirmed EARN_D5 only hard-blocks (estimates warn)
     """
-    from sepa.earn_calendar import earn_info_from_row
+    from sepa.earn_calendar import earn_info_from_row, load_confirmed_earn_map
     from sepa.pick_pool import build_pick_pool, chase_label_blocks_pick
     from sepa.timing_gate import timing_from_scenario_row
 
     held = {h.ticker for h in book.holdings}
     no_add = {h.ticker for h in book.holdings if h.no_add}
     asof = book.effective_date
+    # Local YAML only (portfolio ∪ earn_confirmed) — no network
+    confirmed_map = load_confirmed_earn_map()
 
     scen_by: dict[str, dict[str, Any]] = {}
     for r in (scenarios or {}).get("rows") or []:
@@ -568,14 +570,19 @@ def filter_buy_ideas(
             else:
                 timing = TimingResult(t, "WAIT", "", "타이밍 WAIT(시나리오없음·본선유지)")
 
-        # Portfolio SSOT earn overrides to confirmed for held names
+        # Confirmed SSOT (earn_confirmed.yaml ∪ holdings) — hard EARN_D5 only
         held_row = next((h for h in book.holdings if h.ticker == t), None)
-        if held_row and held_row.earn_date and in_earn_d5(held_row.earn_date, asof):
+        conf_d = confirmed_map.get(t)
+        if conf_d is None and held_row and held_row.earn_date:
+            conf_d = held_row.earn_date
+        if conf_d is not None and in_earn_d5(conf_d, asof):
             from sepa.timing_gate import TimingResult
 
             timing = TimingResult(
-                t, "BLOCK", timing.legacy_scenario,
-                f"EARN_D5 확정(SSOT) · {held_row.earn_date}",
+                t,
+                "BLOCK",
+                timing.legacy_scenario,
+                f"EARN_D5 확정(SSOT) · {conf_d}",
                 earn_d5_confirmed=True,
             )
 
