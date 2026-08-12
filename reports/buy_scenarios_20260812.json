@@ -1,10 +1,13 @@
 {
   "as_of": "2026-08-12",
-  "gate": "A' RS>=70 shallow pullback",
+  "gate": "timing GO_A/GO_B/WAIT (pick_pool=Chase separate)",
   "rules": {
-    "A": "MA200↑ + MA20≥MA60 + (near MA20|swingL) + RSI42-62 + high -1%~-8% + volOK + not EARN_D5",
-    "B": "breakout+volHot + RSI<70 + not EARN_D5 (RSI≥68 caution)",
-    "SOFT": "directionally close to A'"
+    "pick": "Chase 본선 (sepa.pick_pool) — 좋은 종목",
+    "A": "타이밍 GO_A 눌림",
+    "B": "타이밍 GO_B 돌파 — 프리마켓OS 기본 WAIT",
+    "SOFT": "타이밍 WAIT 근접",
+    "earn": "earn_confirmed.yaml∪portfolio=confirmed; rank/yfinance=estimate",
+    "exec_window": "KR 17:30-20:55 premkt limit only"
   },
   "rows": [
     {
@@ -52,9 +55,12 @@
       "vs_ma200": 86.11138375723857,
       "edays": 83,
       "earn_d5": false,
+      "earn_source": "estimate",
+      "earn_note": "rank/yfinance calendar",
+      "timing": "GO_A",
       "scenario": "A",
       "caution": "",
-      "gate": "A'"
+      "gate": "timing"
     },
     {
       "t": "DNTH",
@@ -101,9 +107,12 @@
       "vs_ma200": 56.67839788100129,
       "edays": -8,
       "earn_d5": false,
+      "earn_source": "estimate",
+      "earn_note": "rank/yfinance calendar",
+      "timing": "GO_A",
       "scenario": "A",
       "caution": "",
-      "gate": "A'"
+      "gate": "timing"
     },
     {
       "t": "ZD",
@@ -150,9 +159,12 @@
       "vs_ma200": 30.2944287861197,
       "edays": 85,
       "earn_d5": false,
+      "earn_source": "estimate",
+      "earn_note": "rank/yfinance calendar",
+      "timing": "GO_A",
       "scenario": "A",
       "caution": "",
-      "gate": "A'"
+      "gate": "timing"
     },
     {
       "t": "RELY",
@@ -200,9 +212,12 @@
       "vs_ma200": 33.409053518458705,
       "edays": 84,
       "earn_d5": false,
+      "earn_source": "estimate",
+      "earn_note": "rank/yfinance calendar",
+      "timing": "WAIT",
       "scenario": "SOFT",
       "caution": "",
-      "gate": "A'"
+      "gate": "timing"
     },
     {
       "t": "ECPG",
@@ -250,59 +265,12 @@
       "vs_ma200": 34.706668464031345,
       "edays": 84,
       "earn_d5": false,
+      "earn_source": "confirmed",
+      "earn_note": "portfolio_watch SSOT",
+      "timing": "WAIT",
       "scenario": "SOFT",
       "caution": "",
-      "gate": "A'"
-    },
-    {
-      "t": "AMRX",
-      "name": "Amneal Pharmaceuticals, Inc.",
-      "sector": "Healthcare",
-      "industry": "Drug Manufacturers - Specialty & Generic",
-      "px": 17.1,
-      "h": 19.26,
-      "l": 8.82,
-      "ptA": 20.75,
-      "ptL": 16.0,
-      "ptH": 25.0,
-      "rec": "strong_buy",
-      "mcap": 5955862528,
-      "earnDate": "2026-10-29",
-      "epsBeat": 4,
-      "epsN": 4,
-      "avgSurp": 0.31715,
-      "upside": 0.21345029239766067,
-      "near_high": 0.8878504672897196,
-      "prem": -0.1759036144578312,
-      "chase_raw": 3.992749825107941,
-      "share_delta_pp": 1.5,
-      "share_bonus": 0.35,
-      "share_rising": true,
-      "share_margin_hold": null,
-      "share_bonus_cancelled": false,
-      "_share_bonus_applied": true,
-      "rank": 10,
-      "last": 17.100000381469727,
-      "rsi": 43.2170484932205,
-      "above200": true,
-      "align": true,
-      "pct_hi": -0.11214952345499063,
-      "near_l": true,
-      "near_ma20": false,
-      "breakout": false,
-      "vol_ok": true,
-      "vol_hot": false,
-      "vol_recover": true,
-      "vol_ratio": 1.2247554874046394,
-      "swing_lo": 16.700000762939453,
-      "swing_hi": 19.260000228881836,
-      "vs_ma20": -5.54573362200137,
-      "vs_ma200": 24.22428203494853,
-      "edays": 78,
-      "earn_d5": false,
-      "scenario": "SOFT",
-      "caution": "",
-      "gate": "A'"
+      "gate": "timing"
     },
     {
       "t": "FROG",
@@ -349,9 +317,12 @@
       "vs_ma200": 38.67006122310226,
       "edays": 85,
       "earn_d5": false,
+      "earn_source": "estimate",
+      "earn_note": "rank/yfinance calendar",
+      "timing": "WAIT",
       "scenario": "SOFT",
       "caution": "",
-      "gate": "A'"
+      "gate": "timing"
     },
     {
       "t": "FA",
@@ -398,9 +369,12 @@
       "vs_ma200": 45.1984050863,
       "edays": 85,
       "earn_d5": false,
+      "earn_source": "estimate",
+      "earn_note": "rank/yfinance calendar",
+      "timing": "WAIT",
       "scenario": "SOFT",
       "caution": "",
-      "gate": "A'"
+      "gate": "timing"
     },
     {
       "t": "FTNT",
@@ -415,7 +389,7 @@
       "ptH": 220.0,
       "rec": "hold",
       "mcap": 118780903424,
-      "earnDate": "2026-11-04",
+      "earnDate": "2026-11-05",
       "epsBeat": 4,
       "epsN": 4,
       "avgSurp": 0.19755000375,
@@ -445,11 +419,14 @@
       "swing_hi": 172.08999633789062,
       "vs_ma20": 1.8951524722339963,
       "vs_ma200": 56.69743815242316,
-      "edays": 84,
+      "edays": 85,
       "earn_d5": false,
+      "earn_source": "confirmed",
+      "earn_note": "portfolio_watch SSOT",
+      "timing": "WAIT",
       "scenario": "SOFT",
       "caution": "",
-      "gate": "A'"
+      "gate": "timing"
     },
     {
       "t": "LGND",
@@ -496,9 +473,12 @@
       "vs_ma200": 28.80404000892589,
       "edays": 85,
       "earn_d5": false,
+      "earn_source": "estimate",
+      "earn_note": "rank/yfinance calendar",
+      "timing": "WAIT",
       "scenario": "SOFT",
       "caution": "",
-      "gate": "A'"
+      "gate": "timing"
     },
     {
       "t": "CLBK",
@@ -545,9 +525,12 @@
       "vs_ma200": 32.60755680554504,
       "edays": 69,
       "earn_d5": false,
+      "earn_source": "estimate",
+      "earn_note": "rank/yfinance calendar",
+      "timing": "WAIT",
       "scenario": "SOFT",
       "caution": "",
-      "gate": "A'"
+      "gate": "timing"
     },
     {
       "t": "CBRL",
@@ -577,7 +560,7 @@
       "share_bonus_cancelled": false,
       "rank": 54,
       "last": 56.029998779296875,
-      "rsi": 57.77395723424147,
+      "rsi": 57.77395723321842,
       "above200": true,
       "align": true,
       "pct_hi": -0.0610021702923873,
@@ -591,12 +574,15 @@
       "swing_lo": 50.20000076293945,
       "swing_hi": 59.66999816894531,
       "vs_ma20": 1.8896477470382367,
-      "vs_ma200": 62.60031215626913,
+      "vs_ma200": 62.600312426275174,
       "edays": 35,
       "earn_d5": false,
+      "earn_source": "estimate",
+      "earn_note": "rank/yfinance calendar",
+      "timing": "WAIT",
       "scenario": "SOFT",
       "caution": "",
-      "gate": "A'"
+      "gate": "timing"
     }
   ]
 }

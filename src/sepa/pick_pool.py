@@ -116,3 +116,65 @@ def build_pick_pool(
 def chase_label_blocks_pick(chase: str) -> bool:
     """True if chase label should never be a pick (과열/중하/…)."""
     return is_excluded(chase or "")
+
+
+def find_pick_go_hits(
+    chase: dict[str, Any] | None,
+    scenarios: dict[str, Any] | list[dict[str, Any]] | None,
+    *,
+    as_of: Any = None,
+    max_n: int = MAX_PICK_POOL,
+) -> list[dict[str, Any]]:
+    """본선(pick_pool) ∩ 타이밍 GO — deep PDF / 포폴 강조용 (로컬만).
+
+    Returns list of dicts: ticker, rank, chase, timing, scenario, px, limit note fields.
+    Empty when no overlap (common on hot days).
+    """
+    from datetime import date as _date
+
+    from sepa.timing_gate import timing_from_scenario_row
+
+    if isinstance(scenarios, list):
+        scen_payload: dict[str, Any] = {"rows": scenarios}
+    else:
+        scen_payload = scenarios or {"rows": []}
+
+    asof = as_of or _date.today()
+    if isinstance(asof, str):
+        asof = _date.fromisoformat(asof[:10])
+
+    picks = build_pick_pool(chase, scen_payload, max_n=max_n)
+    scen_by: dict[str, dict[str, Any]] = {}
+    for r in scen_payload.get("rows") or []:
+        t = str(r.get("t") or r.get("ticker") or "").upper()
+        if t:
+            scen_by[t] = r
+
+    hits: list[dict[str, Any]] = []
+    for p in picks:
+        sr = scen_by.get(p.ticker)
+        if not sr:
+            continue
+        timing = timing_from_scenario_row(sr, as_of=asof)
+        if not timing.is_go:
+            continue
+        px = p.px
+        if px is None:
+            raw = sr.get("last") if sr.get("last") is not None else sr.get("px")
+            px = float(raw) if raw is not None else None
+        hits.append(
+            {
+                "ticker": p.ticker,
+                "rank": p.rank,
+                "chase": p.chase,
+                "timing": timing.status,
+                "scenario": timing.legacy_scenario or sr.get("scenario") or "",
+                "px": px,
+                "rsi": timing.rsi,
+                "pct_hi": timing.pct_hi,
+                "reason": timing.reason,
+                "earn_source": sr.get("earn_source"),
+                "earnDate": sr.get("earnDate") or p.earn_date,
+            }
+        )
+    return hits
