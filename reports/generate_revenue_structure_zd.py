@@ -13,6 +13,10 @@ if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
 from sepa.artifacts import print_release_result, publish_github_release_asset  # noqa: E402
+from sepa.rev_compete import (  # noqa: E402
+    build_compete_charts,
+    render_compete_section_html,
+)
 from sepa.rev_price_chart import build_and_insert_price  # noqa: E402
 
 import matplotlib
@@ -350,7 +354,7 @@ def fig_block(path: Path, caption: str) -> str:
     )
 
 
-def build_html(charts: dict[str, Path]) -> str:
+def build_html(charts: dict[str, Path], *, compete_html: str = "") -> str:
     css = f"""
     @font-face {{ font-family:'NanumGothic'; src:url('file://{FONT_REG}'); font-weight:normal; }}
     @font-face {{ font-family:'NanumGothic'; src:url('file://{FONT_BOLD}'); font-weight:bold; }}
@@ -425,6 +429,8 @@ Adj EPS는 자사주로 <b>+13%</b>. 시총 ~$1.8B 대비 현금 ~$1.6B·순현�
     ("Programmatic M&A", "소형($5–50M EBITDA) 브랜드·SaaS를 꾸준히 사는 DNA."),
 ])}
 
+{compete_html}
+
 <h2>1. 세그먼트 — 어디서 돈이 오나</h2>
 {fig_block(charts['02'], '세그먼트 믹스')}
 {fig_block(charts['06'], '수익 스택')}
@@ -498,7 +504,7 @@ Ziff Davis Q2 2026 earnings release · earnings call 요약 · SEC 10-Q 세그�
 yfinance 분기 손익·BS·가격·PT ({ASOF}) · 심층분석 2026-08-12 (A′ / Chase 중하).
 시나리오는 예시 밴드(투자 권유 아님).
 </p>
-<p class="small">생성: 수익구조분석() · 티커 ZD · 기준 {ASOF} · WeasyPrint + NanumGothic · sepa.rev_price_chart</p>
+<p class="small">생성: 수익구조분석() · 티커 ZD · 기준 {ASOF} · WeasyPrint + NanumGothic · sepa.rev_compete · sepa.rev_price_chart</p>
 </body></html>
 """
 
@@ -515,7 +521,19 @@ def main() -> None:
         "08": chart_catalysts(),
         "09": chart_position(),
     }
-    html = build_html(charts)
+    bundle, cpaths = build_compete_charts("ZD", CHART_DIR)
+    charts.update(cpaths)
+    compete_html = render_compete_section_html(
+        charts,
+        bundle,
+        img_b64_fn=img_b64,
+        gloss_fn=gloss,
+        easy_share="<div class='easy'><b>쉽게:</b> 디지털미디어 피어셋에서 ZD 상대 비중. IAC/MTCH는 사업 믹스가 달라 순위 감각용이다.</div>",
+        easy_mix="<div class='easy'><b>쉽게:</b> ZD는 광고/콘텐츠가 ~3/4, Cyber/Martech SaaS가 ~1/4. MTCH는 구독 편중, YELP는 광고 편중이다.</div>",
+        gloss_share=[("digital media peer", "상장 디지털미디어·인터랙티브."), ("SOV/스케일", "절대 광고점유 ≠ 이 패널.")],
+        gloss_mix=[("Ads/Content", "미디어 광고·커머스·콘텐츠."), ("SaaS/Sub", "Cyber/Martech 등 구독형.")],
+    )
+    html = build_html(charts, compete_html=compete_html)
     html, _px = build_and_insert_price("ZD", CHART_DIR, html)
     if _px.ok:
         print(f"price-charts {_px.candle_path} {_px.momentum_path}")
@@ -548,7 +566,7 @@ def main() -> None:
         ),
     )
     print_release_result(rel, label="ZD 수익구조 PDF")
-    print(f"ZD rev px={PX} pt={PT} upside={UPSIDE*100:.1f}% near_hi={NEAR_HI*100:.0f}%")
+    print(f"compete={bundle.ticker if bundle else None}\nZD rev px={PX} pt={PT} upside={UPSIDE*100:.1f}% near_hi={NEAR_HI*100:.0f}%")
 
 
 if __name__ == "__main__":

@@ -1,72 +1,12 @@
 {
   "results": [
     {
-      "ticker": "ECPG",
-      "ok": true,
+      "ticker": "ASTH",
+      "ok": false,
       "skipped": false,
       "asof": "2026-07-20",
       "compete": false,
-      "price": true,
-      "pdfs": [
-        "/opt/cursor/artifacts/ECPG_Revenue_Structure_Analysis.pdf",
-        "/workspace/reports/ECPG_Revenue_Structure_Analysis.pdf"
-      ],
-      "log_tail": "price-charts /workspace/reports/charts/ecpg/00a_price_candle.png /workspace/reports/charts/ecpg/00b_price_momentum.png\nHTML /workspace/reports/ECPG_Revenue_Structure_Analysis.html 1092872\nPDF /opt/cursor/artifacts/ECPG_Revenue_Structure_Analysis.pdf 935853\nPDF /workspace/reports/ECPG_Revenue_Structure_Analysis.pdf 935855\n"
-    },
-    {
-      "ticker": "AMRX",
-      "ok": true,
-      "skipped": false,
-      "asof": "2026-07-21",
-      "compete": false,
-      "price": true,
-      "pdfs": [
-        "/opt/cursor/artifacts/AMRX_Revenue_Structure_Analysis.pdf",
-        "/workspace/reports/AMRX_Revenue_Structure_Analysis.pdf"
-      ],
-      "log_tail": "price-charts /workspace/reports/charts/amrx/00a_price_candle.png /workspace/reports/charts/amrx/00b_price_momentum.png\nHTML /workspace/reports/AMRX_Revenue_Structure_Analysis.html 1083297\nPDF /opt/cursor/artifacts/AMRX_Revenue_Structure_Analysis.pdf 921275\nPDF /workspace/reports/AMRX_Revenue_Structure_Analysis.pdf 921268\n"
-    },
-    {
-      "ticker": "LASR",
-      "ok": true,
-      "skipped": false,
-      "asof": "2026-07-25",
-      "compete": false,
-      "price": true,
-      "pdfs": [
-        "/opt/cursor/artifacts/LASR_Revenue_Structure_Analysis.pdf",
-        "/workspace/reports/LASR_Revenue_Structure_Analysis.pdf",
-        "/workspace/assets/LASR_Revenue_Structure_Analysis.pdf"
-      ],
-      "log_tail": "price-charts /workspace/reports/charts/lasr/00a_price_candle.png /workspace/reports/charts/lasr/00b_price_momentum.png\nHTML /workspace/reports/LASR_Revenue_Structure_Analysis.html 1111062\nPDF /opt/cursor/artifacts/LASR_Revenue_Structure_Analysis.pdf 906453\nPDF /workspace/reports/LASR_Revenue_Structure_Analysis.pdf 906454\nPDF /workspace/assets/LASR_Revenue_Structure_Analysis.pdf 906454\n"
-    },
-    {
-      "ticker": "NESR",
-      "ok": true,
-      "skipped": false,
-      "asof": "2026-08-01",
-      "compete": true,
-      "price": true,
-      "pdfs": [
-        "/opt/cursor/artifacts/NESR_Revenue_Structure_Analysis.pdf",
-        "/workspace/reports/NESR_Revenue_Structure_Analysis.pdf",
-        "/workspace/assets/NESR_Revenue_Structure_Analysis.pdf"
-      ],
-      "log_tail": "ce_candle.png /workspace/reports/charts/nesr/00b_price_momentum.png\nHTML /workspace/reports/NESR_Revenue_Structure_Analysis.html 1234981\nPDF /opt/cursor/artifacts/NESR_Revenue_Structure_Analysis.pdf 997995\nPDF /workspace/reports/NESR_Revenue_Structure_Analysis.pdf 997995\nPDF /workspace/assets/NESR_Revenue_Structure_Analysis.pdf 997998\nNESR rev px=26.96 pt=33.0 upside=22.4% earn=08-18 compete=True\n"
-    },
-    {
-      "ticker": "RELY",
-      "ok": true,
-      "skipped": false,
-      "asof": "2026-07-30",
-      "compete": true,
-      "price": true,
-      "pdfs": [
-        "/opt/cursor/artifacts/RELY_Revenue_Structure_Analysis.pdf",
-        "/workspace/reports/RELY_Revenue_Structure_Analysis.pdf",
-        "/workspace/assets/RELY_Revenue_Structure_Analysis.pdf"
-      ],
-      "log_tail": "price-charts /workspace/reports/charts/rely/00a_price_candle.png /workspace/reports/charts/rely/00b_price_momentum.png\nHTML /workspace/reports/RELY_Revenue_Structure_Analysis.html 1248053\nPDF /opt/cursor/artifacts/RELY_Revenue_Structure_Analysis.pdf 1012600\nPDF /workspace/reports/RELY_Revenue_Structure_Analysis.pdf 1012602\nPDF /workspace/assets/RELY_Revenue_Structure_Analysis.pdf 1012598\n"
+      "error": "경쟁사 챕터(sepa.rev_compete) 미포함 — 템플릿 무관 필수. generate_revenue_structure_asth.py에 build_compete_charts + PEER_PROFILES 연결 후 재실행."
     }
   ]
 }
