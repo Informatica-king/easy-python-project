@@ -12,7 +12,8 @@ Usage:
 Notes:
   - 티커마다 ``reports/generate_revenue_structure_<ticker>.py`` 가 있어야 함.
   - SCHD 등 ETF/생성기 없는 티커는 skip.
-  - 생성기 품질은 티커별로 다름(최신 compete 포함 여부는 --list 참고).
+  - **필수:** 모든 생성기는 ``sepa.rev_compete.build_compete_charts`` +
+    경쟁 점유/매출믹스 챕터를 포함해야 함 (템플릿 무관). ``--list`` 의 COMPETE=Y 확인.
 """
 
 from __future__ import annotations
@@ -134,6 +135,18 @@ def run_one(ticker: str, *, python: str = sys.executable) -> dict:
             "skipped": True,
             "reason": f"생성기 없음: reports/generate_revenue_structure_{t.lower()}.py",
         }
+    if not info.has_compete:
+        return {
+            "ticker": t,
+            "ok": False,
+            "skipped": False,
+            "asof": info.asof,
+            "compete": False,
+            "error": (
+                f"경쟁사 챕터(sepa.rev_compete) 미포함 — 템플릿 무관 필수. "
+                f"{info.script.name}에 build_compete_charts + PEER_PROFILES 연결 후 재실행."
+            ),
+        }
     env = {**os.environ, "PYTHONPATH": str(ROOT / "src")}
     try:
         proc = subprocess.run(
@@ -241,6 +254,11 @@ def main(argv: list[str] | None = None) -> int:
             info = _discover(t)
             if not info:
                 print(f"  MISS {t}: 생성기 없음")
+            elif not info.has_compete:
+                print(
+                    f"  FAIL {t}: asof={info.asof} price={info.has_price} "
+                    f"compete=False (경쟁사 챕터 필수 — PEER_PROFILES + build_compete_charts)"
+                )
             else:
                 print(
                     f"  OK   {t}: asof={info.asof} price={info.has_price} "

@@ -75,6 +75,44 @@ def test_nesr_profile_exists():
     assert abs(p["mix_rows"][0]["mix"]["Production Services"] - 60.0) < 0.1
 
 
+def test_zd_vsat_anab_syre_dnth_profiles_exist():
+    """2026-08-12 수익구조 대상 — compete chapter mandatory profiles."""
+    for t, subject_name in (
+        ("ZD", "Ziff Davis"),
+        ("VSAT", "Viasat"),
+        ("ANAB", "Anaptys"),
+        ("SYRE", "Spyre"),
+        ("DNTH", "Dianthus"),
+    ):
+        p = get_profile(t)
+        assert p is not None, t
+        assert any(r.get("subject") for r in p["mix_rows"]), t
+        assert any(subject_name.lower() in str(r[0]).lower() for r in p["share_rows"]), t
+
+
+def test_scsc_profile_exists():
+    p = get_profile("SCSC")
+    assert p is not None
+    assert any(r.get("subject") for r in p["mix_rows"])
+    assert p["share_rows"][4][0] == "ScanSource"
+    assert "Hardware Dist" in p["mix_buckets"]
+    assert abs(p["mix_rows"][0]["mix"]["Hardware Dist"] - 90.0) < 0.1
+
+
+def test_build_compete_charts_requires_profile(tmp_path):
+    from sepa.rev_compete import CompeteProfileError, build_compete_charts
+
+    try:
+        build_compete_charts("ZZZZNOPE", tmp_path, require=True)
+        assert False, "expected CompeteProfileError"
+    except CompeteProfileError as exc:
+        assert "PEER_PROFILES" in str(exc)
+
+    bundle, paths = build_compete_charts("ZZZZNOPE", tmp_path, require=False)
+    assert bundle is None
+    assert paths == {}
+
+
 def test_load_bundle_offline_share(monkeypatch):
     monkeypatch.setattr("sepa.rev_compete._ttm_revenue", lambda _t: None)
     b = load_compete_bundle("RELY")
