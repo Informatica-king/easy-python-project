@@ -380,16 +380,29 @@ def build_css() -> str:
     .tag {{ display:inline-block; background:#bee3f8; padding:1px 6px; border-radius:3px; font-size:8pt; margin:1px; }}
     .conclusion td:first-child {{ font-weight:bold; width:22%; background:#f7fafc; }}
     .portfolio-box {{ background:#fffaf0; border:1px solid #d69e2e; padding:10px; margin:10px 0; }}
+    .exec-banner {{ background:#ecfdf5; border:3px solid #0f766e; padding:14px 16px; margin:12px 0;
+      text-align:left; }}
+    .exec-banner .title {{ font-size:13pt; font-weight:bold; color:#065f46; margin:0 0 6px; }}
+    .exec-banner .tickers {{ font-size:14pt; font-weight:bold; color:#064e3b; letter-spacing:0.02em; }}
+    .exec-empty {{ background:#f8fafc; border:1px dashed #94a3b8; padding:12px; margin:12px 0; color:#475569; }}
+    tr.exec-hit td {{ background:#d1fae5 !important; font-weight:bold; }}
+    .tag-exec {{ background:#059669; color:#fff; font-weight:bold; }}
     .small {{ font-size:8pt; color:#555; }}
     """
 
 
-def ticker_section(q: dict) -> str:
+def ticker_section(q: dict, *, exec_hit: bool = False) -> str:
     t = q["t"]
+    exec_tag = (
+        '<span class="tag tag-exec">★ 본선∩GO 실행후보 · 저녁창 지정가</span>'
+        if exec_hit
+        else ""
+    )
     return f"""
     <section class="ticker-section" id="{esc(t)}">
       <div class="ticker-head">#{q['rank']} {esc(t)} — {esc(q.get('name', t))}</div>
       <div>
+        {exec_tag}
         <span class="tag">현재 {fmt_usd_price(q['px'])}</span>
         <span class="tag">PT {fmt_usd_price(q['ptL'])}–{fmt_usd_price(q['ptH'])} (평균 {fmt_usd_price(q['ptA'])})</span>
         <span class="tag">업사이드 {fmt_pct(q['upside'])}</span>
@@ -438,20 +451,53 @@ def load_buy_scenarios() -> list[dict]:
     return list(raw)
 
 
-def buy_scenario_section(scenarios: list[dict]) -> str:
+def buy_scenario_section(
+    scenarios: list[dict],
+    *,
+    exec_hits: list[dict] | None = None,
+) -> str:
+    from sepa.timing_gate import ALLOW_GO_B_EXEC
+
     a = [s for s in scenarios if s.get("scenario") == "A"]
     b = [s for s in scenarios if s.get("scenario") == "B"]
     soft = [s for s in scenarios if s.get("scenario") == "SOFT"]
+    hits = exec_hits or []
+    hit_set = {str(h["ticker"]).upper() for h in hits}
+
+    if hits:
+        names = " · ".join(
+            f"{h['ticker']}(#{h['rank']}·{h['timing']})" for h in hits
+        )
+        banner = (
+            "<div class='exec-banner'>"
+            "<div class='title'>★ 본선 ∩ 타이밍 GO — 오늘 실행후보 (최우선 강조)</div>"
+            f"<div class='tickers'>{esc(names)}</div>"
+            "<p class='small' style='margin:8px 0 0;color:#065f46'>"
+            "좋은 종목(Chase 본선)과 좋은 자리(GO_A)가 겹친 종목입니다. "
+            "저녁창 KR 17:30~20:55 <b>지정가</b> · 상한=종가+1.5% · 갭+2% VOID · 시장가·돌파추격 금지."
+            "</p></div>"
+        )
+    else:
+        banner = (
+            "<div class='exec-empty'>"
+            "<b>오늘은 본선 ∩ GO 공집합</b> — 타이밍 히트만 있거나, 본선만 있을 수 있음. "
+            "실행후보 없음 → 워치·현금 유지. (GO_A가 있어도 Chase 중하/과열이면 강조하지 않음)"
+            "</div>"
+        )
+
     head = (
         "<div class='portfolio-box' style='border-color:#0f766e;background:#f0fdfa'>"
         "<b>매수 신호 구조 (2026-08 개편)</b> — "
         "<b>① 본선(Chase 좋은 종목)</b> ∩ <b>② 타이밍 GO</b> → 실행. "
         "아래 A/B/SOFT는 <u>타이밍만</u> (종목 선발이 아님). "
-        f"GO_A(구 A′) {len(a)} · GO_B(구 B·프리마켓 기본 WAIT) {len(b)} · WAIT/SOFT {len(soft)}. "
-        "실행창 KR 17:30~20:55 지정가.</div>"
+        f"GO_A {len(a)} · GO_B {len(b)}"
+        f"{' (프리마켓 기본 WAIT)' if not ALLOW_GO_B_EXEC else ''} · WAIT/SOFT {len(soft)}. "
+        f"본선∩GO 강조 <b>{len(hits)}</b>건."
+        "</div>"
     )
     rows = []
     for s in a + b + soft:
+        t = str(s.get("t") or "").upper()
         timing = {"A": "GO_A", "B": "WAIT(B비실행)", "SOFT": "WAIT"}.get(
             str(s.get("scenario") or "").upper(), "WAIT"
         )
@@ -460,8 +506,11 @@ def buy_scenario_section(scenarios: list[dict]) -> str:
         )
         if s.get("above200") and s.get("align"):
             note = (note + " · " if note else "") + "정배열"
+        if t in hit_set:
+            note = "★본선∩GO · " + (note or "실행후보")
+        tr_cls = " class='exec-hit'" if t in hit_set else ""
         rows.append(
-            "<tr>"
+            f"<tr{tr_cls}>"
             f"<td><b>{esc(timing)}</b></td>"
             f"<td class='small'>{esc(s.get('scenario'))}</td>"
             f"<td><b>{esc(s.get('t'))}</b></td>"
@@ -485,13 +534,12 @@ def buy_scenario_section(scenarios: list[dict]) -> str:
     gloss = (
         "<p class='small'>"
         "<b>좋은 종목</b>=Chase 본선(상/중상…) · "
-        "<b>좋은 타이밍</b>=GO_A 눌림(구 A′: MA200위+정배열+MA20/스윙L+RSI42–62+고점−1%~−8%+volOK). "
-        "GO_B 돌파는 군인 프리마켓 OS에서 기본 WAIT. "
-        "확정 실적 D−5만 하드블록(earn_confirmed/portfolio · 추정일은 주의). "
-        "WAIT 종목은 후보에서 지우지 않음."
+        "<b>좋은 타이밍</b>=GO_A 눌림. "
+        "초록 강조행 = 본선∩GO 실행후보. "
+        "확정 실적 D−5만 하드블록. WAIT는 삭제하지 않음."
         "</p>"
     )
-    return f"<h2>0. 매수 신호 — 본선 ∩ 타이밍 (적극 고지)</h2>{head}{table}{gloss}"
+    return f"<h2>0. 매수 신호 — 본선 ∩ 타이밍 (적극 고지)</h2>{banner}{head}{table}{gloss}"
 
 
 
@@ -516,6 +564,17 @@ def main() -> None:
             "px": r["px"],
             "earn_date": r.get("earnDate"),
         })
+
+    from sepa.pick_pool import find_pick_go_hits
+
+    exec_hits = find_pick_go_hits(
+        {"rows": chase_rows},
+        {"rows": scenarios},
+        as_of=REPORT_DATE,
+    )
+    exec_tickers = {str(h["ticker"]).upper() for h in exec_hits}
+    print(f"본선∩GO hits: {[h['ticker'] for h in exec_hits] or '(없음)'}")
+
     CHASE_OUT.parent.mkdir(parents=True, exist_ok=True)
     CHASE_OUT.write_text(
         json.dumps({"as_of": DATE_STR, "source": "심층분석", "rows": chase_rows, "buy_scenarios": scenarios}, ensure_ascii=False, indent=2),
@@ -535,7 +594,9 @@ def main() -> None:
             f"<td class='chase'><b>{esc(q.get('chase'))}</b><br/>{esc(q.get('chase_detail'))}</td></tr>"
         )
 
-    body = "".join(ticker_section(tickers[t]) for t in order)
+    body = "".join(
+        ticker_section(tickers[t], exec_hit=(t in exec_tickers)) for t in order
+    )
     final_rows = []
     for t in order:
         q = tickers[t]
@@ -549,6 +610,24 @@ def main() -> None:
     n_a = sum(1 for s in scenarios if s.get("scenario") == "A")
     n_b = sum(1 for s in scenarios if s.get("scenario") == "B")
     n_soft = sum(1 for s in scenarios if s.get("scenario") == "SOFT")
+    n_exec = len(exec_hits)
+    exec_cover = (
+        (
+            "<div class='exec-banner' style='max-width:560px;margin:16px auto;text-align:left'>"
+            "<div class='title'>★ 본선∩GO 실행후보</div>"
+            "<div class='tickers'>"
+            + esc(" · ".join(f"{h['ticker']}(#{h['rank']})" for h in exec_hits))
+            + "</div>"
+            "<p class='small' style='margin:6px 0 0;color:#065f46'>"
+            "표지에서 바로 확인 · 상세는 0장 · 저녁창 지정가</p></div>"
+        )
+        if exec_hits
+        else (
+            "<div class='exec-empty' style='max-width:560px;margin:16px auto;text-align:left'>"
+            f"본선∩GO <b>0</b> · GO_A {n_a} / SOFT {n_soft} — 오늘은 실행 강조 없음"
+            "</div>"
+        )
+    )
 
     doc = f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"/>
     <title>NASDAQ 심층분석 {DATE_TAG}</title><style>{build_css()}</style></head><body>
@@ -556,10 +635,12 @@ def main() -> None:
       <h1>NASDAQ 심층분석</h1>
       <p class="sub">Chase 본선 · 타이밍 GO · 확정 EARN_D5 · 60종 · 군인 프리마켓 실행</p>
       <p class="meta">기준일 {DATE_TAG} · 라이브 가격/PT/실적일 · earn_confirmed SSOT · 종료 후 기술적분석 자동</p>
+      {exec_cover}
       <div class="portfolio-box" style="text-align:left;max-width:560px;margin:24px auto;">
         <b>매수 신호 요약 (본선 ∩ 타이밍)</b><br/>
-        GO_A(A) <b>{n_a}</b> · GO_B(B·기본 WAIT) <b>{n_b}</b> · WAIT/SOFT {n_soft}<br/>
-        {"→ 타이밍 히트는 0장 · 실행은 본선∩GO만 · 저녁창 지정가" if (n_a or n_b) else "→ <b>오늘은 GO_A 없음 · 본선 워치·현금 유지</b>"}
+        GO_A(A) <b>{n_a}</b> · GO_B(B·기본 WAIT) <b>{n_b}</b> · WAIT/SOFT {n_soft} ·
+        <b>실행강조 {n_exec}</b><br/>
+        {"→ ★ 초록 배너 종목 = 저녁창 지정가 최우선" if n_exec else "→ 본선∩GO 없음 · 워치·현금 유지"}
       </div>
       <div class="portfolio-box" style="text-align:left;max-width:560px;margin:16px auto;">
         <b>포트 실행 메모 (8/12 스냅)</b><br/>
@@ -569,7 +650,7 @@ def main() -> None:
         ANAB Yahoo 8/12=추정(확정 SSOT 미수록·하드블록 아님) · 실행창 17:30~20:55 지정가 · PDF=GitHub Release만
       </div>
     </section>
-    {buy_scenario_section(scenarios)}
+    {buy_scenario_section(scenarios, exec_hits=exec_hits)}
     <h2>Surprise / Chase 요약</h2>
     <p class="small">정렬: Chase RR. 가격·PT는 {DATE_TAG} 라이브. 60종 · 신규: BLZE·FSLY·ICUI·NVCR·TILE·DIOD·DXCM·TSEM·NTRA·LITE·ATEX·ANAB·APA·HALO·BCRX 등.<br/>
     가산: 경쟁점유 Δ≥+0.3pp → +0.35 (마진유지 시 +0.15 추가 · 마진악화 시 가산취소). 해당 종목 strat/Chase에 코멘트.</p>
@@ -605,6 +686,7 @@ def main() -> None:
         notes = (
             f"## NASDAQ 심층분석 ({DATE_TAG}) · {len(order)}종 · earn SSOT retest\n\n"
             f"Chase 본선 ∩ 타이밍 GO · earn_confirmed.yaml\n\n"
+            f"- **본선∩GO 실행강조:** {n_exec} · {', '.join(h['ticker'] for h in exec_hits) or '없음'}\n"
             f"- **GO_A(A):** {n_a} · **GO_B(B):** {n_b} · **WAIT(SOFT):** {n_soft}\n"
             f"- Top Chase: {', '.join(order[:10])}\n"
             f"- ANAB 8/12=estimate (not confirmed hard-block)\n"

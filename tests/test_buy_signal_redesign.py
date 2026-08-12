@@ -167,6 +167,31 @@ def test_timing_constants_exported():
     assert BREAKOUT_PCT == 0.0
 
 
+def test_find_pick_go_hits_highlights_overlap():
+    from sepa.pick_pool import find_pick_go_hits
+
+    chase = {
+        "rows": [
+            {"rank": 1, "ticker": "ANAB", "chase": "상", "px": 57.0},
+            {"rank": 2, "ticker": "ZD", "chase": "중하", "px": 53.0},
+            {"rank": 3, "ticker": "BCRX", "chase": "상", "px": 10.0},
+        ]
+    }
+    scenarios = {
+        "rows": [
+            {"t": "ANAB", "scenario": "A", "rsi": 50, "pct_hi": -0.05, "px": 57.0},
+            {"t": "ZD", "scenario": "A", "rsi": 54, "pct_hi": -0.08, "px": 53.0},
+            {"t": "BCRX", "scenario": "SOFT", "rsi": 55, "pct_hi": -0.10, "px": 10.0},
+        ]
+    }
+    hits = find_pick_go_hits(chase, scenarios, as_of=date(2026, 8, 12))
+    tickers = [h["ticker"] for h in hits]
+    assert "ANAB" in tickers  # 본선 ∩ GO_A
+    assert "ZD" not in tickers  # Chase 중하 → 비본선
+    assert "BCRX" not in tickers  # 본선 but WAIT
+    assert hits[0]["timing"] == "GO_A"
+
+
 def test_evaluate_timing_go_a_and_block():
     go = evaluate_timing_metrics(
         ticker="X",
