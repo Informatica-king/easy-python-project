@@ -1,7 +1,7 @@
 # 매수 신호 개편 — 본선(좋은 종목) ∩ 타이밍 GO + 군인 프리마켓 실행
 
-**상태:** 구현 착수 · 패키지 1~2 코드 반영 (2026-08-12)  
-**관련:** `sepa.pick_pool` · `sepa.timing_gate` · `sepa.earn_calendar` · `portfolio_ops.filter_buy_ideas`
+**상태:** 패키지 1~3 반영 (2026-08-12) — pick∩GO · shared `buy_scenarios` · earn confirmed/estimate  
+**관련:** `sepa.pick_pool` · `sepa.timing_gate` · `sepa.earn_calendar` · `sepa.buy_scenarios` · `portfolio_ops.filter_buy_ideas`
 
 ---
 
@@ -42,10 +42,13 @@ buy_score L1/L2/L3 → 실행후보 순위만
 |------|------|
 | `sepa.pick_pool` | 좋은 종목 본선 |
 | `sepa.timing_gate` | GO_A/GO_B/WAIT/BLOCK (`ALLOW_GO_B_EXEC=False`) |
-| `sepa.earn_calendar` | confirmed vs estimate · 확정만 하드블록 |
+| `sepa.earn_calendar` | confirmed vs estimate · 확정만 하드블록 · `load_confirmed_earn_map` |
+| `sepa.buy_scenarios` | 공유 타이밍 스캐너 → `buy_scenarios_*.json` (날짜별 스크립트는 thin wrapper) |
 | `sepa.chase_select` | 본선 포함/제외 규칙 |
 | `sepa.portfolio_ops` | 필터·저녁창 액션 |
 | `sepa.buy_score` | 실행후보 순위 (입력만 본선∩GO로 바뀜) |
+
+CLI: `PYTHONPATH=src python -m sepa.buy_scenarios --asof YYYY-MM-DD --rank reports/rank_YYYYMMDD.json`
 
 ---
 

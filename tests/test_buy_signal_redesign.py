@@ -1,11 +1,19 @@
 """Tests for earn_calendar + timing_gate + pick_pool + redesigned filter_buy_ideas."""
 
 from datetime import date
+from pathlib import Path
 
-from sepa.earn_calendar import EarnDateInfo, earn_info_from_row
+from sepa.buy_scenarios import resolve_earn
+from sepa.earn_calendar import EarnDateInfo, earn_info_from_row, load_confirmed_earn_map
 from sepa.pick_pool import build_pick_pool
 from sepa.portfolio_ops import BuyIdea, HoldingRow, PortfolioBook, filter_buy_ideas
-from sepa.timing_gate import ALLOW_GO_B_EXEC, timing_from_scenario_row
+from sepa.timing_gate import (
+    ALLOW_GO_B_EXEC,
+    BREAKOUT_PCT,
+    SWING_LOOKBACK,
+    evaluate_timing_metrics,
+    timing_from_scenario_row,
+)
 
 
 def test_earn_estimate_does_not_hard_block():
@@ -135,3 +143,59 @@ def test_filter_chase_first_anab_wait_without_go():
     assert by["ANAB"].timing == "WAIT"
     # ZD is chase-excluded even if timing GO
     assert by["ZD"].bucket == "금지"
+
+
+def test_load_confirmed_earn_map_from_ssot():
+    m = load_confirmed_earn_map(Path("config/portfolio_watch.yaml"))
+    assert m["SCSC"] == date(2026, 8, 20)
+    assert m["CMPR"] == date(2026, 10, 28)
+    assert "NESR" not in m  # exited
+
+
+def test_resolve_earn_prefers_portfolio_confirmed():
+    confirmed = {"SCSC": date(2026, 8, 20)}
+    e = resolve_earn("SCSC", {"earnDate": "2026-09-01"}, confirmed_map=confirmed)
+    assert e.source == "confirmed"
+    assert e.earn_date == date(2026, 8, 20)
+    e2 = resolve_earn("ANAB", {"earnDate": "2026-08-12"}, confirmed_map={})
+    assert e2.source == "estimate"
+    assert e2.earn_date == date(2026, 8, 12)
+
+
+def test_timing_constants_exported():
+    assert SWING_LOOKBACK == 20
+    assert BREAKOUT_PCT == 0.0
+
+
+def test_evaluate_timing_go_a_and_block():
+    go = evaluate_timing_metrics(
+        ticker="X",
+        above200=True,
+        align=True,
+        near_ma20=True,
+        near_swing_l=False,
+        rsi=50.0,
+        pct_hi=-0.05,
+        vol_ok=True,
+        vol_hot=False,
+        breakout=False,
+        as_of=date(2026, 8, 12),
+    )
+    assert go.status == "GO_A"
+    assert go.legacy_scenario == "A"
+    blocked = evaluate_timing_metrics(
+        ticker="SCSC",
+        above200=True,
+        align=True,
+        near_ma20=True,
+        near_swing_l=False,
+        rsi=50.0,
+        pct_hi=-0.05,
+        vol_ok=True,
+        vol_hot=False,
+        breakout=False,
+        earn=EarnDateInfo(date(2026, 8, 20), "confirmed"),
+        as_of=date(2026, 8, 18),
+    )
+    assert blocked.status == "BLOCK"
+    assert blocked.legacy_scenario == ""

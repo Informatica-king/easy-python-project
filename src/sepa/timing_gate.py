@@ -26,6 +26,8 @@ TimingStatus = Literal["GO_A", "GO_B", "WAIT", "BLOCK"]
 # Thresholds (aligned with former RS≥70 A′ agreement — name only; RS not computed here)
 NEAR_MA20_PCT = 3.0
 NEAR_SWING_L_PCT = 3.0
+SWING_LOOKBACK = 20
+BREAKOUT_PCT = 0.0  # close >= swing high
 VOL_OK_RATIO = 0.8
 VOL_HOT_RATIO = 1.5
 RSI_A_LO, RSI_A_HI = 42.0, 62.0

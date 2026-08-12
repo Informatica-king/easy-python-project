@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, datetime
+from pathlib import Path
 from typing import Any, Literal
 
 EarnSource = Literal["confirmed", "estimate", "unknown"]
@@ -91,3 +92,26 @@ def earn_info_from_holding(earn_date: date | None) -> EarnDateInfo:
     if earn_date is None:
         return EarnDateInfo(None, "unknown")
     return EarnDateInfo(earn_date, "confirmed", "portfolio_watch SSOT")
+
+
+def load_confirmed_earn_map(path: str | Path) -> dict[str, date]:
+    """Read portfolio_watch.yaml holdings → {TICKER: earn_date} as confirmed SSOT.
+
+    Watchlist/exited entries without earn_date are ignored. Holdings win on
+    duplicate tickers. Empty/missing path → {}.
+    """
+    import yaml
+
+    p = Path(path)
+    if not p.exists():
+        return {}
+    raw = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    out: dict[str, date] = {}
+    for h in raw.get("holdings") or []:
+        if not h or h.get("role") == "exited":
+            continue
+        t = str(h.get("ticker") or "").strip().upper()
+        ed = parse_earn_date(h.get("earn_date"))
+        if t and ed is not None:
+            out[t] = ed
+    return out

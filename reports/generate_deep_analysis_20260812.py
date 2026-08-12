@@ -603,8 +603,8 @@ def main() -> None:
 
         notes = (
             f"## NASDAQ 심층분석 ({DATE_TAG}) · {len(order)}종\n\n"
-            f"Chase RR + 점유가산 · 매수시나리오 A′/B/SOFT\n\n"
-            f"- **A′:** {n_a} · **B:** {n_b} · **SOFT:** {n_soft}\n"
+            f"Chase 본선 · 타이밍 GO_A/GO_B/WAIT (legacy A/B/SOFT)\n\n"
+            f"- **GO_A(A):** {n_a} · **GO_B(B):** {n_b} · **WAIT(SOFT):** {n_soft}\n"
             f"- Top Chase: {', '.join(order[:10])}\n"
         )
         rel = publish_deep_pdf_release(PDF_WORKSPACE, as_of=DATE_TAG, notes=notes)
