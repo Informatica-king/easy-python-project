@@ -471,6 +471,7 @@ def buy_scenario_section(scenarios: list[dict]) -> str:
             f"<td>{'Y' if s.get('near_l') or s.get('near_ma20') else '—'}</td>"
             f"<td>{'Y' if s.get('breakout') else '—'}</td>"
             f"<td>D{s.get('edays')}</td>"
+            f"<td class='small'>{esc(s.get('earn_source') or '—')}</td>"
             f"<td class='small'>{esc(note or '—')}</td>"
             "</tr>"
         )
@@ -478,7 +479,7 @@ def buy_scenario_section(scenarios: list[dict]) -> str:
     if rows:
         table = (
             "<table><tr><th>타이밍</th><th>구표기</th><th>티커</th><th>가격</th><th>RSI</th>"
-            "<th>고점대비</th><th>지지</th><th>돌파</th><th>실적</th><th>메모</th></tr>"
+            "<th>고점대비</th><th>지지</th><th>돌파</th><th>실적</th><th>출처</th><th>메모</th></tr>"
             + "".join(rows) + "</table>"
         )
     gloss = (
@@ -486,7 +487,7 @@ def buy_scenario_section(scenarios: list[dict]) -> str:
         "<b>좋은 종목</b>=Chase 본선(상/중상…) · "
         "<b>좋은 타이밍</b>=GO_A 눌림(구 A′: MA200위+정배열+MA20/스윙L+RSI42–62+고점−1%~−8%+volOK). "
         "GO_B 돌파는 군인 프리마켓 OS에서 기본 WAIT. "
-        "확정 실적 D−5만 하드블록(추정일은 주의). "
+        "확정 실적 D−5만 하드블록(earn_confirmed/portfolio · 추정일은 주의). "
         "WAIT 종목은 후보에서 지우지 않음."
         "</p>"
     )
@@ -553,19 +554,19 @@ def main() -> None:
     <title>NASDAQ 심층분석 {DATE_TAG}</title><style>{build_css()}</style></head><body>
     <section class="cover">
       <h1>NASDAQ 심층분석</h1>
-      <p class="sub">Chase Risk-Reward · 매수시나리오 A/B 점검 · 60종목 · A′ 게이트</p>
-      <p class="meta">기준일 {DATE_TAG} · 라이브 가격/PT/실적일 · 종료 후 기술적분석 자동</p>
+      <p class="sub">Chase 본선 · 타이밍 GO · 확정 EARN_D5 · 60종 · 군인 프리마켓 실행</p>
+      <p class="meta">기준일 {DATE_TAG} · 라이브 가격/PT/실적일 · earn_confirmed SSOT · 종료 후 기술적분석 자동</p>
       <div class="portfolio-box" style="text-align:left;max-width:560px;margin:24px auto;">
-        <b>매수 시나리오 요약</b><br/>
-        A(눌림) <b>{n_a}</b> · B(돌파) <b>{n_b}</b> · SOFT(근접) {n_soft}<br/>
-        {"→ 해당 종목은 아래 0장에서 적극 고지" if (n_a or n_b) else "→ <b>오늘은 A/B 없음 · 신규매수보다 관망/정리</b>"}
+        <b>매수 신호 요약 (본선 ∩ 타이밍)</b><br/>
+        GO_A(A) <b>{n_a}</b> · GO_B(B·기본 WAIT) <b>{n_b}</b> · WAIT/SOFT {n_soft}<br/>
+        {"→ 타이밍 히트는 0장 · 실행은 본선∩GO만 · 저녁창 지정가" if (n_a or n_b) else "→ <b>오늘은 GO_A 없음 · 본선 워치·현금 유지</b>"}
       </div>
       <div class="portfolio-box" style="text-align:left;max-width:560px;margin:16px auto;">
         <b>포트 실행 메모 (8/12 스냅)</b><br/>
         보유: TXG4 · CMPR2 · ECPG2 · AMRX10 · FTNT1 · SCSC3 · 주식~$1,097 · 현금합≈$548<br/>
         NESR 08-11 전량매도(익절) · LASR/RELY 기청산 · 등급한도 A≤18% B≤10% C≤6% · 전원 NO_ADD<br/>
-        TXG 천장OVER(~21%) · SCSC stop/$51 경계·EARN~08-20 · AMRX −8.7% stop접근<br/>
-        유니버스 60종(CMPR·SCSC 미포함·보유만) · A′ 보유 히트=NO_ADD · PDF=GitHub Release만
+        TXG 천장OVER(~21%) · SCSC 확정 EARN~08-20(D5) · AMRX −8.7% stop접근<br/>
+        ANAB Yahoo 8/12=추정(확정 SSOT 미수록·하드블록 아님) · 실행창 17:30~20:55 지정가 · PDF=GitHub Release만
       </div>
     </section>
     {buy_scenario_section(scenarios)}
@@ -602,10 +603,11 @@ def main() -> None:
         from sepa.artifacts import print_release_result, publish_deep_pdf_release
 
         notes = (
-            f"## NASDAQ 심층분석 ({DATE_TAG}) · {len(order)}종\n\n"
-            f"Chase 본선 · 타이밍 GO_A/GO_B/WAIT (legacy A/B/SOFT)\n\n"
+            f"## NASDAQ 심층분석 ({DATE_TAG}) · {len(order)}종 · earn SSOT retest\n\n"
+            f"Chase 본선 ∩ 타이밍 GO · earn_confirmed.yaml\n\n"
             f"- **GO_A(A):** {n_a} · **GO_B(B):** {n_b} · **WAIT(SOFT):** {n_soft}\n"
             f"- Top Chase: {', '.join(order[:10])}\n"
+            f"- ANAB 8/12=estimate (not confirmed hard-block)\n"
         )
         rel = publish_deep_pdf_release(PDF_WORKSPACE, as_of=DATE_TAG, notes=notes)
         print_release_result(rel, label="심층분석 PDF")
