@@ -1,6 +1,10 @@
-"""Chase RR snapshot I/O and buy-candidate selection for 기술적분석().
+"""Chase RR snapshot I/O and **pick-pool** selection (좋은 종목 본선).
 
-See docs/korean_commands.md for the Korean command contract and rules.
+Used by:
+- ``기술적분석()`` shortlist
+- ``포폴()`` / ``sepa.pick_pool`` — primary stock quality universe
+
+Timing (GO/WAIT) is separate — see ``sepa.timing_gate``.
 """
 
 from __future__ import annotations

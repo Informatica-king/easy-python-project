@@ -137,3 +137,6 @@ def test_filter_buy_ideas_buckets():
     assert by["FTNT"].bucket == "금지"  # negative upside
     assert by["NESR"].bucket == "금지"  # held NO_ADD
     assert by["ALKS"].bucket == "워치"
+    # Redesign fields
+    assert by["CMPR"].timing == "GO_A"
+    assert by["ALKS"].timing == "WAIT"

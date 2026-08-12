@@ -228,12 +228,10 @@ def render_html(bundle: EconNewsBundle) -> str:
     held = [p.ticker for p in bundle.portfolio if p.role == "hold"]
     n_held = len(held) or 7
     checklist = [
-        f"장 시작 전: 보유 {n_held}종(ECPG·AMRX·LASR·TXG·NESR·CMPR·RELY) 호가·갭 확인",
-        "EARN_D5: ECPG·RELY(08-05) · LASR·TXG(08-06) — 추가/분할 금지",
-        "NESR: 25–27 USD 밴드 · NO_ADD · stop $24",
-        "TXG: 3주·품질C한도OVER(~15%) · NO_ADD·물타기 금지 · stop $42",
-        "CMPR: 품질C 1주@98.70 · NO_ADD · stop $90",
-        "SCHD 청산 유지 · 완충=현금바닥 $150",
+        f"저녁창(17:30~20:55) 전: 보유 {n_held}종 호가·갭 확인 · 시장가/돌파추격 금지",
+        "매수 = 본선(Chase) ∩ 타이밍 GO · WAIT는 워치 유지 · 지정가·상한·갭VOID",
+        "확정 EARN_D5만 신규/분할 하드블록 · 추정 실적일은 주의",
+        "보유 전원 NO_ADD · 물타기 금지 · SCHD 재매수 비우선",
         "현금바닥 $150 유지 · 동일종목 중복주문 금지",
     ]
 
@@ -318,15 +316,15 @@ def render_html(bundle: EconNewsBundle) -> str:
 </table>
 <div class="box">
 <b>배분과의 연결 (현행 룰)</b><br/>
-품질등급 A≤18%·B≤10%·C≤6% · 절대천장20% · Top3≤50% · 전원 NO_ADD(유효금지) ·
-ECPG/AMRX/LASR/TXG/NESR/CMPR/RELY · SCHD 청산(완충=현금) · 현금바닥 $150 ·
-실적주간(08-05~06) 갭추격 금지
+품질등급 A≤18%·B≤10%·C≤6% · 절대천장20% · Top3≤50% · 보유 NO_ADD ·
+매수=본선∩GO · 저녁창 지정가 · SCHD 청산(완충=현금) · 현금바닥 $150 ·
+확정 EARN_D5만 하드블록 · 갭추격 금지
 </div>
 
 <h2>5. 다음 장·오늘은 이렇게</h2>
 <ol>{''.join(f"<li>{esc(c)}</li>" for c in checklist)}</ol>
 <p class="small">이 보고서는 ‘야간 브리핑’이지 매수 신호가 아닙니다.
-매수 타이밍은 기술적분석()/심층분석 Chase 규칙을 우선합니다.</p>
+매수 = 본선(Chase pick_pool) ∩ 타이밍 GO · 실행은 KR 17:30~20:55 지정가만.</p>
 
 <h2>6. 헤드라인 부록 (자동수집)</h2>
 <table>

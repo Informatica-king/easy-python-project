@@ -1,5 +1,8 @@
 """포폴() — portfolio ops brief: weights, events, buy filter, week plan.
 
+Buy filter (2026-08): pick_pool (Chase) x timing_gate (GO) -> 실행후보.
+See ``reports/BUY_SIGNAL_REDESIGN.md``.
+
 Consumes ``config/portfolio_watch.yaml`` (SSOT) + latest deep-analysis artifacts.
 """
 
@@ -96,13 +99,17 @@ class PortfolioBook:
 class BuyIdea:
     ticker: str
     bucket: str  # 실행후보 | 워치 | 금지
-    scenario: str
+    scenario: str  # legacy A|B|SOFT or timing status
     reason: str
     px: float | None = None
     upside: float | None = None
     earn_date: str | None = None
     chase: str | None = None
     sector: str | None = None
+    # pick × timing (2026-08 redesign)
+    pick_rank: int | None = None
+    timing: str | None = None  # GO_A | GO_B | WAIT | BLOCK
+    limit_hint: str | None = None  # soldier premkt execution card
     # filled by buy_score layer
     buy_score: Any = None
     score_recommend: str | None = None
@@ -388,18 +395,25 @@ def build_actions(book: PortfolioBook, ideas: list[BuyIdea] | None = None) -> li
 
         scored_pairs = [(i, i.buy_score) for i in ideas if i.buy_score is not None]
         top = top_exec_recommendation(scored_pairs) if scored_pairs else None
+    exec_go = [i for i in (ideas or []) if i.bucket == "실행후보"]
     if top and top.recommend == "1순위":
         do_list.append(f"실행 1순위: {top.ticker} ({top.score_label})")
     elif top and top.recommend == "극소/워치":
         do_list.append(f"실행 약한후보: {top.ticker} ({top.score_label}) · 극소만")
+    elif exec_go:
+        do_list.append(f"본선∩GO: {exec_go[0].ticker}" + (f" · {exec_go[0].limit_hint}" if exec_go[0].limit_hint else ""))
     else:
-        do_list.append("이번 주 실행 1순위 없음 (점수·게이트)")
+        do_list.append("이번 주 실행 없음 (본선∩타이밍GO 공집합) → 현금 유지")
 
-    dont.append("EARN_D5·NO_ADD 종목 추가/물타기")
-    dont.append("L1=0·마진악화·과열·업사이드 음수 추격")
+    # Soldier premkt card (KR 17:30–20:55 = US pre-market)
+    if exec_go and exec_go[0].limit_hint:
+        do_list.append(f"저녁창 주문: {exec_go[0].ticker} {exec_go[0].limit_hint}")
+
+    dont.append("확정 EARN_D5·NO_ADD 추가/물타기 · 시장가·돌파추격")
+    dont.append("L1=0·마진악화·과열·업사이드 음수 · 갭상한 초과(VOID)")
     if any(h.earn_date for h in book.holdings):
         nxt.append("실적 D+1~D+3: data/earn_guide_grades.yaml 등급 입력")
-    nxt.append("A′ 실행은 total≥2·실적창 밖·등급한도(A/B/C)·현금여유 확인 후")
+    nxt.append("본선(Chase)→타이밍GO→17:30~20:55 지정가 · 미체결 억지추격 금지")
     return [
         "할 일: " + " · ".join(do_list),
         "하지 말 일: " + " · ".join(dont),
@@ -440,79 +454,192 @@ def freshness_warning(as_of_s: str | None, today: date, *, max_days: int = FRESH
     return None
 
 
+def _limit_hint(px: float | None, *, ceiling_pct: float = 0.015) -> str | None:
+    """Soldier premkt card: limit ≤ prior close × (1+ceiling), C-size 1sh."""
+    if px is None or px <= 0:
+        return None
+    ceil = px * (1.0 + ceiling_pct)
+    return f"지정가≤${ceil:.2f}(종가+{ceiling_pct*100:.1f}%) · 1주 · 시장가금지 · 갭+2% VOID"
+
+
 def filter_buy_ideas(
     book: PortfolioBook,
     scenarios: dict[str, Any] | None,
     chase: dict[str, Any] | None,
 ) -> list[BuyIdea]:
+    """Buy ideas = pick_pool (좋은 종목) ∩ timing (GO/WAIT/BLOCK).
+
+    Pipeline (2026-08 redesign):
+    1. Pick pool from Chase (fallback: scenario rows)
+    2. Timing from buy_scenarios legacy A/B/SOFT → GO_A/GO_B/WAIT
+    3. 실행후보 only if pick ∩ timing.is_go
+    4. Confirmed EARN_D5 only hard-blocks (estimates warn)
+    """
+    from sepa.earn_calendar import earn_info_from_row
+    from sepa.pick_pool import build_pick_pool, chase_label_blocks_pick
+    from sepa.timing_gate import timing_from_scenario_row
+
     held = {h.ticker for h in book.holdings}
     no_add = {h.ticker for h in book.holdings if h.no_add}
-    chase_map = {}
+    asof = book.effective_date
+
+    scen_by: dict[str, dict[str, Any]] = {}
+    for r in (scenarios or {}).get("rows") or []:
+        t = str(r.get("t") or r.get("ticker") or "").upper()
+        if t:
+            scen_by[t] = r
+
+    chase_map: dict[str, dict[str, Any]] = {}
     if chase:
         for r in chase.get("rows") or []:
             t = str(r.get("ticker") or r.get("t") or "").upper()
             if t:
                 chase_map[t] = r
 
-    ideas: list[BuyIdea] = []
-    rows = (scenarios or {}).get("rows") or []
-    for r in rows:
-        t = str(r.get("t") or "").upper()
-        if not t:
+    picks = build_pick_pool(chase, scenarios)
+    pick_tickers = {p.ticker for p in picks}
+
+    # Also surface held NO_ADD / blocked scenario names for transparency
+    extra_tickers: set[str] = set()
+    for t in list(scen_by) + list(chase_map):
+        if t in held and t in no_add:
+            extra_tickers.add(t)
+        lab = str((chase_map.get(t) or {}).get("chase") or "")
+        if lab and chase_label_blocks_pick(lab) and t in scen_by:
+            extra_tickers.add(t)
+        row = scen_by.get(t) or {}
+        if row.get("upside") is not None and float(row["upside"]) < 0 and t in scen_by:
+            extra_tickers.add(t)
+
+    from sepa.pick_pool import PickRow
+
+    universe = list(picks)
+    seen = set(pick_tickers)
+    for t in sorted(extra_tickers):
+        if t in seen:
             continue
-        scen = str(r.get("scenario") or "")
-        ups = r.get("upside")
-        earn = r.get("earnDate") or r.get("earn_date")
-        chase_lab = (chase_map.get(t) or {}).get("chase") or ""
-        px = r.get("last") or r.get("px")
-        reason_bits = [f"{scen}"]
+        seen.add(t)
+        cr = chase_map.get(t) or {}
+        sr = scen_by.get(t) or {}
+        px = sr.get("last") if sr.get("last") is not None else sr.get("px")
+        if px is None:
+            px = cr.get("px")
+        universe.append(
+            PickRow(
+                ticker=t,
+                rank=int(cr.get("rank") or 999),
+                chase=str(cr.get("chase") or "—"),
+                px=float(px) if px is not None else None,
+                upside=float(sr["upside"]) if sr.get("upside") is not None else None,
+                earn_date=(
+                    str(sr.get("earnDate") or sr.get("earn_date") or cr.get("earn_date") or "")[:10]
+                    or None
+                ),
+                sector=str(sr.get("sector") or "") or None,
+                source="extra",
+            )
+        )
+
+    ideas: list[BuyIdea] = []
+    for p in universe:
+        t = p.ticker
+        sr = scen_by.get(t) or {}
+        chase_lab = p.chase or str((chase_map.get(t) or {}).get("chase") or "")
+        ups = p.upside if p.upside is not None else (
+            float(sr["upside"]) if sr.get("upside") is not None else None
+        )
+        px = p.px
+        if px is None and sr:
+            px = sr.get("last") if sr.get("last") is not None else sr.get("px")
+            px = float(px) if px is not None else None
+
+        if sr:
+            timing = timing_from_scenario_row(sr, as_of=asof)
+        else:
+            # Pick without timing row → WAIT (keep on watchlist)
+            from sepa.timing_gate import TimingResult
+
+            earn = earn_info_from_row(
+                {"earnDate": p.earn_date, "earn_source": "estimate"},
+                default_source="estimate",
+            )
+            if earn.blocks_new_buys(asof):
+                timing = TimingResult(t, "BLOCK", "", f"EARN_D5 확정 · {earn.earn_date}", earn_d5_confirmed=True)
+            else:
+                timing = TimingResult(t, "WAIT", "", "타이밍 WAIT(시나리오없음·본선유지)")
+
+        # Portfolio SSOT earn overrides to confirmed for held names
+        held_row = next((h for h in book.holdings if h.ticker == t), None)
+        if held_row and held_row.earn_date and in_earn_d5(held_row.earn_date, asof):
+            from sepa.timing_gate import TimingResult
+
+            timing = TimingResult(
+                t, "BLOCK", timing.legacy_scenario,
+                f"EARN_D5 확정(SSOT) · {held_row.earn_date}",
+                earn_d5_confirmed=True,
+            )
+
+        reason_bits = [f"본선#{p.rank}" if p.source != "extra" else "비본선", timing.reason]
+        if chase_lab and chase_lab != "—":
+            reason_bits.append(f"Chase {chase_lab}")
         if ups is not None:
             reason_bits.append(f"업사이드 {float(ups)*100:+.1f}%")
-        if r.get("rsi") is not None:
-            reason_bits.append(f"RSI{float(r['rsi']):.0f}")
-        if r.get("pct_hi") is not None:
-            reason_bits.append(f"고점{float(r['pct_hi'])*100:+.1f}%")
+        if timing.rsi is not None:
+            reason_bits.append(f"RSI{timing.rsi:.0f}")
+        if timing.pct_hi is not None:
+            reason_bits.append(f"고점{timing.pct_hi*100:+.1f}%")
 
+        in_pool = t in pick_tickers
         bucket = "워치"
         reason = " · ".join(reason_bits)
 
         if t in held and t in no_add:
             bucket = "금지"
             reason = f"보유·NO_ADD · {reason}"
-        elif in_earn_d5(_parse_date(earn), book.effective_date):
+        elif timing.status == "BLOCK" or timing.earn_d5_confirmed:
             bucket = "금지"
             reason = f"EARN_D5 · {reason}"
-        elif any(x in str(chase_lab) for x in ("과열", "매도", "중하", "하·")):
+        elif chase_label_blocks_pick(chase_lab):
             bucket = "금지"
-            reason = f"Chase {chase_lab} · {reason}"
+            reason = f"Chase 제외 · {reason}"
         elif ups is not None and float(ups) < 0:
             bucket = "금지"
             reason = f"업사이드 음수 · {reason}"
-        elif scen in ("A", "A'", "B"):
+        elif in_pool and timing.is_go:
             bucket = "실행후보"
-            reason = f"게이트통과 · {reason}"
-        elif scen == "SOFT":
+            reason = f"본선∩GO · {reason}"
+        elif in_pool:
             bucket = "워치"
-            reason = f"SOFT 근접 · {reason}"
+            reason = f"본선·자리대기 · {reason}"
         else:
             bucket = "워치"
+            reason = f"비본선 · {reason}"
 
         ideas.append(
             BuyIdea(
                 ticker=t,
                 bucket=bucket,
-                scenario=scen,
+                scenario=timing.legacy_scenario or timing.status,
                 reason=reason,
-                px=float(px) if px is not None else None,
+                px=px,
                 upside=float(ups) if ups is not None else None,
-                earn_date=str(earn)[:10] if earn else None,
-                chase=str(chase_lab) if chase_lab else None,
-                sector=str(r.get("sector") or "") or None,
+                earn_date=p.earn_date or (str(sr.get("earnDate") or "")[:10] or None),
+                chase=chase_lab or None,
+                sector=p.sector or (str(sr.get("sector") or "") or None),
+                pick_rank=p.rank if in_pool else None,
+                timing=timing.status,
+                limit_hint=_limit_hint(px) if bucket == "실행후보" else None,
             )
         )
 
     order = {"실행후보": 0, "워치": 1, "금지": 2}
-    ideas.sort(key=lambda x: (order.get(x.bucket, 9), x.ticker))
+    ideas.sort(
+        key=lambda x: (
+            order.get(x.bucket, 9),
+            x.pick_rank if x.pick_rank is not None else 999,
+            x.ticker,
+        )
+    )
     return ideas
 
 
@@ -573,10 +700,12 @@ def build_ops_plan(book: PortfolioBook, ideas: list[BuyIdea]) -> list[str]:
         for h in earn:
             lines.append(f"  · {h.earn_date}: {h.ticker} 실적 — 홀드, 갭추격 금지")
         lines.append("수~목: 실적 숫자 확인 후 홀드/축소만 (추가·물타기 금지)")
-        lines.append("금: A′ 재점검 · 주간 마무리")
+        lines.append("금: 본선∩GO 재점검 · 주간 마무리")
+        lines.append("저녁창(17:30~20:55) 지정가 · 돌파추격 금지")
     else:
         lines.append("모드: 월~목 → 향후 5영업일 브리프")
-        lines.append("보유 stop·EARN_D5만 매일 확인 · 신규는 실행후보만")
+        lines.append("보유 stop·확정 EARN_D5만 매일 확인 · 신규는 본선∩타이밍GO만")
+        lines.append("저녁 17:30~20:55 지정가 실행 · 미체결 추격 금지")
         earn = sorted(
             [h for h in book.holdings if h.earn_date and asof <= h.earn_date <= asof + timedelta(days=5)],
             key=lambda h: h.earn_date or asof,
