@@ -447,7 +447,17 @@ def _tool_go(args: list, kwargs: dict) -> None:
         print("\n" + "#" * 64)
         print("  SEPA GO — gap fill first (analysis CSVs only)")
         print("#" * 64)
-        _tool_fill_gaps([], {k: v for k, v in kwargs.items() if k not in ("fill_gaps", "fill", "as_of", "no_update", "refresh")})
+        # Exclude today: go itself will produce today's live snapshot.
+        from datetime import date, timedelta
+
+        fill_kwargs = {
+            k: v
+            for k, v in kwargs.items()
+            if k not in ("fill_gaps", "fill", "as_of", "no_update", "refresh")
+        }
+        if not (fill_kwargs.get("to") or fill_kwargs.get("end") or fill_kwargs.get("date_to")):
+            fill_kwargs["to"] = (date.today() - timedelta(days=1)).strftime("%Y%m%d")
+        _tool_fill_gaps([], fill_kwargs)
 
     stamp = (kwargs.get("as_of") or datetime.now().strftime("%Y-%m-%d")).replace("-", "")
     no_update = bool(kwargs.get("no_update"))
