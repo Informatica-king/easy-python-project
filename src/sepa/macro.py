@@ -398,6 +398,40 @@ def _latest_report(pattern: str) -> Path | None:
     return paths[-1] if paths else None
 
 
+def _tool_fill_gaps(args: list, kwargs: dict) -> None:
+    """Restore/rebuild missing go-day analysis CSVs (lightweight, no PDF)."""
+    from sepa.gap_fill import fill_gaps, print_gap_fill_summary
+
+    start = (
+        kwargs.get("from")
+        or kwargs.get("start")
+        or kwargs.get("date_from")
+        or (args[0] if len(args) >= 1 else None)
+    )
+    end = (
+        kwargs.get("to")
+        or kwargs.get("end")
+        or kwargs.get("date_to")
+        or (args[1] if len(args) >= 2 else None)
+    )
+    dry_run = bool(kwargs.get("dry_run") or kwargs.get("dry"))
+    max_days = int(kwargs.get("max_days") or kwargs.get("max") or 10)
+    restore = not bool(kwargs.get("no_restore"))
+    rebuild = not bool(kwargs.get("no_rebuild"))
+    force = bool(kwargs.get("force"))
+    result = fill_gaps(
+        start=start,
+        end=end,
+        config=DEFAULT_CONFIG,
+        dry_run=dry_run,
+        max_days=max_days,
+        restore=restore,
+        rebuild=rebuild,
+        force=force,
+    )
+    print_gap_fill_summary(result)
+
+
 def _tool_go(args: list, kwargs: dict) -> None:
     """Run scan(full) → fund → anal in order with clear section banners."""
     from datetime import datetime
@@ -405,7 +439,15 @@ def _tool_go(args: list, kwargs: dict) -> None:
     from sepa import analyze, fundamental, screener
 
     if args:
-        raise MacroError("!sepa.go() 는 인자가 없습니다 — !sepa.go() 또는 !sepa.go")
+        raise MacroError(
+            "!sepa.go() 는 위치 인자 없음 — !sepa.go() 또는 !sepa.go(fill_gaps=1)"
+        )
+
+    if kwargs.get("fill_gaps") or kwargs.get("fill"):
+        print("\n" + "#" * 64)
+        print("  SEPA GO — gap fill first (analysis CSVs only)")
+        print("#" * 64)
+        _tool_fill_gaps([], {k: v for k, v in kwargs.items() if k not in ("fill_gaps", "fill", "as_of", "no_update", "refresh")})
 
     stamp = (kwargs.get("as_of") or datetime.now().strftime("%Y-%m-%d")).replace("-", "")
     no_update = bool(kwargs.get("no_update"))
@@ -604,10 +646,17 @@ REGISTRY: list[MacroSpec] = [
     ),
     MacroSpec(
         "sepa.go",
-        "!sepa.go()  |  !sepa.go",
-        "일일 파이프라인 — scan(full) → fund → anal(+sectorShare+sepaTop+perf ledger) 순서 실행. Fund 중앙값 이상 티커 전체 문자열 export",
+        "!sepa.go()  |  !sepa.go(fill_gaps=1)",
+        "일일 파이프라인 — scan(full) → fund → anal(+sectorShare+sepaTop+perf ledger). fill_gaps=1 이면 오늘 전 분석 CSV 구멍만 경량 채움",
         _tool_go,
         aliases=("go",),
+    ),
+    MacroSpec(
+        "sepa.fill_gaps",
+        "!sepa.fill_gaps()  |  !sepa.fill_gaps(from=20260804, to=20260811)  |  !sepa.fill_gaps(dry_run=1)",
+        "빠진 go 거래일 분석 CSV만 채움 — 릴리즈 복원 우선, 없으면 as-of scan+fund+membership+perf (PDF/차트 없음)",
+        _tool_fill_gaps,
+        aliases=("fill_gaps", "sepa.gap_fill", "gap_fill"),
     ),
     MacroSpec(
         "sepa.perf_study",
