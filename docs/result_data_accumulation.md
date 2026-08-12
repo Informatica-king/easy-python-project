@@ -86,7 +86,8 @@
 멤버십 분석 팩 + fund + soft drops + median+ + stage2  
 + params 스냅샷 + Fund 분위수 로그 + diagnostics 요약 + enter/exit forward 패널  
 + **성능 검증 패널** `reports/perf/` (`docs/perf_study_framework.md`, `!sepa.perf_study`)  
-+ **검증·분석 함수 계획** `docs/perf_study_dev_plan.md` (D29, A~F / Phase 1~3)
++ **검증·분석 함수 계획** `docs/perf_study_dev_plan.md` (D29, A~F / Phase 1~3)  
++ **빠진 go 날짜 채우기** `docs/gap_fill_plan.md` (D30: 릴리즈 복원 + as-of 재계산)
 
 **나중에 / 연구 전용**
 
