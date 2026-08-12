@@ -1,7 +1,7 @@
 """실행후보 3레이어 점수표 (L1 RS · L2 점유·마진 · L3 가이드 등급).
 
-Applied only to ``실행후보`` after portfolio hard filters.
-See ``reports/BUY_SCORE_LAYERS_PLAN.md``.
+Applied to ``실행후보`` after pick_pool ∩ timing GO
+(see ``sepa.pick_pool`` / ``sepa.timing_gate`` / ``reports/BUY_SCORE_LAYERS_PLAN.md``).
 """
 
 from __future__ import annotations

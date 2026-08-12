@@ -442,22 +442,19 @@ def buy_scenario_section(scenarios: list[dict]) -> str:
     a = [s for s in scenarios if s.get("scenario") == "A"]
     b = [s for s in scenarios if s.get("scenario") == "B"]
     soft = [s for s in scenarios if s.get("scenario") == "SOFT"]
-    if a or b:
-        names_a = ", ".join(s.get("t", "") for s in a) or "—"
-        names_b = ", ".join(s.get("t", "") for s in b) or "—"
-        head = (
-            f"<div class='portfolio-box' style='border-color:#166534;background:#ecfdf5'>"
-            f"<b>매수 시나리오 해당 (A′ 게이트)</b> — A {len(a)}건 ({esc(names_a)}) · "
-            f"B {len(b)}건 ({esc(names_b)}) (적극 고지)</div>"
-        )
-    else:
-        head = (
-            "<div class='portfolio-box' style='border-color:#9f1239;background:#fff1f2'>"
-            "<b>매수 시나리오 A′/B: 0건</b> — RS≥70용 얕은 눌림·돌파 조건 미충족. "
-            "SOFT만 참고 · 추격 매수 비추.</div>"
-        )
+    head = (
+        "<div class='portfolio-box' style='border-color:#0f766e;background:#f0fdfa'>"
+        "<b>매수 신호 구조 (2026-08 개편)</b> — "
+        "<b>① 본선(Chase 좋은 종목)</b> ∩ <b>② 타이밍 GO</b> → 실행. "
+        "아래 A/B/SOFT는 <u>타이밍만</u> (종목 선발이 아님). "
+        f"GO_A(구 A′) {len(a)} · GO_B(구 B·프리마켓 기본 WAIT) {len(b)} · WAIT/SOFT {len(soft)}. "
+        "실행창 KR 17:30~20:55 지정가.</div>"
+    )
     rows = []
     for s in a + b + soft:
+        timing = {"A": "GO_A", "B": "WAIT(B비실행)", "SOFT": "WAIT"}.get(
+            str(s.get("scenario") or "").upper(), "WAIT"
+        )
         note = s.get("caution") or (
             "MA20근처" if s.get("near_ma20") else ("스윙L" if s.get("near_l") else "")
         )
@@ -465,7 +462,8 @@ def buy_scenario_section(scenarios: list[dict]) -> str:
             note = (note + " · " if note else "") + "정배열"
         rows.append(
             "<tr>"
-            f"<td><b>{esc(s.get('scenario'))}</b></td>"
+            f"<td><b>{esc(timing)}</b></td>"
+            f"<td class='small'>{esc(s.get('scenario'))}</td>"
             f"<td><b>{esc(s.get('t'))}</b></td>"
             f"<td>{fmt_usd_price(s.get('last') or s.get('px'))}</td>"
             f"<td>{s.get('rsi', 0):.0f}</td>"
@@ -479,15 +477,20 @@ def buy_scenario_section(scenarios: list[dict]) -> str:
     table = ""
     if rows:
         table = (
-            "<table><tr><th>유형</th><th>티커</th><th>가격</th><th>RSI</th>"
+            "<table><tr><th>타이밍</th><th>구표기</th><th>티커</th><th>가격</th><th>RSI</th>"
             "<th>고점대비</th><th>지지</th><th>돌파</th><th>실적</th><th>메모</th></tr>"
             + "".join(rows) + "</table>"
         )
     gloss = (
-        "<p class='small'>A′=RS≥70용 얕은 눌림(MA200위+정배열+(MA20|스윙L)+RSI42–62+고점−1%~−8%+거래량OK+실적D−5밖). "
-        "B=돌파(거래량급증+RSI&lt;70+실적창밖; RSI≥68 주의). SOFT=A′ 근접.</p>"
+        "<p class='small'>"
+        "<b>좋은 종목</b>=Chase 본선(상/중상…) · "
+        "<b>좋은 타이밍</b>=GO_A 눌림(구 A′: MA200위+정배열+MA20/스윙L+RSI42–62+고점−1%~−8%+volOK). "
+        "GO_B 돌파는 군인 프리마켓 OS에서 기본 WAIT. "
+        "확정 실적 D−5만 하드블록(추정일은 주의). "
+        "WAIT 종목은 후보에서 지우지 않음."
+        "</p>"
     )
-    return f"<h2>0. 매수 시나리오 점검 A′ (적극 고지)</h2>{head}{table}{gloss}"
+    return f"<h2>0. 매수 신호 — 본선 ∩ 타이밍 (적극 고지)</h2>{head}{table}{gloss}"
 
 
 

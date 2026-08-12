@@ -153,9 +153,10 @@ def analyze(t: str, meta: dict) -> dict | None:
         "vs_ma200": vs_ma200,
         "edays": edays,
         "earn_d5": earn_d5,
+        "earn_source": "estimate",  # yfinance calendar — not IR-confirmed
         "scenario": scenario,
         "caution": caution,
-        "gate": "A'",
+        "gate": "timing",  # was A' — timing only; pick_pool is Chase
     }
     return row
 
@@ -188,11 +189,13 @@ def main():
 
     payload = {
         "as_of": ASOF.isoformat(),
-        "gate": "A' RS>=70 shallow pullback",
+        "gate": "timing GO_A/GO_B/WAIT (pick_pool=Chase separate)",
         "rules": {
-            "A": "MA200↑ + MA20≥MA60 + (near MA20|swingL) + RSI42-62 + high -1%~-8% + volOK + not EARN_D5",
-            "B": "breakout+volHot + RSI<70 + not EARN_D5 (RSI≥68 caution)",
-            "SOFT": "directionally close to A'",
+            "pick": "Chase 본선 (sepa.pick_pool) — 좋은 종목",
+            "A": "타이밍 GO_A 눌림 — MA200↑ + MA20≥MA60 + (near MA20|swingL) + RSI42-62 + high -1%~-8% + volOK",
+            "B": "타이밍 GO_B 돌파 — 프리마켓OS 기본 WAIT(비실행)",
+            "SOFT": "타이밍 WAIT 근접",
+            "earn": "earn_source=estimate by default; confirmed EARN_D5 only hard-blocks",
         },
         "rows": hits,
     }
