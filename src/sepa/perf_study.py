@@ -2,10 +2,10 @@
 
 Usage:
     python -m sepa.perf_study
-    !sepa.perf_study()
+    !검증  /  !sepa.perf_study()
 
-Small-N safe: always emits a report that states sample size limitations.
-Modules A–D: basket excess, enter/exit events, streak buckets, soft_drop vs rs90_ok.
+User-facing deliverable: Hangul PDF ``검증보고서_YYYYMMDD.pdf`` + GitHub download link
+(tag ``sepa-검증-YYYYMMDD``). Modules A–D feed the report; small-N gates stay explicit.
 """
 
 from __future__ import annotations
@@ -22,9 +22,8 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np
 import pandas as pd
 
-from sepa.artifacts import publish_many
 from sepa.config import load_params
-from sepa.fonts import savefig_korean, setup_korean_matplotlib
+from sepa.fonts import KoreanFontError, savefig_korean, setup_korean_matplotlib
 from sepa.perf_ledger import (
     BASKET_MEDIAN_PLUS,
     BASKET_RS90_OK,
@@ -35,6 +34,14 @@ from sepa.perf_ledger import (
 )
 from sepa.result_ledger import EVENT_FWD_HORIZONS
 from sepa.sepatop import load_membership_history, presence_table
+from sepa.verify_report import (
+    build_verify_pdf,
+    gate_ko,
+    one_line_summary,
+    overall_trust_gate,
+    publish_verify_pdf_github_release,
+    verify_pdf_name,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -585,6 +592,7 @@ def run_perf_study(
     cache_dir: str | Path = "data/raw",
     stamp: str | None = None,
     refresh_ledger: bool = False,
+    skip_github_release: bool = False,
 ) -> dict:
     report_dir = Path(report_dir)
     out = perf_dir(report_dir)
@@ -623,102 +631,86 @@ def run_perf_study(
     streak_buckets = study_streak_buckets(streak, horizon="21d")
     soft_cmp = study_soft_vs_rs90(fwd)
 
-    charts_dir = out / "charts"
-    charts_dir.mkdir(parents=True, exist_ok=True)
-    chart_paths: list[Path] = []
-    for lab, _ in EVENT_FWD_HORIZONS:
-        p = plot_basket_bars(agg, charts_dir / f"perf_basket_excess_{lab}_{stamp}.png", horizon=lab)
-        if p:
-            chart_paths.append(p)
-        pe = plot_event_bars(event_agg, charts_dir / f"perf_event_fwd_{lab}_{stamp}.png", horizon=lab)
-        if pe:
-            chart_paths.append(pe)
-    ps = plot_streak_scatter(streak, charts_dir / f"perf_streak_scatter_{stamp}.png", horizon="21d")
-    if ps:
-        chart_paths.append(ps)
-    pd_cmp = plot_soft_vs_rs90(soft_cmp, charts_dir / f"perf_soft_vs_rs90_{stamp}.png")
-    if pd_cmp:
-        chart_paths.append(pd_cmp)
-
-    csv_paths: list[Path] = []
+    n_pool_days = int(pool_log["stamp"].nunique()) if not pool_log.empty else 0
+    trust = overall_trust_gate(
+        agg=agg, event_agg=event_agg, soft_cmp=soft_cmp, streak_buckets=streak_buckets
+    )
+    n_5d_stamps = 0
     if not agg.empty:
-        p = out / f"study_basket_agg_{stamp}.csv"
-        agg.to_csv(p, index=False)
-        csv_paths.append(p)
-    if not event_agg.empty:
-        p = out / f"study_event_fwd_{stamp}.csv"
-        event_agg.to_csv(p, index=False)
-        csv_paths.append(p)
-    if not streak.empty:
-        p = out / f"study_streak_excess_{stamp}.csv"
-        streak.to_csv(p, index=False)
-        csv_paths.append(p)
-    if not streak_buckets.empty:
-        p = out / f"study_streak_buckets_{stamp}.csv"
-        streak_buckets.to_csv(p, index=False)
-        csv_paths.append(p)
-    if not soft_cmp.empty:
-        p = out / f"study_soft_vs_rs90_{stamp}.csv"
-        soft_cmp.to_csv(p, index=False)
-        csv_paths.append(p)
-
-    md = write_study_md(
-        out / f"study_{stamp}.md",
-        stamp=stamp,
-        n_pool_days=int(pool_log["stamp"].nunique()) if not pool_log.empty else 0,
+        g5 = agg.loc[agg["horizon"].astype(str) == "5d"]
+        if not g5.empty:
+            n_5d_stamps = int(g5["n_stamps"].max())
+    summary = one_line_summary(
+        n_pool_days=n_pool_days,
+        n_5d_stamps=n_5d_stamps,
+        trust=trust,
         agg=agg,
-        event_agg=event_agg,
-        streak=streak,
-        streak_buckets=streak_buckets,
         soft_cmp=soft_cmp,
-        pool_log=pool_log,
     )
 
-    published = publish_many(
-        [
-            md,
-            *chart_paths,
-            *csv_paths,
-            out / "daily_pool_log.csv",
-            out / "security_forward_panel.csv",
-            out / "basket_members_panel.csv",
-        ]
-    )
-    print(f"\n=== SEPA perf_study D29-P1 ({stamp}) ===")
-    print(f"pool days: {0 if pool_log.empty else pool_log['stamp'].nunique()}")
-    print(f"forward rows: {len(fwd)}")
-    if not agg.empty:
-        print("\n[A] basket excess")
-        print(agg.to_string(index=False))
-    if not event_agg.empty:
-        print("\n[B] enter/exit")
-        print(event_agg.to_string(index=False))
-    if not streak_buckets.empty:
-        print("\n[C] streak buckets")
-        print(streak_buckets.to_string(index=False))
-    if not soft_cmp.empty:
-        print("\n[D] soft_drop vs rs90_ok")
-        print(soft_cmp.to_string(index=False))
-    print(f"\nreport: {md.resolve()}")
-    if published:
-        print(f"artifacts: {len(published)} files")
+    pdf_path = out / verify_pdf_name(stamp)
+    pdf_error: str | None = None
+    try:
+        build_verify_pdf(
+            pdf_path,
+            stamp=stamp,
+            n_pool_days=n_pool_days,
+            agg=agg,
+            event_agg=event_agg,
+            streak_buckets=streak_buckets,
+            soft_cmp=soft_cmp,
+            pool_log=pool_log,
+            fwd=fwd,
+        )
+    except KoreanFontError as exc:
+        pdf_path = None  # type: ignore[assignment]
+        pdf_error = str(exc)
+        logger.error("verify PDF failed: %s", exc)
+
+    release: dict | None = None
+    if pdf_path is not None and pdf_path.exists() and not skip_github_release:
+        release = publish_verify_pdf_github_release(pdf_path, stamp=stamp)
+        if not release.get("ok"):
+            logger.warning("verify release upload failed: %s", release.get("error"))
+
+    print(f"\n=== SEPA 검증 보고서 ({stamp}) ===")
+    print(f"신뢰: {gate_ko(trust)} (관측 {n_pool_days}일 · 5일 성적 stamp {n_5d_stamps}일)")
+    print(f"한줄: {summary}")
+    if pdf_path is not None and pdf_path.exists():
+        print(f"\n  PDF: {pdf_path.resolve()}")
+    elif pdf_error:
+        print(f"\n  PDF 실패: {pdf_error}")
+    if release and release.get("ok"):
+        print(f"\n  PDF 직접 다운로드:\n  {release['download_url']}\n")
+        print(f"  릴리즈 페이지:\n  {release['release_url']}\n")
+    elif release and not release.get("ok"):
+        print(f"\n  Release 업로드 실패: {release.get('error')}")
+
     return {
-        "ok": True,
-        "md": md,
+        "ok": pdf_path is not None and pdf_path.exists(),
+        "pdf": pdf_path,
+        "pdf_error": pdf_error,
+        "release": release,
+        "trust": trust,
+        "summary": summary,
         "agg": agg,
         "event_agg": event_agg,
         "streak_buckets": streak_buckets,
         "soft_cmp": soft_cmp,
-        "charts": chart_paths,
-        "published": published,
+        "n_pool_days": n_pool_days,
     }
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(description="SEPA longitudinal performance study (D29 Phase 1)")
+    p = argparse.ArgumentParser(description="SEPA 검증 보고서 PDF (D29 → verify report)")
     p.add_argument("--config", default="config/params.yaml")
     p.add_argument("--stamp", default=None)
     p.add_argument("--refresh-ledger", action="store_true")
+    p.add_argument(
+        "--skip-github-release",
+        action="store_true",
+        help="Skip uploading PDF to GitHub Release (no public download link)",
+    )
     args = p.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     params = load_params(args.config)
@@ -727,6 +719,7 @@ def main(argv: list[str] | None = None) -> int:
         cache_dir=params.data.cache_dir,
         stamp=args.stamp,
         refresh_ledger=bool(args.refresh_ledger),
+        skip_github_release=bool(args.skip_github_release),
     )
     return 0
 

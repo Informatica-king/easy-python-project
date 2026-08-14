@@ -27,7 +27,7 @@
 | `basket_members_panel.csv` | go마다 append | `stamp × basket × ticker` 멤버십 |
 | `security_forward_panel.csv` | go마다 백필 | 선정일 기준 5/10/21d fwd·excess |
 | `basket_forward_summary_log.csv` | go마다 | 바스켓×호라이즌 평균 excess (ready만) |
-| `study_*.md` / charts | `!sepa.perf_study` | 사람이 읽는 스냅샷 리포트 |
+| `검증보고서_*.pdf` | `!검증` / `!sepa.perf_study` | 비전공자용 8쪽 한글 성적 보고서 (+ Release 링크) |
 
 go/anal이 이미 쌓는 원본(`fundamental_*`, `membership_*`, `presence_*`, `rs_soft_drops_*`, `params_hash_log` 등)과 **조인**한다. perf 패널은 “성능 검증용 파생”이다.
 
@@ -65,9 +65,12 @@ go/anal이 이미 쌓는 원본(`fundamental_*`, `membership_*`, `presence_*`, `
 
 ```text
 !sepa.go()          → 자동으로 reports/perf/* 갱신 + 아티팩트/릴리즈 첨부
-!검증               → 누적 패널로 A–D 요약 MD/차트 (N 작아도 실행)
+!검증               → 8쪽 한글 PDF + sepa-검증-YYYYMMDD 다운로드 링크
 !sepa.perf_study()  → 위와 동일
+!sepa.perf_study(refresh=1)  → 당일 패널 갱신 후 보고서
+!sepa.perf_study(skip_github_release=1)  → PDF만 (업로드 생략)
 ```
 
 결정 로그: **D28** — 성능 검증 장기 프레임 (`sepa.perf_ledger` / `sepa.perf_study`).  
-결정 로그: **D29** — 검증·분석 함수 (`!검증` = `!sepa.perf_study`).
+결정 로그: **D29** — 검증·분석 함수 (`!검증` = `!sepa.perf_study`).  
+결정 로그: **D31** — `!검증` PDF 보고서 + Release (`docs/verify_report_design.md`).

@@ -390,6 +390,8 @@ def _tool_perf_study(args: list, kwargs: dict) -> None:
         argv += ["--stamp", str(kwargs.get("stamp") or args[0])]
     if kwargs.get("refresh") or kwargs.get("refresh_ledger"):
         argv.append("--refresh-ledger")
+    if kwargs.get("skip_github_release"):
+        argv.append("--skip-github-release")
     perf_study.main(argv)
 
 
@@ -676,7 +678,7 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.perf_study",
         "!검증  |  !sepa.perf_study()  |  !sepa.perf_study(refresh=1)",
-        "모델 검증·성과 요약 (A–D) — 누적 reports/perf 패널 기반 (표본 작아도 실행; 확증 아님)",
+        "비전공자용 8쪽 한글 검증 PDF + GitHub 다운로드 링크 (sepa-검증-YYYYMMDD; 표본 작아도 실행·확증 아님)",
         _tool_perf_study,
         aliases=("perf_study", "sepa.perf", "perf", "검증"),
     ),

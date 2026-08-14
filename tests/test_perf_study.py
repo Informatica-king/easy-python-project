@@ -134,12 +134,17 @@ def test_run_perf_study_empty_safe(tmp_path: Path):
     report = tmp_path / "reports"
     report.mkdir()
     (report / "perf").mkdir()
-    pack = run_perf_study(report_dir=report, cache_dir=tmp_path / "cache", stamp="20260814")
+    pack = run_perf_study(
+        report_dir=report,
+        cache_dir=tmp_path / "cache",
+        stamp="20260814",
+        skip_github_release=True,
+    )
     assert pack["ok"]
-    assert pack["md"].exists()
-    text = pack["md"].read_text(encoding="utf-8")
-    assert "D29 Phase 1" in text
-    assert "## D. soft_drop vs rs90_ok" in text
+    assert pack["pdf"] is not None
+    assert Path(pack["pdf"]).exists()
+    assert Path(pack["pdf"]).stat().st_size > 1000
+    assert not (report / "perf" / "study_20260814.md").exists()
 
 
 def test_run_perf_study_with_fwd(tmp_path: Path):
@@ -149,7 +154,6 @@ def test_run_perf_study_with_fwd(tmp_path: Path):
     cache = tmp_path / "cache"
     cache.mkdir()
     fwd = _fwd_frame()
-    # pad enough soft/rs90 rows so charts don't crash
     fwd.to_csv(perf / "security_forward_panel.csv", index=False)
     pd.DataFrame(
         [
@@ -162,8 +166,30 @@ def test_run_perf_study_with_fwd(tmp_path: Path):
             }
         ]
     ).to_csv(perf / "daily_pool_log.csv", index=False)
-    pack = run_perf_study(report_dir=report, cache_dir=cache, stamp="20260814")
+    pack = run_perf_study(
+        report_dir=report,
+        cache_dir=cache,
+        stamp="20260814",
+        skip_github_release=True,
+    )
     assert pack["ok"]
     assert not pack["soft_cmp"].empty
-    assert (perf / "study_soft_vs_rs90_20260814.csv").exists()
-    assert (perf / "study_20260814.md").exists()
+    assert Path(pack["pdf"]).exists()
+    assert pack["pdf"].name == "검증보고서_20260814.pdf"
+    assert not (perf / "study_20260814.md").exists()
+    assert "자료 부족" in pack["summary"] or "관측" in pack["summary"]
+
+
+def test_verify_helpers():
+    from sepa.verify_report import (
+        GATE_INSUFFICIENT,
+        interpret_soft_delta,
+        verify_pdf_name,
+        verify_release_tag,
+    )
+
+    assert verify_release_tag("20260814") == "sepa-검증-20260814"
+    assert verify_pdf_name("20260814") == "검증보고서_20260814.pdf"
+    assert "판단 보류" in interpret_soft_delta(-0.01, GATE_INSUFFICIENT)
+    assert "도움이 되는" in interpret_soft_delta(-0.01, "interpret")
+    assert "잘못 잘랐" in interpret_soft_delta(0.02, "monitor")

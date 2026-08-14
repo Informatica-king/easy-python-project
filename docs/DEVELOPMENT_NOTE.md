@@ -294,6 +294,7 @@ sepa-bot/
 | 2026-08-04 | D29: 검증·분석 함수 개발 계획 | A~F를 쉬운 말로 정리한 계획서. 문서: `docs/perf_study_dev_plan.md` |
 | 2026-08-14 | D29-P1: perf_study A–D 구현 | basket excess·enter/exit·streak 버킷·soft_drop vs rs90_ok + sample_gate. `!sepa.perf_study` |
 | 2026-08-12 | D30: 빠진 go 날짜 gap fill | 목적=분석용 구멍만 빠른 채움. `sepa.gap_fill` / `!sepa.fill_gaps` / `!sepa.go(fill_gaps=1)`. 릴리즈 CSV 복원 + as-of scan/fund/membership/perf. PDF·차트·metrics 스킵. 문서: `docs/gap_fill_plan.md` |
+| 2026-08-14 | D31: `!검증` PDF 보고서 | 8쪽 한글 성적 PDF + Release `sepa-검증-YYYYMMDD` 다운로드 링크. 산출물 PDF만. `sepa.verify_report` · `docs/verify_report_design.md` |
 
 ## 6. 진행 현황
 

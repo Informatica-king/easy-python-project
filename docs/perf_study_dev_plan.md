@@ -142,8 +142,9 @@
               → 재료가 자동으로 창고에 추가됨
 
 2) 보고 싶을 때  !검증
-              → A~D MD/차트/CSV 성적표
+              → 8쪽 한글 PDF + GitHub 다운로드 링크
               (동일: !sepa.perf_study() / !perf)
+              양식: docs/verify_report_design.md
 ```
 
 개발자가 만들 것:
