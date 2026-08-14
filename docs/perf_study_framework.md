@@ -57,7 +57,7 @@ go/anal이 이미 쌓는 원본(`fundamental_*`, `membership_*`, `presence_*`, `
 6. **F** (향후) 섹터 편중·IR·분위 예측력 확장  
 
 구현 범위·쉬운 설명: **`docs/perf_study_dev_plan.md`** (D29).  
-**Phase 1 구현됨** — A~D + sample_gate (`!sepa.perf_study`).
+**Phase 1 구현됨** — A~D + sample_gate (`!검증` / `!sepa.perf_study`).
 
 ---
 
@@ -65,8 +65,9 @@ go/anal이 이미 쌓는 원본(`fundamental_*`, `membership_*`, `presence_*`, `
 
 ```text
 !sepa.go()          → 자동으로 reports/perf/* 갱신 + 아티팩트/릴리즈 첨부
-!sepa.perf_study()  → 누적 패널로 요약 MD/차트 (N 작아도 실행)
+!검증               → 누적 패널로 A–D 요약 MD/차트 (N 작아도 실행)
+!sepa.perf_study()  → 위와 동일
 ```
 
 결정 로그: **D28** — 성능 검증 장기 프레임 (`sepa.perf_ledger` / `sepa.perf_study`).  
-결정 로그: **D29** — 검증·분석 함수 개발 계획 (`docs/perf_study_dev_plan.md`).
+결정 로그: **D29** — 검증·분석 함수 (`!검증` = `!sepa.perf_study`).
