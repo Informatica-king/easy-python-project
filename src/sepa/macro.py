@@ -439,9 +439,14 @@ def _tool_go(args: list, kwargs: dict) -> None:
     from sepa import analyze, fundamental, screener
 
     if args:
-        raise MacroError(
-            "!sepa.go() 는 위치 인자 없음 — !sepa.go() 또는 !sepa.go(fill_gaps=1)"
-        )
+        # Shorthand: !go(1) / !go(true) → fill_gaps
+        if len(args) == 1 and str(args[0]).lower() in {"1", "true", "yes", "fill", "fill_gaps"}:
+            kwargs = {**kwargs, "fill_gaps": 1}
+            args = []
+        else:
+            raise MacroError(
+                "!sepa.go() 는 !sepa.go() 또는 !sepa.go(fill_gaps=1) / !go(1)"
+            )
 
     if kwargs.get("fill_gaps") or kwargs.get("fill"):
         print("\n" + "#" * 64)
@@ -656,8 +661,8 @@ REGISTRY: list[MacroSpec] = [
     ),
     MacroSpec(
         "sepa.go",
-        "!sepa.go()  |  !sepa.go(fill_gaps=1)",
-        "일일 파이프라인 — scan(full) → fund → anal(+sectorShare+sepaTop+perf ledger). fill_gaps=1 이면 오늘 전 분석 CSV 구멍만 경량 채움",
+        "!sepa.go()  |  !sepa.go(fill_gaps=1)  |  !go(1)",
+        "일일 파이프라인 — scan(full) → fund → anal(+sectorShare+sepaTop+perf ledger). fill_gaps=1 또는 !go(1) 이면 어제까지 분석 CSV 구멍만 경량 채움",
         _tool_go,
         aliases=("go",),
     ),

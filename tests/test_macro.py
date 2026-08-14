@@ -93,3 +93,5 @@ def test_parse_go():
     assert parse_command("!sepa.go()") == ("sepa.go", [], {})
     assert parse_command("!sepa.go") == ("sepa.go", [], {})
     assert parse_command("!go") == ("go", [], {})
+    assert parse_command("!go(1)") == ("go", [1], {})
+    assert parse_command("!sepa.go(fill_gaps=1)")[2].get("fill_gaps") == 1
