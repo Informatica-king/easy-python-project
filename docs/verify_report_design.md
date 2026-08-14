@@ -12,10 +12,14 @@
 
 ```text
 !검증
-  → reports/perf/검증보고서_YYYYMMDD.pdf
-  → GitHub Release 업로드 (sepa-검증-YYYYMMDD)
+  → reports/perf/verify_report_YYYYMMDD.pdf
+  → GitHub Release 업로드 (sepa-검증-YYYYMMDD, asset=verify_report_*.pdf)
   → 콘솔에 PDF 직접 다운로드 URL + 릴리즈 페이지 URL 출력
 ```
+
+> **주의**: Release 에셋 파일명은 ASCII만 사용한다. `gh`가 한글 basename을
+> `_YYYYMMDD.pdf`처럼 깨뜨려 404가 난다. 태그 `sepa-검증-…`는 유지하되 URL은
+> percent-encode 한다.
 
 숫자는 D29 A–D 패널 그대로, **말·레이아웃·배달만 보고서화**.
 

@@ -175,7 +175,7 @@ def test_run_perf_study_with_fwd(tmp_path: Path):
     assert pack["ok"]
     assert not pack["soft_cmp"].empty
     assert Path(pack["pdf"]).exists()
-    assert pack["pdf"].name == "검증보고서_20260814.pdf"
+    assert pack["pdf"].name == "verify_report_20260814.pdf"
     assert not (perf / "study_20260814.md").exists()
     assert "자료 부족" in pack["summary"] or "관측" in pack["summary"]
 
@@ -184,12 +184,16 @@ def test_verify_helpers():
     from sepa.verify_report import (
         GATE_INSUFFICIENT,
         interpret_soft_delta,
+        verify_direct_download_url,
         verify_pdf_name,
         verify_release_tag,
     )
 
     assert verify_release_tag("20260814") == "sepa-검증-20260814"
-    assert verify_pdf_name("20260814") == "검증보고서_20260814.pdf"
+    assert verify_pdf_name("20260814") == "verify_report_20260814.pdf"
+    url = verify_direct_download_url("Informatica-king/easy-python-project", "20260814")
+    assert "sepa-%EA%B2%80%EC%A6%9D-20260814" in url
+    assert url.endswith("verify_report_20260814.pdf")
     assert "판단 보류" in interpret_soft_delta(-0.01, GATE_INSUFFICIENT)
     assert "도움이 되는" in interpret_soft_delta(-0.01, "interpret")
     assert "잘못 잘랐" in interpret_soft_delta(0.02, "monitor")

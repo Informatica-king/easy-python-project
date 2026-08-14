@@ -27,7 +27,7 @@
 | `basket_members_panel.csv` | go마다 append | `stamp × basket × ticker` 멤버십 |
 | `security_forward_panel.csv` | go마다 백필 | 선정일 기준 5/10/21d fwd·excess |
 | `basket_forward_summary_log.csv` | go마다 | 바스켓×호라이즌 평균 excess (ready만) |
-| `검증보고서_*.pdf` | `!검증` / `!sepa.perf_study` | 비전공자용 8쪽 한글 성적 보고서 (+ Release 링크) |
+| `verify_report_*.pdf` | `!검증` / `!sepa.perf_study` | 비전공자용 8쪽 한글 성적 보고서 (+ Release 링크; 파일명은 ASCII) |
 
 go/anal이 이미 쌓는 원본(`fundamental_*`, `membership_*`, `presence_*`, `rs_soft_drops_*`, `params_hash_log` 등)과 **조인**한다. perf 패널은 “성능 검증용 파생”이다.
 

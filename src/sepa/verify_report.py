@@ -839,16 +839,25 @@ def build_verify_pdf(
 
 
 def verify_release_tag(stamp: str) -> str:
+    """Release tag (Hangul kept; URLs must percent-encode)."""
     return f"sepa-검증-{stamp}"
 
 
 def verify_pdf_name(stamp: str) -> str:
-    return f"검증보고서_{stamp}.pdf"
+    """ASCII-only asset filename — ``gh`` strips Hangul from release asset names."""
+    return f"verify_report_{stamp}.pdf"
 
 
 def verify_direct_download_url(repo: str, stamp: str, pdf_name: str | None = None) -> str:
+    from urllib.parse import quote
+
     name = pdf_name or verify_pdf_name(stamp)
-    return f"https://github.com/{repo}/releases/download/{verify_release_tag(stamp)}/{name}"
+    tag = verify_release_tag(stamp)
+    # quote tag (Hangul) but keep ASCII filename as-is
+    return (
+        f"https://github.com/{repo}/releases/download/"
+        f"{quote(tag, safe='')}/{quote(name, safe='')}"
+    )
 
 
 def github_repo_slug() -> str | None:
@@ -863,7 +872,11 @@ def publish_verify_pdf_github_release(
     stamp: str,
     repo: str | None = None,
 ) -> dict:
-    """Upload verify PDF to GitHub Release tag ``sepa-검증-YYYYMMDD``."""
+    """Upload verify PDF to GitHub Release tag ``sepa-검증-YYYYMMDD``.
+
+    Asset label is always ASCII ``verify_report_YYYYMMDD.pdf`` so ``gh`` does not
+    mangle Hangul filenames (previously became ``_YYYYMMDD.pdf`` → 404).
+    """
     pdf_path = Path(pdf_path)
     if not pdf_path.exists():
         return {"ok": False, "error": f"PDF missing: {pdf_path}"}
@@ -875,15 +888,17 @@ def publish_verify_pdf_github_release(
         return {"ok": False, "error": "cannot resolve GitHub repo slug"}
 
     tag = verify_release_tag(stamp)
+    asset_name = verify_pdf_name(stamp)
     title = f"SEPA 검증 보고서 {stamp}"
     as_of = f"{stamp[:4]}-{stamp[4:6]}-{stamp[6:8]}" if len(stamp) == 8 else stamp
-    download = verify_direct_download_url(repo, stamp, pdf_path.name)
+    download = verify_direct_download_url(repo, stamp, asset_name)
     notes = (
         f"SEPA `!검증` 성적 보고서 ({as_of}).\n\n"
         f"PDF: {download}\n"
         f"표본이 작을 때는 확증이 아닙니다.\n"
     )
-    asset = f"{pdf_path}#{pdf_path.name}"
+    # Force ASCII display name via path#name (Hangul basenames get stripped by gh)
+    asset = f"{pdf_path.resolve()}#{asset_name}"
 
     view = subprocess.run(
         ["gh", "release", "view", tag, "--repo", repo],
@@ -938,12 +953,19 @@ def publish_verify_pdf_github_release(
             timeout=60,
         )
 
-    page = f"https://github.com/{repo}/releases/tag/{tag}"
+    page = f"https://github.com/{repo}/releases/tag/{quote_tag(tag)}"
     return {
         "ok": True,
         "repo": repo,
         "tag": tag,
         "download_url": download,
         "release_url": page,
-        "pdf_name": pdf_path.name,
+        "pdf_name": asset_name,
     }
+
+
+def quote_tag(tag: str) -> str:
+    from urllib.parse import quote
+
+    return quote(tag, safe="")
+

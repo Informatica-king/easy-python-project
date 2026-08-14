@@ -4,8 +4,9 @@ Usage:
     python -m sepa.perf_study
     !검증  /  !sepa.perf_study()
 
-User-facing deliverable: Hangul PDF ``검증보고서_YYYYMMDD.pdf`` + GitHub download link
-(tag ``sepa-검증-YYYYMMDD``). Modules A–D feed the report; small-N gates stay explicit.
+User-facing deliverable: Hangul PDF ``verify_report_YYYYMMDD.pdf`` + GitHub download link
+(tag ``sepa-검증-YYYYMMDD``; ASCII asset name — Hangul filenames break ``gh`` uploads).
+Modules A–D feed the report; small-N gates stay explicit.
 """
 
 from __future__ import annotations
