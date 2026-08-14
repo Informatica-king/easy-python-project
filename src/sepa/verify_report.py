@@ -22,7 +22,6 @@ from matplotlib.backends.backend_pdf import PdfPages  # noqa: E402
 
 from sepa.artifacts import publish
 from sepa.fonts import (
-    KoreanFontError,
     assert_korean_font_ready,
     korean_fontproperties,
     setup_korean_matplotlib,
