@@ -1,10 +1,11 @@
-"""SEPA performance study on accumulated ``reports/perf/`` panels.
+"""SEPA performance study on accumulated ``reports/perf/`` panels (D29 Phase 1).
 
 Usage:
     python -m sepa.perf_study
     !sepa.perf_study()
 
 Small-N safe: always emits a report that states sample size limitations.
+Modules A–D: basket excess, enter/exit events, streak buckets, soft_drop vs rs90_ok.
 """
 
 from __future__ import annotations
@@ -26,6 +27,8 @@ from sepa.config import load_params
 from sepa.fonts import savefig_korean, setup_korean_matplotlib
 from sepa.perf_ledger import (
     BASKET_MEDIAN_PLUS,
+    BASKET_RS90_OK,
+    BASKET_SOFT_DROP,
     LEDGER_VERSION,
     perf_dir,
     update_perf_ledger,
@@ -34,6 +37,16 @@ from sepa.result_ledger import EVENT_FWD_HORIZONS
 from sepa.sepatop import load_membership_history, presence_table
 
 logger = logging.getLogger(__name__)
+
+GATE_INSUFFICIENT = "insufficient"
+GATE_MONITOR = "monitor"
+GATE_INTERPRET = "interpret"
+
+STREAK_BINS = (
+    ("1", 1, 1),
+    ("2-4", 2, 4),
+    ("5+", 5, 10_000),
+)
 
 
 def _load_csv(path: Path) -> pd.DataFrame:
@@ -52,35 +65,140 @@ def _pct(x: float | None) -> str:
     return f"{100 * float(x):+.2f}%"
 
 
+def _as_bool_series(s: pd.Series) -> pd.Series:
+    if s.dtype == bool:
+        return s
+    return s.astype(str).str.lower().isin({"1", "true", "yes", "t"})
+
+
+def _spearman(a: pd.Series, b: pd.Series) -> float:
+    """Spearman without requiring scipy."""
+    x = pd.to_numeric(a, errors="coerce")
+    y = pd.to_numeric(b, errors="coerce")
+    mask = x.notna() & y.notna()
+    if mask.sum() < 2:
+        return float("nan")
+    return float(x[mask].rank().corr(y[mask], method="pearson"))
+
+
+def sample_gate(
+    *,
+    n_ready: int,
+    n_stamps: int = 0,
+    kind: str = "basket",
+) -> str:
+    """Return insufficient | monitor | interpret for small-N labeling."""
+    n_ready = int(n_ready or 0)
+    n_stamps = int(n_stamps or 0)
+    if kind == "basket":
+        if n_stamps >= 40 and n_ready >= 200:
+            return GATE_INTERPRET
+        if n_stamps >= 5 and n_ready >= 30:
+            return GATE_MONITOR
+        return GATE_INSUFFICIENT
+    if kind == "event":
+        if n_ready >= 20:
+            return GATE_INTERPRET if n_ready >= 50 else GATE_MONITOR
+        return GATE_INSUFFICIENT
+    if kind == "streak":
+        if n_ready >= 80:
+            return GATE_INTERPRET
+        if n_ready >= 30:
+            return GATE_MONITOR
+        return GATE_INSUFFICIENT
+    if kind == "soft_vs":
+        # per-basket ready counts passed as n_ready = min(side_a, side_b)
+        if n_stamps >= 20 and n_ready >= 50:
+            return GATE_INTERPRET
+        if n_stamps >= 5 and n_ready >= 15:
+            return GATE_MONITOR
+        return GATE_INSUFFICIENT
+    return GATE_INSUFFICIENT
+
+
+def gate_badge(gate: str) -> str:
+    return {
+        GATE_INSUFFICIENT: "`insufficient`",
+        GATE_MONITOR: "`monitor`",
+        GATE_INTERPRET: "`interpret`",
+    }.get(gate, f"`{gate}`")
+
+
+# ── A. Basket excess ──────────────────────────────────────────────
+
+
 def aggregate_basket_excess(fwd: pd.DataFrame) -> pd.DataFrame:
-    """Pool all ready stamp×ticker rows by basket × horizon."""
+    """Pool ready stamp×ticker rows by basket × horizon (+ sample_gate)."""
     if fwd.empty:
         return pd.DataFrame()
     rows = []
     for basket, g in fwd.groupby("basket"):
         for lab, _ in EVENT_FWD_HORIZONS:
             ready_col, exc_col = f"ready_{lab}", f"excess_{lab}"
-            if ready_col not in g.columns:
+            if ready_col not in g.columns or exc_col not in g.columns:
                 continue
-            ready = g.loc[g[ready_col].astype(bool)]
+            ready = g.loc[_as_bool_series(g[ready_col])]
             n = len(ready)
+            n_stamps = int(ready["stamp"].nunique()) if n and "stamp" in ready.columns else 0
+            mean_exc = float(ready[exc_col].mean()) if n else np.nan
             rows.append(
                 {
                     "basket": basket,
                     "horizon": lab,
                     "n_ready": n,
-                    "n_stamps": int(ready["stamp"].nunique()) if n and "stamp" in ready.columns else 0,
-                    "mean_excess": float(ready[exc_col].mean()) if n else np.nan,
+                    "n_stamps": n_stamps,
+                    "mean_excess": mean_exc,
                     "median_excess": float(ready[exc_col].median()) if n else np.nan,
+                    "std_excess": float(ready[exc_col].std(ddof=0)) if n else np.nan,
                     "win_rate": float((ready[exc_col] > 0).mean()) if n else np.nan,
+                    "sample_gate": sample_gate(n_ready=n, n_stamps=n_stamps, kind="basket"),
                 }
             )
+    if not rows:
+        return pd.DataFrame()
     return pd.DataFrame(rows).sort_values(["horizon", "basket"]).reset_index(drop=True)
+
+
+# ── B. Enter/exit events ──────────────────────────────────────────
 
 
 def load_event_forward(sepatop_report: Path) -> pd.DataFrame:
     path = Path(sepatop_report) / "membership_event_fwd_panel.csv"
     return _load_csv(path)
+
+
+def study_event_forward(events: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate enter/exit × horizon mean excess (ready only)."""
+    if events.empty or "action" not in events.columns:
+        return pd.DataFrame()
+    rows = []
+    for lab, _ in EVENT_FWD_HORIZONS:
+        ready_col, exc_col = f"ready_{lab}", f"excess_{lab}"
+        if ready_col not in events.columns or exc_col not in events.columns:
+            continue
+        for action in ("enter", "exit"):
+            g = events.loc[
+                (events["action"].astype(str) == action) & _as_bool_series(events[ready_col])
+            ]
+            n = len(g)
+            rows.append(
+                {
+                    "action": action,
+                    "horizon": lab,
+                    "n_ready": n,
+                    "n_stamps": int(g["stamp"].nunique()) if n and "stamp" in g.columns else 0,
+                    "mean_excess": float(g[exc_col].mean()) if n else np.nan,
+                    "median_excess": float(g[exc_col].median()) if n else np.nan,
+                    "win_rate": float((g[exc_col] > 0).mean()) if n else np.nan,
+                    "sample_gate": sample_gate(n_ready=n, kind="event"),
+                }
+            )
+    if not rows:
+        return pd.DataFrame()
+    return pd.DataFrame(rows).sort_values(["horizon", "action"]).reset_index(drop=True)
+
+
+# ── C. Streak × excess ────────────────────────────────────────────
 
 
 def streak_excess_frame(
@@ -96,21 +214,136 @@ def streak_excess_frame(
     exc = f"excess_{horizon}"
     ready = f"ready_{horizon}"
     sub = fwd.loc[fwd["basket"].astype(str) == basket].copy()
-    if sub.empty or ready not in sub.columns:
+    if sub.empty or ready not in sub.columns or exc not in sub.columns:
         return pd.DataFrame()
-    # use most recent stamp per ticker that is ready
-    sub = sub.loc[sub[ready].astype(bool)]
+    sub = sub.loc[_as_bool_series(sub[ready])]
     if sub.empty:
         return pd.DataFrame()
     sub = sub.sort_values("stamp").groupby("ticker", as_index=False).tail(1)
-    p = presence[["ticker", "streak_from_end", "n_present", "presence_rate", "always_present"]].copy()
+    keep = ["ticker", "streak_from_end", "n_present", "presence_rate", "always_present"]
+    keep = [c for c in keep if c in presence.columns]
+    p = presence[keep].copy()
     p["ticker"] = p["ticker"].astype(str).str.upper()
     sub["ticker"] = sub["ticker"].astype(str).str.upper()
-    return sub.merge(p, on="ticker", how="left")
+    out = sub.merge(p, on="ticker", how="left")
+    if "streak_from_end" in out.columns:
+        out["streak_bucket"] = _streak_bucket(out["streak_from_end"])
+    return out
+
+
+def _streak_bucket(streak: pd.Series) -> pd.Series:
+    s = pd.to_numeric(streak, errors="coerce")
+    labels = pd.Series(index=s.index, dtype=object)
+    for name, lo, hi in STREAK_BINS:
+        labels.loc[(s >= lo) & (s <= hi)] = name
+    return labels
+
+
+def study_streak_buckets(streak: pd.DataFrame, *, horizon: str = "21d") -> pd.DataFrame:
+    """Mean excess by streak bucket + overall spearman."""
+    exc = f"excess_{horizon}"
+    if streak.empty or exc not in streak.columns or "streak_from_end" not in streak.columns:
+        return pd.DataFrame()
+    valid = streak.dropna(subset=[exc, "streak_from_end"]).copy()
+    if valid.empty:
+        return pd.DataFrame()
+    rho = _spearman(valid["streak_from_end"], valid[exc])
+    rows = []
+    if "streak_bucket" not in valid.columns:
+        valid["streak_bucket"] = _streak_bucket(valid["streak_from_end"])
+    for name, _, _ in STREAK_BINS:
+        g = valid.loc[valid["streak_bucket"] == name]
+        n = len(g)
+        rows.append(
+            {
+                "bucket": name,
+                "horizon": horizon,
+                "n_ready": n,
+                "mean_excess": float(g[exc].mean()) if n else np.nan,
+                "win_rate": float((g[exc] > 0).mean()) if n else np.nan,
+                "spearman_all": rho,
+                "sample_gate": sample_gate(n_ready=len(valid), kind="streak"),
+            }
+        )
+    # always_present row
+    if "always_present" in valid.columns:
+        ap = valid.loc[_as_bool_series(valid["always_present"])]
+        n = len(ap)
+        rows.append(
+            {
+                "bucket": "always_present",
+                "horizon": horizon,
+                "n_ready": n,
+                "mean_excess": float(ap[exc].mean()) if n else np.nan,
+                "win_rate": float((ap[exc] > 0).mean()) if n else np.nan,
+                "spearman_all": rho,
+                "sample_gate": sample_gate(n_ready=len(valid), kind="streak"),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+# ── D. soft_drop vs rs90_ok ───────────────────────────────────────
+
+
+def study_soft_vs_rs90(fwd: pd.DataFrame) -> pd.DataFrame:
+    """Compare soft_drop vs rs90_ok forward excess by horizon."""
+    if fwd.empty or "basket" not in fwd.columns:
+        return pd.DataFrame()
+    rows = []
+    for lab, _ in EVENT_FWD_HORIZONS:
+        ready_col, exc_col = f"ready_{lab}", f"excess_{lab}"
+        if ready_col not in fwd.columns or exc_col not in fwd.columns:
+            continue
+        sides = {}
+        for basket in (BASKET_SOFT_DROP, BASKET_RS90_OK):
+            g = fwd.loc[
+                (fwd["basket"].astype(str) == basket) & _as_bool_series(fwd[ready_col])
+            ]
+            n = len(g)
+            sides[basket] = {
+                "n_ready": n,
+                "n_stamps": int(g["stamp"].nunique()) if n and "stamp" in g.columns else 0,
+                "mean_excess": float(g[exc_col].mean()) if n else np.nan,
+                "median_excess": float(g[exc_col].median()) if n else np.nan,
+                "win_rate": float((g[exc_col] > 0).mean()) if n else np.nan,
+            }
+        soft = sides[BASKET_SOFT_DROP]
+        ok = sides[BASKET_RS90_OK]
+        min_n = min(soft["n_ready"], ok["n_ready"])
+        min_stamps = min(soft["n_stamps"], ok["n_stamps"])
+        delta = (
+            soft["mean_excess"] - ok["mean_excess"]
+            if soft["n_ready"] and ok["n_ready"]
+            else np.nan
+        )
+        rows.append(
+            {
+                "horizon": lab,
+                "n_soft_drop": soft["n_ready"],
+                "n_rs90_ok": ok["n_ready"],
+                "n_stamps_soft": soft["n_stamps"],
+                "n_stamps_rs90": ok["n_stamps"],
+                "mean_soft_drop": soft["mean_excess"],
+                "mean_rs90_ok": ok["mean_excess"],
+                "delta_soft_minus_rs90": delta,
+                "win_soft_drop": soft["win_rate"],
+                "win_rs90_ok": ok["win_rate"],
+                "sample_gate": sample_gate(n_ready=min_n, n_stamps=min_stamps, kind="soft_vs"),
+            }
+        )
+    if not rows:
+        return pd.DataFrame()
+    return pd.DataFrame(rows).sort_values("horizon").reset_index(drop=True)
+
+
+# ── Charts ────────────────────────────────────────────────────────
 
 
 def plot_basket_bars(agg: pd.DataFrame, out_path: Path, *, horizon: str) -> Path | None:
     setup_korean_matplotlib()
+    if agg.empty or "horizon" not in agg.columns:
+        return None
     g = agg.loc[agg["horizon"] == horizon].dropna(subset=["mean_excess"])
     if g.empty:
         return None
@@ -120,10 +353,87 @@ def plot_basket_bars(agg: pd.DataFrame, out_path: Path, *, horizon: str) -> Path
     for i, row in enumerate(g.itertuples()):
         ax.text(i, row.mean_excess * 100, f"n={int(row.n_ready)}", ha="center", va="bottom", fontsize=8)
     ax.set_ylabel("mean excess vs SPX (%)")
-    ax.set_title(f"Basket mean excess — {horizon} (ready only)")
+    ax.set_title(f"A. Basket mean excess — {horizon} (ready only)")
     ax.grid(axis="y", alpha=0.3)
     fig.tight_layout()
     return savefig_korean(fig, out_path, dpi=140)
+
+
+def plot_event_bars(event_agg: pd.DataFrame, out_path: Path, *, horizon: str) -> Path | None:
+    setup_korean_matplotlib()
+    if event_agg.empty or "horizon" not in event_agg.columns:
+        return None
+    g = event_agg.loc[event_agg["horizon"] == horizon].dropna(subset=["mean_excess"])
+    if g.empty:
+        return None
+    fig, ax = plt.subplots(figsize=(6, 4))
+    colors = {"enter": "#2c5f7c", "exit": "#8b4513"}
+    xs = g["action"].astype(str).tolist()
+    ys = (g["mean_excess"] * 100).tolist()
+    ax.bar(xs, ys, color=[colors.get(a, "#666") for a in xs], alpha=0.85)
+    ax.axhline(0, color="#333", lw=0.8)
+    for i, row in enumerate(g.itertuples()):
+        ax.text(i, row.mean_excess * 100, f"n={int(row.n_ready)}", ha="center", va="bottom", fontsize=8)
+    ax.set_ylabel("mean excess vs SPX (%)")
+    ax.set_title(f"B. Enter/exit excess — {horizon}")
+    ax.grid(axis="y", alpha=0.3)
+    fig.tight_layout()
+    return savefig_korean(fig, out_path, dpi=140)
+
+
+def plot_streak_scatter(streak: pd.DataFrame, out_path: Path, *, horizon: str = "21d") -> Path | None:
+    setup_korean_matplotlib()
+    exc = f"excess_{horizon}"
+    if streak.empty or exc not in streak.columns or "streak_from_end" not in streak.columns:
+        return None
+    valid = streak.dropna(subset=[exc, "streak_from_end"])
+    if valid.empty:
+        return None
+    fig, ax = plt.subplots(figsize=(7, 4.5))
+    ax.scatter(
+        valid["streak_from_end"],
+        valid[exc] * 100,
+        alpha=0.65,
+        c="#2c5f7c",
+        edgecolors="none",
+        s=36,
+    )
+    ax.axhline(0, color="#333", lw=0.8)
+    ax.set_xlabel("streak_from_end")
+    ax.set_ylabel(f"excess {horizon} vs SPX (%)")
+    ax.set_title(f"C. Streak × excess (median_plus, {horizon})")
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+    return savefig_korean(fig, out_path, dpi=140)
+
+
+def plot_soft_vs_rs90(soft_cmp: pd.DataFrame, out_path: Path) -> Path | None:
+    setup_korean_matplotlib()
+    if soft_cmp.empty:
+        return None
+    g = soft_cmp.dropna(subset=["mean_soft_drop", "mean_rs90_ok"], how="all")
+    if g.empty:
+        return None
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    x = np.arange(len(g))
+    w = 0.35
+    ax.bar(x - w / 2, g["mean_soft_drop"] * 100, w, label="soft_drop", color="#8b4513", alpha=0.85)
+    ax.bar(x + w / 2, g["mean_rs90_ok"] * 100, w, label="rs90_ok", color="#2c5f7c", alpha=0.85)
+    ax.axhline(0, color="#333", lw=0.8)
+    ax.set_xticks(x)
+    ax.set_xticklabels(g["horizon"].astype(str))
+    ax.set_ylabel("mean excess vs SPX (%)")
+    ax.set_title("D. soft_drop vs rs90_ok (ready only)")
+    ax.legend()
+    ax.grid(axis="y", alpha=0.3)
+    for i, row in enumerate(g.itertuples()):
+        ax.text(i - w / 2, (row.mean_soft_drop or 0) * 100, f"n={int(row.n_soft_drop)}", ha="center", va="bottom", fontsize=7)
+        ax.text(i + w / 2, (row.mean_rs90_ok or 0) * 100, f"n={int(row.n_rs90_ok)}", ha="center", va="bottom", fontsize=7)
+    fig.tight_layout()
+    return savefig_korean(fig, out_path, dpi=140)
+
+
+# ── Report MD ─────────────────────────────────────────────────────
 
 
 def write_study_md(
@@ -132,68 +442,115 @@ def write_study_md(
     stamp: str,
     n_pool_days: int,
     agg: pd.DataFrame,
-    events: pd.DataFrame,
+    event_agg: pd.DataFrame,
     streak: pd.DataFrame,
+    streak_buckets: pd.DataFrame,
+    soft_cmp: pd.DataFrame,
     pool_log: pd.DataFrame,
 ) -> Path:
     lines = [
         f"# SEPA performance study — {stamp}",
         "",
         f"- ledger: `{LEDGER_VERSION}`",
+        f"- phase: **D29 Phase 1** (A–D)",
         f"- generated (UTC): `{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}`",
         f"- daily_pool_log days: **{n_pool_days}**",
         "",
         "> **표본 주의**: 수 주 수준이면 통계적 확증이 아니다. "
-        "이 리포트는 장기 축적 프레임의 스냅샷이며, 수개월·수년 데이터가 쌓일수록 해석력이 커진다.",
+        "섹션마다 `insufficient` / `monitor` / `interpret` 게이트를 붙인다. "
+        "프로덕션 파라미터는 이 리포트만으로 바꾸지 않는다.",
         "",
-        "## 1. Basket mean excess vs SPX (ready rows only)",
+        "## A. Basket mean excess vs SPX (ready rows only)",
         "",
     ]
     if agg.empty:
         lines.append("_아직 ready forward 표본이 없습니다. go가 반복되면 자동 백필됩니다._")
     else:
+        worst = GATE_INSUFFICIENT
+        if (agg["sample_gate"] == GATE_INTERPRET).any():
+            worst = GATE_INTERPRET
+        elif (agg["sample_gate"] == GATE_MONITOR).any():
+            worst = GATE_MONITOR
+        lines.append(f"- section gate (best row): {gate_badge(worst)}")
         lines += [
-            "| basket | horizon | n_ready | n_stamps | mean excess | win |",
-            "|---|---|---:|---:|---:|---:|",
+            "",
+            "| basket | horizon | n_ready | n_stamps | mean | win | gate |",
+            "|---|---|---:|---:|---:|---:|---|",
         ]
         for r in agg.itertuples():
             lines.append(
                 f"| {r.basket} | {r.horizon} | {int(r.n_ready)} | {int(r.n_stamps)} | "
-                f"{_pct(r.mean_excess)} | {_pct(r.win_rate)} |"
+                f"{_pct(r.mean_excess)} | {_pct(r.win_rate)} | {r.sample_gate} |"
             )
 
-    lines += ["", "## 2. sepaTop enter/exit event forward", ""]
-    if events.empty:
-        lines.append("_membership_event_fwd_panel 없음 — sepaTop 히스토리가 더 필요_")
+    lines += ["", "## B. sepaTop enter/exit event forward", ""]
+    if event_agg.empty:
+        lines.append("_membership_event_fwd_panel 없음 또는 ready=0 — sepaTop 히스토리·대기 필요_")
     else:
-        for lab, _ in EVENT_FWD_HORIZONS:
-            ready = f"ready_{lab}"
-            exc = f"excess_{lab}"
-            if ready not in events.columns:
-                continue
-            for action in ("enter", "exit"):
-                g = events.loc[(events["action"] == action) & events[ready].astype(bool)]
-                n = len(g)
-                mean = float(g[exc].mean()) if n else float("nan")
-                lines.append(f"- **{action}** {lab}: n={n}, mean excess={_pct(mean)}")
+        best_gate = GATE_INSUFFICIENT
+        if (event_agg["sample_gate"] == GATE_INTERPRET).any():
+            best_gate = GATE_INTERPRET
+        elif (event_agg["sample_gate"] == GATE_MONITOR).any():
+            best_gate = GATE_MONITOR
+        lines.append(f"- section gate (best row): {gate_badge(best_gate)}")
+        lines += [
+            "",
+            "| action | horizon | n_ready | mean excess | win | gate |",
+            "|---|---|---:|---:|---:|---|",
+        ]
+        for r in event_agg.itertuples():
+            lines.append(
+                f"| {r.action} | {r.horizon} | {int(r.n_ready)} | "
+                f"{_pct(r.mean_excess)} | {_pct(r.win_rate)} | {r.sample_gate} |"
+            )
 
-    lines += ["", "## 3. Streak × excess (median_plus, 21d, latest ready)", ""]
-    if streak.empty or streak.get("streak_from_end") is None:
+    lines += ["", "## C. Streak × excess (median_plus, 21d)", ""]
+    if streak_buckets.empty:
         lines.append("_presence/forward 조인 표본 부족_")
     else:
-        valid = streak.dropna(subset=["excess_21d", "streak_from_end"]) if "excess_21d" in streak.columns else streak
-        if valid.empty:
-            lines.append("_ready 21d 표본 없음_")
-        else:
-            rho = float(valid["streak_from_end"].corr(valid["excess_21d"], method="spearman"))
-            lines.append(f"- Spearman(streak, excess_21d) = **{rho:.3f}** (n={len(valid)})")
-            if "always_present" in valid.columns:
-                ap = valid.loc[valid["always_present"].astype(bool), "excess_21d"]
-                lines.append(
-                    f"- always_present mean excess_21d = {_pct(float(ap.mean()) if len(ap) else float('nan'))}"
-                )
+        gate_c = str(streak_buckets["sample_gate"].iloc[0])
+        rho = streak_buckets["spearman_all"].iloc[0]
+        lines.append(f"- section gate: {gate_badge(gate_c)}")
+        lines.append(f"- Spearman(streak, excess_21d) = **{float(rho):.3f}**")
+        lines += [
+            "",
+            "| bucket | n | mean excess | win |",
+            "|---|---:|---:|---:|",
+        ]
+        for r in streak_buckets.itertuples():
+            lines.append(
+                f"| {r.bucket} | {int(r.n_ready)} | {_pct(r.mean_excess)} | {_pct(r.win_rate)} |"
+            )
 
-    lines += ["", "## 4. Pool size trail (recent)", ""]
+    lines += ["", "## D. soft_drop vs rs90_ok (정책 검증)", ""]
+    lines.append(
+        "> soft_drop = RS≥90이지만 Fund<중앙값으로 탈락 · "
+        "rs90_ok = 풀 안 RS≥90 통과. "
+        "`delta = mean(soft_drop) − mean(rs90_ok)` — 음수면 뺀 쪽이 더 못함(정책 지지 쪽)."
+    )
+    lines.append("")
+    if soft_cmp.empty:
+        lines.append("_soft_drop / rs90_ok ready 표본 없음_")
+    else:
+        best_gate = GATE_INSUFFICIENT
+        if (soft_cmp["sample_gate"] == GATE_INTERPRET).any():
+            best_gate = GATE_INTERPRET
+        elif (soft_cmp["sample_gate"] == GATE_MONITOR).any():
+            best_gate = GATE_MONITOR
+        lines.append(f"- section gate (best min-n row): {gate_badge(best_gate)}")
+        lines += [
+            "",
+            "| horizon | n_soft | n_rs90 | mean soft | mean rs90 | Δ soft−rs90 | gate |",
+            "|---|---:|---:|---:|---:|---:|---|",
+        ]
+        for r in soft_cmp.itertuples():
+            lines.append(
+                f"| {r.horizon} | {int(r.n_soft_drop)} | {int(r.n_rs90_ok)} | "
+                f"{_pct(r.mean_soft_drop)} | {_pct(r.mean_rs90_ok)} | "
+                f"{_pct(r.delta_soft_minus_rs90)} | {r.sample_gate} |"
+            )
+
+    lines += ["", "## Pool size trail (recent)", ""]
     if pool_log.empty:
         lines.append("_daily_pool_log 없음_")
     else:
@@ -213,8 +570,9 @@ def write_study_md(
         "",
         "## 다음",
         "",
-        "- go를 반복할수록 `security_forward_panel`의 `ready_*`가 채워짐",
-        "- soft_drop vs rs90_ok, 섹터 IR 등은 표본 증가 후 확장",
+        "- go / fill_gaps 반복 → `ready_*`·게이트가 `monitor`→`interpret`로 올라감",
+        "- Phase 2: 풀 안정성 차트(E), `--module` 단일 실행",
+        "- Phase 3: 섹터·분위(F) — stamps 충분할 때",
         "",
     ]
     path.write_text("\n".join(lines), encoding="utf-8")
@@ -254,6 +612,7 @@ def run_perf_study(
     fwd = _load_csv(out / "security_forward_panel.csv")
     agg = aggregate_basket_excess(fwd)
     events = load_event_forward(report_dir / "sepatop")
+    event_agg = study_event_forward(events)
 
     presence = pd.DataFrame()
     sepatop = report_dir / "sepatop"
@@ -261,44 +620,102 @@ def run_perf_study(
         hist = load_membership_history(sepatop)
         presence = presence_table(hist)
     streak = streak_excess_frame(presence, fwd)
+    streak_buckets = study_streak_buckets(streak, horizon="21d")
+    soft_cmp = study_soft_vs_rs90(fwd)
 
     charts_dir = out / "charts"
     charts_dir.mkdir(parents=True, exist_ok=True)
-    chart_paths = []
+    chart_paths: list[Path] = []
     for lab, _ in EVENT_FWD_HORIZONS:
         p = plot_basket_bars(agg, charts_dir / f"perf_basket_excess_{lab}_{stamp}.png", horizon=lab)
         if p:
             chart_paths.append(p)
+        pe = plot_event_bars(event_agg, charts_dir / f"perf_event_fwd_{lab}_{stamp}.png", horizon=lab)
+        if pe:
+            chart_paths.append(pe)
+    ps = plot_streak_scatter(streak, charts_dir / f"perf_streak_scatter_{stamp}.png", horizon="21d")
+    if ps:
+        chart_paths.append(ps)
+    pd_cmp = plot_soft_vs_rs90(soft_cmp, charts_dir / f"perf_soft_vs_rs90_{stamp}.png")
+    if pd_cmp:
+        chart_paths.append(pd_cmp)
 
+    csv_paths: list[Path] = []
     if not agg.empty:
-        agg.to_csv(out / f"study_basket_agg_{stamp}.csv", index=False)
+        p = out / f"study_basket_agg_{stamp}.csv"
+        agg.to_csv(p, index=False)
+        csv_paths.append(p)
+    if not event_agg.empty:
+        p = out / f"study_event_fwd_{stamp}.csv"
+        event_agg.to_csv(p, index=False)
+        csv_paths.append(p)
     if not streak.empty:
-        streak.to_csv(out / f"study_streak_excess_{stamp}.csv", index=False)
+        p = out / f"study_streak_excess_{stamp}.csv"
+        streak.to_csv(p, index=False)
+        csv_paths.append(p)
+    if not streak_buckets.empty:
+        p = out / f"study_streak_buckets_{stamp}.csv"
+        streak_buckets.to_csv(p, index=False)
+        csv_paths.append(p)
+    if not soft_cmp.empty:
+        p = out / f"study_soft_vs_rs90_{stamp}.csv"
+        soft_cmp.to_csv(p, index=False)
+        csv_paths.append(p)
 
     md = write_study_md(
         out / f"study_{stamp}.md",
         stamp=stamp,
         n_pool_days=int(pool_log["stamp"].nunique()) if not pool_log.empty else 0,
         agg=agg,
-        events=events,
+        event_agg=event_agg,
         streak=streak,
+        streak_buckets=streak_buckets,
+        soft_cmp=soft_cmp,
         pool_log=pool_log,
     )
 
-    published = publish_many([md, *chart_paths, out / "daily_pool_log.csv", out / "security_forward_panel.csv", out / "basket_members_panel.csv"])
-    print(f"\n=== SEPA perf_study ({stamp}) ===")
+    published = publish_many(
+        [
+            md,
+            *chart_paths,
+            *csv_paths,
+            out / "daily_pool_log.csv",
+            out / "security_forward_panel.csv",
+            out / "basket_members_panel.csv",
+        ]
+    )
+    print(f"\n=== SEPA perf_study D29-P1 ({stamp}) ===")
     print(f"pool days: {0 if pool_log.empty else pool_log['stamp'].nunique()}")
     print(f"forward rows: {len(fwd)}")
     if not agg.empty:
+        print("\n[A] basket excess")
         print(agg.to_string(index=False))
-    print(f"report: {md.resolve()}")
+    if not event_agg.empty:
+        print("\n[B] enter/exit")
+        print(event_agg.to_string(index=False))
+    if not streak_buckets.empty:
+        print("\n[C] streak buckets")
+        print(streak_buckets.to_string(index=False))
+    if not soft_cmp.empty:
+        print("\n[D] soft_drop vs rs90_ok")
+        print(soft_cmp.to_string(index=False))
+    print(f"\nreport: {md.resolve()}")
     if published:
         print(f"artifacts: {len(published)} files")
-    return {"ok": True, "md": md, "agg": agg, "charts": chart_paths, "published": published}
+    return {
+        "ok": True,
+        "md": md,
+        "agg": agg,
+        "event_agg": event_agg,
+        "streak_buckets": streak_buckets,
+        "soft_cmp": soft_cmp,
+        "charts": chart_paths,
+        "published": published,
+    }
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(description="SEPA longitudinal performance study")
+    p = argparse.ArgumentParser(description="SEPA longitudinal performance study (D29 Phase 1)")
     p.add_argument("--config", default="config/params.yaml")
     p.add_argument("--stamp", default=None)
     p.add_argument("--refresh-ledger", action="store_true")

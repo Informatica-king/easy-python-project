@@ -56,7 +56,8 @@ go/anal이 이미 쌓는 원본(`fundamental_*`, `membership_*`, `presence_*`, `
 5. **E** 풀·필터 안정성 (`daily_pool_log`)  
 6. **F** (향후) 섹터 편중·IR·분위 예측력 확장  
 
-구현 범위·순서·쉬운 설명: **`docs/perf_study_dev_plan.md`** (D29, 쉬운 버전).
+구현 범위·쉬운 설명: **`docs/perf_study_dev_plan.md`** (D29).  
+**Phase 1 구현됨** — A~D + sample_gate (`!sepa.perf_study`).
 
 ---
 

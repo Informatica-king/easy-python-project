@@ -291,7 +291,8 @@ sepa-bot/
 | 2026-08-04 | D26: go median+ 복사용 전체 문자열 필수 | `!sepa.go` 종료 시 Fund≥중앙값 티커를 쉼표 한 줄로 **생략 없이** 재출력. 에이전트 요약도 전문 제시 (`AGENTS.md`) |
 | 2026-08-04 | D27: analyze PDF·차트 한글 폰트 가드 | 원인1: VM Nanum 미설치→DejaVu □. 원인2: PDF만 고쳐도 **이전 go PNG에 깨진 한글이 임베드**. `sepa.fonts` 탐지/apt + sans-serif 체인 + `savefig_korean`(legend/tick 강제) 후 차트 재생성 |
 | 2026-08-04 | D28: 성능 검증 장기 프레임 | go마다 `reports/perf/` 패널 자동 갱신 (`perf_ledger`) + `!sepa.perf_study`. 문서: `docs/perf_study_framework.md` |
-| 2026-08-04 | D29: 검증·분석 함수 개발 계획 | A~F를 쉬운 말로 정리한 계획서(고등학생 수준 설명). 문서: `docs/perf_study_dev_plan.md` (구현 전) |
+| 2026-08-04 | D29: 검증·분석 함수 개발 계획 | A~F를 쉬운 말로 정리한 계획서. 문서: `docs/perf_study_dev_plan.md` |
+| 2026-08-14 | D29-P1: perf_study A–D 구현 | basket excess·enter/exit·streak 버킷·soft_drop vs rs90_ok + sample_gate. `!sepa.perf_study` |
 | 2026-08-12 | D30: 빠진 go 날짜 gap fill | 목적=분석용 구멍만 빠른 채움. `sepa.gap_fill` / `!sepa.fill_gaps` / `!sepa.go(fill_gaps=1)`. 릴리즈 CSV 복원 + as-of scan/fund/membership/perf. PDF·차트·metrics 스킵. 문서: `docs/gap_fill_plan.md` |
 
 ## 6. 진행 현황
