@@ -762,6 +762,122 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "피어는 공시 세그먼트가 달라 근사 — 방향 비교용."
         ),
     },
+    "APPS": {
+        "sector_ko": "기술 · 모바일 성장·온디바이스 광고 (심층: ODS + App Growth)",
+        "share_title": "상장 모바일 광고·앱성장 피어셋 스케일 점유 (추정)",
+        "share_as_of": "2025–26 · 매출 스케일 근사 vs 전년",
+        "share_note": (
+            "상장 모바일 광고·앱성장 피어(APP/U/MGNI/APPS) 상대 스케일. "
+            "Google/Meta/애플 광고는 혼재·초대형이라 제외. "
+            "절대 시장점유율이 아니라 피어셋 방향 비교용."
+        ),
+        "share_rows": [
+            ("AppLovin (APP)", 48.0, 45.0),
+            ("Unity (U)", 18.0, 19.5),
+            ("Magnite (MGNI)", 12.5, 12.0),
+            ("Digital Turbine (APPS)", 6.0, 5.2),
+            ("Others (listed/est.)", 15.5, 18.3),
+        ],
+        "share_source": "Directional share of selected US-listed mobile ad/app-growth peers by revenue scale (est.)",
+        "mix_buckets": ["On Device Solutions", "App Growth Platform", "Other"],
+        "mix_as_of": "Q1 FY'27 (ended Jun 30, 2026) · 세그먼트 매출(elim 전) 정규화",
+        "mix_rows": [
+            {
+                "key": "APPS",
+                "name": "APPS",
+                "subject": True,
+                "yf": "APPS",
+                "mix": {"On Device Solutions": 66.0, "App Growth Platform": 34.0, "Other": 0.0},
+                "note": "ODS $110.0M / AGP $56.6M (elim 전) · AGP YoY +56%",
+            },
+            {
+                "key": "APP",
+                "name": "APP",
+                "subject": False,
+                "yf": "APP",
+                "mix": {"On Device Solutions": 5.0, "App Growth Platform": 90.0, "Other": 5.0},
+                "note": "퍼포먼스 광고·AXON 중심 → AGP 버킷 근사",
+            },
+            {
+                "key": "U",
+                "name": "U",
+                "subject": False,
+                "yf": "U",
+                "mix": {"On Device Solutions": 8.0, "App Growth Platform": 52.0, "Other": 40.0},
+                "note": "Grow(광고)≈AGP · Create≈Other 근사",
+            },
+            {
+                "key": "MGNI",
+                "name": "MGNI",
+                "subject": False,
+                "yf": "MGNI",
+                "mix": {"On Device Solutions": 5.0, "App Growth Platform": 75.0, "Other": 20.0},
+                "note": "CTV·프로그래머틱 SSP → AGP 중심 근사",
+            },
+        ],
+        "mix_note": (
+            "버킷은 On Device Solutions / App Growth Platform / Other로 정규화. "
+            "피어 공시 세그먼트가 달라 근사 — 방향 비교용."
+        ),
+    },
+    "IART": {
+        "sector_ko": "헬스케어 · 신경외과·조직재건 메드텍 (심층: Specialty Surgery + Tissue)",
+        "share_title": "상장 신경·두개·조직재건 피어셋 스케일 점유 (추정)",
+        "share_as_of": "2025–26 · 관련 매출 스케일 근사 vs 전년",
+        "share_note": (
+            "신경외과·조직재건 관련 상장 피어 상대 스케일. "
+            "MDT/SYK는 전사 혼재라 관련 사업만 축소 반영. "
+            "절대 시장점유율이 아니라 피어셋 방향 비교용."
+        ),
+        "share_rows": [
+            ("Medtronic Neuro+", 30.0, 30.5),
+            ("Stryker Neuro+", 26.0, 25.5),
+            ("Integra (IART)", 9.0, 8.7),
+            ("Globus/Other listed", 12.0, 12.3),
+            ("Others (est.)", 23.0, 23.0),
+        ],
+        "share_source": "Directional share of selected neuro/cranial/tissue peers by related revenue scale (est.)",
+        "mix_buckets": ["Specialty Surgery", "Tissue Reconstruction", "Other"],
+        "mix_as_of": "Q2'26 · 세그먼트 매출 정규화 (구 Codman CSS / Tissue Technologies)",
+        "mix_rows": [
+            {
+                "key": "IART",
+                "name": "IART",
+                "subject": True,
+                "yf": "IART",
+                "mix": {"Specialty Surgery": 73.9, "Tissue Reconstruction": 26.1, "Other": 0.0},
+                "note": "SS $309.3M (+1.7%) / TR $109.5M (−1.9%)",
+            },
+            {
+                "key": "MDT",
+                "name": "MDT",
+                "subject": False,
+                "yf": "MDT",
+                "mix": {"Specialty Surgery": 38.0, "Tissue Reconstruction": 6.0, "Other": 56.0},
+                "note": "신경·두개 일부만 Specialty · 나머지 Other 근사",
+            },
+            {
+                "key": "SYK",
+                "name": "SYK",
+                "subject": False,
+                "yf": "SYK",
+                "mix": {"Specialty Surgery": 42.0, "Tissue Reconstruction": 8.0, "Other": 50.0},
+                "note": "Neuro·ENT·Instruments 혼재 → Specialty 근사",
+            },
+            {
+                "key": "GMED",
+                "name": "GMED",
+                "subject": False,
+                "yf": "GMED",
+                "mix": {"Specialty Surgery": 88.0, "Tissue Reconstruction": 5.0, "Other": 7.0},
+                "note": "척추·정형 중심 · Specialty 편중",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Specialty Surgery / Tissue Reconstruction / Other로 정규화. "
+            "IART는 2026초 세그먼트명 변경(구 Codman CSS·Tissue Technologies). 피어는 근사."
+        ),
+    },
 }
 
 
@@ -811,6 +927,8 @@ SUBJECT_SHARE_ALIASES: dict[str, tuple[str, ...]] = {
     "AMRX": ("amneal",),
     "FTRE": ("fortrea",),
     "CMPR": ("cimpress", "vistaprint", "vista"),
+    "APPS": ("digital turbine",),
+    "IART": ("integra",),
 }
 
 

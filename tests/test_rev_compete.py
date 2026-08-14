@@ -75,6 +75,32 @@ def test_nesr_profile_exists():
     assert abs(p["mix_rows"][0]["mix"]["Production Services"] - 60.0) < 0.1
 
 
+def test_apps_profile_exists():
+    p = get_profile("APPS")
+    assert p is not None
+    assert any(r.get("subject") for r in p["mix_rows"])
+    assert p["share_rows"][3][0] == "Digital Turbine (APPS)"
+    assert "On Device Solutions" in p["mix_buckets"]
+    assert abs(p["mix_rows"][0]["mix"]["On Device Solutions"] - 66.0) < 0.1
+
+
+def test_iart_profile_exists():
+    p = get_profile("IART")
+    assert p is not None
+    assert any(r.get("subject") for r in p["mix_rows"])
+    assert p["share_rows"][2][0] == "Integra (IART)"
+    assert "Specialty Surgery" in p["mix_buckets"]
+    assert abs(p["mix_rows"][0]["mix"]["Specialty Surgery"] - 73.9) < 0.1
+
+
+def test_ftre_profile_exists():
+    p = get_profile("FTRE")
+    assert p is not None
+    assert any(r.get("subject") for r in p["mix_rows"])
+    assert p["share_rows"][3][0] == "Fortrea (FTRE)"
+    assert "Full-service/Hybrid" in p["mix_buckets"]
+
+
 def test_load_bundle_offline_share(monkeypatch):
     monkeypatch.setattr("sepa.rev_compete._ttm_revenue", lambda _t: None)
     b = load_compete_bundle("RELY")
