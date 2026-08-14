@@ -84,6 +84,7 @@ class PortfolioBook:
     ops_date: date | None = None  # 실행일(스텐스·계획·D5). None이면 as_of
     identity: str = ""
     identity_short: str = ""
+    target_krw: float = 100_000_000.0
 
     @property
     def effective_date(self) -> date:
@@ -93,6 +94,64 @@ class PortfolioBook:
     def cash_total_usd(self) -> float:
         """USD cash + KRW cash (FX-converted)."""
         return float(self.cash_usd or 0.0) + float(self.cash_krw_usd or 0.0)
+
+
+@dataclass(frozen=True)
+class NavPoint:
+    """One dated book snapshot for growth charts (equity / cash / liquid)."""
+
+    as_of: date
+    equity_usd: float
+    cash_usd: float  # USD+KRW converted total when available
+    liquid_usd: float
+    source: str = ""
+
+
+@dataclass(frozen=True)
+class BenchSummary:
+    """Trailing basket vs QQQ/SPY — index ends (start=100)."""
+
+    start: date
+    end: date
+    port_end: float
+    qqq_end: float | None = None
+    spy_end: float | None = None
+
+    @property
+    def port_ret_pct(self) -> float:
+        return self.port_end - 100.0
+
+    @property
+    def qqq_ret_pct(self) -> float | None:
+        return None if self.qqq_end is None else self.qqq_end - 100.0
+
+    @property
+    def spy_ret_pct(self) -> float | None:
+        return None if self.spy_end is None else self.spy_end - 100.0
+
+    @property
+    def vs_qqq_pct(self) -> float | None:
+        if self.qqq_end is None:
+            return None
+        return self.port_end - self.qqq_end
+
+    @property
+    def vs_spy_pct(self) -> float | None:
+        if self.spy_end is None:
+            return None
+        return self.port_end - self.spy_end
+
+
+@dataclass(frozen=True)
+class GoalProgress:
+    """Progress toward strategy.goal.target_krw using liquid wealth."""
+
+    target_krw: float
+    liquid_usd: float
+    fx_krw_per_usd: float | None
+    liquid_krw: float | None
+    pct: float | None  # 0..1+
+    gap_krw: float | None
 
 
 @dataclass
@@ -192,6 +251,8 @@ def load_book(path: str | Path = "config/portfolio_watch.yaml") -> PortfolioBook
     if book_block.get("pending_orders_note"):
         pending = str(book_block["pending_orders_note"])
     strat = raw.get("strategy") or {}
+    goal = strat.get("goal") or {}
+    target_krw = float(goal.get("target_krw") or 100_000_000)
     return PortfolioBook(
         as_of=as_of,
         source=str(raw.get("source") or raw.get("as_of_note") or path),
@@ -205,6 +266,7 @@ def load_book(path: str | Path = "config/portfolio_watch.yaml") -> PortfolioBook
         identity_short=str(strat.get("identity_short") or ""),
         fx_krw_per_usd=fx_f,
         cash_krw_usd=cash_krw_usd,
+        target_krw=target_krw,
     )
 
 
@@ -812,3 +874,133 @@ def normalize_series(series: list[tuple[date, float]], start: date) -> list[tupl
     if base <= 0:
         return []
     return [(d, 100.0 * v / base) for d, v in pts]
+
+
+# ---------------------------------------------------------------------------
+# Growth panel (P1): NAV history · bench cards · 1억 goal gauge
+# ---------------------------------------------------------------------------
+
+_USD_RE = re.compile(r"\$\s*([0-9][0-9,]*(?:\.[0-9]+)?)")
+
+
+def _parse_usd_amount(text: str) -> float | None:
+    m = _USD_RE.search(text or "")
+    if not m:
+        return None
+    try:
+        return float(m.group(1).replace(",", ""))
+    except ValueError:
+        return None
+
+
+def parse_nav_from_portfolio_html(path: str | Path) -> NavPoint | None:
+    """Extract equity/cash/liquid from a generated Portfolio_Ops_*.html."""
+    p = Path(path)
+    if not p.exists():
+        return None
+    # Date from filename Portfolio_Ops_YYYY-MM-DD.html
+    m = re.search(r"Portfolio_Ops_(\d{4}-\d{2}-\d{2})", p.name)
+    if not m:
+        return None
+    as_of = date.fromisoformat(m.group(1))
+    text = p.read_text(encoding="utf-8")
+    box = re.search(r"<b>북 요약</b>(.*?)</div>", text, re.S | re.I)
+    if not box:
+        return None
+    body = box.group(1)
+    # Prefer labeled amounts
+    eq = ca = liq = None
+    mq = re.search(r"주식\s*(\$[0-9,]+\.?[0-9]*)", body)
+    mc = re.search(r"현금\s*(\$[0-9,]+\.?[0-9]*)", body)
+    ml = re.search(r"유동\s*(\$[0-9,]+\.?[0-9]*)", body)
+    if mq:
+        eq = _parse_usd_amount(mq.group(1))
+    if mc:
+        ca = _parse_usd_amount(mc.group(1))
+    if ml:
+        liq = _parse_usd_amount(ml.group(1))
+    if eq is None or ca is None or liq is None:
+        return None
+    return NavPoint(as_of=as_of, equity_usd=eq, cash_usd=ca, liquid_usd=liq, source=str(p.name))
+
+
+def load_nav_history(
+    report_dir: str | Path = "reports",
+    *,
+    book: PortfolioBook | None = None,
+) -> list[NavPoint]:
+    """Merge Portfolio_Ops HTML snaps + optional current book (latest wins per date)."""
+    by: dict[date, NavPoint] = {}
+    root = Path(report_dir)
+    for p in sorted(root.glob("Portfolio_Ops_*.html")):
+        pt = parse_nav_from_portfolio_html(p)
+        if pt:
+            by[pt.as_of] = pt
+    if book is not None and book.liquid_usd > 0:
+        by[book.as_of] = NavPoint(
+            as_of=book.as_of,
+            equity_usd=float(book.equity_usd),
+            cash_usd=float(book.cash_total_usd),
+            liquid_usd=float(book.liquid_usd),
+            source="live_book",
+        )
+    return [by[d] for d in sorted(by)]
+
+
+def nav_delta_summary(points: list[NavPoint]) -> str | None:
+    """One-line growth blurb from first→last liquid."""
+    if len(points) < 2:
+        return None
+    a, b = points[0], points[-1]
+    d = b.liquid_usd - a.liquid_usd
+    sign = "+" if d >= 0 else ""
+    return (
+        f"유동 ${a.liquid_usd:,.0f}({a.as_of.isoformat()[5:]}) → "
+        f"${b.liquid_usd:,.0f}({b.as_of.isoformat()[5:]}) · {sign}${d:,.0f}"
+    )
+
+
+def bench_summary_from_series(
+    book: PortfolioBook,
+    series: dict[str, list[tuple[date, float]]],
+) -> BenchSummary | None:
+    """Compute end index levels for port / QQQ / SPY (start=100)."""
+    pidx = portfolio_index(book, series)
+    if not pidx:
+        return None
+    start_d, _ = pidx[0]
+    end_d, port_end = pidx[-1]
+    qqq_end = spy_end = None
+    if "QQQ" in series:
+        q = normalize_series(series["QQQ"], start_d)
+        if q:
+            qqq_end = q[-1][1]
+    if "SPY" in series:
+        s = normalize_series(series["SPY"], start_d)
+        if s:
+            spy_end = s[-1][1]
+    return BenchSummary(
+        start=start_d,
+        end=end_d,
+        port_end=port_end,
+        qqq_end=qqq_end,
+        spy_end=spy_end,
+    )
+
+
+def goal_progress(book: PortfolioBook) -> GoalProgress:
+    """Liquid wealth vs target_krw (default 1억)."""
+    fx = book.fx_krw_per_usd
+    liq_usd = float(book.liquid_usd or 0.0)
+    target = float(book.target_krw or 100_000_000)
+    liq_krw = (liq_usd * fx) if fx and fx > 0 else None
+    pct = (liq_krw / target) if liq_krw is not None and target > 0 else None
+    gap = (target - liq_krw) if liq_krw is not None else None
+    return GoalProgress(
+        target_krw=target,
+        liquid_usd=liq_usd,
+        fx_krw_per_usd=fx,
+        liquid_krw=liq_krw,
+        pct=pct,
+        gap_krw=gap,
+    )
