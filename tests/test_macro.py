@@ -69,7 +69,13 @@ def test_short_aliases_resolve():
     assert _LOOKUP["sepa.sectorshare"] is _LOOKUP["sectorshare"]
     assert _LOOKUP["perf"] is _LOOKUP["sepa.perf_study"]
     assert _LOOKUP["sepa.perf"] is _LOOKUP["sepa.perf_study"]
+    assert _LOOKUP["검증"] is _LOOKUP["sepa.perf_study"]
 
+
+def test_parse_검증_alias():
+    assert parse_command("!검증") == ("검증", [], {})
+    assert parse_command("!검증()") == ("검증", [], {})
+    assert parse_command("!검증(refresh=1)")[2].get("refresh") == 1
 
 def test_parse_sepatop():
     assert parse_command("!sepa.sepaTop()") == ("sepa.sepatop", [], {})

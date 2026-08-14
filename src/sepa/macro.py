@@ -670,10 +670,10 @@ REGISTRY: list[MacroSpec] = [
     ),
     MacroSpec(
         "sepa.perf_study",
-        "!sepa.perf_study()  |  !sepa.perf_study(refresh=1)",
-        "누적 reports/perf 패널로 바스켓/이벤트 성과 요약 (표본 작아도 실행; 확증 아님)",
+        "!검증  |  !sepa.perf_study()  |  !sepa.perf_study(refresh=1)",
+        "모델 검증·성과 요약 (A–D) — 누적 reports/perf 패널 기반 (표본 작아도 실행; 확증 아님)",
         _tool_perf_study,
-        aliases=("perf_study", "sepa.perf", "perf"),
+        aliases=("perf_study", "sepa.perf", "perf", "검증"),
     ),
 ]
 
