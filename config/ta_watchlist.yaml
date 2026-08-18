@@ -38,6 +38,11 @@ tickers:
     stop: 48.0
     no_add: true
 
+  - symbol: APPS
+    earn_date: "2026-11-03"
+    stop: 10.0
+    no_add: true
+
   - symbol: SCSC
     earn_date: "2026-08-20"
     stop: 51.0
