@@ -7,14 +7,14 @@
 # band: 추가매수 허용 구간 (BAND)
 # grade / max_pct: 품질등급·구조한도 (A≤18% B≤10% C≤6%). 하드게이트 시 유효등급=금지(ADD 0%)
 
-as_of: "2026-08-14"
-as_of_note: "앱 캡처 · 평가 $1,200.49 (+3.4%·+$39.55) · USD$294.89 + ₩241,984 · 7종 · AMRX+1 · SCSC−1 · ADAP 신규2"
+as_of: "2026-08-18"
+as_of_note: "유저 체결 · ANAB(어냅티스)+1 @₩83,762 · SCSC 전량−2 @₩72,032 · 기존 ADAP 라벨→ANAB 정정 · 6종 · 주식~$1,160 · 현금합≈$510"
 fx_krw_per_usd: 1408.38
-cost_basis_source: "앱 손익역산 평단 2026-08-14 (USD 표시)"
-source: "app_screenshot_2026-08-14"
+cost_basis_source: "앱 손익역산 평단 2026-08-14 + 2026-08-18 KRW 체결환산 (USD 표시)"
+source: "user_fills_2026-08-18"
 
 # ---------------------------------------------------------------------------
-# Capital Operating System (snap 2026-08-14)
+# Capital Operating System (snap 2026-08-18)
 # ---------------------------------------------------------------------------
 strategy:
   identity: "짧~중기 모멘텀을 실적·비중·손절로 걸러, 비대장주 챌린저를 규칙으로만 운영하는 생존형 포트 OS"
@@ -27,23 +27,23 @@ strategy:
     target_krw: 100000000
     note: "1억 · 군적금 27.2(+2000만) · 청년미래적금 29.8(만기 2138만) 주식 재투자"
   book:
-    equity_usd: 1200.49
-    equity_pnl_usd: 39.55
-    equity_pnl_pct: 0.034
+    equity_usd: 1160.36
+    equity_pnl_usd: 54.08
+    equity_pnl_pct: 0.049
     cash_usd: 294.89
-    cash_krw: 241984
-    cash_krw_usd: 171.82
-    liquid_usd: 1667.20
+    cash_krw: 302286
+    cash_krw_usd: 214.63
+    liquid_usd: 1669.88
     cash_floor_usd: 150
-    cash_deployable_usd: 316.71
-    cash_pct_of_liquid: 0.280
-    pending_orders_note: "AMRX 1주 추가 · SCSC 1주 축소 · ADAP 2주 신규 · 7종 전원 NO_ADD"
+    cash_deployable_usd: 359.52
+    cash_pct_of_liquid: 0.305
+    pending_orders_note: "ANAB +1 · SCSC 전량매도 · 6종 전원 NO_ADD · Top3≈55.3%>50% · TXG≈20% 천장"
 
 cash:
   usd: 294.89
-  krw: 241984
+  krw: 302286
   floor_usd: 150
-  note: "USD$294.89 + ₩241,984(≈$172) · 합 ≈$467 · 바닥 $150"
+  note: "USD$294.89 + ₩302,286(≈$215) · 합 ≈$510 · 바닥 $150 · KRW 체결 정산(매수−83762+매도+144064)"
 
 contribution:
   payday: "매월 10일"
@@ -63,9 +63,9 @@ allocation:
   schd_target_pct: 0
   schd_role: "폐기 · 완충은 현금바닥+$150"
   note: |
-    2026-08-14: TXG 19.4% · ECPG 16.9% · CMPR 16.2% · AMRX 15.6% ·
-    FTNT 13.8% · ADAP 9.3% · SCSC 8.7%. 현금합 ≈$467 (유동 ~28%).
-    TXG 천장 해제(<20%) · Top3≈52.5% >50% · 전원 유효금지(NO_ADD).
+    2026-08-18: TXG 20.0% · ECPG 17.9% · AMRX 17.5% · CMPR 15.8% ·
+    ANAB 15.4% · FTNT 13.4%. 현금합 ≈$510 (유동 ~30.5%).
+    TXG 절대천장 20% · Top3≈55.3% >50% · 전원 유효금지(NO_ADD).
 
 rules:
   - "물타기 금지"
@@ -76,12 +76,10 @@ rules:
   - "하드게이트 → 유효 금지 · 보유 전원 NO_ADD"
   - "현금바닥 $150 유지 (USD+KRW환산 합산)"
   - "NESR 청산 완료 — 추격 재매수 금지"
-  - "TXG 4주 · +22.5% · stop $42 · 추가금지"
+  - "SCSC 전량매도 완료(08-18) — 추격 재매수 금지"
+  - "TXG 4주 · +22% · stop $42 · 천장20% · 추가금지"
   - "CMPR stop $90 경계 · 추가금지"
-  - "SCSC 2주 · EARN~08-20(D5 임박 ~08-15) · stop $51 · 추가금지"
-  - "AMRX 11주 · −6.6% · stop $15.5 · 추가 물타기 금지"
-  - "ADAP 신규2 · 품질C · 추가금지"
-  - "동일종목 중복 주문 금지"
+  - "ANAB 3주(+1) · 품질C · 평단~$57.94 · 추가금지 (구 ADAP 라벨 정정)"
 
 holdings:
   - ticker: TXG
@@ -90,15 +88,15 @@ holdings:
     max_pct: 6
     shares: 4
     cost_approx: 47.46
-    mark_approx: 58.15
-    value_approx: 232.60
-    weight_approx: 0.194
-    pnl_usd: 42.76
-    pnl_pct: 0.225
+    mark_approx: 57.99
+    value_approx: 231.96
+    weight_approx: 0.200
+    pnl_usd: 42.12
+    pnl_pct: 0.222
     stop: 42.0
     no_add: true
     earn_date: "2026-11-05"
-    note: "4주 · 평단 $47.46 · +22.5% · 품질C·19.4% · 추가금지"
+    note: "4주 · 평단 $47.46 · +22.2% · 품질C·20.0% 천장 · 추가금지"
 
   - ticker: ECPG
     role: hold
@@ -106,35 +104,17 @@ holdings:
     max_pct: 18
     shares: 2
     cost_approx: 92.32
-    mark_approx: 101.70
-    value_approx: 203.40
-    weight_approx: 0.169
-    pnl_usd: 18.76
-    pnl_pct: 0.101
+    mark_approx: 103.68
+    value_approx: 207.36
+    weight_approx: 0.179
+    pnl_usd: 22.72
+    pnl_pct: 0.123
     stop: 80.0
     tp1: 105.0
     tp2: 110.0
     no_add: true
     earn_date: "2026-11-04"
-    note: "평단 $92.32 · +10.1% · 품질A·16.9% · 추가금지"
-
-  - ticker: CMPR
-    role: hold
-    grade: C
-    max_pct: 6
-    shares: 2
-    cost_approx: 98.19
-    mark_approx: 97.34
-    value_approx: 194.68
-    weight_approx: 0.162
-    pnl_usd: -1.70
-    pnl_pct: -0.008
-    stop: 90.0
-    tp1: 110.0
-    tp2: 120.0
-    no_add: true
-    earn_date: "2026-10-28"
-    note: "2주 · 평단 $98.19 · −0.8% · 품질C·16.2% OVER · stop $90 경계 · 추가금지"
+    note: "평단 $92.32 · +12.3% · 품질A·17.9% · 추가금지"
 
   - ticker: AMRX
     role: hold
@@ -142,17 +122,51 @@ holdings:
     max_pct: 10
     shares: 11
     cost_approx: 18.27
-    mark_approx: 17.05
-    value_approx: 187.55
-    weight_approx: 0.156
-    pnl_usd: -13.44
-    pnl_pct: -0.066
+    mark_approx: 18.42
+    value_approx: 202.62
+    weight_approx: 0.175
+    pnl_usd: 1.65
+    pnl_pct: 0.008
     stop: 15.5
     tp1: 19.0
     tp2: 20.0
     no_add: true
     earn_date: "2026-10-29"
-    note: "11주(+1) · 평단 $18.27 · −6.6% · 품질B·15.6% OVER · stop $15.5 · 추가 물타기 금지"
+    note: "11주 · 평단 $18.27 · +0.8% · 품질B·17.5% OVER · stop $15.5 · 물타기 금지"
+
+  - ticker: CMPR
+    role: hold
+    grade: C
+    max_pct: 6
+    shares: 2
+    cost_approx: 98.19
+    mark_approx: 91.75
+    value_approx: 183.50
+    weight_approx: 0.158
+    pnl_usd: -12.88
+    pnl_pct: -0.066
+    stop: 90.0
+    tp1: 110.0
+    tp2: 120.0
+    no_add: true
+    earn_date: "2026-10-28"
+    note: "2주 · 평단 $98.19 · −6.6% · 품질C·15.8% OVER · stop $90 경계 · 추가금지"
+
+  - ticker: ANAB
+    role: hold
+    grade: C
+    max_pct: 6
+    shares: 3
+    cost_approx: 57.94
+    mark_approx: 59.69
+    value_approx: 179.07
+    weight_approx: 0.154
+    pnl_usd: 5.25
+    pnl_pct: 0.030
+    stop: 48.0
+    no_add: true
+    earn_date: "2026-08-18"
+    note: "3주(+1 @₩83,762≈$59.47) · 평단 $57.94 · +3.0% · 품질C·15.4% OVER · AnaptysBio · 구 ADAP 라벨 정정 · 추정실적일 08-18 · 추가금지"
 
   - ticker: FTNT
     role: hold
@@ -160,48 +174,26 @@ holdings:
     max_pct: 10
     shares: 1
     cost_approx: 160.64
-    mark_approx: 165.56
-    value_approx: 165.56
-    weight_approx: 0.138
-    pnl_usd: 4.92
-    pnl_pct: 0.030
+    mark_approx: 155.85
+    value_approx: 155.85
+    weight_approx: 0.134
+    pnl_usd: -4.79
+    pnl_pct: -0.030
     stop: 145.0
     no_add: true
     earn_date: "2026-11-05"
-    note: "1주 · 평단 $160.64 · +3.0% · 품질B·13.8% OVER · 추가금지"
-
-  - ticker: ADAP
-    role: hold
-    grade: C
-    max_pct: 6
-    shares: 2
-    cost_approx: 57.17
-    mark_approx: 56.02
-    value_approx: 112.04
-    weight_approx: 0.093
-    pnl_usd: -2.30
-    pnl_pct: -0.020
-    stop: 48.0
-    no_add: true
-    note: "신규2주 · 평단 $57.17 · −2.0% · 품질C·9.3% OVER · Adaptimmune · 추가금지"
-
-  - ticker: SCSC
-    role: hold
-    grade: B
-    max_pct: 10
-    shares: 2
-    cost_approx: 57.05
-    mark_approx: 52.33
-    value_approx: 104.66
-    weight_approx: 0.087
-    pnl_usd: -9.44
-    pnl_pct: -0.082
-    stop: 51.0
-    no_add: true
-    earn_date: "2026-08-20"
-    note: "2주(−1) · 평단 $57.05 · −8.2% · stop $51 경계 · EARN~08-20(D5 임박) · 추가금지"
+    note: "1주 · 평단 $160.64 · −3.0% · 품질B·13.4% OVER · 추가금지"
 
 exited:
+  - ticker: SCSC
+    role: exited
+    shares: 0
+    exit_as_of: "2026-08-18"
+    exit_type: "sell_exit"
+    exit_px_krw: 72032
+    exit_px_usd_approx: 51.15
+    exit_shares: 2
+    note: "전량매도 2주 @₩72,032(≈$51.15) · 대금→KRW 현금 · 추격 재매수 금지"
   - ticker: NESR
     role: exited
     shares: 0
@@ -248,29 +240,35 @@ exited:
     shares: 0
     exit_as_of: "2026-07-27"
     note: "전량매도 · SCHD 회전"
+  - ticker: ADAP
+    role: exited
+    shares: 0
+    exit_as_of: "2026-08-18"
+    exit_type: "label_correction"
+    note: "SSOT 라벨 정정 · Adaptimmune(ADAP) 아님 · 실보유는 AnaptysBio(ANAB)로 이전 · ADAP 나스닥 상장폐지(2025-10)"
 
 watchlist:
-  - ticker: ADAP
+  - ticker: ANAB
     role: watch
-    note: "신규 · 품질C OVER · NO_ADD"
-  - ticker: SCSC
-    role: watch
-    note: "stop 경계 · EARN~08-20 D5 임박 · NO_ADD"
+    note: "3주 · 품질C OVER · NO_ADD · 구 ADAP 정정"
   - ticker: AMRX
     role: watch
-    note: "11주 · stop 접근 · 물타기 금지"
+    note: "11주 · OVER · 물타기 금지"
   - ticker: CMPR
     role: watch
     note: "stop $90 경계 · 추가금지"
   - ticker: TXG
     role: watch
-    note: "보유 · NO_ADD"
+    note: "보유 · 천장20% · NO_ADD"
   - ticker: ECPG
     role: watch
     note: "보유 · NO_ADD"
   - ticker: FTNT
     role: watch
     note: "보유 · NO_ADD"
+  - ticker: SCSC
+    role: watch
+    note: "08-18 전량매도 · 추격 재매수 금지"
   - ticker: NESR
     role: watch
     note: "08-11 전량매도 · 추격 재매수 금지"
