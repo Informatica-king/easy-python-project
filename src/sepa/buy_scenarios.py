@@ -87,8 +87,13 @@ def analyze_ticker(
         hist = yf.Ticker(t).history(period="1y", auto_adjust=True)
     else:
         hist = history
-    if hist is None or len(hist) < 210:
-        logger.info("SKIP short hist %s %s", t, 0 if hist is None else len(hist))
+    if hist is None or hist.empty:
+        logger.info("SKIP empty hist %s", t)
+        return None
+    # Drop incomplete session bars (OHLC NaN) so MA/RSI use last good close
+    hist = hist.dropna(subset=["Close", "High", "Low"])
+    if len(hist) < 210:
+        logger.info("SKIP short hist %s %s", t, len(hist))
         return None
 
     close = hist["Close"].astype(float)

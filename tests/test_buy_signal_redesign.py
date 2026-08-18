@@ -224,3 +224,30 @@ def test_evaluate_timing_go_a_and_block():
     )
     assert blocked.status == "BLOCK"
     assert blocked.legacy_scenario == ""
+
+
+def test_analyze_ticker_drops_trailing_nan_close():
+    """Incomplete session bar (OHLC NaN) must not poison MA/vs20."""
+    import numpy as np
+    import pandas as pd
+
+    from sepa.buy_scenarios import analyze_ticker
+
+    rng = pd.bdate_range("2025-01-02", periods=220)
+    close = np.linspace(10.0, 20.0, 220)
+    hist = pd.DataFrame(
+        {
+            "Open": close,
+            "High": close + 0.2,
+            "Low": close - 0.2,
+            "Close": close,
+            "Volume": np.full(220, 1_000_000.0),
+        },
+        index=rng,
+    )
+    bad = rng[-1] + pd.Timedelta(days=1)
+    hist.loc[bad] = [np.nan, np.nan, np.nan, np.nan, 0.0]
+    row = analyze_ticker("TEST", {"rank": 1}, as_of=date(2026, 8, 18), history=hist)
+    assert row is not None
+    assert row["vs_ma20"] == row["vs_ma20"]  # not NaN
+    assert abs(row["vs_ma20"]) < 50
