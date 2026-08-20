@@ -159,7 +159,7 @@ def test_apply_buy_scores_integration():
             },
         ]
     }
-    ideas = filter_buy_ideas(book, scenarios, None)
+    ideas = filter_buy_ideas(book, scenarios, None)  # live ta_watchlist NO_ADD
 
     def fetch(t, start, end):
         if t in ("SPY", "XLP"):
@@ -172,8 +172,8 @@ def test_apply_buy_scores_integration():
     assert laur.buy_score is not None
     assert laur.buy_score.l1 >= 1
     cmpr = next(i for i in out if i.ticker == "CMPR")
-    assert cmpr.bucket == "실행후보"  # CMPR exited 2026-08-20 — no longer held NO_ADD
-    assert cmpr.buy_score is not None
+    assert cmpr.bucket == "금지"  # ta_watchlist 정책 NO_ADD (청산 후 추격금지)
+    assert cmpr.buy_score is None
     ftnt = next(i for i in out if i.ticker == "FTNT")
     assert ftnt.bucket == "금지"
     assert ftnt.buy_score is None

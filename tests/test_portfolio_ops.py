@@ -130,7 +130,7 @@ def test_filter_buy_ideas_buckets():
             {"t": "ALKS", "scenario": "SOFT", "upside": 0.14, "rsi": 44, "pct_hi": -0.12, "px": 49.0, "earnDate": "2026-10-28"},
         ],
     }
-    ideas = filter_buy_ideas(book, scenarios, None)
+    ideas = filter_buy_ideas(book, scenarios, None, policy_no_add=set())
     by = {i.ticker: i for i in ideas}
     assert by["CMPR"].bucket == "실행후보"
     assert by["FTNT"].bucket == "금지"  # negative upside

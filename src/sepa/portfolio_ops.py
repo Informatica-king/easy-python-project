@@ -528,6 +528,8 @@ def filter_buy_ideas(
     book: PortfolioBook,
     scenarios: dict[str, Any] | None,
     chase: dict[str, Any] | None,
+    *,
+    policy_no_add: set[str] | None = None,
 ) -> list[BuyIdea]:
     """Buy ideas = pick_pool (좋은 종목) ∩ timing (GO/WAIT/BLOCK).
 
@@ -536,6 +538,10 @@ def filter_buy_ideas(
     2. Timing from buy_scenarios legacy A/B/SOFT → GO_A/GO_B/WAIT
     3. 실행후보 only if pick ∩ timing.is_go
     4. Confirmed EARN_D5 only hard-blocks (estimates warn)
+
+    ``policy_no_add``: extra tickers blocked by ta_watchlist / OS policy.
+    ``None`` (default) → load from ``sepa.ta_hooks.load_hook_meta``.
+    Pass ``set()`` in unit tests to isolate from live YAML.
     """
     from sepa.earn_calendar import earn_info_from_row, load_confirmed_earn_map
     from sepa.pick_pool import build_pick_pool, chase_label_blocks_pick
@@ -543,6 +549,18 @@ def filter_buy_ideas(
 
     held = {h.ticker for h in book.holdings}
     no_add = {h.ticker for h in book.holdings if h.no_add}
+    if policy_no_add is not None:
+        no_add |= {str(t).upper() for t in policy_no_add}
+    else:
+        # Policy NO_ADD from ta_watchlist (non-held 추격금지·워치 포함)
+        try:
+            from sepa.ta_hooks import load_hook_meta
+
+            for sym, meta in load_hook_meta().items():
+                if meta.no_add:
+                    no_add.add(sym)
+        except Exception:  # noqa: BLE001
+            pass
     asof = book.effective_date
     # Local YAML only (portfolio ∪ earn_confirmed) — no network
     confirmed_map = load_confirmed_earn_map()
@@ -566,7 +584,7 @@ def filter_buy_ideas(
     # Also surface held NO_ADD / blocked scenario names for transparency
     extra_tickers: set[str] = set()
     for t in list(scen_by) + list(chase_map):
-        if t in held and t in no_add:
+        if t in no_add:
             extra_tickers.add(t)
         lab = str((chase_map.get(t) or {}).get("chase") or "")
         if lab and chase_label_blocks_pick(lab) and t in scen_by:
@@ -662,9 +680,13 @@ def filter_buy_ideas(
         bucket = "워치"
         reason = " · ".join(reason_bits)
 
-        if t in held and t in no_add:
+        if t in no_add:
             bucket = "금지"
-            reason = f"보유·NO_ADD · {reason}"
+            reason = (
+                f"보유·NO_ADD · {reason}"
+                if t in held
+                else f"정책 NO_ADD · {reason}"
+            )
         elif timing.status == "BLOCK" or timing.earn_d5_confirmed:
             bucket = "금지"
             reason = f"EARN_D5 · {reason}"
