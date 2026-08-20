@@ -762,6 +762,83 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "피어는 공시 세그먼트가 달라 근사 — 방향 비교용."
         ),
     },
+    "DRH": {
+        "sector_ko": "부동산 · 호텔 REIT (심층: Premium urban/resort lodging)",
+        "share_title": "상장 미국 호텔 REIT 피어셋 스케일 점유 (추정)",
+        "share_as_of": "FY'25 vs FY'24 · 총매출 스케일 근사",
+        "share_note": (
+            "대형·중형 상장 미국 호텔 REIT 총매출 상대 스케일. "
+            "비상장·프랜차이즈·매니저(MAR/HLT)는 제외. "
+            "절대 시장점유율이 아니라 피어셋 방향 비교용."
+        ),
+        "share_rows": [
+            ("Host (HST)", 38.9, 37.1),
+            ("Park (PK)", 16.2, 17.0),
+            ("Pebblebrook (PEB)", 9.4, 9.5),
+            ("Apple (APLE)", 9.0, 9.3),
+            ("RLJ Lodging (RLJ)", 8.6, 8.9),
+            ("DiamondRock (DRH)", 7.1, 7.4),
+            ("Sunstone (SHO)", 6.1, 5.9),
+            ("Others (INN+)", 4.7, 4.9),
+        ],
+        "share_source": "Directional share of selected US-listed hotel REITs by total revenue scale (FY'25 vs FY'24 est.)",
+        "mix_buckets": ["Rooms", "Food & Beverage", "Other"],
+        "mix_as_of": "Q2'26 comparable · DRH Rooms/F&B 공시 근사 · 피어는 전형 믹스",
+        "mix_rows": [
+            {
+                "key": "DRH",
+                "name": "DRH",
+                "subject": True,
+                "yf": "DRH",
+                "mix": {"Rooms": 65.0, "Food & Beverage": 25.0, "Other": 10.0},
+                "note": "Q2'26 Comp Rooms $206M / Total $317M · F&B ~$81M",
+            },
+            {
+                "key": "HST",
+                "name": "HST",
+                "subject": False,
+                "yf": "HST",
+                "mix": {"Rooms": 70.0, "Food & Beverage": 22.0, "Other": 8.0},
+                "note": "대형 게이트웨이 · 룸 비중 높음(전형 근사)",
+            },
+            {
+                "key": "PK",
+                "name": "PK",
+                "subject": False,
+                "yf": "PK",
+                "mix": {"Rooms": 68.0, "Food & Beverage": 24.0, "Other": 8.0},
+                "note": "어퍼업스케일 도심·리조트 혼재",
+            },
+            {
+                "key": "PEB",
+                "name": "PEB",
+                "subject": False,
+                "yf": "PEB",
+                "mix": {"Rooms": 62.0, "Food & Beverage": 28.0, "Other": 10.0},
+                "note": "라이프스타일·부티크 · F&B 비중↑ 근사",
+            },
+            {
+                "key": "SHO",
+                "name": "SHO",
+                "subject": False,
+                "yf": "SHO",
+                "mix": {"Rooms": 60.0, "Food & Beverage": 28.0, "Other": 12.0},
+                "note": "리조트·장기체류 성향 · Other(스파 등)↑ 근사",
+            },
+            {
+                "key": "APLE",
+                "name": "APLE",
+                "subject": False,
+                "yf": "APLE",
+                "mix": {"Rooms": 82.0, "Food & Beverage": 10.0, "Other": 8.0},
+                "note": "셀렉트서비스 · 룸 중심",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Rooms / Food & Beverage / Other로 정규화. "
+            "DRH는 Q2'26 comparable·손익 라인 근사, 피어는 업태 전형 — 방향 비교용."
+        ),
+    },
 }
 
 
@@ -811,6 +888,7 @@ SUBJECT_SHARE_ALIASES: dict[str, tuple[str, ...]] = {
     "AMRX": ("amneal",),
     "FTRE": ("fortrea",),
     "CMPR": ("cimpress", "vistaprint", "vista"),
+    "DRH": ("diamondrock", "diamond rock"),
 }
 
 
