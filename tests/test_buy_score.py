@@ -172,8 +172,8 @@ def test_apply_buy_scores_integration():
     assert laur.buy_score is not None
     assert laur.buy_score.l1 >= 1
     cmpr = next(i for i in out if i.ticker == "CMPR")
-    assert cmpr.bucket == "금지"  # held NO_ADD after 08-03 fill
-    assert cmpr.buy_score is None
+    assert cmpr.bucket == "실행후보"  # CMPR exited 2026-08-20 — no longer held NO_ADD
+    assert cmpr.buy_score is not None
     ftnt = next(i for i in out if i.ticker == "FTNT")
     assert ftnt.bucket == "금지"
     assert ftnt.buy_score is None
