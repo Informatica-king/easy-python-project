@@ -109,7 +109,7 @@ def test_filter_blocks_confirmed_non_holding():
             }
         ]
     }
-    ideas = filter_buy_ideas(book, scenarios, chase)
+    ideas = filter_buy_ideas(book, scenarios, chase, policy_no_add=set())
     by = {i.ticker: i for i in ideas}
     assert by["SCSC"].bucket == "금지"
     assert by["SCSC"].timing == "BLOCK"
