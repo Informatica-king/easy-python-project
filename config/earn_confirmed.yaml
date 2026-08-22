@@ -1,5 +1,5 @@
-as_of: '2026-08-20'
-note: portfolio sync · CMPR 청산 · SCSC 1주 재보유 · estimate 자동승격 금지
+as_of: '2026-08-22'
+note: portfolio sync · SCSC 청산 · APPS+3 · DRH 신규8 · estimate 자동승격 금지
 entries:
   AMRX:
     earn_date: '2026-10-29'
@@ -25,9 +25,13 @@ entries:
     earn_date: '2026-11-03'
     note: portfolio SSOT
     confirmed_on: '2026-08-18'
+  DRH:
+    earn_date: '2026-07-30'
+    note: portfolio SSOT · reported · new hold
+    confirmed_on: '2026-07-30'
   SCSC:
     earn_date: '2026-08-20'
-    note: re-held 1sh · EARN day
+    note: exited 2026-08-22 · historical
     confirmed_on: '2026-08-12'
   CMPR:
     earn_date: '2026-10-28'

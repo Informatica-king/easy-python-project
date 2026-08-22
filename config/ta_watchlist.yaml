@@ -1,5 +1,5 @@
 # TA 워치리스트 + 포트 훅 메타 (≤20)
-# 2026-08-20: CMPR 청산 · SCSC 1주 재보유 · 보유 훅 동기
+# 2026-08-22: SCSC 청산 · APPS 12 · DRH 신규8 · 보유 훅 동기
 
 tickers:
   - symbol: ECPG
@@ -36,6 +36,11 @@ tickers:
     stop: 10.0
     no_add: true
 
+  - symbol: DRH
+    earn_date: "2026-07-30"
+    stop: 11.94
+    no_add: true
+
   - symbol: SCSC
     earn_date: "2026-08-20"
     stop: 51.0
@@ -48,10 +53,8 @@ tickers:
     tp2: 120.0
     no_add: true
 
-  - symbol: DRH
-    earn_date: "2026-07-30"
-    stop: 11.94
-    no_add: false
+  - symbol: ALKS
+    no_add: true
 
   - symbol: LASR
     earn_date: "2026-08-06"
@@ -73,9 +76,6 @@ tickers:
 
   - symbol: ROKU
     earn_date: "2026-08-06"
-    no_add: true
-
-  - symbol: ALKS
     no_add: true
 
   - symbol: SCHD
