@@ -762,6 +762,85 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "피어는 공시 세그먼트가 달라 근사 — 방향 비교용."
         ),
     },
+    "CBRL": {
+        "sector_ko": "경기소비 · 캐주얼 다이닝+리테일 (심층: Homestyle restaurant & gift retail)",
+        "share_title": "상장 미국 캐주얼 다이닝 피어셋 스케일 점유 (추정)",
+        "share_as_of": "TTM'26 vs FY'25 · 총매출 스케일 근사",
+        "share_note": (
+            "대형·중형 상장 미국 풀서비스/캐주얼 다이닝 총매출 상대 스케일. "
+            "QSR(MCD·SBUX)·비상장 체인은 제외. "
+            "절대 시장점유율이 아니라 피어셋 방향 비교용."
+        ),
+        "share_rows": [
+            ("Darden (DRI)", 36.2, 35.5),
+            ("Texas Roadhouse (TXRH)", 17.1, 16.8),
+            ("Brinker (EAT)", 15.9, 15.6),
+            ("Bloomin' (BLMN)", 10.9, 11.2),
+            ("Cheesecake (CAKE)", 10.6, 10.5),
+            ("Cracker Barrel (CBRL)", 9.2, 10.4),
+        ],
+        "share_source": (
+            "Directional share of selected US-listed casual dining peers by TTM/FY revenue scale "
+            "(yfinance; CBRL FY'25 $3.48B → TTM ~$3.34B)"
+        ),
+        "mix_buckets": ["Restaurant", "Retail", "Other"],
+        "mix_as_of": "Q3 FY'26 (ended 5/1/26) · CBRL 공시 믹스 · 피어는 전형 근사",
+        "mix_rows": [
+            {
+                "key": "CBRL",
+                "name": "CBRL",
+                "subject": True,
+                "yf": "CBRL",
+                "mix": {"Restaurant": 82.6, "Retail": 17.4, "Other": 0.0},
+                "note": "Q3'26 Rest $658M / Retail $139M · 총 $797M",
+            },
+            {
+                "key": "DRI",
+                "name": "DRI",
+                "subject": False,
+                "yf": "DRI",
+                "mix": {"Restaurant": 97.0, "Retail": 0.0, "Other": 3.0},
+                "note": "풀서비스 멀티브랜드 · 리테일 미미(전형)",
+            },
+            {
+                "key": "TXRH",
+                "name": "TXRH",
+                "subject": False,
+                "yf": "TXRH",
+                "mix": {"Restaurant": 98.0, "Retail": 0.0, "Other": 2.0},
+                "note": "스테이크하우스 본체",
+            },
+            {
+                "key": "EAT",
+                "name": "EAT",
+                "subject": False,
+                "yf": "EAT",
+                "mix": {"Restaurant": 96.0, "Retail": 0.0, "Other": 4.0},
+                "note": "Chili's/Maggiano's · 식음 중심",
+            },
+            {
+                "key": "CAKE",
+                "name": "CAKE",
+                "subject": False,
+                "yf": "CAKE",
+                "mix": {"Restaurant": 92.0, "Retail": 5.0, "Other": 3.0},
+                "note": "베이커리·머천다이즈 소량",
+            },
+            {
+                "key": "BLMN",
+                "name": "BLMN",
+                "subject": False,
+                "yf": "BLMN",
+                "mix": {"Restaurant": 97.0, "Retail": 0.0, "Other": 3.0},
+                "note": "Outback 등 풀서비스",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Restaurant / Retail / Other로 정규화. "
+            "CBRL는 Q3 FY'26 공시(82.6/17.4), 피어는 업태 전형 — 방향 비교용. "
+            "CBRL의 Old Country Store 리테일은 피어 대비 차별 포인트."
+        ),
+    },
 }
 
 
@@ -811,6 +890,7 @@ SUBJECT_SHARE_ALIASES: dict[str, tuple[str, ...]] = {
     "AMRX": ("amneal",),
     "FTRE": ("fortrea",),
     "CMPR": ("cimpress", "vistaprint", "vista"),
+    "CBRL": ("cracker barrel", "cracker"),
 }
 
 
