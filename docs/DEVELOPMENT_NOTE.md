@@ -295,6 +295,7 @@ sepa-bot/
 | 2026-08-14 | D29-P1: perf_study A–D 구현 | basket excess·enter/exit·streak 버킷·soft_drop vs rs90_ok + sample_gate. `!sepa.perf_study` |
 | 2026-08-12 | D30: 빠진 go 날짜 gap fill | 목적=분석용 구멍만 빠른 채움. `sepa.gap_fill` / `!sepa.fill_gaps` / `!sepa.go(fill_gaps=1)`. 릴리즈 CSV 복원 + as-of scan/fund/membership/perf. PDF·차트·metrics 스킵. 문서: `docs/gap_fill_plan.md` |
 | 2026-08-14 | D31: `!검증` PDF 보고서 | 8쪽 한글 성적 PDF + Release `sepa-검증-YYYYMMDD` 다운로드 링크. 산출물 PDF만. `sepa.verify_report` · `docs/verify_report_design.md` |
+| 2026-08-25 | D32: Fund 구간 1년 추세 차트 | anal에 Fund 10점 반열림 구간 등가 종가 추세 vs S&P500 (기준 1000). PDF 본편. `sepa.fund_score_trend` |
 
 ## 6. 진행 현황
 

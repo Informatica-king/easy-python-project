@@ -100,6 +100,7 @@ def test_collect_anal_chart_paths_lean(tmp_path: Path):
     keep = [
         "analyze_scatter_20260725.png",
         "analyze_fund_hist_20260725.png",
+        "analyze_fund_trend_20260725.png",
         "sector_share_lines_n_all_20260725.png",
         "sector_share_all_vs_fundhi_20260725.png",
         "sepatop_20260725.png",
@@ -123,6 +124,8 @@ def test_collect_anal_chart_paths_lean(tmp_path: Path):
     ordered = collect_anal_chart_paths(chart_dir=charts, stamp="20260725")
     names = [p.name for p in ordered]
     assert names[0] == "analyze_scatter_20260725.png"
+    assert "analyze_fund_trend_20260725.png" in names
+    assert names.index("analyze_fund_hist_20260725.png") < names.index("analyze_fund_trend_20260725.png")
     assert "model_factor_decomp_20260725.png" in names
     assert "analyze_sectors_20260725.png" not in names
     assert "analyze_mcap_hist_20260725.png" not in names

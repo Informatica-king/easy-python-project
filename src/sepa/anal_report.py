@@ -70,6 +70,12 @@ MODEL_PAGE_COMMENTS: dict[str, tuple[str, str]] = {
         "위: 서프라이즈·마진소스(OPM/NPM)·가속도 깊이. 아래(v2.1): B/D/E quality 분포 "
         "(0=미채점·게이트, partial=페널티, 1.0=신뢰). OPM·quality 1.0 비중이 늘수록 E/B/D가 믿을 만합니다.",
     ),
+    "analyze_fund_trend": (
+        "Fund 점수 구간별 1년 추세",
+        "오늘 Fund 점수를 10점 구간(반열림)으로 나눈 뒤, 구간별 등가 평균 종가를 "
+        "최근 1년·기준 1000으로 다시 맞춰 S&P500과 같은 차트에 그립니다. "
+        "높은 점수 구간 선이 S&P보다 위에 있으면 그 그룹이 지난 1년 시장을 이긴 셈입니다.",
+    ),
 }
 
 
@@ -211,6 +217,7 @@ def collect_anal_chart_paths(
         # Core
         f"analyze_scatter_{stamp}.png",
         f"analyze_fund_hist_{stamp}.png",
+        f"analyze_fund_trend_{stamp}.png",
         # Sector share (lean)
         f"sector_share_lines_n_all_{stamp}.png",
         f"sector_share_all_vs_fundhi_{stamp}.png",
@@ -243,7 +250,11 @@ def collect_anal_chart_paths(
         if not pp.exists() or pp.suffix.lower() != ".png":
             continue
         # Do not re-introduce trimmed clutter via ``extra``.
-        if pp.name not in lean_names and not pp.name.startswith(f"model_"):
+        if (
+            pp.name not in lean_names
+            and not pp.name.startswith("model_")
+            and not pp.name.startswith(f"analyze_fund_trend_")
+        ):
             continue
         key = str(pp.resolve())
         if key not in seen:

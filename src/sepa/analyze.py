@@ -505,6 +505,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Skip model-metric charts 1–7 (factor decomp, stability, coverage, …)",
     )
     parser.add_argument(
+        "--skip-fund-trend",
+        action="store_true",
+        help="Skip Fund 10-pt bucket 1y equal-weight trend vs S&P500 chart",
+    )
+    parser.add_argument(
         "--skip-pdf",
         action="store_true",
         help="Skip bundling all anal charts into one PDF/ZIP/PNG pack",
@@ -612,6 +617,29 @@ def main(argv: list[str] | None = None) -> int:
     all_chart_paths: list[Path] = list(core_charts)
     sepatop_result: dict = {}
     release_extras: list[Path] = [csv_path, median_export]
+
+    # Fund score 10-pt bucket 1y equal-weight trend vs S&P500 (PDF 본편)
+    if not args.skip_fund_trend:
+        from sepa.fund_score_trend import run_fund_score_trend
+
+        print("\n" + "=" * 64)
+        print("  Fund 점수 구간별 1년 추세 — auto from anal")
+        print("=" * 64)
+        try:
+            ft = run_fund_score_trend(
+                enriched,
+                chart_dir=chart_dir,
+                stamp=stamp,
+                cache_dir=params.data.cache_dir,
+                report_dir=params.report_dir,
+            )
+            if ft.get("chart"):
+                all_chart_paths.append(Path(ft["chart"]))
+            if ft.get("csv"):
+                release_extras.append(Path(ft["csv"]))
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("fund score trend failed")
+            print(f"[경고] Fund 점수 구간 추세 실행 실패: {exc}")
 
     if not args.skip_sector_share:
         from sepa.sector_share import run_sector_share
