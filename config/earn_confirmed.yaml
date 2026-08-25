@@ -1,12 +1,8 @@
-as_of: '2026-08-14'
-note: portfolio sync · estimate 자동승격 금지
+as_of: '2026-08-25'
+note: portfolio sync · APPS+1(→13) · DRH 8 · SCSC 청산 유지 · estimate 자동승격 금지
 entries:
   AMRX:
     earn_date: '2026-10-29'
-    note: portfolio SSOT
-    confirmed_on: '2026-08-12'
-  CMPR:
-    earn_date: '2026-10-28'
     note: portfolio SSOT
     confirmed_on: '2026-08-12'
   ECPG:
@@ -17,11 +13,27 @@ entries:
     earn_date: '2026-11-05'
     note: portfolio SSOT
     confirmed_on: '2026-08-12'
-  SCSC:
-    earn_date: '2026-08-20'
-    note: portfolio SSOT · EARN_D5 임박
-    confirmed_on: '2026-08-12'
   TXG:
     earn_date: '2026-11-05'
     note: portfolio SSOT
+    confirmed_on: '2026-08-12'
+  ANAB:
+    earn_date: '2026-08-19'
+    note: portfolio SSOT · reported
+    confirmed_on: '2026-08-19'
+  APPS:
+    earn_date: '2026-11-03'
+    note: portfolio SSOT
+    confirmed_on: '2026-08-18'
+  DRH:
+    earn_date: '2026-07-30'
+    note: portfolio SSOT · reported · new hold
+    confirmed_on: '2026-07-30'
+  SCSC:
+    earn_date: '2026-08-20'
+    note: exited 2026-08-22 · historical
+    confirmed_on: '2026-08-12'
+  CMPR:
+    earn_date: '2026-10-28'
+    note: exited 2026-08-20 · historical
     confirmed_on: '2026-08-12'
