@@ -1,9 +1,9 @@
 # TA 워치리스트 + 포트 훅 메타 (≤20)
-# 2026-08-04: SCHD 청산 · TXG 3주 · CMPR 평단$98.70
+# 2026-08-25: APPS 13(+1) · DRH 8 · SCSC 청산 유지 · 보유 훅 동기
 
 tickers:
   - symbol: ECPG
-    earn_date: "2026-08-05"
+    earn_date: "2026-11-04"
     stop: 80.0
     tp1: 105.0
     tp2: 110.0
@@ -14,6 +14,46 @@ tickers:
     stop: 15.5
     tp1: 19.0
     tp2: 20.0
+    no_add: true
+
+  - symbol: TXG
+    earn_date: "2026-11-05"
+    stop: 42.0
+    no_add: true
+
+  - symbol: ANAB
+    earn_date: "2026-08-19"
+    stop: 48.0
+    no_add: true
+
+  - symbol: FTNT
+    earn_date: "2026-11-05"
+    stop: 145.0
+    no_add: true
+
+  - symbol: APPS
+    earn_date: "2026-11-03"
+    stop: 10.0
+    no_add: true
+
+  - symbol: DRH
+    earn_date: "2026-07-30"
+    stop: 11.94
+    no_add: true
+
+  - symbol: SCSC
+    earn_date: "2026-08-20"
+    stop: 51.0
+    no_add: true
+
+  - symbol: CMPR
+    earn_date: "2026-10-28"
+    stop: 90.0
+    tp1: 110.0
+    tp2: 120.0
+    no_add: true
+
+  - symbol: ALKS
     no_add: true
 
   - symbol: LASR
@@ -29,18 +69,6 @@ tickers:
     tp2: 33.0
     no_add: true
 
-  - symbol: TXG
-    earn_date: "2026-08-06"
-    stop: 42.0
-    no_add: true
-
-  - symbol: CMPR
-    earn_date: "2026-10-28"
-    stop: 90.0
-    tp1: 110.0
-    tp2: 120.0
-    no_add: true
-
   - symbol: RELY
     earn_date: "2026-08-05"
     stop: 20.0
@@ -48,28 +76,6 @@ tickers:
 
   - symbol: ROKU
     earn_date: "2026-08-06"
-    no_add: true
-
-  - symbol: RAPP
-    earn_date: "2026-08-06"
-    no_add: true
-
-  - symbol: ALKS
-    no_add: true
-
-  - symbol: LAUR
-    earn_date: "2026-10-29"
-    no_add: false
-
-  - symbol: MU
-    earn_date: "2026-09-23"
-    no_add: true
-
-  - symbol: CRDO
-    earn_date: "2026-09-02"
-    no_add: true
-
-  - symbol: NEO
     no_add: true
 
   - symbol: SCHD

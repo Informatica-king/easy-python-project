@@ -1,0 +1,366 @@
+{
+  "as_of": "2026-08-25",
+  "source": "심층분석",
+  "rows": [
+    {
+      "rank": 1,
+      "ticker": "RELY",
+      "chase": "중·08-08청산후워치·추격금지",
+      "chase_detail": "중·청산후워치·추격금지 — 재매수·추격 금지. · 점유율 꾸준 상승(+0.4pp) — 경쟁력 가산",
+      "px": 26.59,
+      "earn_date": "2026-11-04"
+    },
+    {
+      "rank": 2,
+      "ticker": "CLMT",
+      "chase": "하·과열",
+      "chase_detail": "하·과열 — 특수제품+재생. PT 프리미엄·고점. 추격 금지. · 점유율 꾸준 상승(+2.0pp) — 경쟁력 가산",
+      "px": 47.32,
+      "earn_date": "2026-11-06"
+    },
+    {
+      "rank": 3,
+      "ticker": "ECPG",
+      "chase": "최상·품질A·보유·추가금지",
+      "chase_detail": "최상·품질A·보유2주·추가금지 — 16.8%. 천장·추가·갭추격 금지. · 점유율 꾸준 상승(+3.0pp) — 경쟁력 가산",
+      "px": 103.16,
+      "earn_date": "2026-11-04"
+    },
+    {
+      "rank": 4,
+      "ticker": "NESR",
+      "chase": "중·청산후워치·추격금지",
+      "chase_detail": "중·청산후워치·추격금지 — 청산 완료. 재매수·추격 금지. · 점유율 꾸준 상승(+1.5pp) — 경쟁력 가산",
+      "px": 33.42,
+      "earn_date": "2026-11-12"
+    },
+    {
+      "rank": 5,
+      "ticker": "AMRX",
+      "chase": "중·품질B·보유11주·추가금지",
+      "chase_detail": "중·품질B·보유11주·추가금지 — 16.0%·구조한도. 즉흥·추가 매수 금지. · 점유율 꾸준 상승(+1.5pp) — 경쟁력 가산",
+      "px": 17.78,
+      "earn_date": "2026-10-29"
+    },
+    {
+      "rank": 6,
+      "ticker": "ROKU",
+      "chase": "상·고점주의",
+      "chase_detail": "상·고점주의 — 플랫폼 RR 양호. 고점·추격보다 눌림. · 경쟁점유 -2.0pp (하락 모니터)",
+      "px": 158.18,
+      "earn_date": "2026-11-05"
+    },
+    {
+      "rank": 7,
+      "ticker": "TXG",
+      "chase": "중·품질C·보유4주·천장OVER·추가금지",
+      "chase_detail": "중·품질C·보유4주·천장OVER·추가금지 — 20.8% 절대천장 OVER. 물타기·추격 금지. · 점유율 꾸준 상승(+3.0pp) — 경쟁력 가산",
+      "px": 63.8,
+      "earn_date": "2026-11-05"
+    },
+    {
+      "rank": 8,
+      "ticker": "DRH",
+      "chase": "중·품질C·보유8주·한도OVER·추가금지",
+      "chase_detail": "중·품질C·보유8주·한도OVER·추가금지 — 8.3%>C6%·stop $11.94. NO_ADD.",
+      "px": 12.74,
+      "earn_date": "2026-07-30"
+    },
+    {
+      "rank": 9,
+      "ticker": "NEOG",
+      "chase": "상",
+      "chase_detail": "상 — RR 상위. 업사이드 +12.1% · 고점근접 90% · 실적 2026-10-08. 추격보다 눌림·비중 확인.",
+      "px": 11.6,
+      "earn_date": "2026-10-08"
+    },
+    {
+      "rank": 10,
+      "ticker": "FA",
+      "chase": "중·고점",
+      "chase_detail": "중·고점 — 업사이드 음수면 관망.",
+      "px": 20.69,
+      "earn_date": "2026-11-05"
+    },
+    {
+      "rank": 11,
+      "ticker": "SBLK",
+      "chase": "중상·고점주의",
+      "chase_detail": "중상·고점주의 — 건화물. 위성·눌림만. · 점유율 꾸준 상승(+2.0pp) — 경쟁력 가산",
+      "px": 30.7,
+      "earn_date": "2026-08-05"
+    },
+    {
+      "rank": 12,
+      "ticker": "FROG",
+      "chase": "상",
+      "chase_detail": "상 — RR 상위. 업사이드 +23.9% · 고점근접 91% · 실적 2026-11-05. 추격보다 눌림·비중 확인.",
+      "px": 90.14,
+      "earn_date": "2026-11-05"
+    },
+    {
+      "rank": 13,
+      "ticker": "TILE",
+      "chase": "중",
+      "chase_detail": "중 — RR 중간. EPS 4/4 · 실적 2026-11-06. 셋업·눌림 확인 후.",
+      "px": 38.27,
+      "earn_date": "2026-11-06"
+    },
+    {
+      "rank": 14,
+      "ticker": "ANAB",
+      "chase": "상·품질C·보유3주·한도OVER·추가금지",
+      "chase_detail": "상·품질C·보유3주·한도OVER·추가금지 — 14.3%>C6%. NO_ADD·추격 금지.",
+      "px": 58.44,
+      "earn_date": "2026-08-25"
+    },
+    {
+      "rank": 15,
+      "ticker": "DGII",
+      "chase": "중",
+      "chase_detail": "중 — RR 중간. EPS 4/4 · 실적 2026-08-05. 셋업·눌림 확인 후.",
+      "px": 73.92,
+      "earn_date": "2026-08-05"
+    },
+    {
+      "rank": 16,
+      "ticker": "SLDE",
+      "chase": "중하·신규·유동성주의",
+      "chase_detail": "중하·신규·유동성주의 — 보험 신규상장. 데이터·유동성 확인 전 추격 금지.",
+      "px": 23.64,
+      "earn_date": "2026-10-28"
+    },
+    {
+      "rank": 17,
+      "ticker": "CHEF",
+      "chase": "중·고점주의",
+      "chase_detail": "중·고점주의 — RSI 과열권이면 추격 금지·눌림 대기.",
+      "px": 113.45,
+      "earn_date": "2026-10-28"
+    },
+    {
+      "rank": 18,
+      "ticker": "APA",
+      "chase": "중상",
+      "chase_detail": "중상 — E&P. 위성 한도·추격 금지.",
+      "px": 42.96,
+      "earn_date": "2026-11-04"
+    },
+    {
+      "rank": 19,
+      "ticker": "PRCH",
+      "chase": "중하·소형변동",
+      "chase_detail": "중하·소형변동 — 보험테크. 위성 극소·추격 주의.",
+      "px": 17.06,
+      "earn_date": "2026-07-29"
+    },
+    {
+      "rank": 20,
+      "ticker": "LIND",
+      "chase": "중·고점",
+      "chase_detail": "중·고점 — 크루즈/여행. 고점권 관망.",
+      "px": 31.9,
+      "earn_date": "2026-11-03"
+    },
+    {
+      "rank": 21,
+      "ticker": "MGTX",
+      "chase": "중하",
+      "chase_detail": "중하 — RR 중하위. 업사이드 +98.4% · 고점 97%. 신규보다 관망.",
+      "px": 14.83,
+      "earn_date": "2026-11-12"
+    },
+    {
+      "rank": 22,
+      "ticker": "VCTR",
+      "chase": "중하",
+      "chase_detail": "중하 — RR 중하위. 업사이드 -7.3% · 고점 97%. 신규보다 관망.",
+      "px": 116.0,
+      "earn_date": "2026-11-05"
+    },
+    {
+      "rank": 23,
+      "ticker": "PRAX",
+      "chase": "상",
+      "chase_detail": "상 — RR 상위. 업사이드 +73.5% · 고점근접 94% · 실적 2026-08-06. 추격보다 눌림·비중 확인.",
+      "px": 368.03,
+      "earn_date": "2026-08-06"
+    },
+    {
+      "rank": 24,
+      "ticker": "AMGN",
+      "chase": "중하",
+      "chase_detail": "중하 — RR 중하위. 업사이드 -12.5% · 고점 100%. 신규보다 관망.",
+      "px": 443.84,
+      "earn_date": "2026-11-03"
+    },
+    {
+      "rank": 25,
+      "ticker": "CDNA",
+      "chase": "중하·과열주의",
+      "chase_detail": "중하·과열주의 — RSI·급등 과열이면 추격 금지.",
+      "px": 47.5,
+      "earn_date": "2026-07-30"
+    },
+    {
+      "rank": 26,
+      "ticker": "PLPC",
+      "chase": "중하",
+      "chase_detail": "중하 — RR 중하위. 업사이드 +18.0% · 고점 81%. 신규보다 관망.",
+      "px": 406.93,
+      "earn_date": "2026-10-28"
+    },
+    {
+      "rank": 27,
+      "ticker": "CAKE",
+      "chase": "하·과열",
+      "chase_detail": "하·과열 — RR 하향/비선호. 업사이드 -20.8% · 고점 97%. 추격 금지.",
+      "px": 114.61,
+      "earn_date": "2026-10-27"
+    },
+    {
+      "rank": 28,
+      "ticker": "CLBK",
+      "chase": "상",
+      "chase_detail": "상 — RR 상위. 업사이드 +20.2% · 고점근접 98% · 실적 2026-10-20. 추격보다 눌림·비중 확인.",
+      "px": 11.79,
+      "earn_date": "2026-10-20"
+    },
+    {
+      "rank": 29,
+      "ticker": "LITE",
+      "chase": "상",
+      "chase_detail": "상 — RR 상위. 업사이드 +38.3% · 고점근접 76% · 실적 2026-11-05. 추격보다 눌림·비중 확인.",
+      "px": 830.17,
+      "earn_date": "2026-11-05"
+    },
+    {
+      "rank": 30,
+      "ticker": "SYRE",
+      "chase": "중하",
+      "chase_detail": "중하 — RR 중하위. 업사이드 +16.9% · 고점 97%. 신규보다 관망.",
+      "px": 106.65,
+      "earn_date": "2026-11-03"
+    },
+    {
+      "rank": 31,
+      "ticker": "SCSC",
+      "chase": "중·청산후워치·추격금지",
+      "chase_detail": "중·청산후워치·추격금지 — 전량청산 완료. 재매수 금지.",
+      "px": 54.13,
+      "earn_date": "2026-11-05"
+    },
+    {
+      "rank": 32,
+      "ticker": "NSIT",
+      "chase": "중하",
+      "chase_detail": "중하 — RR 중하위. 업사이드 +12.7% · 고점 92%. 신규보다 관망.",
+      "px": 145.29,
+      "earn_date": "2026-10-29"
+    },
+    {
+      "rank": 33,
+      "ticker": "LFST",
+      "chase": "중하",
+      "chase_detail": "중하 — RR 중하위. 업사이드 +13.5% · 고점 94%. 신규보다 관망.",
+      "px": 12.16,
+      "earn_date": "2026-11-05"
+    },
+    {
+      "rank": 34,
+      "ticker": "PLSE",
+      "chase": "중하",
+      "chase_detail": "중하 — RR 중하위. 업사이드 -7.9% · 고점 97%. 신규보다 관망.",
+      "px": 49.13,
+      "earn_date": "2026-11-05"
+    },
+    {
+      "rank": 35,
+      "ticker": "HALO",
+      "chase": "중하",
+      "chase_detail": "중하 — RR 중하위. 업사이드 -8.4% · 고점 100%. 신규보다 관망.",
+      "px": 108.64,
+      "earn_date": "2026-11-02"
+    },
+    {
+      "rank": 36,
+      "ticker": "CBRL",
+      "chase": "하·과열",
+      "chase_detail": "하·과열 — 레스토랑 프리미엄. 추격 금지.",
+      "px": 58.02,
+      "earn_date": "2026-09-16"
+    },
+    {
+      "rank": 37,
+      "ticker": "NTRA",
+      "chase": "중하",
+      "chase_detail": "중하 — RR 중하위. 업사이드 +2.8% · 고점 98%. 신규보다 관망.",
+      "px": 327.72,
+      "earn_date": "2026-11-05"
+    },
+    {
+      "rank": 38,
+      "ticker": "DNTH",
+      "chase": "중·임상변동",
+      "chase_detail": "중·임상변동 — 임상 이벤트. 위성·소액만.",
+      "px": 110.07,
+      "earn_date": "2026-08-04"
+    },
+    {
+      "rank": 39,
+      "ticker": "AXGN",
+      "chase": "중하",
+      "chase_detail": "중하 — RR 중하위. 업사이드 +8.1% · 고점 96%. 신규보다 관망.",
+      "px": 49.23,
+      "earn_date": "2026-10-28"
+    },
+    {
+      "rank": 40,
+      "ticker": "SRRK",
+      "chase": "중하",
+      "chase_detail": "중하 — RR 중하위. 업사이드 +4.4% · 고점 99%. 신규보다 관망.",
+      "px": 58.2,
+      "earn_date": "2026-08-06"
+    },
+    {
+      "rank": 41,
+      "ticker": "TH",
+      "chase": "중하",
+      "chase_detail": "중하 — 모듈 숙박. 가동률·계약 확인.",
+      "px": 17.83,
+      "earn_date": "2026-11-05"
+    },
+    {
+      "rank": 42,
+      "ticker": "ETON",
+      "chase": "중하",
+      "chase_detail": "중하 — RR 중하위. 업사이드 +10.2% · 고점 97%. 신규보다 관망.",
+      "px": 64.43,
+      "earn_date": "2026-11-12"
+    },
+    {
+      "rank": 43,
+      "ticker": "ZD",
+      "chase": "중하",
+      "chase_detail": "중하 — RR 중하위. 업사이드 +15.6% · 고점 96%. 신규보다 관망.",
+      "px": 55.73,
+      "earn_date": "2026-11-05"
+    },
+    {
+      "rank": 44,
+      "ticker": "SEPN",
+      "chase": "중·SOFT·서프약",
+      "chase_detail": "중·SOFT·서프약 — 서프라이즈 약. 신중.",
+      "px": 40.52,
+      "earn_date": "2026-11-09"
+    },
+    {
+      "rank": 45,
+      "ticker": "KSPI",
+      "chase": "중·지정학주의",
+      "chase_detail": "중·지정학주의 — 카자흐 핀테크. 지정학·통화 리스크.",
+      "px": 106.46,
+      "earn_date": "2026-10-21"
+    }
+  ]
+}
