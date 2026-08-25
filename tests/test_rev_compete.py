@@ -106,3 +106,18 @@ def test_load_bundle_offline_share(monkeypatch):
     assert b6 is not None
     assert b6.share_rows[3].name == "NESR"
     assert abs(b6.share_rows[3].delta_pp - 1.5) < 1e-9
+
+    b7 = load_compete_bundle("CBRL")
+    assert b7 is not None
+    assert b7.share_rows[5].name.startswith("Cracker Barrel")
+    assert abs(b7.share_rows[5].delta_pp - (-1.2)) < 1e-9
+
+
+def test_cbrl_profile_exists():
+    p = get_profile("CBRL")
+    assert p is not None
+    assert any(r.get("subject") for r in p["mix_rows"])
+    assert p["share_rows"][5][0].startswith("Cracker Barrel")
+    assert "Restaurant" in p["mix_buckets"]
+    assert abs(p["mix_rows"][0]["mix"]["Restaurant"] - 82.6) < 0.1
+    assert abs(p["mix_rows"][0]["mix"]["Retail"] - 17.4) < 0.1
