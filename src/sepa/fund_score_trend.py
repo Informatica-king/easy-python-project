@@ -178,7 +178,9 @@ def plot_fund_score_trend(
     if combined.empty:
         return None
     setup_korean_matplotlib(allow_install=True)
-    fig, ax = plt.subplots(figsize=(11, 6.5))
+    import matplotlib.dates as mdates
+
+    fig, ax = plt.subplots(figsize=(12, 7.0))
 
     # Distinct colors for buckets; SPX thick dark
     cmap = plt.get_cmap("tab10")
@@ -189,7 +191,7 @@ def plot_fund_score_trend(
             combined.index,
             combined[label],
             color=cmap(i % 10),
-            lw=1.6,
+            lw=1.8,
             alpha=0.9,
             label=f"Fund {label} (n={n})",
         )
@@ -198,11 +200,20 @@ def plot_fund_score_trend(
             combined.index,
             combined["S&P500"],
             color="#1a1a1a",
-            lw=2.6,
+            lw=2.8,
             alpha=0.95,
             label="S&P500",
             zorder=5,
         )
+
+    start = pd.Timestamp(combined.index[0]).strftime("%Y-%m-%d")
+    end = pd.Timestamp(combined.index[-1]).strftime("%Y-%m-%d")
+    n_days = len(combined)
+    empty = [lab for lab in BUCKET_LABELS if counts.get(lab, 0) == 0]
+    empty_note = (
+        f"비어 있음: {', '.join(empty)}" if empty else "전 구간 종목 있음"
+    )
+    count_line = " · ".join(f"{lab}={counts.get(lab, 0)}" for lab in BUCKET_LABELS)
 
     ax.axhline(BASE_LEVEL, color="#888", lw=0.8, ls="--", alpha=0.7)
     ax.set_ylabel(f"지수 수준 (기준일={BASE_LEVEL:.0f})", fontproperties=korean_fontproperties(size=10))
@@ -210,17 +221,39 @@ def plot_fund_score_trend(
         f"Fund 점수 구간별 최근 1년 종가 추세 (등가 · vs S&P500) — {stamp}",
         fontproperties=korean_fontproperties(bold=True, size=13),
     )
+    ax.text(
+        0.5, 1.02,
+        f"기간 {start} ~ {end}  ({n_days} 거래일)  |  {empty_note}",
+        transform=ax.transAxes,
+        ha="center", va="bottom",
+        fontproperties=korean_fontproperties(size=9),
+        color="#444",
+    )
+    ax.text(
+        0.0, -0.14,
+        f"구간 n: {count_line}",
+        transform=ax.transAxes,
+        ha="left", va="top",
+        fontproperties=korean_fontproperties(size=8),
+        color="#555",
+    )
+    ax.set_xlim(combined.index[0], combined.index[-1])
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
     ax.grid(True, alpha=0.3)
     ax.legend(
-        loc="best",
+        loc="upper left",
         fontsize=8,
-        frameon=False,
+        frameon=True,
+        fancybox=False,
+        framealpha=0.9,
         prop=korean_fontproperties(size=8),
+        ncol=2,
     )
     for label in ax.get_xticklabels() + ax.get_yticklabels():
         label.set_fontproperties(korean_fontproperties(size=8))
-    fig.autofmt_xdate()
-    fig.tight_layout()
+    fig.autofmt_xdate(rotation=30, ha="right")
+    fig.tight_layout(rect=(0, 0.06, 1, 0.96))
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     savefig_korean(fig, out_path, dpi=140)
@@ -244,7 +277,15 @@ def run_fund_score_trend(
         fund_df, cache_dir=cache_dir, lookback_days=lookback_days
     )
     nonempty = {k: v for k, v in counts.items() if v > 0}
+    empty = [k for k, v in counts.items() if v == 0]
     print(f"  fund-trend buckets with names: {nonempty or '{}'}")
+    if empty:
+        print(f"  fund-trend empty buckets: {empty}")
+    if not combined.empty:
+        print(
+            f"  fund-trend span: {combined.index[0].date()} → {combined.index[-1].date()} "
+            f"({len(combined)} trading days)"
+        )
 
     chart = plot_fund_score_trend(
         combined,
