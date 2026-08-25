@@ -96,3 +96,25 @@ def test_run_fund_score_trend_synthetic(tmp_path: Path):
     assert pack["counts"]["40-50"] == 1
     # chart render helper with empty should return None
     assert plot_fund_score_trend(pd.DataFrame(), {}, charts / "empty.png", stamp="x") is None
+
+
+def test_summarize_fund_trend_context():
+    from sepa.fund_score_trend import summarize_fund_trend_context
+
+    idx = pd.bdate_range("2025-01-02", periods=10)
+    combined = pd.DataFrame(
+        {
+            "40-50": np.linspace(1000, 2000, 10),
+            "70-80": np.linspace(1000, 1500, 10),
+            "0-10": np.linspace(1000, 1800, 10),
+            "S&P500": np.linspace(1000, 1100, 10),
+        },
+        index=idx,
+    )
+    counts = {"40-50": 10, "70-80": 5, "0-10": 4, "80-90": 0, "90-100": 0}
+    ctx = summarize_fund_trend_context(combined, counts)
+    assert ctx["ok"]
+    assert ctx["strongest"] == "40-50"
+    assert "80-90" in ctx["empty_high"]
+    assert "본심판" in ctx["bullets"][-1]
+    assert "40-50" in ctx["tip"]

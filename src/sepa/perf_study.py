@@ -632,6 +632,40 @@ def run_perf_study(
     streak_buckets = study_streak_buckets(streak, horizon="21d")
     soft_cmp = study_soft_vs_rs90(fwd)
 
+    # Fund-bucket 1y path — interpretation layer for verify PDF (not a verdict)
+    fund_trend_combined = pd.DataFrame()
+    fund_trend_counts: dict[str, int] = {}
+    fund_trend_context: dict = {}
+    try:
+        from sepa.candidates import apply_candidate_filters
+        from sepa.fund_score_trend import (
+            build_bucket_trends,
+            summarize_fund_trend_context,
+        )
+
+        fund_path = report_dir / f"fundamental_{stamp}.csv"
+        if not fund_path.exists():
+            # latest fundamental_*.csv fallback
+            cands = sorted(report_dir.glob("fundamental_????????.csv"))
+            fund_path = cands[-1] if cands else fund_path
+        if fund_path.exists():
+            fund_df = pd.read_csv(fund_path)
+            fund_df, _ = apply_candidate_filters(fund_df)
+            fund_trend_combined, fund_trend_counts = build_bucket_trends(
+                fund_df, cache_dir=cache_dir
+            )
+            fund_trend_context = summarize_fund_trend_context(
+                fund_trend_combined, fund_trend_counts
+            )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("fund trend context for verify failed: %s", exc)
+        fund_trend_context = {
+            "ok": False,
+            "tip": "Fund 구간 추세 맥락을 만들지 못했습니다.",
+            "bullets": ["본심판은 A–D입니다."],
+            "empty_high": [],
+        }
+
     n_pool_days = int(pool_log["stamp"].nunique()) if not pool_log.empty else 0
     trust = overall_trust_gate(
         agg=agg, event_agg=event_agg, soft_cmp=soft_cmp, streak_buckets=streak_buckets
@@ -648,6 +682,8 @@ def run_perf_study(
         agg=agg,
         soft_cmp=soft_cmp,
     )
+    if fund_trend_context.get("tip"):
+        summary = f"{summary}  {fund_trend_context['tip']}"
 
     pdf_path = out / verify_pdf_name(stamp)
     pdf_error: str | None = None
@@ -662,6 +698,9 @@ def run_perf_study(
             soft_cmp=soft_cmp,
             pool_log=pool_log,
             fwd=fwd,
+            fund_trend_combined=fund_trend_combined,
+            fund_trend_counts=fund_trend_counts,
+            fund_trend_context=fund_trend_context,
         )
     except KoreanFontError as exc:
         pdf_path = None  # type: ignore[assignment]
@@ -677,6 +716,8 @@ def run_perf_study(
     print(f"\n=== SEPA 검증 보고서 ({stamp}) ===")
     print(f"신뢰: {gate_ko(trust)} (관측 {n_pool_days}일 · 5일 성적 stamp {n_5d_stamps}일)")
     print(f"한줄: {summary}")
+    if fund_trend_context.get("ok") and fund_trend_context.get("tip"):
+        print(fund_trend_context["tip"])
     if pdf_path is not None and pdf_path.exists():
         print(f"\n  PDF: {pdf_path.resolve()}")
     elif pdf_error:
@@ -694,6 +735,7 @@ def run_perf_study(
         "release": release,
         "trust": trust,
         "summary": summary,
+        "fund_trend_context": fund_trend_context,
         "agg": agg,
         "event_agg": event_agg,
         "streak_buckets": streak_buckets,

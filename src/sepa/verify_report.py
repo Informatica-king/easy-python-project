@@ -85,7 +85,7 @@ def _wrap(text: str, width: int = 54) -> str:
     return "\n".join(lines)
 
 
-def _footer(fig, page: int, total: int = 8) -> None:
+def _footer(fig, page: int, total: int = 9) -> None:
     fig.text(
         0.5, 0.025,
         f"{FOOTER_NOTE}  ·  {page}/{total}",
@@ -364,37 +364,39 @@ def _page_scope(pdf: PdfPages) -> None:
     fig.text(
         0.08, 0.60,
         _wrap(
-            "· 스크리너 규칙으로 이미 뽑힌 종목의 사후 성적\n"
+            "· 스크리너 규칙으로 이미 뽑힌 종목의 사후 성적 (A–D 본심판)\n"
             "· 시장(S&P500) 대비 초과수익 (5·10·21거래일)\n"
-            "· soft ceiling 등 우리 규칙이 도움이 됐는지의힌트",
+            "· soft ceiling 등 우리 규칙이 도움이 됐는지의힌트\n"
+            "· (맥락) 오늘 Fund 구간의 최근 1년 종가 경로 — 예측 아님",
             58,
         ),
         ha="left", va="top", fontproperties=_fp(size=10.5), linespacing=1.45,
     )
-    fig.text(0.08, 0.42, "안 본다", ha="left", va="top", fontproperties=_fp(bold=True, size=12), color="#b33a3a")
+    fig.text(0.08, 0.40, "안 본다", ha="left", va="top", fontproperties=_fp(bold=True, size=12), color="#b33a3a")
     fig.text(
-        0.08, 0.36,
+        0.08, 0.34,
         _wrap(
             "· 내일 주가 예측  ·  자동매매 신호  ·  “이 종목 사라”\n"
-            "· 표본이 적을 때 파라미터를 바꾸는 단정 권고",
+            "· 표본이 적을 때 파라미터를 바꾸는 단정 권고\n"
+            "· Fund 1년 추세만으로 규칙 변경(확증 아님)",
             58,
         ),
         ha="left", va="top", fontproperties=_fp(size=10.5), linespacing=1.45,
     )
-    fig.text(0.08, 0.22, "용어 미니 사전", ha="left", va="top", fontproperties=_fp(bold=True, size=12))
+    fig.text(0.08, 0.20, "용어 미니 사전", ha="left", va="top", fontproperties=_fp(bold=True, size=12))
     glossary = [
         ("바구니", "그날 규칙으로 뽑힌 종목 묶음"),
         ("시장보다 잘함", "S&P500보다 수익률이 높음(초과)"),
         ("중앙값 이상", "Fund 점수가 그날 후보 중위 이상(median+)"),
         ("soft ceiling", "RS는 높지만 Fund가 약해서 일부러 뺀 종목"),
         ("들어옴/나감", "sepaTop 편입(enter) / 편출(exit)"),
-        ("오래 남음", "리스트에 연속으로 남아 있는 날 수(streak)"),
+        ("Fund 구간 추세", "오늘 점수 버킷의 과거 1년 등가 종가 경로(맥락)"),
     ]
-    y = 0.17
+    y = 0.155
     for term, meaning in glossary:
         fig.text(0.10, y, term, ha="left", va="top", fontproperties=_fp(bold=True, size=9))
-        fig.text(0.28, y, meaning, ha="left", va="top", fontproperties=_fp(size=9), color="#333")
-        y -= 0.035
+        fig.text(0.32, y, meaning, ha="left", va="top", fontproperties=_fp(size=9), color="#333")
+        y -= 0.028
     _footer(fig, 2)
     pdf.savefig(fig)
     plt.close(fig)
@@ -629,6 +631,85 @@ def _page_streak(pdf: PdfPages, streak_buckets: pd.DataFrame) -> None:
     )
 
 
+def _page_fund_trend(
+    pdf: PdfPages,
+    *,
+    context: dict | None,
+    combined: pd.DataFrame | None = None,
+    counts: dict[str, int] | None = None,
+) -> None:
+    """Interpretation layer: today's Fund buckets' 1y path (not a verdict)."""
+    _setup()
+    fig = plt.figure(figsize=(PAGE_W, PAGE_H))
+    fig.text(
+        0.08, 0.93,
+        "Fund 구간 1년 추세 — 해석 레이어 (본심판 아님)",
+        ha="left", va="top", fontproperties=_fp(bold=True, size=15),
+    )
+    fig.text(
+        0.08, 0.87,
+        "오늘 점수 버킷 × 과거 1년 등가 종가 (기준 1000) · S&P500과 비교",
+        ha="left", va="top", fontproperties=_fp(size=10), color="#555",
+    )
+
+    ctx = context or {}
+    tip = str(ctx.get("tip") or "맥락 자료 없음.")
+    fig.text(
+        0.08, 0.80,
+        _wrap(tip, 70),
+        ha="left", va="top", fontproperties=_fp(size=10.5), color="#222", linespacing=1.35,
+    )
+
+    ax = fig.add_axes([0.10, 0.28, 0.80, 0.42])
+    if combined is None or combined.empty:
+        ax.axis("off")
+        ax.text(
+            0.5, 0.5,
+            "Fund 구간 추세 시계열이 없습니다. (fundamental CSV·가격 캐시 필요)",
+            ha="center", va="center", fontproperties=_fp(size=11), color="#888",
+            transform=ax.transAxes,
+        )
+    else:
+        import matplotlib.dates as mdates
+
+        cmap = plt.get_cmap("tab10")
+        from sepa.fund_score_trend import BUCKET_LABELS
+
+        counts = counts or {}
+        for i, label in enumerate([c for c in BUCKET_LABELS if c in combined.columns]):
+            n = counts.get(label, 0)
+            ax.plot(
+                combined.index, combined[label],
+                color=cmap(i % 10), lw=1.4, alpha=0.9,
+                label=f"{label} (n={n})",
+            )
+        if "S&P500" in combined.columns:
+            ax.plot(
+                combined.index, combined["S&P500"],
+                color="#1a1a1a", lw=2.4, label="S&P500", zorder=5,
+            )
+        ax.axhline(1000, color="#888", lw=0.7, ls="--", alpha=0.7)
+        ax.set_ylabel("지수(기준 1000)", fontproperties=_fp(size=8))
+        ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m"))
+        for lab in ax.get_xticklabels() + ax.get_yticklabels():
+            lab.set_fontproperties(_fp(size=7))
+        ax.legend(loc="upper left", ncol=3, prop=_fp(size=7), frameon=False)
+        ax.grid(alpha=0.3)
+
+    bullets = list(ctx.get("bullets") or [])
+    y = 0.22
+    for line in bullets[:6]:
+        fig.text(
+            0.08, y, "· " + _wrap(line, 72).replace("\n", " "),
+            ha="left", va="top", fontproperties=_fp(size=8.5), color="#333",
+        )
+        y -= 0.028
+    _footer(fig, 7)
+    pdf.savefig(fig)
+    plt.close(fig)
+
+
 def _page_pool(pdf: PdfPages, pool_log: pd.DataFrame) -> None:
     _setup()
     fig = plt.figure(figsize=(PAGE_W, PAGE_H))
@@ -670,7 +751,7 @@ def _page_pool(pdf: PdfPages, pool_log: pd.DataFrame) -> None:
                 jump_stamp = str(g.loc[idx, "stamp"])
                 note += f" 급변 후보일: {jump_stamp}."
     fig.text(0.08, 0.12, _wrap(note, 72), ha="left", va="top", fontproperties=_fp(size=10), color="#333")
-    _footer(fig, 7)
+    _footer(fig, 8)
     pdf.savefig(fig)
     plt.close(fig)
 
@@ -740,7 +821,7 @@ def _page_appendix(
         "사용자 산출물은 이 PDF 하나입니다.",
         ha="left", va="bottom", fontproperties=_fp(size=9), color="#666",
     )
-    _footer(fig, 8)
+    _footer(fig, 9)
     pdf.savefig(fig)
     plt.close(fig)
 
@@ -756,8 +837,11 @@ def build_verify_pdf(
     soft_cmp: pd.DataFrame,
     pool_log: pd.DataFrame,
     fwd: pd.DataFrame | None = None,
+    fund_trend_combined: pd.DataFrame | None = None,
+    fund_trend_counts: dict[str, int] | None = None,
+    fund_trend_context: dict | None = None,
 ) -> Path:
-    """Write the 8-page Hangul verify PDF. Raises KoreanFontError if no Hangul font."""
+    """Write the 9-page Hangul verify PDF. Raises KoreanFontError if no Hangul font."""
     assert_korean_font_ready(context="검증 PDF")
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -795,6 +879,9 @@ def build_verify_pdf(
         agg=agg,
         soft_cmp=soft_cmp,
     )
+    if fund_trend_context and fund_trend_context.get("tip"):
+        summary = summary + "  " + str(fund_trend_context["tip"])
+
     answers = {
         "basket": _answer_basket(agg),
         "timing": _answer_timing(event_agg),
@@ -819,6 +906,12 @@ def build_verify_pdf(
         _page_soft(pdf, soft_cmp)
         _page_events(pdf, event_agg)
         _page_streak(pdf, streak_buckets)
+        _page_fund_trend(
+            pdf,
+            context=fund_trend_context,
+            combined=fund_trend_combined,
+            counts=fund_trend_counts,
+        )
         _page_pool(pdf, pool_log)
         _page_appendix(
             pdf,

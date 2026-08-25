@@ -261,6 +261,128 @@ def plot_fund_score_trend(
     return out_path
 
 
+def summarize_fund_trend_context(
+    combined: pd.DataFrame,
+    counts: dict[str, int],
+    *,
+    min_n: int = 3,
+) -> dict:
+    """Plain-language context for ``!검증`` (not a forward verdict).
+
+    Membership = today's Fund buckets; prices = past 1y. Do not treat as proof.
+    """
+    empty_high = [lab for lab in ("80-90", "90-100") if counts.get(lab, 0) == 0]
+    out: dict = {
+        "ok": False,
+        "span_days": 0,
+        "start": None,
+        "end": None,
+        "strongest": None,
+        "strongest_n": 0,
+        "strongest_end": None,
+        "spx_end": None,
+        "vs_spx_pct": None,
+        "empty_high": empty_high,
+        "low_hot": False,
+        "tip": "오늘 Fund 구간 1년 추세 자료가 부족합니다(맥락 생략).",
+        "bullets": [
+            "이 장은 예측이 아닙니다. 오늘 점수 구간의 과거 1년 가격 경로만 봅니다.",
+            "본심판은 A–D(선행 초과수익)입니다.",
+        ],
+    }
+    if combined is None or combined.empty:
+        return out
+
+    out["ok"] = True
+    out["span_days"] = int(len(combined))
+    out["start"] = str(pd.Timestamp(combined.index[0]).date())
+    out["end"] = str(pd.Timestamp(combined.index[-1]).date())
+
+    last = combined.iloc[-1]
+    spx_end = (
+        float(last["S&P500"])
+        if "S&P500" in combined.columns and last["S&P500"] == last["S&P500"]
+        else None
+    )
+    out["spx_end"] = spx_end
+
+    ranked: list[tuple[str, float, int]] = []
+    for lab in BUCKET_LABELS:
+        if lab not in combined.columns:
+            continue
+        n = int(counts.get(lab, 0) or 0)
+        val = last.get(lab)
+        if n < min_n or val is None or val != val:
+            continue
+        ranked.append((lab, float(val), n))
+    ranked.sort(key=lambda x: x[1], reverse=True)
+
+    if ranked:
+        strongest, strongest_end, strongest_n = ranked[0]
+        out["strongest"] = strongest
+        out["strongest_end"] = strongest_end
+        out["strongest_n"] = strongest_n
+        if spx_end and spx_end > 0:
+            out["vs_spx_pct"] = strongest_end / spx_end - 1.0
+
+    low_labs = [
+        lab
+        for lab in ("0-10", "10-20", "20-30")
+        if lab in combined.columns and counts.get(lab, 0) >= min_n
+    ]
+    if low_labs and spx_end and spx_end > 0:
+        low_mean = float(pd.Series([float(last[lab]) for lab in low_labs]).mean())
+        out["low_hot"] = low_mean > spx_end * 1.15
+
+    bullets: list[str] = [
+        "이 장은 해석용 맥락입니다. 매매·파라미터 확증이 아닙니다.",
+        f"기간 {out['start']} ~ {out['end']} ({out['span_days']} 거래일), 기준 1000.",
+    ]
+    if out["strongest"] is not None:
+        vs = out["vs_spx_pct"]
+        vs_txt = f" (S&P 대비 종료지수 비율 {vs * 100:+.0f}%)" if vs is not None else ""
+        bullets.append(
+            f"1년 궤적 최강 구간: Fund {out['strongest']} "
+            f"(n={out['strongest_n']}, 종료≈{out['strongest_end']:.0f}){vs_txt}."
+        )
+        med_labs = [x for x in ranked if x[0] in {"40-50", "50-60"}]
+        top_labs = [x for x in ranked if x[0] in {"70-80", "80-90", "90-100"}]
+        if med_labs and top_labs and med_labs[0][1] > top_labs[0][1]:
+            bullets.append(
+                f"중앙값 근처({med_labs[0][0]})가 최상위({top_labs[0][0]})보다 "
+                "가팔랐습니다 — median+가 ‘이미 달린 말’에 가깝다는 힌트."
+            )
+        elif top_labs and med_labs and top_labs[0][1] > med_labs[0][1]:
+            bullets.append(
+                f"최상위({top_labs[0][0]})가 중앙값 근처보다 가팔랐습니다 — "
+                "고점수 쪽 상대 강세 경로."
+            )
+    if empty_high:
+        bullets.append(
+            f"오늘 풀에 Fund {', '.join(empty_high)} 구간 종목이 없습니다 "
+            "(천장·필터 결과일 수 있음)."
+        )
+    if out["low_hot"]:
+        bullets.append(
+            "저Fund(0–30)도 1년 동안 S&P를 크게 웃돌았습니다 — "
+            "soft ceiling·검증 D를 같이 보세요(확증은 D)."
+        )
+    bullets.append("본심판은 앞쪽 A–D(선행 초과수익)입니다. 이 장만으로 규칙을 바꾸지 마세요.")
+    out["bullets"] = bullets
+
+    if out["strongest"] is not None:
+        tip = (
+            f"맥락: Fund {out['strongest']} 구간이 지난 1년 궤적 최강 "
+            f"(n={out['strongest_n']}). 확증은 A–D."
+        )
+    else:
+        tip = "맥락: Fund 구간 1년 추세는 참고만. 확증은 A–D."
+    if empty_high:
+        tip += f" 빈 고구간={','.join(empty_high)}."
+    out["tip"] = tip
+    return out
+
+
 def run_fund_score_trend(
     fund_df: pd.DataFrame,
     *,

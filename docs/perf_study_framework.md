@@ -65,7 +65,8 @@ go/anal이 이미 쌓는 원본(`fundamental_*`, `membership_*`, `presence_*`, `
 
 ```text
 !sepa.go()          → 자동으로 reports/perf/* 갱신 + 아티팩트/릴리즈 첨부
-!검증               → 8쪽 한글 PDF + sepa-검증-YYYYMMDD 다운로드 링크
+!검증               → 9쪽 한글 PDF + sepa-검증-YYYYMMDD 다운로드 링크
+                      (A–D 본심판 + Fund 구간 1년 추세 해석 레이어)
 !sepa.perf_study()  → 위와 동일
 !sepa.perf_study(refresh=1)  → 당일 패널 갱신 후 보고서
 !sepa.perf_study(skip_github_release=1)  → PDF만 (업로드 생략)
@@ -73,4 +74,5 @@ go/anal이 이미 쌓는 원본(`fundamental_*`, `membership_*`, `presence_*`, `
 
 결정 로그: **D28** — 성능 검증 장기 프레임 (`sepa.perf_ledger` / `sepa.perf_study`).  
 결정 로그: **D29** — 검증·분석 함수 (`!검증` = `!sepa.perf_study`).  
-결정 로그: **D31** — `!검증` PDF 보고서 + Release (`docs/verify_report_design.md`).
+결정 로그: **D31** — `!검증` PDF 보고서 + Release (`docs/verify_report_design.md`).  
+결정 로그: **D33** — Fund 구간 1년 추세를 검증 PDF 해석 레이어로 편입.
