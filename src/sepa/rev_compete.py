@@ -762,6 +762,77 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "피어는 공시 세그먼트가 달라 근사 — 방향 비교용."
         ),
     },
+    "ATRO": {
+        "sector_ko": "산업재 · 항공우주·방산 전자 (심층: Cabin power / IFEC / Test)",
+        "share_title": "상장 항공전자·부품 피어셋 스케일 점유 (추정)",
+        "share_as_of": "TTM'26 vs FY'25 · 총매출 스케일 근사",
+        "share_note": (
+            "대형·중형 상장 항공우주 부품·전자 피어셋 총매출 상대 스케일. "
+            "완성기 OEM(BA·AIRBUS) 제외. "
+            "절대 시장점유율이 아니라 피어셋 방향 비교용."
+        ),
+        "share_rows": [
+            ("TransDigm (TDG)", 34.0, 33.5),
+            ("Howmet (HWM)", 31.0, 30.5),
+            ("HEICO (HEI)", 17.5, 17.0),
+            ("Curtiss-Wright (CW)", 12.5, 12.8),
+            ("Astronics (ATRO)", 3.2, 2.9),
+            ("Others (est.)", 1.8, 3.3),
+        ],
+        "share_source": (
+            "Directional share of selected US-listed aero components/electronics peers by TTM revenue scale "
+            "(yfinance; ATRO FY'25 $862M → TTM ~$0.94B)"
+        ),
+        "mix_buckets": ["Aerospace", "Test Systems", "Other"],
+        "mix_as_of": "Q2'26 (ended 7/4/26) · ATRO 공시 세그먼트 · 피어는 전형 근사",
+        "mix_rows": [
+            {
+                "key": "ATRO",
+                "name": "ATRO",
+                "subject": True,
+                "yf": "ATRO",
+                "mix": {"Aerospace": 91.3, "Test Systems": 8.7, "Other": 0.0},
+                "note": "Q2'26 Aero $237.3M / Test $22.7M · 총 $260M",
+            },
+            {
+                "key": "HEI",
+                "name": "HEI",
+                "subject": False,
+                "yf": "HEI",
+                "mix": {"Aerospace": 85.0, "Test Systems": 5.0, "Other": 10.0},
+                "note": "FSC/ETG · 항공 애프터마켓 중심(전형)",
+            },
+            {
+                "key": "CW",
+                "name": "CW",
+                "subject": False,
+                "yf": "CW",
+                "mix": {"Aerospace": 70.0, "Test Systems": 15.0, "Other": 15.0},
+                "note": "항공·방산·산업 혼재 → 버킷 근사",
+            },
+            {
+                "key": "HWM",
+                "name": "HWM",
+                "subject": False,
+                "yf": "HWM",
+                "mix": {"Aerospace": 95.0, "Test Systems": 0.0, "Other": 5.0},
+                "note": "엔진·구조 부품 · 테스트 미미",
+            },
+            {
+                "key": "TDG",
+                "name": "TDG",
+                "subject": False,
+                "yf": "TDG",
+                "mix": {"Aerospace": 98.0, "Test Systems": 0.0, "Other": 2.0},
+                "note": "항공기 부품·애프터마켓 본체",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Aerospace / Test Systems / Other로 정규화. "
+            "ATRO는 Q2'26 공시(91.3/8.7), 피어는 업태 전형 — 방향 비교용. "
+            "ATRO Aerospace 내부는 Commercial Transport ~75% · Military ~13% · GA ~12%."
+        ),
+    },
 }
 
 
@@ -811,6 +882,7 @@ SUBJECT_SHARE_ALIASES: dict[str, tuple[str, ...]] = {
     "AMRX": ("amneal",),
     "FTRE": ("fortrea",),
     "CMPR": ("cimpress", "vistaprint", "vista"),
+    "ATRO": ("astronics",),
 }
 
 
