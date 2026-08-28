@@ -1,0 +1,2063 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"/>
+    <title>NASDAQ 심층분석 2026-08-28</title><style>
+    @font-face { font-family:'NanumGothic'; src:url('file:///tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothic.ttf'); font-weight:normal; }
+    @font-face { font-family:'NanumGothic'; src:url('file:///tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf'); font-weight:bold; }
+    @page { size:A4; margin:14mm 12mm 16mm 12mm;
+      @bottom-center { content:"NASDAQ 심층분석 2026-08-28 — " counter(page);
+        font-size:8pt; color:#666; font-family:'NanumGothic',sans-serif; }
+    }
+    body { font-family:'NanumGothic',sans-serif; font-size:9.5pt; line-height:1.45; color:#1a1a1a; }
+    h1 { font-size:22pt; margin:0 0 8px; }
+    h2 { font-size:13pt; margin:14px 0 6px; border-bottom:2px solid #2c5282; padding-bottom:3px; }
+    h3 { font-size:11pt; margin:10px 0 4px; color:#2c5282; }
+    .cover { page-break-after:always; min-height:240mm; display:flex; flex-direction:column;
+      justify-content:center; text-align:center; }
+    .sub { font-size:12pt; color:#444; margin-top:12px; }
+    .meta { font-size:10pt; color:#555; margin-top:24px; }
+    table { width:100%; border-collapse:collapse; font-size:8pt; margin:8px 0; }
+    th,td { border:1px solid #ccc; padding:3px 5px; vertical-align:top; }
+    th { background:#edf2f7; font-weight:bold; }
+    tr:nth-child(even) td { background:#fafafa; }
+    td.chase { font-size:7.5pt; line-height:1.35; min-width:42%; }
+    .ticker-section { page-break-before:always; }
+    .ticker-head { background:#2c5282; color:#fff; padding:8px 10px; margin:0 0 8px; font-size:12pt; font-weight:bold; }
+    .tag { display:inline-block; background:#bee3f8; padding:1px 6px; border-radius:3px; font-size:8pt; margin:1px; }
+    .conclusion td:first-child { font-weight:bold; width:22%; background:#f7fafc; }
+    .portfolio-box { background:#fffaf0; border:1px solid #d69e2e; padding:10px; margin:10px 0; }
+    .exec-banner { background:#ecfdf5; border:3px solid #0f766e; padding:14px 16px; margin:12px 0;
+      text-align:left; }
+    .exec-banner .title { font-size:13pt; font-weight:bold; color:#065f46; margin:0 0 6px; }
+    .exec-banner .tickers { font-size:14pt; font-weight:bold; color:#064e3b; letter-spacing:0.02em; }
+    .exec-empty { background:#f8fafc; border:1px dashed #94a3b8; padding:12px; margin:12px 0; color:#475569; }
+    tr.exec-hit td { background:#d1fae5 !important; font-weight:bold; }
+    .tag-exec { background:#059669; color:#fff; font-weight:bold; }
+    .small { font-size:8pt; color:#555; }
+    </style></head><body>
+    <section class="cover">
+      <h1>NASDAQ 심층분석</h1>
+      <p class="sub">Chase 본선 · 타이밍 GO · 확정 EARN_D5 · 51종 · 군인 프리마켓 실행</p>
+      <p class="meta">기준일 2026-08-28 · 라이브 가격/PT/실적일 · earn_confirmed SSOT · 종료 후 기술적분석 자동</p>
+      <div class='exec-empty' style='max-width:560px;margin:16px auto;text-align:left'>본선∩GO <b>0</b> · GO_A 0 / SOFT 20 — 오늘은 실행 강조 없음</div>
+      <div class="portfolio-box" style="text-align:left;max-width:560px;margin:24px auto;">
+        <b>매수 신호 요약 (본선 ∩ 타이밍)</b><br/>
+        GO_A(A) <b>0</b> · GO_B(B·기본 WAIT) <b>0</b> · WAIT/SOFT 20 ·
+        <b>실행강조 0</b><br/>
+        → 본선∩GO 실실행 없음 · 워치·현금 유지
+      </div>
+      <div class="portfolio-box" style="text-align:left;max-width:560px;margin:16px auto;">
+        <b>포트 실행 메모 (8/25 스냅 · 최신 SSOT)</b><br/>
+        보유: TXG4 · ECPG2 · AMRX11 · ANAB3 · FTNT1 · APPS13 · DRH8 · 평가~$1,226 · 현금합≈$468<br/>
+        APPS+1 · TXG 20.8% 천장OVER · Top3≈53.6% · 7종 전원 NO_ADD · 전개가능≈$318<br/>
+        유니버스∩보유: TXG·ECPG·AMRX·FTNT (ANAB·APPS·DRH는 유니버스 외·NO_ADD 유지)<br/>
+        SCSC/CMPR/NESR/CRDO 청산후 추격금지 · 실행창 17:30~20:55 지정가<br/>
+        유니버스 51종 · 본선∩GO 강조 · PDF=GitHub Release만
+      </div>
+    </section>
+    <h2>0. 매수 신호 — 본선 ∩ 타이밍 (적극 고지)</h2><div class='exec-empty'><b>오늘은 본선 ∩ GO 공집합</b> — 타이밍 히트만 있거나, 본선만 있을 수 있음. 실행후보 없음 → 워치·현금 유지. (GO_A가 있어도 Chase 중하/과열이면 강조하지 않음)</div><div class='portfolio-box' style='border-color:#0f766e;background:#f0fdfa'><b>매수 신호 구조 (2026-08 개편)</b> — <b>① 본선(Chase 좋은 종목)</b> ∩ <b>② 타이밍 GO</b> → 실행. 아래 A/B/SOFT는 <u>타이밍만</u> (종목 선발이 아님). GO_A 0 · GO_B 0 (프리마켓 기본 WAIT) · WAIT/SOFT 20. 본선∩GO 강조 <b>0</b>건.</div><table><tr><th>타이밍</th><th>구표기</th><th>티커</th><th>가격</th><th>RSI</th><th>고점대비</th><th>지지</th><th>돌파</th><th>실적</th><th>출처</th><th>메모</th></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>AMRX</b></td><td>$17.90</td><td>51</td><td>-6.5%</td><td>Y</td><td>—</td><td>D63</td><td class='small'>confirmed</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>ROKU</b></td><td>$157.60</td><td>65</td><td>-1.4%</td><td>Y</td><td>—</td><td>D70</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>CRDO</b></td><td>$234.00</td><td>49</td><td>-18.3%</td><td>Y</td><td>—</td><td>D5</td><td class='small'>estimate</td><td class='small'>추정실적창(2026-09-01) · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>NEOG</b></td><td>$11.64</td><td>56</td><td>-9.4%</td><td>Y</td><td>—</td><td>D42</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>GCT</b></td><td>$51.83</td><td>63</td><td>-7.9%</td><td>Y</td><td>—</td><td>D70</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>FA</b></td><td>$21.29</td><td>53</td><td>-15.3%</td><td>Y</td><td>—</td><td>D70</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>AVT</b></td><td>$90.59</td><td>50</td><td>-9.4%</td><td>Y</td><td>—</td><td>D62</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>CHEF</b></td><td>$111.39</td><td>59</td><td>-5.1%</td><td>Y</td><td>—</td><td>D62</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>LIND</b></td><td>$30.36</td><td>46</td><td>-13.2%</td><td>Y</td><td>—</td><td>D68</td><td class='small'>estimate</td><td class='small'>스윙L · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>DGII</b></td><td>$78.22</td><td>56</td><td>-9.9%</td><td>Y</td><td>—</td><td>D76</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>MGTX</b></td><td>$13.72</td><td>53</td><td>-10.4%</td><td>Y</td><td>—</td><td>D77</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>CRSR</b></td><td>$12.24</td><td>57</td><td>-18.3%</td><td>Y</td><td>—</td><td>D68</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>PRAX</b></td><td>$359.45</td><td>52</td><td>-8.5%</td><td>Y</td><td>—</td><td>D74</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>CAKE</b></td><td>$111.62</td><td>61</td><td>-5.8%</td><td>Y</td><td>—</td><td>D61</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>ATRO</b></td><td>$77.57</td><td>50</td><td>-17.9%</td><td>Y</td><td>—</td><td>D70</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>ZBRA</b></td><td>$366.32</td><td>65</td><td>-5.2%</td><td>Y</td><td>—</td><td>D68</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>INCY</b></td><td>$127.04</td><td>60</td><td>-2.9%</td><td>Y</td><td>—</td><td>D61</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>CBRL</b></td><td>$56.34</td><td>51</td><td>-6.5%</td><td>Y</td><td>—</td><td>D20</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>DNTH</b></td><td>$109.11</td><td>51</td><td>-7.4%</td><td>Y</td><td>—</td><td>D70</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr><tr><td><b>WAIT</b></td><td class='small'>SOFT</td><td><b>ZD</b></td><td>$55.99</td><td>59</td><td>-3.6%</td><td>Y</td><td>—</td><td>D70</td><td class='small'>estimate</td><td class='small'>MA20근처 · 정배열</td></tr></table><p class='small'><b>좋은 종목</b>=Chase 본선(상/중상…) · <b>좋은 타이밍</b>=GO_A 눌림. 초록 강조행 = 본선∩GO 실행후보. 확정 실적 D−5만 하드블록. WAIT는 삭제하지 않음.</p>
+    <h2>Surprise / Chase 요약</h2>
+    <p class="small">정렬: Chase RR. 가격·PT는 2026-08-28 라이브. 51종 · 신규/복귀: FTNT·CRSR·ZBRA·ATRO·INCY·AVT·ALNT·CRDO·GCT·OMER·BRKR 등.<br/>
+    가산: 경쟁점유 Δ≥+0.3pp → +0.35 (마진유지 시 +0.15 추가 · 마진악화 시 가산취소). 해당 종목 strat/Chase에 코멘트.</p>
+    <table>
+      <tr><th>#</th><th>티커</th><th>가격</th><th>PT</th><th>업사이드</th><th>EPS B/N</th><th>실적일</th><th>Chase</th></tr>
+      <tr><td>1</td><td><b>OMER</b></td><td>$18.86</td><td>$33.00</td><td>+75.0%</td><td>4/4</td><td>2026-11-12</td><td class='chase'><b>중하·임상변동</b><br/>중하·임상변동 — 보체 바이오. 임상·자금 확인 전 추격 금지.</td></tr><tr><td>2</td><td><b>RELY</b></td><td>$25.89</td><td>$32.33</td><td>+24.9%</td><td>4/4</td><td>2026-11-04</td><td class='chase'><b>중·08-08청산후워치·추격금지</b><br/>중·청산후워치·추격금지 — 재매수·추격 금지. · 점유율 꾸준 상승(+0.4pp) — 경쟁력 가산</td></tr><tr><td>3</td><td><b>CLMT</b></td><td>$47.83</td><td>$47.40</td><td>-0.9%</td><td>4/4</td><td>2026-11-06</td><td class='chase'><b>하·과열</b><br/>하·과열 — 특수제품+재생. PT 프리미엄·고점. 추격 금지. · 점유율 꾸준 상승(+2.0pp) — 경쟁력 가산</td></tr><tr><td>4</td><td><b>ECPG</b></td><td>$103.17</td><td>$115.67</td><td>+12.1%</td><td>4/4</td><td>2026-11-04</td><td class='chase'><b>최상·품질A·보유·추가금지</b><br/>최상·품질A·보유2주·추가금지 — 16.8%. 천장·추가·갭추격 금지. · 점유율 꾸준 상승(+3.0pp) — 경쟁력 가산</td></tr><tr><td>5</td><td><b>AMRX</b></td><td>$17.95</td><td>$21.00</td><td>+17.0%</td><td>4/4</td><td>2026-10-29</td><td class='chase'><b>중·품질B·보유11주·추가금지</b><br/>중·품질B·보유11주·추가금지 — 16.0%·구조한도. 즉흥·추가 매수 금지. · 점유율 꾸준 상승(+1.5pp) — 경쟁력 가산</td></tr><tr><td>6</td><td><b>ROKU</b></td><td>$157.35</td><td>$162.33</td><td>+3.2%</td><td>4/4</td><td>2026-11-05</td><td class='chase'><b>상·고점주의</b><br/>상·고점주의 — 플랫폼 RR 양호. 고점·추격보다 눌림. · 경쟁점유 -2.0pp (하락 모니터)</td></tr><tr><td>7</td><td><b>NESR</b></td><td>$34.48</td><td>$43.00</td><td>+24.7%</td><td>4/4</td><td>2026-11-12</td><td class='chase'><b>중·청산후워치·추격금지</b><br/>중·청산후워치·추격금지 — 청산 완료. 재매수·추격 금지. · 점유율 꾸준 상승(+1.5pp) — 경쟁력 가산</td></tr><tr><td>8</td><td><b>TXG</b></td><td>$64.12</td><td>$49.54</td><td>-22.7%</td><td>4/4</td><td>2026-11-05</td><td class='chase'><b>중·품질C·보유4주·천장OVER·추가금지</b><br/>중·품질C·보유4주·천장OVER·추가금지 — 20.8% 절대천장 OVER. 물타기·추격 금지. · 점유율 꾸준 상승(+3.0pp) — 경쟁력 가산</td></tr><tr><td>9</td><td><b>CRDO</b></td><td>$233.90</td><td>$283.23</td><td>+21.1%</td><td>4/4</td><td>2026-09-01</td><td class='chase'><b>중·청산후워치·추격금지</b><br/>중·청산후워치·추격금지 — 기청산. 재매수·추격 금지.</td></tr><tr><td>10</td><td><b>NEOG</b></td><td>$11.64</td><td>$13.33</td><td>+14.5%</td><td>4/4</td><td>2026-10-08</td><td class='chase'><b>상</b><br/>상 — RR 상위. 업사이드 +14.5% · 고점근접 91% · 실적 2026-10-08. 추격보다 눌림·비중 확인.</td></tr><tr><td>11</td><td><b>SBLK</b></td><td>$30.62</td><td>$32.38</td><td>+5.7%</td><td>4/4</td><td>2026-11-18</td><td class='chase'><b>중상·고점주의</b><br/>중상·고점주의 — 건화물. 위성·눌림만. · 점유율 꾸준 상승(+2.0pp) — 경쟁력 가산</td></tr><tr><td>12</td><td><b>GCT</b></td><td>$51.79</td><td>$57.00</td><td>+10.1%</td><td>4/4</td><td>2026-11-05</td><td class='chase'><b>중하·소형변동</b><br/>중하·소형변동 — B2B 가구 커머스. 위성 극소·추격 주의.</td></tr><tr><td>13</td><td><b>FA</b></td><td>$21.29</td><td>$26.25</td><td>+23.3%</td><td>4/4</td><td>2026-11-05</td><td class='chase'><b>중·고점</b><br/>중·고점 — 업사이드 음수면 관망.</td></tr><tr><td>14</td><td><b>AVT</b></td><td>$90.59</td><td>$106.25</td><td>+17.3%</td><td>4/4</td><td>2026-10-28</td><td class='chase'><b>중</b><br/>중 — IT 유통. 중간·눌림.</td></tr><tr><td>15</td><td><b>CHEF</b></td><td>$111.39</td><td>$116.56</td><td>+4.6%</td><td>4/4</td><td>2026-10-28</td><td class='chase'><b>중·고점주의</b><br/>중·고점주의 — RSI 과열권이면 추격 금지·눌림 대기.</td></tr><tr><td>16</td><td><b>SLDE</b></td><td>$23.45</td><td>$25.80</td><td>+10.0%</td><td>4/4</td><td>2026-10-28</td><td class='chase'><b>중하·신규·유동성주의</b><br/>중하·신규·유동성주의 — 보험 신규상장. 데이터·유동성 확인 전 추격 금지.</td></tr><tr><td>17</td><td><b>LIND</b></td><td>$30.36</td><td>$36.60</td><td>+20.5%</td><td>3/4</td><td>2026-11-03</td><td class='chase'><b>중·고점</b><br/>중·고점 — 크루즈/여행. 고점권 관망.</td></tr><tr><td>18</td><td><b>FROG</b></td><td>$103.15</td><td>$111.71</td><td>+8.3%</td><td>4/4</td><td>2026-11-05</td><td class='chase'><b>중</b><br/>중 — RR 중간. EPS 4/4 · 실적 2026-11-05. 셋업·눌림 확인 후.</td></tr><tr><td>19</td><td><b>APA</b></td><td>$42.77</td><td>$43.75</td><td>+2.3%</td><td>4/4</td><td>2026-11-04</td><td class='chase'><b>중상</b><br/>중상 — E&amp;P. 위성 한도·추격 금지.</td></tr><tr><td>20</td><td><b>DGII</b></td><td>$78.22</td><td>$85.40</td><td>+9.2%</td><td>4/4</td><td>2026-11-11</td><td class='chase'><b>중</b><br/>중 — RR 중간. EPS 4/4 · 실적 2026-11-11. 셋업·눌림 확인 후.</td></tr><tr><td>21</td><td><b>MGTX</b></td><td>$13.70</td><td>$29.43</td><td>+114.8%</td><td>2/4</td><td>2026-11-12</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +114.8% · 고점 89%. 신규보다 관망.</td></tr><tr><td>22</td><td><b>PRCH</b></td><td>$17.64</td><td>$19.75</td><td>+12.0%</td><td>3/4</td><td>2026-11-04</td><td class='chase'><b>중하·소형변동</b><br/>중하·소형변동 — 보험테크. 위성 극소·추격 주의.</td></tr><tr><td>23</td><td><b>FTNT</b></td><td>$169.75</td><td>$160.86</td><td>-5.2%</td><td>4/4</td><td>2026-11-04</td><td class='chase'><b>중·품질B·보유·추가금지</b><br/>중·품질B·보유·추가금지 — 12.4%·구조한도. NO_ADD·추격 금지.</td></tr><tr><td>24</td><td><b>CRSR</b></td><td>$12.17</td><td>$13.22</td><td>+8.6%</td><td>3/4</td><td>2026-11-03</td><td class='chase'><b>하·과열주의</b><br/>하·과열주의 — 게이밍 HW. 고점·추격 금지.</td></tr><tr><td>25</td><td><b>PRAX</b></td><td>$359.45</td><td>$638.68</td><td>+77.7%</td><td>3/4</td><td>2026-11-09</td><td class='chase'><b>상</b><br/>상 — RR 상위. 업사이드 +77.7% · 고점근접 92% · 실적 2026-11-09. 추격보다 눌림·비중 확인.</td></tr><tr><td>26</td><td><b>AMGN</b></td><td>$433.64</td><td>$388.48</td><td>-10.4%</td><td>4/4</td><td>2026-11-03</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 -10.4% · 고점 97%. 신규보다 관망.</td></tr><tr><td>27</td><td><b>VCTR</b></td><td>$122.38</td><td>$104.40</td><td>-14.7%</td><td>4/4</td><td>2026-11-05</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 -14.7% · 고점 99%. 신규보다 관망.</td></tr><tr><td>28</td><td><b>CAKE</b></td><td>$111.48</td><td>$92.67</td><td>-16.9%</td><td>4/4</td><td>2026-10-27</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 -16.9% · 고점 94%. 신규보다 관망.</td></tr><tr><td>29</td><td><b>CDNA</b></td><td>$51.87</td><td>$52.33</td><td>+0.9%</td><td>3/4</td><td>2026-11-03</td><td class='chase'><b>중하·과열주의</b><br/>중하·과열주의 — RSI·급등 과열이면 추격 금지.</td></tr><tr><td>30</td><td><b>PLPC</b></td><td>$419.46</td><td>$480.00</td><td>+14.4%</td><td>3/4</td><td>2026-10-28</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +14.4% · 고점 83%. 신규보다 관망.</td></tr><tr><td>31</td><td><b>ALNT</b></td><td>$95.08</td><td>$118.00</td><td>+24.1%</td><td>3/4</td><td>2026-11-04</td><td class='chase'><b>중</b><br/>중 — 모션컨트롤. 산업 베타.</td></tr><tr><td>32</td><td><b>CLBK</b></td><td>$11.74</td><td>$14.17</td><td>+20.7%</td><td>3/4</td><td>2026-10-20</td><td class='chase'><b>상</b><br/>상 — RR 상위. 업사이드 +20.7% · 고점근접 98% · 실적 2026-10-20. 추격보다 눌림·비중 확인.</td></tr><tr><td>33</td><td><b>ATRO</b></td><td>$77.56</td><td>$89.55</td><td>+15.4%</td><td>3/3</td><td>2026-11-05</td><td class='chase'><b>중</b><br/>중 — 항공전자. 수주·마진 확인.</td></tr><tr><td>34</td><td><b>ZBRA</b></td><td>$366.35</td><td>$412.87</td><td>+12.7%</td><td>3/4</td><td>2026-11-03</td><td class='chase'><b>중</b><br/>중 — 자동식별. 산업캡ex·눌림 확인.</td></tr><tr><td>35</td><td><b>BRKR</b></td><td>$58.74</td><td>$58.75</td><td>+0.0%</td><td>3/4</td><td>2026-11-03</td><td class='chase'><b>중하</b><br/>중하 — 분석기기. 대기.</td></tr><tr><td>36</td><td><b>INCY</b></td><td>$127.05</td><td>$127.12</td><td>+0.1%</td><td>3/4</td><td>2026-10-27</td><td class='chase'><b>중·SOFT</b><br/>중·SOFT — 업사이드 작으면 대기.</td></tr><tr><td>37</td><td><b>LITE</b></td><td>$930.84</td><td>$1,148</td><td>+23.4%</td><td>3/4</td><td>2026-11-05</td><td class='chase'><b>상</b><br/>상 — RR 상위. 업사이드 +23.4% · 고점근접 86% · 실적 2026-11-05. 추격보다 눌림·비중 확인.</td></tr><tr><td>38</td><td><b>LFST</b></td><td>$12.45</td><td>$13.80</td><td>+10.8%</td><td>3/4</td><td>2026-11-05</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +10.8% · 고점 96%. 신규보다 관망.</td></tr><tr><td>39</td><td><b>SCSC</b></td><td>$58.05</td><td>$60.50</td><td>+4.2%</td><td>3/4</td><td>2026-11-05</td><td class='chase'><b>중·청산후워치·추격금지</b><br/>중·청산후워치·추격금지 — 전량청산 완료. 재매수 금지.</td></tr><tr><td>40</td><td><b>NSIT</b></td><td>$156.59</td><td>$163.75</td><td>+4.6%</td><td>3/4</td><td>2026-10-29</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +4.6% · 고점 99%. 신규보다 관망.</td></tr><tr><td>41</td><td><b>PLSE</b></td><td>$48.40</td><td>$45.25</td><td>-6.5%</td><td>3/4</td><td>2026-11-05</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 -6.5% · 고점 95%. 신규보다 관망.</td></tr><tr><td>42</td><td><b>HALO</b></td><td>$106.48</td><td>$99.56</td><td>-6.5%</td><td>3/4</td><td>2026-11-02</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 -6.5% · 고점 97%. 신규보다 관망.</td></tr><tr><td>43</td><td><b>CBRL</b></td><td>$56.23</td><td>$45.00</td><td>-20.0%</td><td>2/4</td><td>2026-09-16</td><td class='chase'><b>하·과열</b><br/>하·과열 — 레스토랑 프리미엄. 추격 금지.</td></tr><tr><td>44</td><td><b>DNTH</b></td><td>$109.20</td><td>$137.62</td><td>+26.0%</td><td>2/4</td><td>2026-11-05</td><td class='chase'><b>중·임상변동</b><br/>중·임상변동 — 임상 이벤트. 위성·소액만.</td></tr><tr><td>45</td><td><b>NTRA</b></td><td>$337.15</td><td>$336.74</td><td>-0.1%</td><td>2/4</td><td>2026-11-05</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 -0.1% · 고점 98%. 신규보다 관망.</td></tr><tr><td>46</td><td><b>AXGN</b></td><td>$51.45</td><td>$53.90</td><td>+4.8%</td><td>2/4</td><td>2026-10-28</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +4.8% · 고점 97%. 신규보다 관망.</td></tr><tr><td>47</td><td><b>SRRK</b></td><td>$59.00</td><td>$60.75</td><td>+3.0%</td><td>2/4</td><td>2026-11-12</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +3.0% · 고점 96%. 신규보다 관망.</td></tr><tr><td>48</td><td><b>ETON</b></td><td>$60.29</td><td>$71.00</td><td>+17.8%</td><td>1/4</td><td>2026-11-12</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +17.8% · 고점 91%. 신규보다 관망.</td></tr><tr><td>49</td><td><b>TH</b></td><td>$19.22</td><td>$23.60</td><td>+22.8%</td><td>1/3</td><td>2026-11-05</td><td class='chase'><b>중하</b><br/>중하 — 모듈 숙박. 가동률·계약 확인.</td></tr><tr><td>50</td><td><b>ZD</b></td><td>$55.99</td><td>$64.40</td><td>+15.0%</td><td>1/4</td><td>2026-11-05</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +15.0% · 고점 96%. 신규보다 관망.</td></tr><tr><td>51</td><td><b>SEPN</b></td><td>$39.73</td><td>$54.22</td><td>+36.5%</td><td>1/4</td><td>2026-11-09</td><td class='chase'><b>중·SOFT·서프약</b><br/>중·SOFT·서프약 — 서프라이즈 약. 신중.</td></tr>
+    </table>
+    
+    <section class="ticker-section" id="OMER">
+      <div class="ticker-head">#1 OMER — Omeros</div>
+      <div>
+        
+        <span class="tag">현재 $18.86</span>
+        <span class="tag">PT $33.00–$33.00 (평균 $33.00)</span>
+        <span class="tag">업사이드 +75.0%</span>
+        <span class="tag">52주 $3.94–$19.65</span>
+        <span class="tag">고점근접 96%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중하 · 위성 극소 · 임상 변동</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 헬스케어·바이오 · <b>특성</b> 보체·염증 파이프라인 · <b>시총</b> $1.37B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>바이오. 한줄: 보체 경로·염증 치료제 임상</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>임상 바이너리 · 자금 조달</p>
+      <p><b>컨센서스</b> buy PT평균$33.00 (+75.0%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +100.00%)</p>
+      <p><b>전략</b> 중하 · 위성 극소 · 임상 변동</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>임상·승인·현금활주로 · 실적일 <b>2026-11-12</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 임상 실패·자금 고갈 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>헬스케어·바이오</td></tr>
+        <tr><td>핵심</td><td>바이오. 한줄: 보체 경로·염증 치료제 임상</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>임상 실패</td></tr>
+        <tr><td>Chase</td><td><b>중하·임상변동</b><br/><span class="small">중하·임상변동 — 보체 바이오. 임상·자금 확인 전 추격 금지.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="RELY">
+      <div class="ticker-head">#2 RELY — Remitly Global, Inc.</div>
+      <div>
+        
+        <span class="tag">현재 $25.89</span>
+        <span class="tag">PT $29.00–$36.00 (평균 $32.33)</span>
+        <span class="tag">업사이드 +24.9%</span>
+        <span class="tag">52주 $12.08–$27.15</span>
+        <span class="tag">고점근접 95%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>상 · 라이브 데이터 기반 초안 · 경쟁점유 +0.4pp 가산(+0.35)</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> IT·기술 · <b>특성</b> Software - Infrastructure · <b>시총</b> $5.48B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>Remitly Global, Inc.. 한줄: Remitly Global, Inc., a cross-border payment company engages in the provision of digital financial services in the Unite</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 4/4 · upside +26%</p>
+      <p><b>컨센서스</b> strong_buy PT평균$32.33 (+24.9%)</p>
+      <p><b>서프라이즈</b> EPS4/4
+
+        (평균 EPS 서프라이즈 +100.00%)</p>
+      <p><b>전략</b> 상 · 라이브 데이터 기반 초안 · 경쟁점유 +0.4pp 가산(+0.35)</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-11-04</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $32–37 · Base $22–29 · Bear $16–20</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $26/$29/$34</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>IT·기술</td></tr>
+        <tr><td>핵심</td><td>Remitly Global, Inc.. 한줄: Remitly Global, Inc., a cross-border payment company engages in </td></tr>
+        <tr><td>EPS</td><td>4/4</td></tr>
+        <tr><td>신규진입</td><td>분할검토</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중·08-08청산후워치·추격금지</b><br/><span class="small">중·청산후워치·추격금지 — 재매수·추격 금지. · 점유율 꾸준 상승(+0.4pp) — 경쟁력 가산</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="CLMT">
+      <div class="ticker-head">#3 CLMT — Calumet</div>
+      <div>
+        
+        <span class="tag">현재 $47.83</span>
+        <span class="tag">PT $40.00–$60.00 (평균 $47.40)</span>
+        <span class="tag">업사이드 -0.9%</span>
+        <span class="tag">52주 $16.00–$51.50</span>
+        <span class="tag">고점근접 93%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>고점·미스</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 소재·특수제품/재생연료 · <b>특성</b> 리파이닝·재생연료마진 · <b>시총</b> 소중형</p>
+      <h3>3. 핵심 제품</h3>
+      <p>특수석유·재생연료</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>Q1 EPS대형Miss RevBeat</p>
+      <p><b>컨센서스</b> PT$37.8 현재+13%</p>
+      <p><b>서프라이즈</b> EPS2/4 최근Miss Rev3/4
+
+        (평균 EPS 서프라이즈 +100.00%)</p>
+      <p><b>전략</b> 고점·미스→비추격 · 경쟁점유 +2.0pp 가산(+0.35)</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>~08-07실적 · 실적일 <b>2026-11-06</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $45–55 · Base $35–42 · Bear $25–32</p>
+      <p><b>Breaker</b> 마진붕괴 · ABC $40/$48/$55</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>소재·특수제품/재생연료</td></tr>
+        <tr><td>핵심</td><td>특수석유·재생연료</td></tr>
+        <tr><td>EPS</td><td>최근Miss</td></tr>
+        <tr><td>신규진입</td><td>$32–36</td></tr>
+        <tr><td>탈락</td><td>스프레드악화</td></tr>
+        <tr><td>Chase</td><td><b>하·과열</b><br/><span class="small">하·과열 — 특수제품+재생. PT 프리미엄·고점. 추격 금지. · 점유율 꾸준 상승(+2.0pp) — 경쟁력 가산</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="ECPG">
+      <div class="ticker-head">#4 ECPG — Encore Capital</div>
+      <div>
+        
+        <span class="tag">현재 $103.17</span>
+        <span class="tag">PT $112.00–$120.00 (평균 $115.67)</span>
+        <span class="tag">업사이드 +12.1%</span>
+        <span class="tag">52주 $39.95–$104.98</span>
+        <span class="tag">고점근접 98%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>코어보유·추가금지 · stop80 · 경쟁점유 +3.0pp 가산(+0.35)</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 금융·채권회수 · <b>특성</b> 연체율·매입가·회수율 핵심 · <b>시총</b> ~$2.0B 소형금융</p>
+      <h3>3. 핵심 제품</h3>
+      <p>NPL 회수. 한줄: 싸게 산 빚을 회수</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>Q1 매출$475M(+21%YoY) EPS$3.86</p>
+      <p><b>컨센서스</b> Buy PT평균$113(+24%)</p>
+      <p><b>서프라이즈</b> EPS4/4 Rev4/4 6연속Beat 평균+56%
+
+        (평균 EPS 서프라이즈 +72.80%)</p>
+      <p><b>전략</b> 코어보유·추가금지 · stop80 · 경쟁점유 +3.0pp 가산(+0.35)</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>연속Beat(ChartMill); ~08-06실적 · 실적일 <b>2026-11-04</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $110–120 · Base $100–110 · Bear $80–88</p>
+      <p><b>Breaker</b> Beat단절·규제 · ABC $100/$110/$120</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>금융·채권회수</td></tr>
+        <tr><td>핵심</td><td>NPL 회수. 한줄: 싸게 산 빚을 회수</td></tr>
+        <tr><td>EPS</td><td>6연속Beat</td></tr>
+        <tr><td>신규진입</td><td>$88–93</td></tr>
+        <tr><td>탈락</td><td>회수율하향</td></tr>
+        <tr><td>Chase</td><td><b>최상·품질A·보유·추가금지</b><br/><span class="small">최상·품질A·보유2주·추가금지 — 16.8%. 천장·추가·갭추격 금지. · 점유율 꾸준 상승(+3.0pp) — 경쟁력 가산</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="AMRX">
+      <div class="ticker-head">#5 AMRX — Amneal</div>
+      <div>
+        
+        <span class="tag">현재 $17.95</span>
+        <span class="tag">PT $16.00–$25.00 (평균 $21.00)</span>
+        <span class="tag">업사이드 +17.0%</span>
+        <span class="tag">52주 $9.32–$19.26</span>
+        <span class="tag">고점근접 93%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>보유·추가금지 · 07-30 · 경쟁점유 +1.5pp 가산(+0.35)</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 제네릭/스페셜티제약 · <b>특성</b> 가격압력·파이프라인 · <b>시총</b> ~$5.4B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>제네릭+Specialty. 한줄: 복제약·브랜드약</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>Q1 EPS$0.27(+56%vs) 매출소폭Miss</p>
+      <p><b>컨센서스</b> Buy PT$18.2≈현재</p>
+      <p><b>서프라이즈</b> EPS4/4연속 Rev0/4Miss
+
+        (평균 EPS 서프라이즈 +31.71%)</p>
+      <p><b>전략</b> 보유·추가금지 · 07-30 · 경쟁점유 +1.5pp 가산(+0.35)</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>07-30 실적 · 실적일 <b>2026-10-29</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $20–23 · Base $17–19 · Bear $14–16</p>
+      <p><b>Breaker</b> 매출가이드컷 · ABC $18/$20/$23</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>제네릭/스페셜티제약</td></tr>
+        <tr><td>핵심</td><td>제네릭+Specialty. 한줄: 복제약·브랜드약</td></tr>
+        <tr><td>EPS</td><td>4연속/Rev0/4</td></tr>
+        <tr><td>신규진입</td><td>실적 전 추가금지</td></tr>
+        <tr><td>탈락</td><td>가이드하향</td></tr>
+        <tr><td>Chase</td><td><b>중·품질B·보유11주·추가금지</b><br/><span class="small">중·품질B·보유11주·추가금지 — 16.0%·구조한도. 즉흥·추가 매수 금지. · 점유율 꾸준 상승(+1.5pp) — 경쟁력 가산</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="ROKU">
+      <div class="ticker-head">#6 ROKU — Roku, Inc.</div>
+      <div>
+        
+        <span class="tag">현재 $157.35</span>
+        <span class="tag">PT $150.00–$205.00 (평균 $162.33)</span>
+        <span class="tag">업사이드 +3.2%</span>
+        <span class="tag">52주 $78.53–$159.89</span>
+        <span class="tag">고점근접 98%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 라이브 데이터 기반 초안 · 경쟁점유 -2.0pp (하락 모니터)</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 통신 · <b>특성</b> Entertainment · <b>시총</b> $23.35B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>Roku, Inc.. 한줄: Roku, Inc., together with its subsidiaries, operates a TV streaming platform in the United States and internationally. T</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 4/4 · upside +10%</p>
+      <p><b>컨센서스</b> hold PT평균$162.33 (+3.2%)</p>
+      <p><b>서프라이즈</b> EPS4/4
+
+        (평균 EPS 서프라이즈 +85.38%)</p>
+      <p><b>전략</b> 중 · 라이브 데이터 기반 초안 · 경쟁점유 -2.0pp (하락 모니터)</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-11-05</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $174–198 · Base $136–158 · Bear $100–122</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $143/$158/$182</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>통신</td></tr>
+        <tr><td>핵심</td><td>Roku, Inc.. 한줄: Roku, Inc., together with its subsidiaries, operates a TV streaming platfo</td></tr>
+        <tr><td>EPS</td><td>4/4</td></tr>
+        <tr><td>신규진입</td><td>눌림</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>상·고점주의</b><br/><span class="small">상·고점주의 — 플랫폼 RR 양호. 고점·추격보다 눌림. · 경쟁점유 -2.0pp (하락 모니터)</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="NESR">
+      <div class="ticker-head">#7 NESR — National Energy Services</div>
+      <div>
+        
+        <span class="tag">현재 $34.48</span>
+        <span class="tag">PT $40.00–$50.00 (평균 $43.00)</span>
+        <span class="tag">업사이드 +24.7%</span>
+        <span class="tag">52주 $9.10–$36.94</span>
+        <span class="tag">고점근접 93%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>분할 · 밴드 25-27만 · 경쟁점유 +1.5pp 가산(+0.35)</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 에너지·OFS(MENA) · <b>특성</b> 중동CAPEX·지정학 · <b>시총</b> ~$2.8B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>통합오일필드서비스. 한줄: 중동 유전 장비·인력</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>Q1 매출$405M(+34%) EPS~$0.26Beat</p>
+      <p><b>컨센서스</b> Buy PT$33(+18%)</p>
+      <p><b>서프라이즈</b> EPS4/4 Rev4/4 연속Beat Q1+24%
+
+        (평균 EPS 서프라이즈 +22.81%)</p>
+      <p><b>전략</b> 분할 · 밴드 25-27만 · 경쟁점유 +1.5pp 가산(+0.35)</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>Jafurah프랙; ~08-19실적 · 실적일 <b>2026-11-12</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $33–36 · Base $30–33 · Bear $22–25</p>
+      <p><b>Breaker</b> 지정학·마진압축 · ABC $31/$34/$36</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>에너지·OFS(MENA)</td></tr>
+        <tr><td>핵심</td><td>통합오일필드서비스. 한줄: 중동 유전 장비·인력</td></tr>
+        <tr><td>EPS</td><td>연속Beat</td></tr>
+        <tr><td>신규진입</td><td>$25–28분할</td></tr>
+        <tr><td>탈락</td><td>가동률하락</td></tr>
+        <tr><td>Chase</td><td><b>중·청산후워치·추격금지</b><br/><span class="small">중·청산후워치·추격금지 — 청산 완료. 재매수·추격 금지. · 점유율 꾸준 상승(+1.5pp) — 경쟁력 가산</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="TXG">
+      <div class="ticker-head">#8 TXG — TXG</div>
+      <div>
+        
+        <span class="tag">현재 $64.12</span>
+        <span class="tag">PT $40.00–$65.00 (평균 $49.54)</span>
+        <span class="tag">업사이드 -22.7%</span>
+        <span class="tag">52주 $11.16–$66.94</span>
+        <span class="tag">고점근접 96%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 신규 포함 · 추격 주의 · 경쟁점유 +3.0pp 가산(+0.35)</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> — · <b>특성</b> — · <b>시총</b> 중형</p>
+      <h3>3. 핵심 제품</h3>
+      <p>TXG. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>라이브 stub</p>
+      <p><b>컨센서스</b> PT$34 현재+28%과열</p>
+      <p><b>서프라이즈</b> EPS4/4 Rev4/4
+
+        (평균 EPS 서프라이즈 +100.00%)</p>
+      <p><b>전략</b> 중 · 신규 포함 · 추격 주의 · 경쟁점유 +3.0pp 가산(+0.35)</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스 · 실적일 <b>2026-11-05</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>—</td></tr>
+        <tr><td>핵심</td><td>TXG. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중·품질C·보유4주·천장OVER·추가금지</b><br/><span class="small">중·품질C·보유4주·천장OVER·추가금지 — 20.8% 절대천장 OVER. 물타기·추격 금지. · 점유율 꾸준 상승(+3.0pp) — 경쟁력 가산</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="CRDO">
+      <div class="ticker-head">#9 CRDO — Credo Technology Group Holding </div>
+      <div>
+        
+        <span class="tag">현재 $233.90</span>
+        <span class="tag">PT $184.00–$350.00 (평균 $283.23)</span>
+        <span class="tag">업사이드 +21.1%</span>
+        <span class="tag">52주 $86.48–$308.67</span>
+        <span class="tag">고점근접 76%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> IT·기술 · <b>특성</b> Semiconductors · <b>시총</b> $43.96B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>Credo Technology Group Holding . 한줄: Credo Technology Group Holding Ltd provides various high-speed connectivity solutions for optical and electrical Etherne</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 4/4 · upside +17%</p>
+      <p><b>컨센서스</b> strong_buy PT평균$283.23 (+21.1%)</p>
+      <p><b>서프라이즈</b> EPS4/4
+
+        (평균 EPS 서프라이즈 +26.35%)</p>
+      <p><b>전략</b> 중 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-09-01</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $307–349 · Base $226–279 · Bear $167–202</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $251/$279/$321</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>IT·기술</td></tr>
+        <tr><td>핵심</td><td>Credo Technology Group Holding . 한줄: Credo Technology Group Holding Ltd provides various h</td></tr>
+        <tr><td>EPS</td><td>4/4</td></tr>
+        <tr><td>신규진입</td><td>눌림</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중·청산후워치·추격금지</b><br/><span class="small">중·청산후워치·추격금지 — 기청산. 재매수·추격 금지.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="NEOG">
+      <div class="ticker-head">#10 NEOG — Neogen Corporation</div>
+      <div>
+        
+        <span class="tag">현재 $11.64</span>
+        <span class="tag">PT $12.00–$14.00 (평균 $13.33)</span>
+        <span class="tag">업사이드 +14.5%</span>
+        <span class="tag">52주 $4.90–$12.85</span>
+        <span class="tag">고점근접 91%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 헬스케어 · <b>특성</b> Medical Devices · <b>시총</b> $2.54B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>Neogen Corporation. 한줄: Neogen Corporation develops, manufactures, and markets various products and services for food and animal safety in the U</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 4/4 · upside +10%</p>
+      <p><b>컨센서스</b> buy PT평균$13.33 (+14.5%)</p>
+      <p><b>서프라이즈</b> EPS4/4
+
+        (평균 EPS 서프라이즈 +46.66%)</p>
+      <p><b>전략</b> 중 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-10-08</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $14–16 · Base $11–13 · Bear $8–10</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $12/$13/$15</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>헬스케어</td></tr>
+        <tr><td>핵심</td><td>Neogen Corporation. 한줄: Neogen Corporation develops, manufactures, and markets various pro</td></tr>
+        <tr><td>EPS</td><td>4/4</td></tr>
+        <tr><td>신규진입</td><td>눌림</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>상</b><br/><span class="small">상 — RR 상위. 업사이드 +14.5% · 고점근접 91% · 실적 2026-10-08. 추격보다 눌림·비중 확인.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="SBLK">
+      <div class="ticker-head">#11 SBLK — Star Bulk</div>
+      <div>
+        
+        <span class="tag">현재 $30.62</span>
+        <span class="tag">PT $25.90–$36.00 (평균 $32.38)</span>
+        <span class="tag">업사이드 +5.7%</span>
+        <span class="tag">52주 $16.72–$31.25</span>
+        <span class="tag">고점근접 98%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>사이클 · 위성 · 경쟁점유 +2.0pp 가산(+0.35)</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 산업·건화물해운 · <b>특성</b> Dry Bulk 선대 · <b>시총</b> $3.42B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>건화물. 한줄: Capesize 등 건화물 선박 운영</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>운임·배당</p>
+      <p><b>컨센서스</b> none PT평균$32.38 (+5.7%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +16.17%)</p>
+      <p><b>전략</b> 사이클 · 위성 · 경쟁점유 +2.0pp 가산(+0.35)</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>BDI·운임·선대 · 실적일 <b>2026-11-18</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $30–36 · Base $20–26 · Bear $14–18</p>
+      <p><b>Breaker</b> 운임 붕괴 · ABC $20/$25/$32</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>산업·건화물해운</td></tr>
+        <tr><td>핵심</td><td>건화물. 한줄: Capesize 등 건화물 선박 운영</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>운임 급락</td></tr>
+        <tr><td>Chase</td><td><b>중상·고점주의</b><br/><span class="small">중상·고점주의 — 건화물. 위성·눌림만. · 점유율 꾸준 상승(+2.0pp) — 경쟁력 가산</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="GCT">
+      <div class="ticker-head">#12 GCT — GigaCloud Technology</div>
+      <div>
+        
+        <span class="tag">현재 $51.79</span>
+        <span class="tag">PT $40.00–$73.00 (평균 $57.00)</span>
+        <span class="tag">업사이드 +10.1%</span>
+        <span class="tag">52주 $25.15–$56.27</span>
+        <span class="tag">고점근접 92%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중하 · 위성 극소 · 추격 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 소비·B2B커머스 · <b>특성</b> 대형가구 B2B 마켓플레이스 · <b>시총</b> $1.85B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>B2B 커머스. 한줄: 대형 가구·홈상품 B2B 플랫폼</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>소형·변동 · GMV·마진</p>
+      <p><b>컨센서스</b> none PT평균$57.00 (+10.1%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +39.39%)</p>
+      <p><b>전략</b> 중하 · 위성 극소 · 추격 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>GMV·수수료·재고 · 실적일 <b>2026-11-05</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $40–55 · Base $25–35 · Bear $15–22</p>
+      <p><b>Breaker</b> 수요 둔화·경쟁 심화 · ABC $25/$32/$48</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>소비·B2B커머스</td></tr>
+        <tr><td>핵심</td><td>B2B 커머스. 한줄: 대형 가구·홈상품 B2B 플랫폼</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중하·소형변동</b><br/><span class="small">중하·소형변동 — B2B 가구 커머스. 위성 극소·추격 주의.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="FA">
+      <div class="ticker-head">#13 FA — First Advantage Corporation</div>
+      <div>
+        
+        <span class="tag">현재 $21.29</span>
+        <span class="tag">PT $22.00–$30.00 (평균 $26.25)</span>
+        <span class="tag">업사이드 +23.3%</span>
+        <span class="tag">52주 $8.82–$25.15</span>
+        <span class="tag">고점근접 85%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 산업재 · <b>특성</b> Specialty Business Services · <b>시총</b> $3.66B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>First Advantage Corporation. 한줄: First Advantage Corporation provides employment background screening, digital identity, and verification solutions inter</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 4/4 · upside -5%</p>
+      <p><b>컨센서스</b> buy PT평균$26.25 (+23.3%)</p>
+      <p><b>서프라이즈</b> EPS4/4
+
+        (평균 EPS 서프라이즈 +17.19%)</p>
+      <p><b>전략</b> 중 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-11-05</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $21–24 · Base $19–19 · Bear $14–17</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $17/$19/$22</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>산업재</td></tr>
+        <tr><td>핵심</td><td>First Advantage Corporation. 한줄: First Advantage Corporation provides employment backgroun</td></tr>
+        <tr><td>EPS</td><td>4/4</td></tr>
+        <tr><td>신규진입</td><td>눌림</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중·고점</b><br/><span class="small">중·고점 — 업사이드 음수면 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="AVT">
+      <div class="ticker-head">#14 AVT — Avnet, Inc.</div>
+      <div>
+        
+        <span class="tag">현재 $90.59</span>
+        <span class="tag">PT $80.00–$120.00 (평균 $106.25)</span>
+        <span class="tag">업사이드 +17.3%</span>
+        <span class="tag">52주 $44.25–$100.00</span>
+        <span class="tag">고점근접 91%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> IT·기술 · <b>특성</b> Electronics &amp; Computer Distribution · <b>시총</b> $7.43B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>Avnet, Inc.. 한줄: Avnet, Inc., distributes electronic component technology in the Americas, Europe, the Middle East, Africa, and Asia/Paci</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 4/4 · upside +3%</p>
+      <p><b>컨센서스</b> none PT평균$106.25 (+17.3%)</p>
+      <p><b>서프라이즈</b> EPS4/4
+
+        (평균 EPS 서프라이즈 +13.85%)</p>
+      <p><b>전략</b> 중 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-10-28</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $109–124 · Base $92–100 · Bear $68–82</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $90/$100/$114</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>IT·기술</td></tr>
+        <tr><td>핵심</td><td>Avnet, Inc.. 한줄: Avnet, Inc., distributes electronic component technology in the Americas,</td></tr>
+        <tr><td>EPS</td><td>4/4</td></tr>
+        <tr><td>신규진입</td><td>눌림</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중</b><br/><span class="small">중 — IT 유통. 중간·눌림.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="CHEF">
+      <div class="ticker-head">#15 CHEF — The Chefs&#x27; Warehouse, Inc.</div>
+      <div>
+        
+        <span class="tag">현재 $111.39</span>
+        <span class="tag">PT $93.00–$125.00 (평균 $116.56)</span>
+        <span class="tag">업사이드 +4.6%</span>
+        <span class="tag">52주 $53.20–$117.33</span>
+        <span class="tag">고점근접 95%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 필수소비 · <b>특성</b> Food Distribution · <b>시총</b> $4.54B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>The Chefs&#x27; Warehouse, Inc.. 한줄: The Chefs&#x27; Warehouse, Inc., together with its subsidiaries, distributes specialty food and center-of-the-plate products </p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 4/4 · upside +9%</p>
+      <p><b>컨센서스</b> strong_buy PT평균$116.56 (+4.6%)</p>
+      <p><b>서프라이즈</b> EPS4/4
+
+        (평균 EPS 서프라이즈 +30.33%)</p>
+      <p><b>전략</b> 중 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-10-28</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $113–128 · Base $89–102 · Bear $66–80</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $92/$102/$118</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>필수소비</td></tr>
+        <tr><td>핵심</td><td>The Chefs&#x27; Warehouse, Inc.. 한줄: The Chefs&#x27; Warehouse, Inc., together with its subsidiaries</td></tr>
+        <tr><td>EPS</td><td>4/4</td></tr>
+        <tr><td>신규진입</td><td>눌림</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중·고점주의</b><br/><span class="small">중·고점주의 — RSI 과열권이면 추격 금지·눌림 대기.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="SLDE">
+      <div class="ticker-head">#16 SLDE — Slide Insurance Holdings</div>
+      <div>
+        
+        <span class="tag">현재 $23.45</span>
+        <span class="tag">PT $22.00–$28.00 (평균 $25.80)</span>
+        <span class="tag">업사이드 +10.0%</span>
+        <span class="tag">52주 $12.53–$23.75</span>
+        <span class="tag">고점근접 99%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중하 · 신규 유니버스 · 변동·유동성 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 금융·보험 · <b>특성</b> 특화 보험·인수 · <b>시총</b> $2.74B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>보험. 한줄: 주택·재해 특화 보험 인수·유통 (신규 상장)</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>신규상장·실적 이력 짧음</p>
+      <p><b>컨센서스</b> buy PT평균$25.80 (+10.0%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +28.04%)</p>
+      <p><b>전략</b> 중하 · 신규 유니버스 · 변동·유동성 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>손해율·프리미엄·날씨 리스크 · 실적일 <b>2026-10-28</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 손해율 급등·자본 부족 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>금융·보험</td></tr>
+        <tr><td>핵심</td><td>보험. 한줄: 주택·재해 특화 보험 인수·유통 (신규 상장)</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷·대형 클레임</td></tr>
+        <tr><td>Chase</td><td><b>중하·신규·유동성주의</b><br/><span class="small">중하·신규·유동성주의 — 보험 신규상장. 데이터·유동성 확인 전 추격 금지.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="LIND">
+      <div class="ticker-head">#17 LIND — Lindblad Expeditions</div>
+      <div>
+        
+        <span class="tag">현재 $30.36</span>
+        <span class="tag">PT $29.00–$40.00 (평균 $36.60)</span>
+        <span class="tag">업사이드 +20.5%</span>
+        <span class="tag">52주 $11.37–$35.00</span>
+        <span class="tag">고점근접 87%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>이질섹터·후순위</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 여행·탐험 · <b>특성</b> 예약·유가·소비 · <b>시총</b> 소형</p>
+      <h3>3. 핵심 제품</h3>
+      <p>탐험크루즈</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>시즌성여행실적</p>
+      <p><b>컨센서스</b> PT$27.5≈현재</p>
+      <p><b>서프라이즈</b> 데이터제한·보수
+
+        (평균 EPS 서프라이즈 +100.00%)</p>
+      <p><b>전략</b> 이질섹터·후순위</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>여행수요테마 · 실적일 <b>2026-11-03</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $31–34 · Base $26–29 · Bear $20–24</p>
+      <p><b>Breaker</b> 예약둔화 · ABC $28/$31/$34</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>여행·탐험</td></tr>
+        <tr><td>핵심</td><td>탐험크루즈</td></tr>
+        <tr><td>EPS</td><td>제한</td></tr>
+        <tr><td>신규진입</td><td>비선호</td></tr>
+        <tr><td>탈락</td><td>수요둔화</td></tr>
+        <tr><td>Chase</td><td><b>중·고점</b><br/><span class="small">중·고점 — 크루즈/여행. 고점권 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="FROG">
+      <div class="ticker-head">#18 FROG — JFrog Ltd.</div>
+      <div>
+        
+        <span class="tag">현재 $103.15</span>
+        <span class="tag">PT $90.00–$120.00 (평균 $111.71)</span>
+        <span class="tag">업사이드 +8.3%</span>
+        <span class="tag">52주 $34.05–$105.76</span>
+        <span class="tag">고점근접 98%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> IT·기술 · <b>특성</b> Software - Application · <b>시총</b> $12.72B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>JFrog Ltd.. 한줄: JFrog Ltd. provides software supply chain platform in the United States, Israel, India, and internationally. The company</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 4/4 · upside +9%</p>
+      <p><b>컨센서스</b> strong_buy PT평균$111.71 (+8.3%)</p>
+      <p><b>서프라이즈</b> EPS4/4
+
+        (평균 EPS 서프라이즈 +22.40%)</p>
+      <p><b>전략</b> 중 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-11-05</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $104–118 · Base $82–94 · Bear $60–73</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $85/$94/$109</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>IT·기술</td></tr>
+        <tr><td>핵심</td><td>JFrog Ltd.. 한줄: JFrog Ltd. provides software supply chain platform in the United States, I</td></tr>
+        <tr><td>EPS</td><td>4/4</td></tr>
+        <tr><td>신규진입</td><td>눌림</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중</b><br/><span class="small">중 — RR 중간. EPS 4/4 · 실적 2026-11-05. 셋업·눌림 확인 후.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="APA">
+      <div class="ticker-head">#19 APA — APA Corporation</div>
+      <div>
+        
+        <span class="tag">현재 $42.77</span>
+        <span class="tag">PT $31.00–$53.00 (평균 $43.75)</span>
+        <span class="tag">업사이드 +2.3%</span>
+        <span class="tag">52주 $21.57–$45.66</span>
+        <span class="tag">고점근접 94%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>에너지 베타 · 위성/눌림 · EARN_D5</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 에너지·E&amp;P · <b>특성</b> 원유·가스 탐사생산 · <b>시총</b> $14.99B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>독립 E&amp;P. 한줄: 북미·이집트 중심 원유·가스</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 4/4 · 업사이드 +11%급 · 08-05</p>
+      <p><b>컨센서스</b> hold PT평균$43.75 (+2.3%)</p>
+      <p><b>서프라이즈</b> EPS4/4
+
+        (평균 EPS 서프라이즈 +20.31%)</p>
+      <p><b>전략</b> 에너지 베타 · 위성/눌림 · EARN_D5</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>유가·생산량·가이던스 · 실적일 <b>2026-11-04</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $45–52 · Base $34–42 · Bear $26–32</p>
+      <p><b>Breaker</b> 유가 급락·생산 미스 · ABC $34/$42/$48</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>에너지·E&amp;P</td></tr>
+        <tr><td>핵심</td><td>독립 E&amp;P. 한줄: 북미·이집트 중심 원유·가스</td></tr>
+        <tr><td>EPS</td><td>4/4</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중상</b><br/><span class="small">중상 — E&amp;P. 위성 한도·추격 금지.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="DGII">
+      <div class="ticker-head">#20 DGII — Digi International Inc.</div>
+      <div>
+        
+        <span class="tag">현재 $78.22</span>
+        <span class="tag">PT $76.00–$90.00 (평균 $85.40)</span>
+        <span class="tag">업사이드 +9.2%</span>
+        <span class="tag">52주 $33.41–$86.84</span>
+        <span class="tag">고점근접 90%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> IT·기술 · <b>특성</b> Communication Equipment · <b>시총</b> $2.97B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>Digi International Inc.. 한줄: Digi International Inc. provides business and mission-critical Internet of Things (IoT) connectivity products, services,</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 4/4 · upside -0%</p>
+      <p><b>컨센서스</b> none PT평균$85.40 (+9.2%)</p>
+      <p><b>서프라이즈</b> EPS4/4
+
+        (평균 EPS 서프라이즈 +8.13%)</p>
+      <p><b>전략</b> 중 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-11-11</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $91–104 · Base $79–83 · Bear $58–71</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $75/$83/$95</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>IT·기술</td></tr>
+        <tr><td>핵심</td><td>Digi International Inc.. 한줄: Digi International Inc. provides business and mission-critica</td></tr>
+        <tr><td>EPS</td><td>4/4</td></tr>
+        <tr><td>신규진입</td><td>눌림</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중</b><br/><span class="small">중 — RR 중간. EPS 4/4 · 실적 2026-11-11. 셋업·눌림 확인 후.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="MGTX">
+      <div class="ticker-head">#21 MGTX — MGTX</div>
+      <div>
+        
+        <span class="tag">현재 $13.70</span>
+        <span class="tag">PT $19.00–$50.00 (평균 $29.43)</span>
+        <span class="tag">업사이드 +114.8%</span>
+        <span class="tag">52주 $6.62–$15.35</span>
+        <span class="tag">고점근접 89%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 신규 포함 · 추격 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> — · <b>특성</b> — · <b>시총</b> $1.32B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>MGTX. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>라이브 stub</p>
+      <p><b>컨센서스</b> strong_buy PT평균$29.43 (+114.8%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +100.00%)</p>
+      <p><b>전략</b> 중 · 신규 포함 · 추격 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스 · 실적일 <b>2026-11-12</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>—</td></tr>
+        <tr><td>핵심</td><td>MGTX. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — RR 중하위. 업사이드 +114.8% · 고점 89%. 신규보다 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="PRCH">
+      <div class="ticker-head">#22 PRCH — Porch Group</div>
+      <div>
+        
+        <span class="tag">현재 $17.64</span>
+        <span class="tag">PT $16.50–$23.00 (평균 $19.75)</span>
+        <span class="tag">업사이드 +12.0%</span>
+        <span class="tag">52주 $6.36–$19.44</span>
+        <span class="tag">고점근접 91%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중하 · 위성 극소 · 추격 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 금융·보험테크 · <b>특성</b> 주택보험·홈서비스 플랫폼 · <b>시총</b> $2.00B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>보험테크. 한줄: 주택 보험·수리·홈서비스 버티컬 SaaS</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>소형·변동 큼 · 손실 구간 이력</p>
+      <p><b>컨센서스</b> strong_buy PT평균$19.75 (+12.0%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +96.78%)</p>
+      <p><b>전략</b> 중하 · 위성 극소 · 추격 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>프리미엄·손해율·SaaS ARR · 실적일 <b>2026-11-04</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $8–12 · Base $4–7 · Bear $2–3.5</p>
+      <p><b>Breaker</b> 자본·손해율·규제 · ABC $4/$6/$10</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>금융·보험테크</td></tr>
+        <tr><td>핵심</td><td>보험테크. 한줄: 주택 보험·수리·홈서비스 버티컬 SaaS</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>자본 조달·손실 확대</td></tr>
+        <tr><td>Chase</td><td><b>중하·소형변동</b><br/><span class="small">중하·소형변동 — 보험테크. 위성 극소·추격 주의.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="FTNT">
+      <div class="ticker-head">#23 FTNT — Fortinet</div>
+      <div>
+        
+        <span class="tag">현재 $169.75</span>
+        <span class="tag">PT $86.00–$220.00 (평균 $160.86)</span>
+        <span class="tag">업사이드 -5.2%</span>
+        <span class="tag">52주 $73.55–$173.89</span>
+        <span class="tag">고점근접 98%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>Beat최고·가격과열</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> IT·사이버보안 · <b>특성</b> 방화벽·보안지출 · <b>시총</b> 대형</p>
+      <h3>3. 핵심 제품</h3>
+      <p>네트워크보안</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>Q1 EPS+37% Rev+7%Beat</p>
+      <p><b>컨센서스</b> PT$118 현재+36%과열</p>
+      <p><b>서프라이즈</b> EPS4/4 8연속 Rev4/4
+
+        (평균 EPS 서프라이즈 +19.76%)</p>
+      <p><b>전략</b> Beat최고·가격과열→비추격</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>07-29실적 · 실적일 <b>2026-11-04</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $170–200 · Base $120–150 · Bear $95–115</p>
+      <p><b>Breaker</b> 성장둔화 · ABC $140/$160/$190</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>IT·사이버보안</td></tr>
+        <tr><td>핵심</td><td>네트워크보안</td></tr>
+        <tr><td>EPS</td><td>8연속Beat</td></tr>
+        <tr><td>신규진입</td><td>$115–125</td></tr>
+        <tr><td>탈락</td><td>가이드컷</td></tr>
+        <tr><td>Chase</td><td><b>중·품질B·보유·추가금지</b><br/><span class="small">중·품질B·보유·추가금지 — 12.4%·구조한도. NO_ADD·추격 금지.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="CRSR">
+      <div class="ticker-head">#24 CRSR — Corsair Gaming, Inc.</div>
+      <div>
+        
+        <span class="tag">현재 $12.17</span>
+        <span class="tag">PT $11.00–$16.00 (평균 $13.22)</span>
+        <span class="tag">업사이드 +8.6%</span>
+        <span class="tag">52주 $4.48–$14.98</span>
+        <span class="tag">고점근접 81%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중하 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> IT·기술 · <b>특성</b> Computer Hardware · <b>시총</b> $1.32B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>Corsair Gaming, Inc.. 한줄: Corsair Gaming, Inc., together with its subsidiaries, designs and sells gaming and streaming peripherals, components, an</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 2/4 · upside -10%</p>
+      <p><b>컨센서스</b> buy PT평균$13.22 (+8.6%)</p>
+      <p><b>서프라이즈</b> EPS2/4
+
+        (평균 EPS 서프라이즈 +75.39%)</p>
+      <p><b>전략</b> 중하 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-11-03</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $11–12 · Base $10–10 · Bear $8–9</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $9/$10/$11</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>IT·기술</td></tr>
+        <tr><td>핵심</td><td>Corsair Gaming, Inc.. 한줄: Corsair Gaming, Inc., together with its subsidiaries, designs an</td></tr>
+        <tr><td>EPS</td><td>2/4</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>하·과열주의</b><br/><span class="small">하·과열주의 — 게이밍 HW. 고점·추격 금지.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="PRAX">
+      <div class="ticker-head">#25 PRAX — PRAX</div>
+      <div>
+        
+        <span class="tag">현재 $359.45</span>
+        <span class="tag">PT $188.00–$1,201 (평균 $638.68)</span>
+        <span class="tag">업사이드 +77.7%</span>
+        <span class="tag">52주 $37.19–$392.70</span>
+        <span class="tag">고점근접 92%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 신규 포함 · 추격 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> — · <b>특성</b> — · <b>시총</b> $10.04B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>PRAX. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>라이브 stub</p>
+      <p><b>컨센서스</b> strong_buy PT평균$638.68 (+77.7%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +6.74%)</p>
+      <p><b>전략</b> 중 · 신규 포함 · 추격 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스 · 실적일 <b>2026-11-09</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>—</td></tr>
+        <tr><td>핵심</td><td>PRAX. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>상</b><br/><span class="small">상 — RR 상위. 업사이드 +77.7% · 고점근접 92% · 실적 2026-11-09. 추격보다 눌림·비중 확인.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="AMGN">
+      <div class="ticker-head">#26 AMGN — AMGN</div>
+      <div>
+        
+        <span class="tag">현재 $433.64</span>
+        <span class="tag">PT $230.00–$457.00 (평균 $388.48)</span>
+        <span class="tag">업사이드 -10.4%</span>
+        <span class="tag">52주 $269.77–$447.03</span>
+        <span class="tag">고점근접 97%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 신규 포함 · 추격 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> — · <b>특성</b> — · <b>시총</b> $234.44B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>AMGN. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>라이브 stub</p>
+      <p><b>컨센서스</b> buy PT평균$388.48 (-10.4%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +11.10%)</p>
+      <p><b>전략</b> 중 · 신규 포함 · 추격 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스 · 실적일 <b>2026-11-03</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>—</td></tr>
+        <tr><td>핵심</td><td>AMGN. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — RR 중하위. 업사이드 -10.4% · 고점 97%. 신규보다 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="VCTR">
+      <div class="ticker-head">#27 VCTR — Victory Capital Holdings, Inc. </div>
+      <div>
+        
+        <span class="tag">현재 $122.38</span>
+        <span class="tag">PT $91.00–$118.00 (평균 $104.40)</span>
+        <span class="tag">업사이드 -14.7%</span>
+        <span class="tag">52주 $57.03–$123.37</span>
+        <span class="tag">고점근접 99%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 금융 · <b>특성</b> Asset Management · <b>시총</b> $7.53B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>Victory Capital Holdings, Inc. . 한줄: Victory Capital Holdings, Inc., together with its subsidiaries, operates as an asset management company in the United St</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 4/4 · upside -1%</p>
+      <p><b>컨센서스</b> hold PT평균$104.40 (-14.7%)</p>
+      <p><b>서프라이즈</b> EPS4/4
+
+        (평균 EPS 서프라이즈 +11.22%)</p>
+      <p><b>전략</b> 중 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-11-05</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $116–132 · Base $101–106 · Bear $75–91</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $95/$106/$121</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>금융</td></tr>
+        <tr><td>핵심</td><td>Victory Capital Holdings, Inc. . 한줄: Victory Capital Holdings, Inc., together with its sub</td></tr>
+        <tr><td>EPS</td><td>4/4</td></tr>
+        <tr><td>신규진입</td><td>눌림</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — RR 중하위. 업사이드 -14.7% · 고점 99%. 신규보다 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="CAKE">
+      <div class="ticker-head">#28 CAKE — The Cheesecake Factory Incorpor</div>
+      <div>
+        
+        <span class="tag">현재 $111.48</span>
+        <span class="tag">PT $60.00–$105.00 (평균 $92.67)</span>
+        <span class="tag">업사이드 -16.9%</span>
+        <span class="tag">52주 $43.07–$118.46</span>
+        <span class="tag">고점근접 94%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>하·과열 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 경기소비 · <b>특성</b> Restaurants · <b>시총</b> $5.55B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>The Cheesecake Factory Incorpor. 한줄: The Cheesecake Factory Incorporated operates and licenses restaurants in the United States and Canada. It operates baker</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 4/4 · upside -13%</p>
+      <p><b>컨센서스</b> hold PT평균$92.67 (-16.9%)</p>
+      <p><b>서프라이즈</b> EPS4/4
+
+        (평균 EPS 서프라이즈 +9.98%)</p>
+      <p><b>전략</b> 하·과열 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-10-27</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $100–114 · Base $100–91 · Bear $73–89</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $82/$91/$104</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>경기소비</td></tr>
+        <tr><td>핵심</td><td>The Cheesecake Factory Incorpor. 한줄: The Cheesecake Factory Incorporated operates and lice</td></tr>
+        <tr><td>EPS</td><td>4/4</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — RR 중하위. 업사이드 -16.9% · 고점 94%. 신규보다 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="CDNA">
+      <div class="ticker-head">#29 CDNA — CareDx</div>
+      <div>
+        
+        <span class="tag">현재 $51.87</span>
+        <span class="tag">PT $40.00–$64.00 (평균 $52.33)</span>
+        <span class="tag">업사이드 +0.9%</span>
+        <span class="tag">52주 $12.37–$53.67</span>
+        <span class="tag">고점근접 97%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>07-30·과열관망</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 이식진단 · <b>특성</b> 검사볼륨·M&amp;A · <b>시총</b> ~$1.5–2B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>AlloMap+Naveris인수</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>이식검사·인수확장</p>
+      <p><b>컨센서스</b> PT$32 현재+23%과열</p>
+      <p><b>서프라이즈</b> 혼재
+
+        (평균 EPS 서프라이즈 +67.90%)</p>
+      <p><b>전략</b> 07-30·과열관망</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>Naveris인수; 07-30실적 · 실적일 <b>2026-11-03</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $42–45 · Base $32–38 · Bear $25–30</p>
+      <p><b>Breaker</b> 실적·인수차질 · ABC $35/$40/$45</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>이식진단</td></tr>
+        <tr><td>핵심</td><td>AlloMap+Naveris인수</td></tr>
+        <tr><td>EPS</td><td>혼재</td></tr>
+        <tr><td>신규진입</td><td>실적후$30–33</td></tr>
+        <tr><td>탈락</td><td>통합실패</td></tr>
+        <tr><td>Chase</td><td><b>중하·과열주의</b><br/><span class="small">중하·과열주의 — RSI·급등 과열이면 추격 금지.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="PLPC">
+      <div class="ticker-head">#30 PLPC — Preformed Line Products Company</div>
+      <div>
+        
+        <span class="tag">현재 $419.46</span>
+        <span class="tag">PT $480.00–$480.00 (평균 $480.00)</span>
+        <span class="tag">업사이드 +14.4%</span>
+        <span class="tag">52주 $184.02–$504.69</span>
+        <span class="tag">고점근접 83%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 산업재 · <b>특성</b> Electrical Equipment &amp; Parts · <b>시총</b> $2.05B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>Preformed Line Products Company. 한줄: Preformed Line Products Company designs and manufactures products and systems employed in the construction and maintenan</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 3/4 · upside +1%</p>
+      <p><b>컨센서스</b> none PT평균$480.00 (+14.4%)</p>
+      <p><b>서프라이즈</b> EPS3/4
+
+        (평균 EPS 서프라이즈 +36.26%)</p>
+      <p><b>전략</b> 중 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-10-28</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $409–465 · Base $350–372 · Bear $258–313</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $335/$372/$428</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>산업재</td></tr>
+        <tr><td>핵심</td><td>Preformed Line Products Company. 한줄: Preformed Line Products Company designs and manufactu</td></tr>
+        <tr><td>EPS</td><td>3/4</td></tr>
+        <tr><td>신규진입</td><td>눌림</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — RR 중하위. 업사이드 +14.4% · 고점 83%. 신규보다 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="ALNT">
+      <div class="ticker-head">#31 ALNT — Allient Inc.</div>
+      <div>
+        
+        <span class="tag">현재 $95.08</span>
+        <span class="tag">PT $90.00–$130.00 (평균 $118.00)</span>
+        <span class="tag">업사이드 +24.1%</span>
+        <span class="tag">52주 $41.75–$118.67</span>
+        <span class="tag">고점근접 80%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>하·과열 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> IT·기술 · <b>특성</b> Electronic Components · <b>시총</b> $1.62B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>Allient Inc.. 한줄: Allient Inc., together with its subsidiaries, designs, manufactures, and sells precision and specialty-controlled motion</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 3/4 · upside -21%</p>
+      <p><b>컨센서스</b> buy PT평균$118.00 (+24.1%)</p>
+      <p><b>서프라이즈</b> EPS3/4
+
+        (평균 EPS 서프라이즈 +17.06%)</p>
+      <p><b>전략</b> 하·과열 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-11-04</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $97–110 · Base $106–88 · Bear $78–95</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $79/$88/$101</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>IT·기술</td></tr>
+        <tr><td>핵심</td><td>Allient Inc.. 한줄: Allient Inc., together with its subsidiaries, designs, manufactures, and</td></tr>
+        <tr><td>EPS</td><td>3/4</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중</b><br/><span class="small">중 — 모션컨트롤. 산업 베타.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="CLBK">
+      <div class="ticker-head">#32 CLBK — CLBK</div>
+      <div>
+        
+        <span class="tag">현재 $11.74</span>
+        <span class="tag">PT $14.00–$14.50 (평균 $14.17)</span>
+        <span class="tag">업사이드 +20.7%</span>
+        <span class="tag">52주 $6.21–$12.00</span>
+        <span class="tag">고점근접 98%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 신규 포함 · 추격 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> — · <b>특성</b> — · <b>시총</b> $1.22B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>CLBK. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>라이브 stub</p>
+      <p><b>컨센서스</b> buy PT평균$14.17 (+20.7%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +33.74%)</p>
+      <p><b>전략</b> 중 · 신규 포함 · 추격 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스 · 실적일 <b>2026-10-20</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>—</td></tr>
+        <tr><td>핵심</td><td>CLBK. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>상</b><br/><span class="small">상 — RR 상위. 업사이드 +20.7% · 고점근접 98% · 실적 2026-10-20. 추격보다 눌림·비중 확인.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="ATRO">
+      <div class="ticker-head">#33 ATRO — Astronics Corporation</div>
+      <div>
+        
+        <span class="tag">현재 $77.56</span>
+        <span class="tag">PT $45.73–$107.00 (평균 $89.55)</span>
+        <span class="tag">업사이드 +15.4%</span>
+        <span class="tag">52주 $28.40–$94.46</span>
+        <span class="tag">고점근접 82%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>하·과열 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 산업재 · <b>특성</b> Aerospace &amp; Defense · <b>시총</b> $3.34B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>Astronics Corporation. 한줄: Astronics Corporation, through its subsidiaries, designs and manufactures products for the aerospace, defense, and elect</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 4/4 · upside -10%</p>
+      <p><b>컨센서스</b> buy PT평균$89.55 (+15.4%)</p>
+      <p><b>서프라이즈</b> EPS4/4
+
+        (평균 EPS 서프라이즈 +19.25%)</p>
+      <p><b>전략</b> 하·과열 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-11-05</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $91–104 · Base $88–83 · Bear $65–79</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $75/$83/$96</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>산업재</td></tr>
+        <tr><td>핵심</td><td>Astronics Corporation. 한줄: Astronics Corporation, through its subsidiaries, designs and ma</td></tr>
+        <tr><td>EPS</td><td>4/4</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중</b><br/><span class="small">중 — 항공전자. 수주·마진 확인.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="ZBRA">
+      <div class="ticker-head">#34 ZBRA — Zebra Technologies</div>
+      <div>
+        
+        <span class="tag">현재 $366.35</span>
+        <span class="tag">PT $350.00–$455.00 (평균 $412.87)</span>
+        <span class="tag">업사이드 +12.7%</span>
+        <span class="tag">52주 $199.05–$386.23</span>
+        <span class="tag">고점근접 95%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 산업자동화 베타 · 눌림</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> IT·자동식별 · <b>특성</b> 바코드·모바일컴퓨터·RFID · <b>시총</b> $17.33B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>자동식별. 한줄: 엔터프라이즈 바코드·모바일·프린터</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>산업캡ex·재고 사이클</p>
+      <p><b>컨센서스</b> buy PT평균$412.87 (+12.7%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +15.07%)</p>
+      <p><b>전략</b> 중 · 산업자동화 베타 · 눌림</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>수요·가이던스·마진 · 실적일 <b>2026-11-03</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $420–480 · Base $320–380 · Bear $240–300</p>
+      <p><b>Breaker</b> 캡ex 둔화·가이던스 컷 · ABC $320/$380/$450</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>IT·자동식별</td></tr>
+        <tr><td>핵심</td><td>자동식별. 한줄: 엔터프라이즈 바코드·모바일·프린터</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중</b><br/><span class="small">중 — 자동식별. 산업캡ex·눌림 확인.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="BRKR">
+      <div class="ticker-head">#35 BRKR — BRKR</div>
+      <div>
+        
+        <span class="tag">현재 $58.74</span>
+        <span class="tag">PT $40.00–$70.00 (평균 $58.75)</span>
+        <span class="tag">업사이드 +0.0%</span>
+        <span class="tag">52주 $28.53–$65.30</span>
+        <span class="tag">고점근접 90%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 신규 포함 · 추격 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> — · <b>특성</b> — · <b>시총</b> $8.95B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>BRKR. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>라이브 stub</p>
+      <p><b>컨센서스</b> none PT평균$58.75 (+0.0%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +22.82%)</p>
+      <p><b>전략</b> 중 · 신규 포함 · 추격 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스 · 실적일 <b>2026-11-03</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>—</td></tr>
+        <tr><td>핵심</td><td>BRKR. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — 분석기기. 대기.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="INCY">
+      <div class="ticker-head">#36 INCY — Incyte Corporation</div>
+      <div>
+        
+        <span class="tag">현재 $127.05</span>
+        <span class="tag">PT $86.00–$155.00 (평균 $127.12)</span>
+        <span class="tag">업사이드 +0.1%</span>
+        <span class="tag">52주 $81.09–$132.60</span>
+        <span class="tag">고점근접 96%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 헬스케어 · <b>특성</b> Biotechnology · <b>시총</b> $25.75B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>Incyte Corporation. 한줄: Incyte Corporation, a biopharmaceutical company, engages in the discovery, development, and commercialization of therape</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 3/4 · upside -4%</p>
+      <p><b>컨센서스</b> buy PT평균$127.12 (+0.1%)</p>
+      <p><b>서프라이즈</b> EPS3/4
+
+        (평균 EPS 서프라이즈 +27.76%)</p>
+      <p><b>전략</b> 중 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-10-27</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $126–143 · Base $113–115 · Bear $83–101</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $103/$115/$132</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>헬스케어</td></tr>
+        <tr><td>핵심</td><td>Incyte Corporation. 한줄: Incyte Corporation, a biopharmaceutical company, engages in the di</td></tr>
+        <tr><td>EPS</td><td>3/4</td></tr>
+        <tr><td>신규진입</td><td>눌림</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중·SOFT</b><br/><span class="small">중·SOFT — 업사이드 작으면 대기.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="LITE">
+      <div class="ticker-head">#37 LITE — Lumentum</div>
+      <div>
+        
+        <span class="tag">현재 $930.84</span>
+        <span class="tag">PT $820.00–$1,400 (평균 $1,148)</span>
+        <span class="tag">업사이드 +23.4%</span>
+        <span class="tag">52주 $125.00–$1,086</span>
+        <span class="tag">고점근접 86%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>광학 모멘텀 · 고점주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> IT·광통신 · <b>특성</b> 옵티컬·3D센싱 · <b>시총</b> $83.50B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>광부품. 한줄: 통신·데이터센터 광트랜시버·레이저</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>AI캡ex·재고</p>
+      <p><b>컨센서스</b> buy PT평균$1,148 (+23.4%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 -8.12%)</p>
+      <p><b>전략</b> 광학 모멘텀 · 고점주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>AI 수요·가이던스 · 실적일 <b>2026-11-05</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $1000–1200 · Base $700–900 · Bear $450–600</p>
+      <p><b>Breaker</b> 수요 둔화 · ABC $700/$850/$1100</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>IT·광통신</td></tr>
+        <tr><td>핵심</td><td>광부품. 한줄: 통신·데이터센터 광트랜시버·레이저</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>상</b><br/><span class="small">상 — RR 상위. 업사이드 +23.4% · 고점근접 86% · 실적 2026-11-05. 추격보다 눌림·비중 확인.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="LFST">
+      <div class="ticker-head">#38 LFST — LFST</div>
+      <div>
+        
+        <span class="tag">현재 $12.45</span>
+        <span class="tag">PT $12.00–$18.00 (평균 $13.80)</span>
+        <span class="tag">업사이드 +10.8%</span>
+        <span class="tag">52주 $4.77–$12.96</span>
+        <span class="tag">고점근접 96%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 신규 포함 · 추격 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> — · <b>특성</b> — · <b>시총</b> 중형</p>
+      <h3>3. 핵심 제품</h3>
+      <p>LFST. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>라이브 stub</p>
+      <p><b>컨센서스</b> PT$11.5≈현재</p>
+      <p><b>서프라이즈</b> EPS0/4 5연속Miss Rev4/4
+
+        (평균 EPS 서프라이즈 +10.86%)</p>
+      <p><b>전략</b> 중 · 신규 포함 · 추격 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스 · 실적일 <b>2026-11-05</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>—</td></tr>
+        <tr><td>핵심</td><td>LFST. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — RR 중하위. 업사이드 +10.8% · 고점 96%. 신규보다 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="SCSC">
+      <div class="ticker-head">#39 SCSC — ScanSource</div>
+      <div>
+        
+        <span class="tag">현재 $58.05</span>
+        <span class="tag">PT $43.00–$78.00 (평균 $60.50)</span>
+        <span class="tag">업사이드 +4.2%</span>
+        <span class="tag">52주 $33.76–$66.78</span>
+        <span class="tag">고점근접 87%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 08-25 청산후워치 · 추격 재매수 금지</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> IT·유통 · <b>특성</b> 기술 유통·솔루션 · <b>시총</b> $1.18B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>IT 유통. 한줄: POS·통신·보안 등 채널 유통 (MicroAge 인수)</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 3/4 · FY26 Q4 beat 이력</p>
+      <p><b>컨센서스</b> buy PT평균$60.50 (+4.2%)</p>
+      <p><b>서프라이즈</b> EPS3/4
+
+        (평균 EPS 서프라이즈 +5.74%)</p>
+      <p><b>전략</b> 중 · 08-25 청산후워치 · 추격 재매수 금지</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>마진·재고·MicroAge 통합 · 실적일 <b>2026-11-05</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $55–65 · Base $40–52 · Bear $30–38</p>
+      <p><b>Breaker</b> 유통 마진 붕괴·수요 둔화 · ABC $40/$50/$60</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>IT·유통</td></tr>
+        <tr><td>핵심</td><td>IT 유통. 한줄: POS·통신·보안 등 채널 유통 (MicroAge 인수)</td></tr>
+        <tr><td>EPS</td><td>3/4</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중·청산후워치·추격금지</b><br/><span class="small">중·청산후워치·추격금지 — 전량청산 완료. 재매수 금지.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="NSIT">
+      <div class="ticker-head">#40 NSIT — Insight Enterprises, Inc.</div>
+      <div>
+        
+        <span class="tag">현재 $156.59</span>
+        <span class="tag">PT $140.00–$180.00 (평균 $163.75)</span>
+        <span class="tag">업사이드 +4.6%</span>
+        <span class="tag">52주 $63.62–$158.09</span>
+        <span class="tag">고점근접 99%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> IT·기술 · <b>특성</b> Electronics &amp; Computer Distribution · <b>시총</b> $4.60B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>Insight Enterprises, Inc.. 한줄: Insight Enterprises, Inc., together with its subsidiaries, provides information technology, hardware, software, and serv</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 3/4 · upside -0%</p>
+      <p><b>컨센서스</b> none PT평균$163.75 (+4.6%)</p>
+      <p><b>서프라이즈</b> EPS3/4
+
+        (평균 EPS 서프라이즈 +12.86%)</p>
+      <p><b>전략</b> 중 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-10-29</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $164–186 · Base $142–149 · Bear $104–127</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $134/$149/$171</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>IT·기술</td></tr>
+        <tr><td>핵심</td><td>Insight Enterprises, Inc.. 한줄: Insight Enterprises, Inc., together with its subsidiaries, </td></tr>
+        <tr><td>EPS</td><td>3/4</td></tr>
+        <tr><td>신규진입</td><td>눌림</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — RR 중하위. 업사이드 +4.6% · 고점 99%. 신규보다 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="PLSE">
+      <div class="ticker-head">#41 PLSE — PLSE</div>
+      <div>
+        
+        <span class="tag">현재 $48.40</span>
+        <span class="tag">PT $35.00–$58.00 (평균 $45.25)</span>
+        <span class="tag">업사이드 -6.5%</span>
+        <span class="tag">52주 $12.56–$50.90</span>
+        <span class="tag">고점근접 95%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 신규 포함 · 추격 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> — · <b>특성</b> — · <b>시총</b> $3.45B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>PLSE. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>라이브 stub</p>
+      <p><b>컨센서스</b> strong_buy PT평균$45.25 (-6.5%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +3.12%)</p>
+      <p><b>전략</b> 중 · 신규 포함 · 추격 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스 · 실적일 <b>2026-11-05</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>—</td></tr>
+        <tr><td>핵심</td><td>PLSE. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — RR 중하위. 업사이드 -6.5% · 고점 95%. 신규보다 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="HALO">
+      <div class="ticker-head">#42 HALO — HALO</div>
+      <div>
+        
+        <span class="tag">현재 $106.48</span>
+        <span class="tag">PT $70.00–$115.00 (평균 $99.56)</span>
+        <span class="tag">업사이드 -6.5%</span>
+        <span class="tag">52주 $61.23–$109.66</span>
+        <span class="tag">고점근접 97%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 신규 포함 · 추격 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> — · <b>특성</b> — · <b>시총</b> $12.09B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>HALO. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>라이브 stub</p>
+      <p><b>컨센서스</b> buy PT평균$99.56 (-6.5%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 -18.65%)</p>
+      <p><b>전략</b> 중 · 신규 포함 · 추격 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스 · 실적일 <b>2026-11-02</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>—</td></tr>
+        <tr><td>핵심</td><td>HALO. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — RR 중하위. 업사이드 -6.5% · 고점 97%. 신규보다 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="CBRL">
+      <div class="ticker-head">#43 CBRL — Cracker Barrel</div>
+      <div>
+        
+        <span class="tag">현재 $56.23</span>
+        <span class="tag">PT $37.00–$60.00 (평균 $45.00)</span>
+        <span class="tag">업사이드 -20.0%</span>
+        <span class="tag">52주 $24.85–$61.37</span>
+        <span class="tag">고점근접 92%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>고점·프리미엄 · 관망</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 소비·레스토랑 · <b>특성</b> 캐주얼 다이닝·로드사이드 · <b>시총</b> $1.26B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>레스토랑 체인. 한줄: 크래커배럴 매장·리테일</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 혼조 · PT 프리미엄(고점 근접)</p>
+      <p><b>컨센서스</b> PT 아래·고점</p>
+      <p><b>서프라이즈</b> EPS2/4
+
+        (평균 EPS 서프라이즈 +84.53%)</p>
+      <p><b>전략</b> 고점·프리미엄 · 관망</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>동일점 매출·마진 코멘트 · 실적일 <b>2026-09-16</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $60–70 · Base $48–58 · Bear $35–45</p>
+      <p><b>Breaker</b> 트래픽·마진 악화 · ABC $50/$55/$65</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>소비·레스토랑</td></tr>
+        <tr><td>핵심</td><td>레스토랑 체인. 한줄: 크래커배럴 매장·리테일</td></tr>
+        <tr><td>EPS</td><td>2/4</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>하·과열</b><br/><span class="small">하·과열 — 레스토랑 프리미엄. 추격 금지.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="DNTH">
+      <div class="ticker-head">#44 DNTH — DNTH</div>
+      <div>
+        
+        <span class="tag">현재 $109.20</span>
+        <span class="tag">PT $109.00–$200.00 (평균 $137.62)</span>
+        <span class="tag">업사이드 +26.0%</span>
+        <span class="tag">52주 $22.81–$117.88</span>
+        <span class="tag">고점근접 93%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 신규 포함 · 추격 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> — · <b>특성</b> — · <b>시총</b> 중형바이오</p>
+      <h3>3. 핵심 제품</h3>
+      <p>DNTH. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>라이브 stub</p>
+      <p><b>컨센서스</b> PT$130(+23%)</p>
+      <p><b>서프라이즈</b> EPS1/4 Rev1/4 최근Beat
+
+        (평균 EPS 서프라이즈 -5.67%)</p>
+      <p><b>전략</b> 중 · 신규 포함 · 추격 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스 · 실적일 <b>2026-11-05</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>—</td></tr>
+        <tr><td>핵심</td><td>DNTH. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중·임상변동</b><br/><span class="small">중·임상변동 — 임상 이벤트. 위성·소액만.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="NTRA">
+      <div class="ticker-head">#45 NTRA — Natera, Inc.</div>
+      <div>
+        
+        <span class="tag">현재 $337.15</span>
+        <span class="tag">PT $280.00–$375.00 (평균 $336.74)</span>
+        <span class="tag">업사이드 -0.1%</span>
+        <span class="tag">52주 $157.43–$343.18</span>
+        <span class="tag">고점근접 98%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중하 · 라이브 데이터 기반 초안</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 헬스케어 · <b>특성</b> Diagnostics &amp; Research · <b>시총</b> $48.60B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>Natera, Inc.. 한줄: Natera, Inc., a diagnostics company, engages in the development and commercialization of molecular testing services worl</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>EPS 2/4 · upside +1%</p>
+      <p><b>컨센서스</b> strong_buy PT평균$336.74 (-0.1%)</p>
+      <p><b>서프라이즈</b> EPS2/4
+
+        (평균 EPS 서프라이즈 +22.55%)</p>
+      <p><b>전략</b> 중하 · 라이브 데이터 기반 초안</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스·섹터 뉴스 모니터 · 실적일 <b>2026-11-05</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $349–396 · Base $297–317 · Bear $219–266</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷·섹터 붕괴 · ABC $285/$317/$364</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>헬스케어</td></tr>
+        <tr><td>핵심</td><td>Natera, Inc.. 한줄: Natera, Inc., a diagnostics company, engages in the development and comm</td></tr>
+        <tr><td>EPS</td><td>2/4</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — RR 중하위. 업사이드 -0.1% · 고점 98%. 신규보다 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="AXGN">
+      <div class="ticker-head">#46 AXGN — AXGN</div>
+      <div>
+        
+        <span class="tag">현재 $51.45</span>
+        <span class="tag">PT $48.00–$60.00 (평균 $53.90)</span>
+        <span class="tag">업사이드 +4.8%</span>
+        <span class="tag">52주 $15.24–$52.91</span>
+        <span class="tag">고점근접 97%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 신규 포함 · 추격 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> — · <b>특성</b> — · <b>시총</b> $2.77B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>AXGN. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>라이브 stub</p>
+      <p><b>컨센서스</b> strong_buy PT평균$53.90 (+4.8%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +11.94%)</p>
+      <p><b>전략</b> 중 · 신규 포함 · 추격 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스 · 실적일 <b>2026-10-28</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>—</td></tr>
+        <tr><td>핵심</td><td>AXGN. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — RR 중하위. 업사이드 +4.8% · 고점 97%. 신규보다 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="SRRK">
+      <div class="ticker-head">#47 SRRK — SRRK</div>
+      <div>
+        
+        <span class="tag">현재 $59.00</span>
+        <span class="tag">PT $48.00–$76.00 (평균 $60.75)</span>
+        <span class="tag">업사이드 +3.0%</span>
+        <span class="tag">52주 $27.07–$61.76</span>
+        <span class="tag">고점근접 96%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 신규 포함 · 추격 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> — · <b>특성</b> — · <b>시총</b> $7.19B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>SRRK. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>라이브 stub</p>
+      <p><b>컨센서스</b> strong_buy PT평균$60.75 (+3.0%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 -3.37%)</p>
+      <p><b>전략</b> 중 · 신규 포함 · 추격 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스 · 실적일 <b>2026-11-12</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>—</td></tr>
+        <tr><td>핵심</td><td>SRRK. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — RR 중하위. 업사이드 +3.0% · 고점 96%. 신규보다 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="ETON">
+      <div class="ticker-head">#48 ETON — Eton Pharmaceuticals</div>
+      <div>
+        
+        <span class="tag">현재 $60.29</span>
+        <span class="tag">PT $68.00–$76.00 (평균 $71.00)</span>
+        <span class="tag">업사이드 +17.8%</span>
+        <span class="tag">52주 $14.27–$66.37</span>
+        <span class="tag">고점근접 91%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>위성 극소 · 변동성 큼</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 헬스케어·특수약 · <b>특성</b> 희귀·특수 제네릭 · <b>시총</b> $1.72B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>특수약. 한줄: 희귀질환·병원용 특수 의약품</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>소형 바이오·약가</p>
+      <p><b>컨센서스</b> strong_buy PT평균$71.00 (+17.8%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +11.58%)</p>
+      <p><b>전략</b> 위성 극소 · 변동성 큼</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>승인·매출·파이프라인 · 실적일 <b>2026-11-12</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $30–40 · Base $18–26 · Bear $10–16</p>
+      <p><b>Breaker</b> 승인 지연·매출 미스 · ABC $16/$22/$32</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>헬스케어·특수약</td></tr>
+        <tr><td>핵심</td><td>특수약. 한줄: 희귀질환·병원용 특수 의약품</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>임상/승인 실패</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — RR 중하위. 업사이드 +17.8% · 고점 91%. 신규보다 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="TH">
+      <div class="ticker-head">#49 TH — Target Hospitality</div>
+      <div>
+        
+        <span class="tag">현재 $19.22</span>
+        <span class="tag">PT $22.00–$26.00 (평균 $23.60)</span>
+        <span class="tag">업사이드 +22.8%</span>
+        <span class="tag">52주 $5.97–$20.85</span>
+        <span class="tag">고점근접 92%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>사이클 · 위성</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> 산업·숙박인프라 · <b>특성</b> 모듈형 숙박·캠프 · <b>시총</b> $1.91B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>숙박 인프라. 한줄: 에너지·재난 모듈형 숙박</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>수주·가동률</p>
+      <p><b>컨센서스</b> strong_buy PT평균$23.60 (+22.8%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +1.17%)</p>
+      <p><b>전략</b> 사이클 · 위성</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>에너지캡ex·계약 · 실적일 <b>2026-11-05</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull $12–16 · Base $7–10 · Bear $4–6</p>
+      <p><b>Breaker</b> 가동률 급락 · ABC $7/$10/$14</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>산업·숙박인프라</td></tr>
+        <tr><td>핵심</td><td>숙박 인프라. 한줄: 에너지·재난 모듈형 숙박</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>계약 해지</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — 모듈 숙박. 가동률·계약 확인.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="ZD">
+      <div class="ticker-head">#50 ZD — ZD</div>
+      <div>
+        
+        <span class="tag">현재 $55.99</span>
+        <span class="tag">PT $59.00–$75.00 (평균 $64.40)</span>
+        <span class="tag">업사이드 +15.0%</span>
+        <span class="tag">52주 $22.45–$58.06</span>
+        <span class="tag">고점근접 96%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 신규 포함 · 추격 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> — · <b>특성</b> — · <b>시총</b> $1.92B</p>
+      <h3>3. 핵심 제품</h3>
+      <p>ZD. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>라이브 stub</p>
+      <p><b>컨센서스</b> buy PT평균$64.40 (+15.0%)</p>
+      <p><b>서프라이즈</b> EPS—
+
+        (평균 EPS 서프라이즈 +2.89%)</p>
+      <p><b>전략</b> 중 · 신규 포함 · 추격 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스 · 실적일 <b>2026-11-05</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>—</td></tr>
+        <tr><td>핵심</td><td>ZD. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중하</b><br/><span class="small">중하 — RR 중하위. 업사이드 +15.0% · 고점 96%. 신규보다 관망.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section" id="SEPN">
+      <div class="ticker-head">#51 SEPN — SEPN</div>
+      <div>
+        
+        <span class="tag">현재 $39.73</span>
+        <span class="tag">PT $48.00–$62.00 (평균 $54.22)</span>
+        <span class="tag">업사이드 +36.5%</span>
+        <span class="tag">52주 $11.70–$51.10</span>
+        <span class="tag">고점근접 78%</span>
+      </div>
+      <h3>1. 한줄 Thesis</h3>
+      <p>중 · 신규 포함 · 추격 주의</p>
+      <h3>2. 섹터 · 특성 · 시총</h3>
+      <p><b>섹터</b> — · <b>특성</b> — · <b>시총</b> 소형</p>
+      <h3>3. 핵심 제품</h3>
+      <p>SEPN. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</p>
+      <h3>4. 재무 · 컨센서스 · 서프라이즈 · 전략</h3>
+      <p>라이브 stub</p>
+      <p><b>컨센서스</b> PT$46(+38%)</p>
+      <p><b>서프라이즈</b> Q1 EPS/RevBeat 초기
+
+        (평균 EPS 서프라이즈 -50.00%)</p>
+      <p><b>전략</b> 중 · 신규 포함 · 추격 주의</p>
+      <h3>5. 섹터 뉴스 · 출처</h3>
+      <p>실적·가이던스 · 실적일 <b>2026-11-09</b></p>
+      <h3>6. Bull / Base / Bear · Breakers</h3>
+      <p>Bull — · Base — · Bear —</p>
+      <p><b>Breaker</b> 실적 미스·가이던스 컷 · ABC —</p>
+      <h3>7. 결론 표</h3>
+      <table class="conclusion">
+        <tr><td>섹터</td><td>—</td></tr>
+        <tr><td>핵심</td><td>SEPN. 한줄: 신규 유니버스 — 최신 10-Q/8-K 확인</td></tr>
+        <tr><td>EPS</td><td>—</td></tr>
+        <tr><td>신규진입</td><td>관망</td></tr>
+        <tr><td>탈락</td><td>가이던스 컷</td></tr>
+        <tr><td>Chase</td><td><b>중·SOFT·서프약</b><br/><span class="small">중·SOFT·서프약 — 서프라이즈 약. 신중.</span></td></tr>
+      </table>
+    </section>
+    
+    <section class="ticker-section">
+      <h2>최종 Chase RR 순위 + 실행</h2>
+      <table>
+        <tr><th>#</th><th>티커</th><th>가격</th><th>PT</th><th>업사이드</th><th>Chase</th></tr>
+        <tr><td>1</td><td><b>OMER</b></td><td>$18.86</td><td>$33.00</td><td>+75.0%</td><td class='chase'><b>중하·임상변동</b><br/>중하·임상변동 — 보체 바이오. 임상·자금 확인 전 추격 금지.</td></tr><tr><td>2</td><td><b>RELY</b></td><td>$25.89</td><td>$32.33</td><td>+24.9%</td><td class='chase'><b>중·08-08청산후워치·추격금지</b><br/>중·청산후워치·추격금지 — 재매수·추격 금지. · 점유율 꾸준 상승(+0.4pp) — 경쟁력 가산</td></tr><tr><td>3</td><td><b>CLMT</b></td><td>$47.83</td><td>$47.40</td><td>-0.9%</td><td class='chase'><b>하·과열</b><br/>하·과열 — 특수제품+재생. PT 프리미엄·고점. 추격 금지. · 점유율 꾸준 상승(+2.0pp) — 경쟁력 가산</td></tr><tr><td>4</td><td><b>ECPG</b></td><td>$103.17</td><td>$115.67</td><td>+12.1%</td><td class='chase'><b>최상·품질A·보유·추가금지</b><br/>최상·품질A·보유2주·추가금지 — 16.8%. 천장·추가·갭추격 금지. · 점유율 꾸준 상승(+3.0pp) — 경쟁력 가산</td></tr><tr><td>5</td><td><b>AMRX</b></td><td>$17.95</td><td>$21.00</td><td>+17.0%</td><td class='chase'><b>중·품질B·보유11주·추가금지</b><br/>중·품질B·보유11주·추가금지 — 16.0%·구조한도. 즉흥·추가 매수 금지. · 점유율 꾸준 상승(+1.5pp) — 경쟁력 가산</td></tr><tr><td>6</td><td><b>ROKU</b></td><td>$157.35</td><td>$162.33</td><td>+3.2%</td><td class='chase'><b>상·고점주의</b><br/>상·고점주의 — 플랫폼 RR 양호. 고점·추격보다 눌림. · 경쟁점유 -2.0pp (하락 모니터)</td></tr><tr><td>7</td><td><b>NESR</b></td><td>$34.48</td><td>$43.00</td><td>+24.7%</td><td class='chase'><b>중·청산후워치·추격금지</b><br/>중·청산후워치·추격금지 — 청산 완료. 재매수·추격 금지. · 점유율 꾸준 상승(+1.5pp) — 경쟁력 가산</td></tr><tr><td>8</td><td><b>TXG</b></td><td>$64.12</td><td>$49.54</td><td>-22.7%</td><td class='chase'><b>중·품질C·보유4주·천장OVER·추가금지</b><br/>중·품질C·보유4주·천장OVER·추가금지 — 20.8% 절대천장 OVER. 물타기·추격 금지. · 점유율 꾸준 상승(+3.0pp) — 경쟁력 가산</td></tr><tr><td>9</td><td><b>CRDO</b></td><td>$233.90</td><td>$283.23</td><td>+21.1%</td><td class='chase'><b>중·청산후워치·추격금지</b><br/>중·청산후워치·추격금지 — 기청산. 재매수·추격 금지.</td></tr><tr><td>10</td><td><b>NEOG</b></td><td>$11.64</td><td>$13.33</td><td>+14.5%</td><td class='chase'><b>상</b><br/>상 — RR 상위. 업사이드 +14.5% · 고점근접 91% · 실적 2026-10-08. 추격보다 눌림·비중 확인.</td></tr><tr><td>11</td><td><b>SBLK</b></td><td>$30.62</td><td>$32.38</td><td>+5.7%</td><td class='chase'><b>중상·고점주의</b><br/>중상·고점주의 — 건화물. 위성·눌림만. · 점유율 꾸준 상승(+2.0pp) — 경쟁력 가산</td></tr><tr><td>12</td><td><b>GCT</b></td><td>$51.79</td><td>$57.00</td><td>+10.1%</td><td class='chase'><b>중하·소형변동</b><br/>중하·소형변동 — B2B 가구 커머스. 위성 극소·추격 주의.</td></tr><tr><td>13</td><td><b>FA</b></td><td>$21.29</td><td>$26.25</td><td>+23.3%</td><td class='chase'><b>중·고점</b><br/>중·고점 — 업사이드 음수면 관망.</td></tr><tr><td>14</td><td><b>AVT</b></td><td>$90.59</td><td>$106.25</td><td>+17.3%</td><td class='chase'><b>중</b><br/>중 — IT 유통. 중간·눌림.</td></tr><tr><td>15</td><td><b>CHEF</b></td><td>$111.39</td><td>$116.56</td><td>+4.6%</td><td class='chase'><b>중·고점주의</b><br/>중·고점주의 — RSI 과열권이면 추격 금지·눌림 대기.</td></tr><tr><td>16</td><td><b>SLDE</b></td><td>$23.45</td><td>$25.80</td><td>+10.0%</td><td class='chase'><b>중하·신규·유동성주의</b><br/>중하·신규·유동성주의 — 보험 신규상장. 데이터·유동성 확인 전 추격 금지.</td></tr><tr><td>17</td><td><b>LIND</b></td><td>$30.36</td><td>$36.60</td><td>+20.5%</td><td class='chase'><b>중·고점</b><br/>중·고점 — 크루즈/여행. 고점권 관망.</td></tr><tr><td>18</td><td><b>FROG</b></td><td>$103.15</td><td>$111.71</td><td>+8.3%</td><td class='chase'><b>중</b><br/>중 — RR 중간. EPS 4/4 · 실적 2026-11-05. 셋업·눌림 확인 후.</td></tr><tr><td>19</td><td><b>APA</b></td><td>$42.77</td><td>$43.75</td><td>+2.3%</td><td class='chase'><b>중상</b><br/>중상 — E&amp;P. 위성 한도·추격 금지.</td></tr><tr><td>20</td><td><b>DGII</b></td><td>$78.22</td><td>$85.40</td><td>+9.2%</td><td class='chase'><b>중</b><br/>중 — RR 중간. EPS 4/4 · 실적 2026-11-11. 셋업·눌림 확인 후.</td></tr><tr><td>21</td><td><b>MGTX</b></td><td>$13.70</td><td>$29.43</td><td>+114.8%</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +114.8% · 고점 89%. 신규보다 관망.</td></tr><tr><td>22</td><td><b>PRCH</b></td><td>$17.64</td><td>$19.75</td><td>+12.0%</td><td class='chase'><b>중하·소형변동</b><br/>중하·소형변동 — 보험테크. 위성 극소·추격 주의.</td></tr><tr><td>23</td><td><b>FTNT</b></td><td>$169.75</td><td>$160.86</td><td>-5.2%</td><td class='chase'><b>중·품질B·보유·추가금지</b><br/>중·품질B·보유·추가금지 — 12.4%·구조한도. NO_ADD·추격 금지.</td></tr><tr><td>24</td><td><b>CRSR</b></td><td>$12.17</td><td>$13.22</td><td>+8.6%</td><td class='chase'><b>하·과열주의</b><br/>하·과열주의 — 게이밍 HW. 고점·추격 금지.</td></tr><tr><td>25</td><td><b>PRAX</b></td><td>$359.45</td><td>$638.68</td><td>+77.7%</td><td class='chase'><b>상</b><br/>상 — RR 상위. 업사이드 +77.7% · 고점근접 92% · 실적 2026-11-09. 추격보다 눌림·비중 확인.</td></tr><tr><td>26</td><td><b>AMGN</b></td><td>$433.64</td><td>$388.48</td><td>-10.4%</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 -10.4% · 고점 97%. 신규보다 관망.</td></tr><tr><td>27</td><td><b>VCTR</b></td><td>$122.38</td><td>$104.40</td><td>-14.7%</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 -14.7% · 고점 99%. 신규보다 관망.</td></tr><tr><td>28</td><td><b>CAKE</b></td><td>$111.48</td><td>$92.67</td><td>-16.9%</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 -16.9% · 고점 94%. 신규보다 관망.</td></tr><tr><td>29</td><td><b>CDNA</b></td><td>$51.87</td><td>$52.33</td><td>+0.9%</td><td class='chase'><b>중하·과열주의</b><br/>중하·과열주의 — RSI·급등 과열이면 추격 금지.</td></tr><tr><td>30</td><td><b>PLPC</b></td><td>$419.46</td><td>$480.00</td><td>+14.4%</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +14.4% · 고점 83%. 신규보다 관망.</td></tr><tr><td>31</td><td><b>ALNT</b></td><td>$95.08</td><td>$118.00</td><td>+24.1%</td><td class='chase'><b>중</b><br/>중 — 모션컨트롤. 산업 베타.</td></tr><tr><td>32</td><td><b>CLBK</b></td><td>$11.74</td><td>$14.17</td><td>+20.7%</td><td class='chase'><b>상</b><br/>상 — RR 상위. 업사이드 +20.7% · 고점근접 98% · 실적 2026-10-20. 추격보다 눌림·비중 확인.</td></tr><tr><td>33</td><td><b>ATRO</b></td><td>$77.56</td><td>$89.55</td><td>+15.4%</td><td class='chase'><b>중</b><br/>중 — 항공전자. 수주·마진 확인.</td></tr><tr><td>34</td><td><b>ZBRA</b></td><td>$366.35</td><td>$412.87</td><td>+12.7%</td><td class='chase'><b>중</b><br/>중 — 자동식별. 산업캡ex·눌림 확인.</td></tr><tr><td>35</td><td><b>BRKR</b></td><td>$58.74</td><td>$58.75</td><td>+0.0%</td><td class='chase'><b>중하</b><br/>중하 — 분석기기. 대기.</td></tr><tr><td>36</td><td><b>INCY</b></td><td>$127.05</td><td>$127.12</td><td>+0.1%</td><td class='chase'><b>중·SOFT</b><br/>중·SOFT — 업사이드 작으면 대기.</td></tr><tr><td>37</td><td><b>LITE</b></td><td>$930.84</td><td>$1,148</td><td>+23.4%</td><td class='chase'><b>상</b><br/>상 — RR 상위. 업사이드 +23.4% · 고점근접 86% · 실적 2026-11-05. 추격보다 눌림·비중 확인.</td></tr><tr><td>38</td><td><b>LFST</b></td><td>$12.45</td><td>$13.80</td><td>+10.8%</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +10.8% · 고점 96%. 신규보다 관망.</td></tr><tr><td>39</td><td><b>SCSC</b></td><td>$58.05</td><td>$60.50</td><td>+4.2%</td><td class='chase'><b>중·청산후워치·추격금지</b><br/>중·청산후워치·추격금지 — 전량청산 완료. 재매수 금지.</td></tr><tr><td>40</td><td><b>NSIT</b></td><td>$156.59</td><td>$163.75</td><td>+4.6%</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +4.6% · 고점 99%. 신규보다 관망.</td></tr><tr><td>41</td><td><b>PLSE</b></td><td>$48.40</td><td>$45.25</td><td>-6.5%</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 -6.5% · 고점 95%. 신규보다 관망.</td></tr><tr><td>42</td><td><b>HALO</b></td><td>$106.48</td><td>$99.56</td><td>-6.5%</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 -6.5% · 고점 97%. 신규보다 관망.</td></tr><tr><td>43</td><td><b>CBRL</b></td><td>$56.23</td><td>$45.00</td><td>-20.0%</td><td class='chase'><b>하·과열</b><br/>하·과열 — 레스토랑 프리미엄. 추격 금지.</td></tr><tr><td>44</td><td><b>DNTH</b></td><td>$109.20</td><td>$137.62</td><td>+26.0%</td><td class='chase'><b>중·임상변동</b><br/>중·임상변동 — 임상 이벤트. 위성·소액만.</td></tr><tr><td>45</td><td><b>NTRA</b></td><td>$337.15</td><td>$336.74</td><td>-0.1%</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 -0.1% · 고점 98%. 신규보다 관망.</td></tr><tr><td>46</td><td><b>AXGN</b></td><td>$51.45</td><td>$53.90</td><td>+4.8%</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +4.8% · 고점 97%. 신규보다 관망.</td></tr><tr><td>47</td><td><b>SRRK</b></td><td>$59.00</td><td>$60.75</td><td>+3.0%</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +3.0% · 고점 96%. 신규보다 관망.</td></tr><tr><td>48</td><td><b>ETON</b></td><td>$60.29</td><td>$71.00</td><td>+17.8%</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +17.8% · 고점 91%. 신규보다 관망.</td></tr><tr><td>49</td><td><b>TH</b></td><td>$19.22</td><td>$23.60</td><td>+22.8%</td><td class='chase'><b>중하</b><br/>중하 — 모듈 숙박. 가동률·계약 확인.</td></tr><tr><td>50</td><td><b>ZD</b></td><td>$55.99</td><td>$64.40</td><td>+15.0%</td><td class='chase'><b>중하</b><br/>중하 — RR 중하위. 업사이드 +15.0% · 고점 96%. 신규보다 관망.</td></tr><tr><td>51</td><td><b>SEPN</b></td><td>$39.73</td><td>$54.22</td><td>+36.5%</td><td class='chase'><b>중·SOFT·서프약</b><br/>중·SOFT·서프약 — 서프라이즈 약. 신중.</td></tr>
+      </table>
+      <p class="small">다음 단계: 기술적분석() ← chase_rr_20260828.json</p>
+    </section>
+    </body></html>
+    
