@@ -106,3 +106,18 @@ def test_load_bundle_offline_share(monkeypatch):
     assert b6 is not None
     assert b6.share_rows[3].name == "NESR"
     assert abs(b6.share_rows[3].delta_pp - 1.5) < 1e-9
+
+    b7 = load_compete_bundle("ATRO")
+    assert b7 is not None
+    assert b7.share_rows[4].name.startswith("Astronics")
+    assert abs(b7.share_rows[4].delta_pp - 0.3) < 1e-9
+
+
+def test_atro_profile_exists():
+    p = get_profile("ATRO")
+    assert p is not None
+    assert any(r.get("subject") for r in p["mix_rows"])
+    assert p["share_rows"][4][0].startswith("Astronics")
+    assert "Aerospace" in p["mix_buckets"]
+    assert abs(p["mix_rows"][0]["mix"]["Aerospace"] - 91.3) < 0.1
+    assert abs(p["mix_rows"][0]["mix"]["Test Systems"] - 8.7) < 0.1
