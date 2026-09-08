@@ -25,10 +25,11 @@ from sepa.rev_price_chart import build_and_insert_price  # noqa: E402
 
 FONT_REG = "/tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
 FONT_BOLD = "/tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf"
-ASOF = "2026-08-14"
-PX = 12.62
+ASOF = "2026-09-08"
+PX = 10.71
 PT = 17.17
 H52 = 15.34
+L52 = 2.74
 UPSIDE = PT / PX - 1.0
 EARN = "08-04"  # Q1 FY'27 reported
 OUT_PDF = [
@@ -238,10 +239,10 @@ def chart_position() -> Path:
     ax.set_ylim(0, 3)
     ax.axis("off")
     rows = [
-        (0.3, 1.6, 2.8, 1.0, "역할", "워치·SOFT\n미보유", C["teal"]),
-        (3.4, 1.6, 2.8, 1.0, "사이즈", "위성 후보\n≤10% 소액", C["navy"]),
-        (6.5, 1.6, 3.2, 1.0, "트리거", "A′ 재스캔\n고점·과열 확인", C["gold"]),
-        (0.3, 0.25, 4.5, 1.1, "주의", "부채·이자 · APP/U 스케일 격차 · 고점권 추격 금지", C["red"]),
+        (0.3, 1.6, 2.8, 1.0, "역할", "보유 20주\n품질C·NO_ADD", C["teal"]),
+        (3.4, 1.6, 2.8, 1.0, "사이즈", "16% OVER\nC≤6% 한도", C["navy"]),
+        (6.5, 1.6, 3.2, 1.0, "트리거", "stop $10\n추가·물타기 금지", C["gold"]),
+        (0.3, 0.25, 4.5, 1.1, "주의", "−8%권 · stop 근접 · APP/U 스케일 격차 · 추격·물타기 금지", C["red"]),
         (5.1, 0.25, 4.6, 1.1, "품질", "매출+27% · AGP+56% · 가이던스↑ · 레버리지↓", C["ods"]),
     ]
     for x, y, w, h, title, body, c in rows:
@@ -252,7 +253,7 @@ def chart_position() -> Path:
         ax.text(x + 0.15, y + h - 0.28, title, fontproperties=PROP_B, fontsize=9, color="white")
         ax.text(x + w / 2, y + 0.35, body, ha="center", va="center",
                 fontproperties=PROP, fontsize=8.5, color="white")
-    ax.set_title("실행 포지션 맵 (심층 8/14 · APPS SOFT · 미보유)", fontproperties=PROP_B, fontsize=12, pad=4)
+    ax.set_title("실행 포지션 맵 (포트 9/8 · APPS 20주 NO_ADD · stop $10)", fontproperties=PROP_B, fontsize=12, pad=4)
     return save_fig(fig, "09_position.png")
 
 
@@ -355,13 +356,13 @@ def build_html(charts: dict[str, Path], *, compete_html: str = "") -> str:
 <section class="cover">
   <h1>APPS 수익구조분석</h1>
   <p style="font-size:12pt;color:#444;margin-top:10px">Digital Turbine · 모바일 온디바이스·앱성장 플랫폼</p>
-  <p style="margin-top:18px;color:#555">기준일 {ASOF} · Q1 FY'27 실적({EARN} 발표) · 시총 ~$1.5B · ${PX:.2f}</p>
+  <p style="margin-top:18px;color:#555">기준일 {ASOF} · Q1 FY'27 실적({EARN} 발표) · 시총 ~$1.3B · ${PX:.2f}</p>
   <div style="margin-top:22px">
     <span class="tag">ODS + AGP</span>
     <span class="tag good">매출 +27% YoY</span>
     <span class="tag good">AGP +56%</span>
-    <span class="tag warn">GAAP 소폭 적자</span>
-    <span class="tag">SOFT 워치</span>
+    <span class="tag warn">보유 20주 NO_ADD</span>
+    <span class="tag bad">stop $10 근접</span>
   </div>
   <div style="margin-top:28px">
     <div class="kpi"><div class="l">Q1 매출</div><div class="v">$166M</div><div class="s">YoY +27%</div></div>
@@ -377,9 +378,9 @@ def build_html(charts: dict[str, Path], *, compete_html: str = "") -> str:
 
 <h2>0. 한줄 결론</h2>
 <div class="box">
-<b>성장·레버리지 개선은 뚜렷, 추격은 OS 게이트 후.</b>
+<b>성장·레버리지는 개선, 포트는 보유 NO_ADD · stop 경계.</b>
 매출 $166M(+27%) · AGP +56% · Adj.EBITDA $42.5M(+69%) · FY27 가이던스 상향 · 순레버리지 ~2.5x.
-다만 GAAP 적자·이자·대형 피어 경쟁. 포트: <b>미보유 · SOFT 워치</b> — A′ 재통과·고점/과열 확인 전 추격 비추.
+다만 GAAP 소폭 적자·이자·대형 피어 경쟁. 포트: <b>보유 20주 · 품질C · 16% OVER · stop $10 · NO_ADD</b> — 물타기·추격 금지.
 </div>
 
 <h2>1. 비즈니스 구조</h2>
@@ -433,9 +434,9 @@ def build_html(charts: dict[str, Path], *, compete_html: str = "") -> str:
 <h2>5. 포트 실행</h2>
 {fig_block(charts['pos'], '포지션 맵')}
 <div class="box">
-<b>OS 메모 (8/14)</b><br/>
-미보유 · 심층 SOFT. PT 업사이드 ~{UPSIDE*100:+.0f}% · 52주 고점 ${H52:.2f} 대비 추격 주의.<br/>
-실행: <b>추격 금지</b> · A′/포폴 3레이어 통과 + 위성한도·현금여유 확인 후에만 극소.<br/>
+<b>OS 메모 (9/8 스냅 · 심층 연동)</b><br/>
+보유 <b>20주</b> · 평단 ~$11.54 · 마크 ~${PX:.2f} (−8%권) · 품질C · 비중 OVER · stop <b>$10</b> · <b>NO_ADD</b>.<br/>
+PT 업사이드 ~{UPSIDE*100:+.0f}% · 52주 ${L52:.2f}–${H52:.2f}. 실행: <b>추가·물타기·추격 금지</b> · stop 이탈 시 축소 검토.<br/>
 품질 게이트: 다음 분기도 AGP YoY 성장 · 가이던스 궤적 · 레버리지 ≤3x대 유지.
 </div>
 
@@ -461,6 +462,10 @@ def main() -> int:
     compete_html = _compete_section(charts, bundle)
     html_doc = build_html(charts, compete_html=compete_html)
     html_doc, _px = build_and_insert_price("APPS", CHART_DIR, html_doc)
+    if _px.ok:
+        print(f"price-charts {_px.candle_path} {_px.momentum_path}")
+    else:
+        print(f"price-charts SKIP {_px.error}")
     OUT_HTML.write_text(html_doc, encoding="utf-8")
     print(f"HTML {OUT_HTML} {OUT_HTML.stat().st_size}")
     pdf = HTML(filename=str(OUT_HTML)).write_pdf()
@@ -468,6 +473,26 @@ def main() -> int:
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_bytes(pdf)
         print(f"PDF {p} {p.stat().st_size}")
+    try:
+        from sepa.artifacts import print_release_result, publish_github_release_asset
+
+        tag = "sepa-rev-apps"
+        notes = (
+            f"## APPS 수익구조분석 ({ASOF})\n\n"
+            f"Digital Turbine · Q1 FY'27 · ODS 66% / AGP 34% · FY27 $650–670M.\n\n"
+            f"- 매출 $166M(+27%) · Adj EBITDA $42.5M(+69%) · AGP +56%\n"
+            f"- 포트: 보유 20주 · NO_ADD · stop $10 · 품질C OVER\n"
+            f"- 업사이드 {UPSIDE*100:+.1f}% (PT ${PT:.2f} · px ${PX:.2f})\n"
+        )
+        rel = publish_github_release_asset(
+            OUT_PDF[1],
+            tag=tag,
+            title="SEPA Revenue Structure — APPS",
+            notes=notes,
+        )
+        print_release_result(rel, label="수익구조분석 PDF")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[warn] GitHub Release publish skipped: {exc}")
     return 0
 
 
