@@ -14,27 +14,35 @@ from sepa.portfolio_ops import (
 )
 
 
-def test_load_book_snap_20260825():
+def test_load_book_snap_20260908():
     book = load_book("config/portfolio_watch.yaml")
-    assert book.as_of == date(2026, 8, 25)
-    assert abs(book.cash_usd - 462.97) < 1e-6
-    assert book.cash_krw is not None and abs(book.cash_krw - 7618) < 1e-3
-    assert book.cash_krw_usd > 0
+    assert book.as_of == date(2026, 9, 8)
+    assert abs(book.cash_usd - 262.67) < 1e-6
+    assert book.cash_krw is not None and abs(book.cash_krw - 26) < 1e-3
+    assert book.cash_krw_usd >= 0
     assert book.target_krw == 100_000_000
     tickers = {h.ticker for h in book.holdings}
-    assert tickers == {"TXG", "ECPG", "AMRX", "ANAB", "FTNT", "APPS", "DRH"}
+    assert tickers == {"TXG", "ADPT", "APPS", "ECPG", "AMRX", "DRH", "ATRO"}
+    assert "ANAB" not in tickers
+    assert "FTNT" not in tickers
     assert "SCSC" not in tickers
     assert "CMPR" not in tickers
     assert "NESR" not in tickers
     txg = next(h for h in book.holdings if h.ticker == "TXG")
     assert txg.shares == 4
     assert txg.no_add is True
+    adpt = next(h for h in book.holdings if h.ticker == "ADPT")
+    assert adpt.shares == 4
+    assert adpt.stop == 48.8
+    atro = next(h for h in book.holdings if h.ticker == "ATRO")
+    assert atro.shares == 1
+    assert atro.stop == 68.0
     amrx = next(h for h in book.holdings if h.ticker == "AMRX")
     assert amrx.shares == 11
     apps = next(h for h in book.holdings if h.ticker == "APPS")
-    assert apps.shares == 13
+    assert apps.shares == 20
     drh = next(h for h in book.holdings if h.ticker == "DRH")
-    assert drh.shares == 8
+    assert drh.shares == 13
     assert "생존형 포트 OS" in book.identity
     assert "챌린저" in book.identity
 
