@@ -1,5 +1,5 @@
 as_of: '2026-09-08'
-note: portfolio sync · ANAB·FTNT exit · ADPT4·ATRO1 new · APPS20 · DRH13 · estimate 자동승격 금지
+note: portfolio sync · FTNT exit · ANAB4(+1)·ATRO1 · APPS20 · DRH13 · ADPT 오인→ANAB 정정 · estimate 자동승격 금지
 entries:
   AMRX:
     earn_date: '2026-10-29'
@@ -13,10 +13,10 @@ entries:
     earn_date: '2026-11-05'
     note: portfolio SSOT
     confirmed_on: '2026-08-12'
-  ADPT:
-    earn_date: '2026-07-29'
-    note: portfolio SSOT · reported · new hold
-    confirmed_on: '2026-07-29'
+  ANAB:
+    earn_date: '2026-08-19'
+    note: portfolio SSOT · reported · hold 4sh (+1) · ADPT mislabel fixed
+    confirmed_on: '2026-08-19'
   APPS:
     earn_date: '2026-11-03'
     note: portfolio SSOT
@@ -29,10 +29,6 @@ entries:
     earn_date: '2026-11-05'
     note: portfolio SSOT · new hold
     confirmed_on: '2026-09-08'
-  ANAB:
-    earn_date: '2026-08-19'
-    note: exited 2026-09-08 · historical
-    confirmed_on: '2026-08-19'
   FTNT:
     earn_date: '2026-11-05'
     note: exited 2026-09-08 · historical

@@ -22,8 +22,8 @@ def test_load_book_snap_20260908():
     assert book.cash_krw_usd >= 0
     assert book.target_krw == 100_000_000
     tickers = {h.ticker for h in book.holdings}
-    assert tickers == {"TXG", "ADPT", "APPS", "ECPG", "AMRX", "DRH", "ATRO"}
-    assert "ANAB" not in tickers
+    assert tickers == {"TXG", "ANAB", "APPS", "ECPG", "AMRX", "DRH", "ATRO"}
+    assert "ADPT" not in tickers
     assert "FTNT" not in tickers
     assert "SCSC" not in tickers
     assert "CMPR" not in tickers
@@ -31,9 +31,9 @@ def test_load_book_snap_20260908():
     txg = next(h for h in book.holdings if h.ticker == "TXG")
     assert txg.shares == 4
     assert txg.no_add is True
-    adpt = next(h for h in book.holdings if h.ticker == "ADPT")
-    assert adpt.shares == 4
-    assert adpt.stop == 48.8
+    anab = next(h for h in book.holdings if h.ticker == "ANAB")
+    assert anab.shares == 4
+    assert anab.stop == 48.0
     atro = next(h for h in book.holdings if h.ticker == "ATRO")
     assert atro.shares == 1
     assert atro.stop == 68.0

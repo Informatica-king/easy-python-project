@@ -1,5 +1,5 @@
 # TA 워치리스트 + 포트 훅 메타 (≤20)
-# 2026-09-08: ADPT4·ATRO1 신규 · APPS 20 · DRH 13 · ANAB·FTNT 청산 훅 유지
+# 2026-09-08: ANAB4(+1)·ATRO1 · APPS 20 · DRH 13 · FTNT 청산 · ADPT 오인 정정(ANAB)
 
 tickers:
   - symbol: ECPG
@@ -21,9 +21,9 @@ tickers:
     stop: 42.0
     no_add: true
 
-  - symbol: ADPT
-    earn_date: "2026-07-29"
-    stop: 48.8
+  - symbol: ANAB
+    earn_date: "2026-08-19"
+    stop: 48.0
     no_add: true
 
   - symbol: APPS
@@ -39,11 +39,6 @@ tickers:
   - symbol: ATRO
     earn_date: "2026-11-05"
     stop: 68.0
-    no_add: true
-
-  - symbol: ANAB
-    earn_date: "2026-08-19"
-    stop: 48.0
     no_add: true
 
   - symbol: FTNT
