@@ -762,6 +762,134 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "피어는 공시 세그먼트가 달라 근사 — 방향 비교용."
         ),
     },
+
+    "APPS": {
+        "sector_ko": "기술 · 모바일 성장·온디바이스 광고 (심층: ODS + App Growth)",
+        "share_title": "상장 모바일 광고·앱성장 피어셋 스케일 점유 (추정)",
+        "share_as_of": "2025–26 · 매출 스케일 근사 vs 전년",
+        "share_note": (
+            "상장 모바일 광고·앱성장 피어(APP/U/MGNI/APPS) 상대 스케일. "
+            "Google/Meta/애플 광고는 혼재·초대형이라 제외. "
+            "절대 시장점유율이 아니라 피어셋 방향 비교용."
+        ),
+        "share_rows": [
+            ("AppLovin (APP)", 48.0, 45.0),
+            ("Unity (U)", 18.0, 19.5),
+            ("Magnite (MGNI)", 12.5, 12.0),
+            ("Digital Turbine (APPS)", 6.0, 5.2),
+            ("Others (listed/est.)", 15.5, 18.3),
+        ],
+        "share_source": "Directional share of selected US-listed mobile ad/app-growth peers by revenue scale (est.)",
+        "mix_buckets": ["On Device Solutions", "App Growth Platform", "Other"],
+        "mix_as_of": "Q1 FY'27 (ended Jun 30, 2026) · 세그먼트 매출(elim 전) 정규화",
+        "mix_rows": [
+            {
+                "key": "APPS",
+                "name": "APPS",
+                "subject": True,
+                "yf": "APPS",
+                "mix": {"On Device Solutions": 66.0, "App Growth Platform": 34.0, "Other": 0.0},
+                "note": "ODS $110.0M / AGP $56.6M (elim 전) · AGP YoY +56%",
+            },
+            {
+                "key": "APP",
+                "name": "APP",
+                "subject": False,
+                "yf": "APP",
+                "mix": {"On Device Solutions": 5.0, "App Growth Platform": 90.0, "Other": 5.0},
+                "note": "퍼포먼스 광고·AXON 중심 → AGP 버킷 근사",
+            },
+            {
+                "key": "U",
+                "name": "U",
+                "subject": False,
+                "yf": "U",
+                "mix": {"On Device Solutions": 8.0, "App Growth Platform": 52.0, "Other": 40.0},
+                "note": "Grow(광고)≈AGP · Create≈Other 근사",
+            },
+            {
+                "key": "MGNI",
+                "name": "MGNI",
+                "subject": False,
+                "yf": "MGNI",
+                "mix": {"On Device Solutions": 5.0, "App Growth Platform": 75.0, "Other": 20.0},
+                "note": "CTV·프로그래머틱 SSP → AGP 중심 근사",
+            },
+        ],
+        "mix_note": (
+            "버킷은 On Device Solutions / App Growth Platform / Other로 정규화. "
+            "피어 공시 세그먼트가 달라 근사 — 방향 비교용."
+        ),
+    },
+    "APA": {
+        "sector_ko": "에너지 · 독립 E&P (심층: Permian + Egypt + North Sea · Suriname)",
+        "share_title": "상장 대형·중형 독립 E&P 피어셋 스케일 점유 (추정)",
+        "share_as_of": "TTM'26 · 총매출 스케일 근사 vs 전년",
+        "share_note": (
+            "상장 독립 E&P 피어셋 총매출 상대 스케일. "
+            "메이저(XOM/CVX) 제외. "
+            "절대 시장점유율이 아니라 피어셋 방향 비교용."
+        ),
+        "share_rows": [
+            ("ConocoPhillips (COP)", 28.0, 27.5),
+            ("EOG Resources (EOG)", 18.0, 17.5),
+            ("Occidental (OXY)", 16.0, 16.5),
+            ("Devon (DVN)", 12.0, 12.5),
+            ("APA Corporation (APA)", 9.5, 9.0),
+            ("Others (listed/est.)", 16.5, 17.0),
+        ],
+        "share_source": "Directional share of selected US-listed independent E&P peers by TTM revenue scale (est.)",
+        "mix_buckets": ["United States", "Egypt", "North Sea", "Other"],
+        "mix_as_of": "Q2'26 reported BOE/d mix · Suriname는 개발중(Other≈0)",
+        "mix_rows": [
+            {
+                "key": "APA",
+                "name": "APA",
+                "subject": True,
+                "yf": "APA",
+                "mix": {"United States": 64.2, "Egypt": 30.4, "North Sea": 5.4, "Other": 0.0},
+                "note": "Q2'26 reported BOE: US 263k / Egypt 125k / NS 22k · 총 ~410k",
+            },
+            {
+                "key": "DVN",
+                "name": "DVN",
+                "subject": False,
+                "yf": "DVN",
+                "mix": {"United States": 95.0, "Egypt": 0.0, "North Sea": 0.0, "Other": 5.0},
+                "note": "미 Permian·다분지 중심",
+            },
+            {
+                "key": "OXY",
+                "name": "OXY",
+                "subject": False,
+                "yf": "OXY",
+                "mix": {"United States": 70.0, "Egypt": 0.0, "North Sea": 0.0, "Other": 30.0},
+                "note": "미 + 중동/기타 국제 근사",
+            },
+            {
+                "key": "EOG",
+                "name": "EOG",
+                "subject": False,
+                "yf": "EOG",
+                "mix": {"United States": 88.0, "Egypt": 0.0, "North Sea": 0.0, "Other": 12.0},
+                "note": "미 셰일 본체 · 국제 소수",
+            },
+            {
+                "key": "COP",
+                "name": "COP",
+                "subject": False,
+                "yf": "COP",
+                "mix": {"United States": 55.0, "Egypt": 0.0, "North Sea": 10.0, "Other": 35.0},
+                "note": "글로벌 다지역 E&P 근사",
+            },
+        ],
+        "mix_note": (
+            "버킷은 United States / Egypt / North Sea / Other(개발·탐사)로 정규화. "
+            "APA는 Q2'26 reported BOE 비중, 피어는 업태 전형 — 방향 비교용. "
+            "제품 믹스(별도): Oil ~90% / NGL ~8% / Gas ~2% of hydrocarbon revenues."
+        ),
+    },
+
 }
 
 
@@ -811,6 +939,8 @@ SUBJECT_SHARE_ALIASES: dict[str, tuple[str, ...]] = {
     "AMRX": ("amneal",),
     "FTRE": ("fortrea",),
     "CMPR": ("cimpress", "vistaprint", "vista"),
+    "APPS": ("digital turbine",),
+    "APA": ("apa corporation", "apache"),
 }
 
 
