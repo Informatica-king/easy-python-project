@@ -915,7 +915,7 @@ LABEL_OVERRIDE = {
     "SBLK": "중상·고점주의",
     "CASY": "중·SOFT·고점주의",
     "AMRX": "중·품질B·보유11주·추가금지",
-    "ANAB": "상·품질C·보유3주·한도OVER·추가금지",
+    "ANAB": "상·품질C·보유4주·한도OVER·추가금지",
     "APPS": "하·과열·보유13주·추가금지",
     "LASR": "중상·품질B·청산후워치·추격금지",
     "RELY": "중·08-08청산후워치·추격금지",
@@ -995,7 +995,7 @@ CHASE_DETAIL = {
     "SBLK": "중상·고점주의 — 건화물. 위성·눌림만.",
     "CASY": "중·SOFT·고점주의 — 고가주. 추격보다 관망.",
     "AMRX": "중·품질B·보유11주·추가금지 — 16.0%·구조한도. 즉흥·추가 매수 금지.",
-    "ANAB": "상·품질C·보유3주·한도OVER·추가금지 — 14.3%>C6%. NO_ADD·추격 금지.",
+    "ANAB": "상·품질C·보유4주(+1)·한도OVER·추가금지 — 17.3%>C6%·stop $48. NO_ADD·추격 금지 · ADPT 오인정정.",
     "APPS": "하·과열·보유13주·추가금지 — −11%·stop $10. 물타기·추격 금지.",
     "LASR": "중상·청산후워치·추격금지 — 청산 완료. 재매수 금지.",
     "RELY": "중·청산후워치·추격금지 — 재매수·추격 금지.",
@@ -1411,7 +1411,7 @@ def main() -> None:
         {"rows": scenarios},
         as_of=REPORT_DATE,
     )
-    HOLD_NO_ADD = {"TXG", "ADPT", "APPS", "ECPG", "AMRX", "DRH", "ATRO"}
+    HOLD_NO_ADD = {"TXG", "ANAB", "APPS", "ECPG", "AMRX", "DRH", "ATRO"}
     for h in exec_hits:
         if str(h["ticker"]).upper() in HOLD_NO_ADD:
             h["no_add"] = True
@@ -1506,11 +1506,11 @@ def main() -> None:
         {"→ ★ 초록 배너 종목 = 저녁창 지정가 최우선" if n_exec else "→ 본선∩GO 실실행 없음 · 워치·현금 유지"}
       </div>
       <div class="portfolio-box" style="text-align:left;max-width:560px;margin:16px auto;">
-        <b>포트 실행 메모 (9/8 스냅 · 최신 SSOT)</b><br/>
-        보유: TXG4 · ADPT4 · APPS20 · ECPG2 · AMRX11 · DRH13 · ATRO1 · 평가~$1,315 · 현금합≈$263<br/>
-        ANAB·FTNT 청산 · ADPT·ATRO 신규 · Top3≈52.3% · 7종 전원 NO_ADD · 전개가능≈$113<br/>
-        유니버스∩보유: TXG·ECPG·ATRO (ADPT·APPS·AMRX·DRH는 유니버스 외·NO_ADD 유지)<br/>
-        ANAB/FTNT/SCSC/CMPR/NESR 청산후 추격금지 · 실행창 17:30~20:55 지정가<br/>
+        <b>포트 실행 메모 (9/8 스냅 · 최신 SSOT · ADPT→ANAB 정정)</b><br/>
+        보유: TXG4 · ANAB4(+1) · APPS20 · ECPG2 · AMRX11 · DRH13 · ATRO1 · 평가~$1,315 · 현금합≈$263<br/>
+        FTNT 청산 · ATRO 신규 · Top3≈52.3% · 7종 전원 NO_ADD · 전개가능≈$113<br/>
+        유니버스∩보유: TXG·ECPG·ATRO (ANAB·APPS·AMRX·DRH는 유니버스 외·NO_ADD 유지)<br/>
+        FTNT/SCSC/CMPR/NESR 청산후 추격금지 · ADPT 미보유(ANAB 오인 정정) · 실행창 17:30~20:55 지정가<br/>
         유니버스 50종 · 본선∩GO 강조 · PDF=GitHub Release만
       </div>
     </section>
@@ -1554,7 +1554,7 @@ def main() -> None:
             f"- **본선∩GO but NO_ADD:** {', '.join(h['ticker'] for h in exec_blocked) or '없음'}\n"
             f"- **GO_A(A):** {n_a} · **GO_B(B):** {n_b} · **WAIT(SOFT):** {n_soft}\n"
             f"- Top Chase: {', '.join(order[:10])}\n"
-            f"- 보유 NO_ADD: TXG·ADPT·APPS·ECPG·AMRX·DRH·ATRO\n"
+            f"- 보유 NO_ADD: TXG·ANAB·APPS·ECPG·AMRX·DRH·ATRO\n"
         )
         rel = publish_deep_pdf_release(PDF_WORKSPACE, as_of=DATE_TAG, notes=notes)
         print_release_result(rel, label="심층분석 PDF")

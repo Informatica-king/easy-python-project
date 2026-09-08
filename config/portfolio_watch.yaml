@@ -8,7 +8,7 @@
 # grade / max_pct: 품질등급·구조한도 (A≤18% B≤10% C≤6%). 하드게이트 시 유효등급=금지(ADD 0%)
 
 as_of: "2026-09-08"
-as_of_note: "앱 캡처 · 평가 $1,315.33(+2.9%·+$38.20) · USD$262.67 + ₩26 · 7종 · ANAB·FTNT 청산 · ADPT4·ATRO1 신규 · APPS+7(13→20) · DRH+5(8→13)"
+as_of_note: "앱 캡처 · 평가 $1,315.33(+2.9%·+$38.20) · USD$262.67 + ₩26 · 7종 · FTNT 청산 · ANAB 3→4(+1) · ATRO1 신규 · APPS+7(13→20) · DRH+5(8→13) · ADPT 오인 정정"
 fx_krw_per_usd: 1402.50
 cost_basis_source: "앱 USD 손익역산 평단 2026-09-08"
 source: "app_screenshot_2026-09-08"
@@ -37,7 +37,7 @@ strategy:
     cash_floor_usd: 150
     cash_deployable_usd: 112.69
     cash_pct_of_liquid: 0.166
-    pending_orders_note: "ANAB·FTNT 청산 · ADPT4·ATRO1 신규 · APPS 20 · DRH 13 · 7종 전원 NO_ADD · Top3≈52.3% · TXG 18.9%(천장미달)"
+    pending_orders_note: "FTNT 청산 · ANAB4(+1)·ATRO1 신규 · APPS 20 · DRH 13 · 7종 전원 NO_ADD · Top3≈52.3% · TXG 18.9%(천장미달) · ADPT≠보유(ANAB 정정)"
 
 cash:
   usd: 262.67
@@ -63,10 +63,11 @@ allocation:
   schd_target_pct: 0
   schd_role: "폐기 · 완충은 현금바닥+$150"
   note: |
-    2026-09-08: TXG 18.9% · ADPT 17.3% · APPS 16.1% · ECPG 14.8% ·
+    2026-09-08: TXG 18.9% · ANAB 17.3% · APPS 16.1% · ECPG 14.8% ·
     AMRX 14.6% · DRH 12.6% · ATRO 5.7%. 현금합 ≈$263 (유동 ~16.7%).
     TXG 절대천장 미달(18.9%<20%) · Top3≈52.3% >50% · 전원 유효금지(NO_ADD).
-    TXG·ADPT·APPS·AMRX·DRH C/B 구조한도 OVER · ATRO C 근접(5.7%≈6%).
+    TXG·ANAB·APPS·AMRX·DRH C/B 구조한도 OVER · ATRO C 근접(5.7%≈6%).
+    ※ 앱 한글명 오인으로 ADPT로 기입했던 보유는 ANAB(AnaptysBio) 정정.
 
 rules:
   - "물타기 금지"
@@ -79,10 +80,9 @@ rules:
   - "NESR 청산 완료 — 추격 재매수 금지"
   - "CMPR 전량청산 완료 — 추격 재매수 금지"
   - "SCSC 청산 완료 — 추격 재매수 금지"
-  - "ANAB 청산 완료 — 추격 재매수 금지"
   - "FTNT 청산 완료 — 추격 재매수 금지"
   - "TXG 4주 · +30.7% · 18.9% · stop $42 · 추가금지"
-  - "ADPT 4주 신규 · 평단 $57.43 · 품질C·17.3% OVER · stop $48.8 · 추가금지"
+  - "ANAB 4주(+1) · 평단 $57.43 · 품질C·17.3% OVER · stop $48 · 추가금지 · ADPT 오인정정"
   - "APPS 20주(+7) · 평단 $11.54 · −8.1% · stop $10 · 추가금지"
   - "DRH 13주(+5) · 평단 $12.59 · 품질C·12.6% OVER · stop $11.94 · 추가금지"
   - "ATRO 1주 신규 · 평단 $77.60 · 품질C·5.7% · stop $68 · 추가금지"
@@ -105,7 +105,7 @@ holdings:
     earn_date: "2026-11-05"
     note: "4주 · 평단 $47.46 · +30.7% · 품질C·18.9% · 천장미달 · 추가금지"
 
-  - ticker: ADPT
+  - ticker: ANAB
     role: hold
     grade: C
     max_pct: 6
@@ -116,10 +116,10 @@ holdings:
     weight_approx: 0.1733
     pnl_usd: -1.73
     pnl_pct: -0.007
-    stop: 48.8
+    stop: 48.0
     no_add: true
-    earn_date: "2026-07-29"
-    note: "4주 신규 · 평단 $57.43 · −0.7% · 품질C·17.3% OVER · Adaptive Bio · stop $48.8 · 추가금지"
+    earn_date: "2026-08-19"
+    note: "4주(+1·3→4) · 평단 $57.43 · −0.7% · 품질C·17.3% OVER · AnaptysBio · stop $48 · 추가금지 · ADPT 오인 정정"
 
   - ticker: APPS
     role: hold
@@ -206,13 +206,6 @@ holdings:
     note: "1주 신규 · 평단 $77.60 · −2.7% · 품질C·5.7% · Astronics · stop $68 · 추가금지"
 
 exited:
-  - ticker: ANAB
-    role: exited
-    shares: 0
-    exit_as_of: "2026-09-08"
-    exit_type: "sell_exit"
-    exit_shares: 3
-    note: "3주 청산 (09-08 스냅) · 추격 재매수 금지"
   - ticker: FTNT
     role: exited
     shares: 0
@@ -285,15 +278,15 @@ exited:
     shares: 0
     exit_as_of: "2026-08-18"
     exit_type: "label_correction"
-    note: "SSOT 라벨 정정 · 실보유는 AnaptysBio(ANAB)로 이전 · ANAB도 09-08 청산"
+    note: "SSOT 라벨 정정 · 실보유는 AnaptysBio(ANAB) · 09-08 ADPT 오인 재발 방지"
 
 watchlist:
   - ticker: TXG
     role: watch
     note: "보유 · 18.9% · NO_ADD"
-  - ticker: ADPT
+  - ticker: ANAB
     role: watch
-    note: "4주 신규 · 품질C OVER · stop $48.8 · NO_ADD"
+    note: "4주(+1) · 품질C OVER · stop $48 · NO_ADD · ADPT 오인정정"
   - ticker: APPS
     role: watch
     note: "20주 · −8.1% · stop $10 근접 · NO_ADD"
@@ -309,9 +302,6 @@ watchlist:
   - ticker: ATRO
     role: watch
     note: "1주 신규 · stop $68 · NO_ADD"
-  - ticker: ANAB
-    role: watch
-    note: "09-08 청산 · 추격 재매수 금지"
   - ticker: FTNT
     role: watch
     note: "09-08 청산 · 추격 재매수 금지"
