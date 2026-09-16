@@ -7,14 +7,14 @@
 # band: 추가매수 허용 구간 (BAND)
 # grade / max_pct: 품질등급·구조한도 (A≤18% B≤10% C≤6%). 하드게이트 시 유효등급=금지(ADD 0%)
 
-as_of: "2026-09-08"
-as_of_note: "앱 캡처 · 평가 $1,315.33(+2.9%·+$38.20) · USD$262.67 + ₩26 · 7종 · FTNT 청산 · ANAB 3→4(+1) · ATRO1 신규 · APPS+7(13→20) · DRH+5(8→13) · ADPT 오인 정정"
+as_of: "2026-09-16"
+as_of_note: "앱 캡처 · 평가 $1,557.29(+6.8%·+$99.19) · USD$254.80 + ₩3 · 8종 · AMRX 청산 · ROKU1·APA1 신규 · ECPG+1(2→3) · DRH+1(13→14) · ATRO+1(1→2)"
 fx_krw_per_usd: 1402.50
-cost_basis_source: "앱 USD 손익역산 평단 2026-09-08"
-source: "app_screenshot_2026-09-08"
+cost_basis_source: "앱 USD 손익역산 평단 2026-09-16"
+source: "app_screenshot_2026-09-16"
 
 # ---------------------------------------------------------------------------
-# Capital Operating System (snap 2026-09-08)
+# Capital Operating System (snap 2026-09-16)
 # ---------------------------------------------------------------------------
 strategy:
   identity: "짧~중기 모멘텀을 실적·비중·손절로 걸러, 비대장주 챌린저를 규칙으로만 운영하는 생존형 포트 OS"
@@ -27,23 +27,23 @@ strategy:
     target_krw: 100000000
     note: "1억 · 군적금 27.2(+2000만) · 청년미래적금 29.8(만기 2138만) 주식 재투자"
   book:
-    equity_usd: 1315.33
-    equity_pnl_usd: 38.20
-    equity_pnl_pct: 0.029
-    cash_usd: 262.67
-    cash_krw: 26
-    cash_krw_usd: 0.02
-    liquid_usd: 1578.02
+    equity_usd: 1557.29
+    equity_pnl_usd: 99.19
+    equity_pnl_pct: 0.068
+    cash_usd: 254.80
+    cash_krw: 3
+    cash_krw_usd: 0.00
+    liquid_usd: 1812.09
     cash_floor_usd: 150
-    cash_deployable_usd: 112.69
-    cash_pct_of_liquid: 0.166
-    pending_orders_note: "FTNT 청산 · ANAB4(+1)·ATRO1 신규 · APPS 20 · DRH 13 · 7종 전원 NO_ADD · Top3≈52.3% · TXG 18.9%(천장미달) · ADPT≠보유(ANAB 정정)"
+    cash_deployable_usd: 104.80
+    cash_pct_of_liquid: 0.141
+    pending_orders_note: "AMRX 청산 · ROKU1·APA1 신규 · ECPG 3 · DRH 14 · ATRO 2 · 8종 전원 NO_ADD · Top3≈53.2% · ATRO stop $68 하회"
 
 cash:
-  usd: 262.67
-  krw: 26
+  usd: 254.80
+  krw: 3
   floor_usd: 150
-  note: "USD$262.67 + ₩26(≈$0.02) · 합 ≈$263 · 바닥 $150 · 전개가능 ≈$113"
+  note: "USD$254.80 + ₩3(≈$0) · 합 ≈$255 · 바닥 $150 · 전개가능 ≈$105"
 
 contribution:
   payday: "매월 10일"
@@ -63,11 +63,11 @@ allocation:
   schd_target_pct: 0
   schd_role: "폐기 · 완충은 현금바닥+$150"
   note: |
-    2026-09-08: TXG 18.9% · ANAB 17.3% · APPS 16.1% · ECPG 14.8% ·
-    AMRX 14.6% · DRH 12.6% · ATRO 5.7%. 현금합 ≈$263 (유동 ~16.7%).
-    TXG 절대천장 미달(18.9%<20%) · Top3≈52.3% >50% · 전원 유효금지(NO_ADD).
-    TXG·ANAB·APPS·AMRX·DRH C/B 구조한도 OVER · ATRO C 근접(5.7%≈6%).
-    ※ 앱 한글명 오인으로 ADPT로 기입했던 보유는 ANAB(AnaptysBio) 정정.
+    2026-09-16: TXG 19.3% · ECPG 19.0% · APPS 14.9% · ANAB 14.0% ·
+    DRH 11.1% · ROKU 10.1% · ATRO 8.6% · APA 3.0%. 현금합 ≈$255 (유동 ~14.1%).
+    Top3≈53.2% >50% · 전원 유효금지(NO_ADD).
+    TXG·ECPG A/C 한도 OVER · APPS·ANAB·DRH·ROKU·ATRO C/B OVER · APA C 여유.
+    ATRO 마크 $66.66 < stop $68 → STOP 하회·축소검토.
 
 rules:
   - "물타기 금지"
@@ -81,11 +81,15 @@ rules:
   - "CMPR 전량청산 완료 — 추격 재매수 금지"
   - "SCSC 청산 완료 — 추격 재매수 금지"
   - "FTNT 청산 완료 — 추격 재매수 금지"
-  - "TXG 4주 · +30.7% · 18.9% · stop $42 · 추가금지"
-  - "ANAB 4주(+1) · 평단 $57.43 · 품질C·17.3% OVER · stop $48 · 추가금지 · ADPT 오인정정"
-  - "APPS 20주(+7) · 평단 $11.54 · −8.1% · stop $10 · 추가금지"
-  - "DRH 13주(+5) · 평단 $12.59 · 품질C·12.6% OVER · stop $11.94 · 추가금지"
-  - "ATRO 1주 신규 · 평단 $77.60 · 품질C·5.7% · stop $68 · 추가금지"
+  - "AMRX 청산 완료 — 추격 재매수 금지"
+  - "TXG 4주 · +58.2% · 19.3% · stop $42 · 추가금지"
+  - "ECPG 3주(+1) · 평단 $93.99 · 품질A·19.0% OVER · stop $80 · 추가금지"
+  - "APPS 20주 · 평단 $11.54 · +0.3% · stop $10 · 추가금지"
+  - "ANAB 4주 · 평단 $57.43 · −4.7% · stop $48 · 추가금지"
+  - "DRH 14주(+1) · 평단 $12.54 · 품질C·11.1% OVER · stop $11.94 · 추가금지"
+  - "ROKU 1주 신규 · 평단 $154.98 · 품질C·10.1% OVER · stop $140 · 추가금지"
+  - "ATRO 2주(+1) · 평단 $75.30 · −11.4% · stop $68 하회 · 축소검토·추가금지"
+  - "APA 1주 신규 · 평단 $44.69 · 품질C·3.0% · stop $40 · 추가금지"
   - "동일종목 중복 주문 금지"
 
 holdings:
@@ -95,31 +99,33 @@ holdings:
     max_pct: 6
     shares: 4
     cost_approx: 47.46
-    mark_approx: 62.04
-    value_approx: 248.16
-    weight_approx: 0.1887
-    pnl_usd: 58.32
-    pnl_pct: 0.307
+    mark_approx: 75.11
+    value_approx: 300.44
+    weight_approx: 0.1929
+    pnl_usd: 110.60
+    pnl_pct: 0.582
     stop: 42.0
     no_add: true
     earn_date: "2026-11-05"
-    note: "4주 · 평단 $47.46 · +30.7% · 품질C·18.9% · 천장미달 · 추가금지"
+    note: "4주 · 평단 $47.46 · +58.2% · 품질C·19.3% OVER · 추가금지"
 
-  - ticker: ANAB
+  - ticker: ECPG
     role: hold
-    grade: C
-    max_pct: 6
-    shares: 4
-    cost_approx: 57.43
-    mark_approx: 57.00
-    value_approx: 228.00
-    weight_approx: 0.1733
-    pnl_usd: -1.73
-    pnl_pct: -0.007
-    stop: 48.0
+    grade: A
+    max_pct: 18
+    shares: 3
+    cost_approx: 93.99
+    mark_approx: 98.80
+    value_approx: 296.40
+    weight_approx: 0.1903
+    pnl_usd: 14.43
+    pnl_pct: 0.051
+    stop: 80.0
+    tp1: 105.0
+    tp2: 110.0
     no_add: true
-    earn_date: "2026-08-19"
-    note: "4주(+1·3→4) · 평단 $57.43 · −0.7% · 품질C·17.3% OVER · AnaptysBio · stop $48 · 추가금지 · ADPT 오인 정정"
+    earn_date: "2026-11-04"
+    note: "3주(+1) · 평단 $93.99 · +5.1% · 품질A·19.0% OVER(>18%) · 추가금지"
 
   - ticker: APPS
     role: hold
@@ -127,85 +133,104 @@ holdings:
     max_pct: 6
     shares: 20
     cost_approx: 11.54
-    mark_approx: 10.59
-    value_approx: 211.80
-    weight_approx: 0.1610
-    pnl_usd: -18.90
-    pnl_pct: -0.081
+    mark_approx: 11.58
+    value_approx: 231.60
+    weight_approx: 0.1487
+    pnl_usd: 0.89
+    pnl_pct: 0.003
     stop: 10.0
     no_add: true
     earn_date: "2026-11-03"
-    note: "20주(+7) · 평단 $11.54 · −8.1% · 품질C·16.1% OVER · Digital Turbine · stop $10 근접 · 추가금지"
+    note: "20주 · 평단 $11.54 · +0.3% · 품질C·14.9% OVER · Digital Turbine · stop $10 · 추가금지"
 
-  - ticker: ECPG
+  - ticker: ANAB
     role: hold
-    grade: A
-    max_pct: 18
-    shares: 2
-    cost_approx: 92.32
-    mark_approx: 97.14
-    value_approx: 194.28
-    weight_approx: 0.1477
-    pnl_usd: 9.64
-    pnl_pct: 0.052
-    stop: 80.0
-    tp1: 105.0
-    tp2: 110.0
+    grade: C
+    max_pct: 6
+    shares: 4
+    cost_approx: 57.43
+    mark_approx: 54.68
+    value_approx: 218.72
+    weight_approx: 0.1404
+    pnl_usd: -11.01
+    pnl_pct: -0.047
+    stop: 48.0
     no_add: true
-    earn_date: "2026-11-04"
-    note: "평단 $92.32 · +5.2% · 품질A·14.8% · 추가금지"
-
-  - ticker: AMRX
-    role: hold
-    grade: B
-    max_pct: 10
-    shares: 11
-    cost_approx: 18.27
-    mark_approx: 17.44
-    value_approx: 191.84
-    weight_approx: 0.1458
-    pnl_usd: -9.15
-    pnl_pct: -0.045
-    stop: 15.5
-    tp1: 19.0
-    tp2: 20.0
-    no_add: true
-    earn_date: "2026-10-29"
-    note: "11주 · 평단 $18.27 · −4.5% · 품질B·14.6% OVER · stop $15.5 · 물타기 금지"
+    earn_date: "2026-08-19"
+    note: "4주 · 평단 $57.43 · −4.7% · 품질C·14.0% OVER · AnaptysBio · stop $48 · 추가금지"
 
   - ticker: DRH
     role: hold
     grade: C
     max_pct: 6
-    shares: 13
-    cost_approx: 12.59
-    mark_approx: 12.75
-    value_approx: 165.75
-    weight_approx: 0.1260
-    pnl_usd: 2.13
-    pnl_pct: 0.013
+    shares: 14
+    cost_approx: 12.54
+    mark_approx: 12.39
+    value_approx: 173.46
+    weight_approx: 0.1114
+    pnl_usd: -2.12
+    pnl_pct: -0.012
     stop: 11.94
     no_add: true
     earn_date: "2026-07-30"
-    note: "13주(+5) · 평단 $12.59 · +1.3% · 품질C·12.6% OVER · 호텔REIT · stop $11.94 · 추가금지"
+    note: "14주(+1) · 평단 $12.54 · −1.2% · 품질C·11.1% OVER · 호텔REIT · stop $11.94 · 추가금지"
+
+  - ticker: ROKU
+    role: hold
+    grade: C
+    max_pct: 6
+    shares: 1
+    cost_approx: 154.98
+    mark_approx: 157.00
+    value_approx: 157.00
+    weight_approx: 0.1008
+    pnl_usd: 2.02
+    pnl_pct: 0.013
+    stop: 140.0
+    no_add: true
+    earn_date: "2026-11-05"
+    note: "1주 신규 · 평단 $154.98 · +1.3% · 품질C·10.1% OVER · stop $140 · 추가금지"
 
   - ticker: ATRO
     role: hold
     grade: C
     max_pct: 6
-    shares: 1
-    cost_approx: 77.60
-    mark_approx: 75.50
-    value_approx: 75.50
-    weight_approx: 0.0574
-    pnl_usd: -2.10
-    pnl_pct: -0.027
+    shares: 2
+    cost_approx: 75.30
+    mark_approx: 66.66
+    value_approx: 133.32
+    weight_approx: 0.0856
+    pnl_usd: -17.28
+    pnl_pct: -0.114
     stop: 68.0
     no_add: true
     earn_date: "2026-11-05"
-    note: "1주 신규 · 평단 $77.60 · −2.7% · 품질C·5.7% · Astronics · stop $68 · 추가금지"
+    note: "2주(+1) · 평단 $75.30 · −11.4% · 품질C·8.6% OVER · stop $68 하회 · 축소검토·추가금지"
+
+  - ticker: APA
+    role: hold
+    grade: C
+    max_pct: 6
+    shares: 1
+    cost_approx: 44.69
+    mark_approx: 46.35
+    value_approx: 46.35
+    weight_approx: 0.0298
+    pnl_usd: 1.66
+    pnl_pct: 0.037
+    stop: 40.0
+    no_add: true
+    earn_date: "2026-11-04"
+    note: "1주 신규 · 평단 $44.69 · +3.7% · 품질C·3.0% · stop $40 · 추가금지"
 
 exited:
+  - ticker: AMRX
+    role: exited
+    shares: 0
+    exit_as_of: "2026-09-16"
+    exit_type: "sell_exit"
+    exit_shares: 11
+    note: "11주 청산 (09-16 스냅) · 추격 재매수 금지"
   - ticker: FTNT
     role: exited
     shares: 0
@@ -278,30 +303,36 @@ exited:
     shares: 0
     exit_as_of: "2026-08-18"
     exit_type: "label_correction"
-    note: "SSOT 라벨 정정 · 실보유는 AnaptysBio(ANAB) · 09-08 ADPT 오인 재발 방지"
+    note: "SSOT 라벨 정정 · 실보유는 AnaptysBio(ANAB)"
 
 watchlist:
   - ticker: TXG
     role: watch
-    note: "보유 · 18.9% · NO_ADD"
-  - ticker: ANAB
-    role: watch
-    note: "4주(+1) · 품질C OVER · stop $48 · NO_ADD · ADPT 오인정정"
-  - ticker: APPS
-    role: watch
-    note: "20주 · −8.1% · stop $10 근접 · NO_ADD"
+    note: "보유 · 19.3% OVER · NO_ADD"
   - ticker: ECPG
     role: watch
-    note: "보유 · NO_ADD"
-  - ticker: AMRX
+    note: "3주 · 품질A OVER · NO_ADD"
+  - ticker: APPS
     role: watch
-    note: "11주 · OVER · 물타기 금지"
+    note: "20주 · +0.3% · stop $10 · NO_ADD"
+  - ticker: ANAB
+    role: watch
+    note: "4주 · −4.7% · stop $48 · NO_ADD"
   - ticker: DRH
     role: watch
-    note: "13주 · 품질C OVER · stop $11.94 · NO_ADD"
+    note: "14주 · 품질C OVER · stop $11.94 · NO_ADD"
+  - ticker: ROKU
+    role: watch
+    note: "1주 신규 · 10.1% OVER · stop $140 · NO_ADD"
   - ticker: ATRO
     role: watch
-    note: "1주 신규 · stop $68 · NO_ADD"
+    note: "2주 · stop $68 하회 · 축소검토 · NO_ADD"
+  - ticker: APA
+    role: watch
+    note: "1주 신규 · stop $40 · NO_ADD"
+  - ticker: AMRX
+    role: watch
+    note: "09-16 청산 · 추격 재매수 금지"
   - ticker: FTNT
     role: watch
     note: "09-08 청산 · 추격 재매수 금지"
