@@ -212,3 +212,11 @@ def test_build_unofficial_from_yfinance_mocked(monkeypatch):
     assert doc.yoy_reported_pct == pytest.approx(25.0, abs=0.1)
     assert "IR미확보" in doc.portfolio_memo
     assert doc.gross_margin_pct == pytest.approx(55.0, abs=0.1)
+
+
+def test_to_millions_small_absolute_usd():
+    from sepa.rev_filing import _to_millions
+
+    assert _to_millions(28_529_000) == pytest.approx(28.529)
+    assert _to_millions(74_000) == pytest.approx(0.074)
+    assert _to_millions(None) is None

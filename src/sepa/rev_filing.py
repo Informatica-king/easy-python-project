@@ -181,13 +181,15 @@ def portfolio_memo_line(ticker: str) -> str | None:
 
 
 def _to_millions(x: float | None) -> float | None:
+    """Convert yfinance absolute-USD amounts to millions.
+
+    Quarterly statements return full dollars (e.g. 28_529_000 → 28.529).
+    Small amounts like operating income of $74,000 must become 0.074, not 74000.
+    """
     if x is None:
         return None
     v = float(x)
-    # yfinance often returns absolute USD
-    if abs(v) >= 1_000_000:
-        return round(v / 1_000_000.0, 3)
-    return round(v, 3)
+    return round(v / 1_000_000.0, 3)
 
 
 def build_unofficial_from_yfinance(ticker: str) -> FilingDoc:
@@ -204,6 +206,7 @@ def build_unofficial_from_yfinance(ticker: str) -> FilingDoc:
     rev_cur = rev_pri = None
     op_cur = net_cur = None
     period_end = report_date
+    prior_is_yoy = False
     try:
         q = getattr(tk, "quarterly_income_stmt", None)
         if q is None or getattr(q, "empty", True):
@@ -225,12 +228,13 @@ def build_unofficial_from_yfinance(ticker: str) -> FilingDoc:
             rev_cur = cell(("Total Revenue", "Operating Revenue", "Revenue"), cols[0])
             if len(cols) > 1:
                 rev_pri = cell(("Total Revenue", "Operating Revenue", "Revenue"), cols[1])
-            # YoY: same quarter prior year ≈ 4th prior col if available
+            # YoY: same quarter prior year ≈ 4th prior col if available and non-zero
             if len(cols) > 4:
                 rev_pri_yoy = cell(("Total Revenue", "Operating Revenue", "Revenue"), cols[4])
-                if rev_pri_yoy is not None:
+                if rev_pri_yoy is not None and abs(float(rev_pri_yoy)) > 1e-9:
                     rev_pri = rev_pri_yoy
-            op_cur = cell(("Operating Income", "Operating Income Loss"), cols[0])
+                    prior_is_yoy = True
+            op_cur = cell(("Operating Income", "Operating Income Loss", "EBIT"), cols[0])
             net_cur = cell(("Net Income", "Net Income Common Stockholders"), cols[0])
     except Exception:
         pass
@@ -238,7 +242,6 @@ def build_unofficial_from_yfinance(ticker: str) -> FilingDoc:
     if rev_cur is None:
         rev_cur = info.get("totalRevenue")
     if op_cur is None:
-        op_cur = info.get("operatingCashflow")  # weak fallback — prefer None
         op_cur = info.get("ebit") or None
     if net_cur is None:
         net_cur = info.get("netIncomeToCommon")
@@ -251,6 +254,7 @@ def build_unofficial_from_yfinance(ticker: str) -> FilingDoc:
     yoy = None
     if rev_m is not None and rev_pri_m is not None and abs(rev_pri_m) > 1e-9:
         yoy = round((rev_m / rev_pri_m - 1.0) * 100.0, 1)
+    growth_label = "YoY" if prior_is_yoy else "QoQ"
 
     gm = info.get("grossMargins")
     gm_pct = round(float(gm) * 100.0, 1) if gm is not None else None
@@ -264,7 +268,8 @@ def build_unofficial_from_yfinance(ticker: str) -> FilingDoc:
                 "name": "Total revenue",
                 "amount_m": rev_m,
                 "prior_m": rev_pri_m,
-                "yoy_pct": yoy,
+                "yoy_pct": yoy if prior_is_yoy else None,
+                "qoq_pct": yoy if not prior_is_yoy else None,
             }
         )
 
@@ -274,12 +279,14 @@ def build_unofficial_from_yfinance(ticker: str) -> FilingDoc:
     ]
     if annualish:
         risks.append("매출이 분기 확정이 아닐 수 있음(TTM/연간 혼재 가능)")
+    if yoy is not None and not prior_is_yoy:
+        risks.append("전년동분기 매출 부재/0 — 성장률은 QoQ 참고")
 
     highlights = []
     if rev_m is not None:
         highlights.append(f"비공식 매출 ${rev_m:.1f}M")
     if yoy is not None:
-        highlights.append(f"YoY {yoy:+.0f}%")
+        highlights.append(f"{growth_label} {yoy:+.0f}%")
     if cash_m is not None:
         highlights.append(f"현금~${cash_m:.0f}M")
 
@@ -287,7 +294,7 @@ def build_unofficial_from_yfinance(ticker: str) -> FilingDoc:
     if rev_m is not None:
         memo_bits.append(f"매출 ${rev_m:.1f}M")
     if yoy is not None:
-        memo_bits.append(f"YoY {yoy:+.0f}%")
+        memo_bits.append(f"{growth_label} {yoy:+.0f}%")
     memo_bits.append("IR미확보")
 
     return FilingDoc(
@@ -301,8 +308,8 @@ def build_unofficial_from_yfinance(ticker: str) -> FilingDoc:
         revenue_total_m=rev_m,
         revenue_ex_onetime_m=rev_m,
         revenue_prior_m=rev_pri_m,
-        yoy_reported_pct=yoy,
-        yoy_ex_onetime_pct=yoy,
+        yoy_reported_pct=yoy if prior_is_yoy else None,
+        yoy_ex_onetime_pct=yoy if prior_is_yoy else None,
         gross_margin_pct=gm_pct,
         operating_income_m=_to_millions(op_cur) if op_cur is not None else None,
         net_income_m=_to_millions(net_cur) if net_cur is not None else None,
@@ -313,7 +320,10 @@ def build_unofficial_from_yfinance(ticker: str) -> FilingDoc:
         catalysts=["공식 IR/실적 PDF 확보 시 재ingest로 교체"],
         portfolio_memo=" · ".join(memo_bits),
         extracted_by="sepa.rev_filing.unofficial_yfinance",
-        notes="비공식. 세그먼트/가이던스/일회성 분해 없음. 공식 PDF가 최우선.",
+        notes=(
+            "비공식. 세그먼트/가이던스/일회성 분해 없음. 공식 PDF가 최우선."
+            + ("" if prior_is_yoy else " 성장률은 QoQ(직전분기).")
+        ),
     )
 
 

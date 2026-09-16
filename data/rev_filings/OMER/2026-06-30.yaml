@@ -1,0 +1,46 @@
+ticker: OMER
+company: Omeros Corporation
+period_end: '2026-06-30'
+report_date: '2026-09-16'
+source_pdf: ''
+source_label: Unofficial · yfinance / public market data (IR PDF unavailable)
+currency: USD
+units: millions
+source_kind: unofficial
+revenue_total_m: 28.529
+revenue_ex_onetime_m: 28.529
+revenue_prior_m: 9.893
+revenue_prior_ex_onetime_m: null
+yoy_reported_pct: null
+yoy_ex_onetime_pct: null
+gross_margin_pct: 38.3
+gross_margin_prior_pct: null
+operating_income_m: 0.074
+net_income_m: 13.232
+eps_basic: null
+cash_and_securities_m: 131.953
+guidance_fy_low_m: null
+guidance_fy_high_m: null
+guidance_note: ''
+onetime_items: []
+mix_product:
+- name: Total revenue
+  amount_m: 28.529
+  prior_m: 9.893
+  yoy_pct: null
+  qoq_pct: 188.4
+mix_geo: []
+highlights:
+- 비공식 매출 $28.5M
+- QoQ +188%
+- 현금~$132M
+catalysts:
+- 공식 IR/실적 PDF 확보 시 재ingest로 교체
+risks:
+- IR/실적보도 PDF 미확보 — 비공식(공개데이터) 추정
+- 세그먼트·지역 믹스 없음 — 구성 분석 제한
+- 전년동분기 매출 부재/0 — 성장률은 QoQ 참고
+quotes: []
+portfolio_memo: 비공식 2026-06-30 · 매출 $28.5M · QoQ +188% · IR미확보
+extracted_by: sepa.rev_filing.unofficial_yfinance
+notes: 비공식. 세그먼트/가이던스/일회성 분해 없음. 공식 PDF가 최우선. 성장률은 QoQ(직전분기).
