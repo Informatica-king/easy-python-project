@@ -889,6 +889,64 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "제품 믹스(별도): Oil ~90% / NGL ~8% / Gas ~2% of hydrocarbon revenues."
         ),
     },
+    "OMER": {
+        "sector_ko": "헬스케어 · 보체(Complement) · 희귀질환 (심층: MASP-2/MASP-3)",
+        "share_title": "미국 TA-TMA 치료 접근 Share (추정 · 승인 전후)",
+        "share_as_of": "H1'26 vs 2025 · 임상·런칭 근사",
+        "share_note": (
+            "TA-TMA는 승인 치료제가 없던 영역에서 YARTEMLEA(2025-12 FDA)가 첫 승인. "
+            "점유는 처방·센터 침투 추정 — 절대 환자수 점유율이 아니라 방향 비교용. "
+            "오프라벨 C5는 과거 SOC 근사."
+        ),
+        "share_rows": [
+            ("YARTEMLEA (OMER)", 38.0, 0.0),
+            ("Off-label C5 (eculizumab 등)", 37.0, 55.0),
+            ("Supportive / Other", 25.0, 45.0),
+        ],
+        "share_source": "Company launch commentary · historical off-label SOC 근사 (방향용)",
+        "mix_buckets": ["Product", "Partner/Milestone", "Other"],
+        "mix_as_of": "Q2'26 continuing ops / 피어 TTM 근사",
+        "mix_rows": [
+            {
+                "key": "OMER",
+                "name": "OMER",
+                "subject": True,
+                "yf": "OMER",
+                "mix": {"Product": 100.0, "Partner/Milestone": 0.0, "Other": 0.0},
+                "note": "Q2'26 net product $28.5M · Novo upfront는 '25 인식 · OMIDRIA는 중단영업",
+            },
+            {
+                "key": "ALNY",
+                "name": "ALNY",
+                "subject": False,
+                "yf": "ALNY",
+                "mix": {"Product": 85.0, "Partner/Milestone": 12.0, "Other": 3.0},
+                "note": "희귀·유전자침묵 제품 본체 + 협업 근사",
+            },
+            {
+                "key": "RARE",
+                "name": "RARE",
+                "subject": False,
+                "yf": "RARE",
+                "mix": {"Product": 70.0, "Partner/Milestone": 25.0, "Other": 5.0},
+                "note": "희귀질환 제품 + 파트너 매출 혼재 근사",
+            },
+            {
+                "key": "BMRN",
+                "name": "BMRN",
+                "subject": False,
+                "yf": "BMRN",
+                "mix": {"Product": 92.0, "Partner/Milestone": 5.0, "Other": 3.0},
+                "note": "희귀질환 효소치환 제품 중심 근사",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Product / Partner·Milestone / Other로 정규화. "
+            "OMER continuing ops는 런칭기 제품매출 100%. "
+            "Novo zaltenibart $240M upfront·미래 마일스톤은 별도 가치층. "
+            "피어는 공시 세그먼트 상이 — 방향 비교용."
+        ),
+    },
 
 }
 
@@ -941,6 +999,7 @@ SUBJECT_SHARE_ALIASES: dict[str, tuple[str, ...]] = {
     "CMPR": ("cimpress", "vistaprint", "vista"),
     "APPS": ("digital turbine",),
     "APA": ("apa corporation", "apache"),
+    "OMER": ("omeros", "yartemlea", "narsoplimab"),
 }
 
 
