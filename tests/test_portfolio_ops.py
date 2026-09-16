@@ -14,35 +14,36 @@ from sepa.portfolio_ops import (
 )
 
 
-def test_load_book_snap_20260908():
+def test_load_book_snap_20260916():
     book = load_book("config/portfolio_watch.yaml")
-    assert book.as_of == date(2026, 9, 8)
-    assert abs(book.cash_usd - 262.67) < 1e-6
-    assert book.cash_krw is not None and abs(book.cash_krw - 26) < 1e-3
+    assert book.as_of == date(2026, 9, 16)
+    assert abs(book.cash_usd - 254.80) < 1e-6
+    assert book.cash_krw is not None and abs(book.cash_krw - 3) < 1e-3
     assert book.cash_krw_usd >= 0
     assert book.target_krw == 100_000_000
     tickers = {h.ticker for h in book.holdings}
-    assert tickers == {"TXG", "ANAB", "APPS", "ECPG", "AMRX", "DRH", "ATRO"}
+    assert tickers == {"TXG", "ECPG", "APPS", "ANAB", "DRH", "ROKU", "ATRO", "APA"}
+    assert "AMRX" not in tickers
     assert "ADPT" not in tickers
     assert "FTNT" not in tickers
-    assert "SCSC" not in tickers
-    assert "CMPR" not in tickers
-    assert "NESR" not in tickers
     txg = next(h for h in book.holdings if h.ticker == "TXG")
     assert txg.shares == 4
     assert txg.no_add is True
-    anab = next(h for h in book.holdings if h.ticker == "ANAB")
-    assert anab.shares == 4
-    assert anab.stop == 48.0
+    ecpg = next(h for h in book.holdings if h.ticker == "ECPG")
+    assert ecpg.shares == 3
+    roku = next(h for h in book.holdings if h.ticker == "ROKU")
+    assert roku.shares == 1
+    assert roku.stop == 140.0
     atro = next(h for h in book.holdings if h.ticker == "ATRO")
-    assert atro.shares == 1
+    assert atro.shares == 2
     assert atro.stop == 68.0
-    amrx = next(h for h in book.holdings if h.ticker == "AMRX")
-    assert amrx.shares == 11
+    apa = next(h for h in book.holdings if h.ticker == "APA")
+    assert apa.shares == 1
+    assert apa.stop == 40.0
     apps = next(h for h in book.holdings if h.ticker == "APPS")
     assert apps.shares == 20
     drh = next(h for h in book.holdings if h.ticker == "DRH")
-    assert drh.shares == 13
+    assert drh.shares == 14
     assert "생존형 포트 OS" in book.identity
     assert "챌린저" in book.identity
 
