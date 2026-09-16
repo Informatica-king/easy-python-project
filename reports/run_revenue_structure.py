@@ -134,6 +134,20 @@ def run_one(ticker: str, *, python: str = sys.executable) -> dict:
             "skipped": True,
             "reason": f"생성기 없음: reports/generate_revenue_structure_{t.lower()}.py",
         }
+    # TXG v1: official filing YAML required (policy 1-A)
+    if t == "TXG":
+        try:
+            from sepa.rev_filing import require_filing
+
+            require_filing(t)
+        except Exception as exc:  # noqa: BLE001
+            return {
+                "ticker": t,
+                "ok": False,
+                "skipped": False,
+                "asof": info.asof,
+                "error": str(exc),
+            }
     env = {**os.environ, "PYTHONPATH": str(ROOT / "src")}
     try:
         proc = subprocess.run(
