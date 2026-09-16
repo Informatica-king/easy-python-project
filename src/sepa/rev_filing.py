@@ -1,10 +1,10 @@
-"""Official earnings-filing SSOT for 수익구조분석().
+"""Earnings filing SSOT for 수익구조분석().
 
-Policy (v1):
-  * Official PDF → structured YAML under ``data/rev_filings/<TICKER>/``.
-  * Revenue-structure generators that opt in **must** load a filing YAML;
-    if missing, raise ``FilingRequiredError`` (do not fall back to estimates).
-  * Portfolio ops can cite a one-line memo from the latest filing.
+Policy:
+  * **Official** — company IR/earnings PDF → YAML under ``data/rev_filings/<TICKER>/``.
+  * **Unofficial fallback** — IR 자료가 없으면 yfinance 등 공개 데이터로 YAML 초안 생성.
+    표지·메모에 ``비공식``을 명시하고, 공식 PDF가 생기면 자동으로 공식본을 우선한다.
+  * Portfolio ops can cite a one-line memo from the latest filing (official or unofficial).
 """
 
 from __future__ import annotations
@@ -19,6 +19,9 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 FILINGS_ROOT = ROOT / "data" / "rev_filings"
+
+SOURCE_OFFICIAL = "official"
+SOURCE_UNOFFICIAL = "unofficial"
 
 
 class FilingRequiredError(FileNotFoundError):
@@ -49,6 +52,7 @@ class FilingDoc:
     source_label: str
     currency: str = "USD"
     units: str = "millions"  # amounts stored as millions of USD
+    source_kind: str = SOURCE_OFFICIAL  # official | unofficial
     revenue_total_m: float | None = None
     revenue_ex_onetime_m: float | None = None
     revenue_prior_m: float | None = None
@@ -77,6 +81,10 @@ class FilingDoc:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+    @property
+    def is_official(self) -> bool:
+        return (self.source_kind or SOURCE_OFFICIAL) == SOURCE_OFFICIAL
 
 
 def filings_dir(ticker: str) -> Path:
@@ -110,33 +118,44 @@ def save_filing(doc: FilingDoc, path: str | Path | None = None) -> Path:
     return out
 
 
-def latest_filing(ticker: str) -> FilingDoc | None:
-    paths = list_filings(ticker)
-    if not paths:
-        return None
-    return load_filing(paths[0])
-
-
 def require_filing(ticker: str, *, period_end: str | None = None) -> FilingDoc:
-    """Load official filing YAML or raise FilingRequiredError (policy 1-A)."""
+    """Load **official** filing YAML or raise FilingRequiredError."""
     t = str(ticker).upper()
     if period_end:
         p = filing_path(t, period_end)
         if not p.exists():
+            raise FilingRequiredError(_missing_msg(t, p))
+        doc = load_filing(p)
+        if not doc.is_official:
             raise FilingRequiredError(
-                f"공식 실적 YAML 없음: {p}\n"
-                f"수익구조분석({t})은 공식 PDF→YAML이 필요합니다. "
-                f"PDF를 첨부한 뒤 `python -m sepa.rev_filing ingest --ticker {t} --pdf <path>` 를 실행하세요."
+                f"{p} 는 비공식(source_kind={doc.source_kind})입니다. 공식 PDF ingest가 필요합니다."
             )
-        return load_filing(p)
-    doc = latest_filing(t)
-    if doc is None:
-        raise FilingRequiredError(
-            f"공식 실적 YAML 없음: {filings_dir(t)}\n"
-            f"수익구조분석({t})은 공식 PDF→YAML이 필요합니다. "
-            f"PDF를 첨부한 뒤 `python -m sepa.rev_filing ingest --ticker {t} --pdf <path>` 를 실행하세요."
-        )
-    return doc
+        return doc
+    for p in list_filings(t):
+        doc = load_filing(p)
+        if doc.is_official:
+            return doc
+    raise FilingRequiredError(_missing_msg(t, filings_dir(t)))
+
+
+def _missing_msg(ticker: str, where: Path) -> str:
+    return (
+        f"공식 실적 YAML 없음: {where}\n"
+        f"옵션1) PDF 첨부 후 `python -m sepa.rev_filing ingest --ticker {ticker} --pdf <path>`\n"
+        f"옵션2) IR 없으면 `python -m sepa.rev_filing fallback --ticker {ticker}` (비공식)"
+    )
+
+
+def latest_filing(ticker: str, *, prefer_official: bool = True) -> FilingDoc | None:
+    paths = list_filings(ticker)
+    if not paths:
+        return None
+    docs = [load_filing(p) for p in paths]
+    if prefer_official:
+        for d in docs:
+            if d.is_official:
+                return d
+    return docs[0]
 
 
 def portfolio_memo_line(ticker: str) -> str | None:
@@ -146,7 +165,8 @@ def portfolio_memo_line(ticker: str) -> str | None:
         return None
     if doc.portfolio_memo:
         return doc.portfolio_memo
-    bits = [f"공식실적 {doc.period_end}"]
+    prefix = "공식실적" if doc.is_official else "비공식실적"
+    bits = [f"{prefix} {doc.period_end}"]
     if doc.revenue_total_m is not None:
         bits.append(f"매출 ${doc.revenue_total_m:.1f}M")
     if doc.yoy_ex_onetime_pct is not None:
@@ -155,7 +175,179 @@ def portfolio_memo_line(ticker: str) -> str | None:
         bits.append(f"YoY {doc.yoy_reported_pct:+.0f}%")
     if doc.guidance_fy_low_m is not None and doc.guidance_fy_high_m is not None:
         bits.append(f"FY가이드 ${doc.guidance_fy_low_m:.0f}–{doc.guidance_fy_high_m:.0f}M")
+    if not doc.is_official:
+        bits.append("IR미확보")
     return " · ".join(bits)
+
+
+def _to_millions(x: float | None) -> float | None:
+    if x is None:
+        return None
+    v = float(x)
+    # yfinance often returns absolute USD
+    if abs(v) >= 1_000_000:
+        return round(v / 1_000_000.0, 3)
+    return round(v, 3)
+
+
+def build_unofficial_from_yfinance(ticker: str) -> FilingDoc:
+    """IR/실적보도가 없을 때 공개 데이터로 비공식 FilingDoc 초안."""
+    import yfinance as yf
+
+    t = str(ticker).upper()
+    tk = yf.Ticker(t)
+    info = tk.info or {}
+    company = info.get("shortName") or info.get("longName") or t
+    report_date = date.today().isoformat()
+
+    # Prefer quarterly income statement
+    rev_cur = rev_pri = None
+    op_cur = net_cur = None
+    period_end = report_date
+    try:
+        q = getattr(tk, "quarterly_income_stmt", None)
+        if q is None or getattr(q, "empty", True):
+            q = tk.quarterly_financials
+        if q is not None and not q.empty:
+            cols = list(q.columns)
+            c0 = cols[0]
+            period_end = c0.date().isoformat() if hasattr(c0, "date") else str(c0)[:10]
+            def cell(row_names: tuple[str, ...], col) -> float | None:
+                for name in row_names:
+                    if name in q.index:
+                        val = q.loc[name, col]
+                        try:
+                            return float(val)
+                        except Exception:
+                            return None
+                return None
+
+            rev_cur = cell(("Total Revenue", "Operating Revenue", "Revenue"), cols[0])
+            if len(cols) > 1:
+                rev_pri = cell(("Total Revenue", "Operating Revenue", "Revenue"), cols[1])
+            # YoY: same quarter prior year ≈ 4th prior col if available
+            if len(cols) > 4:
+                rev_pri_yoy = cell(("Total Revenue", "Operating Revenue", "Revenue"), cols[4])
+                if rev_pri_yoy is not None:
+                    rev_pri = rev_pri_yoy
+            op_cur = cell(("Operating Income", "Operating Income Loss"), cols[0])
+            net_cur = cell(("Net Income", "Net Income Common Stockholders"), cols[0])
+    except Exception:
+        pass
+
+    if rev_cur is None:
+        rev_cur = info.get("totalRevenue")
+    if op_cur is None:
+        op_cur = info.get("operatingCashflow")  # weak fallback — prefer None
+        op_cur = info.get("ebit") or None
+    if net_cur is None:
+        net_cur = info.get("netIncomeToCommon")
+
+    rev_m = _to_millions(rev_cur)
+    rev_pri_m = _to_millions(rev_pri)
+    # If totalRevenue is annual TTM, mark in notes
+    annualish = bool(info.get("totalRevenue") and rev_cur == info.get("totalRevenue") and rev_pri is None)
+
+    yoy = None
+    if rev_m is not None and rev_pri_m is not None and abs(rev_pri_m) > 1e-9:
+        yoy = round((rev_m / rev_pri_m - 1.0) * 100.0, 1)
+
+    gm = info.get("grossMargins")
+    gm_pct = round(float(gm) * 100.0, 1) if gm is not None else None
+    cash = info.get("totalCash")
+    cash_m = _to_millions(cash)
+
+    mix_product: list[dict[str, Any]] = []
+    if rev_m is not None:
+        mix_product.append(
+            {
+                "name": "Total revenue",
+                "amount_m": rev_m,
+                "prior_m": rev_pri_m,
+                "yoy_pct": yoy,
+            }
+        )
+
+    risks = [
+        "IR/실적보도 PDF 미확보 — 비공식(공개데이터) 추정",
+        "세그먼트·지역 믹스 없음 — 구성 분석 제한",
+    ]
+    if annualish:
+        risks.append("매출이 분기 확정이 아닐 수 있음(TTM/연간 혼재 가능)")
+
+    highlights = []
+    if rev_m is not None:
+        highlights.append(f"비공식 매출 ${rev_m:.1f}M")
+    if yoy is not None:
+        highlights.append(f"YoY {yoy:+.0f}%")
+    if cash_m is not None:
+        highlights.append(f"현금~${cash_m:.0f}M")
+
+    memo_bits = [f"비공식 {period_end}"]
+    if rev_m is not None:
+        memo_bits.append(f"매출 ${rev_m:.1f}M")
+    if yoy is not None:
+        memo_bits.append(f"YoY {yoy:+.0f}%")
+    memo_bits.append("IR미확보")
+
+    return FilingDoc(
+        ticker=t,
+        company=str(company),
+        period_end=period_end,
+        report_date=report_date,
+        source_pdf="",
+        source_label="Unofficial · yfinance / public market data (IR PDF unavailable)",
+        source_kind=SOURCE_UNOFFICIAL,
+        revenue_total_m=rev_m,
+        revenue_ex_onetime_m=rev_m,
+        revenue_prior_m=rev_pri_m,
+        yoy_reported_pct=yoy,
+        yoy_ex_onetime_pct=yoy,
+        gross_margin_pct=gm_pct,
+        operating_income_m=_to_millions(op_cur) if op_cur is not None else None,
+        net_income_m=_to_millions(net_cur) if net_cur is not None else None,
+        cash_and_securities_m=cash_m,
+        mix_product=mix_product,
+        highlights=highlights,
+        risks=risks,
+        catalysts=["공식 IR/실적 PDF 확보 시 재ingest로 교체"],
+        portfolio_memo=" · ".join(memo_bits),
+        extracted_by="sepa.rev_filing.unofficial_yfinance",
+        notes="비공식. 세그먼트/가이던스/일회성 분해 없음. 공식 PDF가 최우선.",
+    )
+
+
+def resolve_filing(
+    ticker: str,
+    *,
+    allow_unofficial: bool = True,
+    save_unofficial: bool = True,
+    period_end: str | None = None,
+) -> FilingDoc:
+    """공식 YAML 우선 · 없으면 비공식 폴백(기본 허용)."""
+    t = str(ticker).upper()
+    if period_end:
+        p = filing_path(t, period_end)
+        if p.exists():
+            return load_filing(p)
+    official = None
+    try:
+        official = require_filing(t, period_end=period_end)
+    except FilingRequiredError:
+        official = None
+    if official is not None:
+        return official
+    # existing unofficial yaml?
+    doc = latest_filing(t, prefer_official=False)
+    if doc is not None:
+        return doc
+    if not allow_unofficial:
+        raise FilingRequiredError(_missing_msg(t, filings_dir(t)))
+    doc = build_unofficial_from_yfinance(t)
+    if save_unofficial:
+        save_filing(doc)
+        print(f"[rev_filing] unofficial fallback wrote {filing_path(t, doc.period_end)}")
+    return doc
 
 
 def pdf_to_text(pdf_path: str | Path) -> str:
@@ -446,6 +638,7 @@ def extract_txg_earnings_release(pdf_path: str | Path, *, copy_source: bool = Tr
         report_date=report_date,
         source_pdf=src_rel,
         source_label="Q2 2026 Earnings Press Release (Exhibit-style)",
+        source_kind=SOURCE_OFFICIAL,
         revenue_total_m=rev_total,
         revenue_ex_onetime_m=rev_ex,
         revenue_prior_m=rev_prior,
@@ -479,8 +672,10 @@ def ingest(ticker: str, pdf_path: str | Path) -> Path:
         doc = extract_txg_earnings_release(pdf_path)
     else:
         raise NotImplementedError(
-            f"v1 파일럿은 TXG만 지원합니다. ({t}) — 추출기 추가 후 재시도."
+            f"공식 PDF 추출기는 TXG 파일럿만 지원합니다. ({t})\n"
+            f"IR PDF가 없으면: `python -m sepa.rev_filing fallback --ticker {t}`"
         )
+    doc.source_kind = SOURCE_OFFICIAL
     return save_filing(doc)
 
 
@@ -494,18 +689,35 @@ def main(argv: list[str] | None = None) -> int:
     ing.add_argument("--ticker", required=True)
     ing.add_argument("--pdf", required=True)
 
+    fb = sub.add_parser("fallback", help="IR 없을 때 비공식 yfinance YAML 생성")
+    fb.add_argument("--ticker", required=True)
+    fb.add_argument("--no-save", action="store_true")
+
     sh = sub.add_parser("show", help="Print latest filing / memo")
     sh.add_argument("--ticker", required=True)
+    sh.add_argument("--allow-unofficial", action="store_true", default=True)
 
-    req = sub.add_parser("require", help="Exit 2 if filing YAML missing")
+    req = sub.add_parser("require", help="Exit 2 if official filing YAML missing")
     req.add_argument("--ticker", required=True)
+
+    res = sub.add_parser("resolve", help="공식 우선 · 없으면 비공식 폴백")
+    res.add_argument("--ticker", required=True)
+    res.add_argument("--official-only", action="store_true")
 
     args = p.parse_args(argv)
     if args.cmd == "ingest":
         out = ingest(args.ticker, args.pdf)
         print(f"wrote {out}")
         doc = load_filing(out)
-        print("memo:", doc.portfolio_memo)
+        print("kind:", doc.source_kind, "memo:", doc.portfolio_memo)
+        return 0
+    if args.cmd == "fallback":
+        doc = build_unofficial_from_yfinance(args.ticker)
+        if not args.no_save:
+            out = save_filing(doc)
+            print(f"wrote {out}")
+        print("kind:", doc.source_kind, "memo:", doc.portfolio_memo)
+        print(yaml.safe_dump(doc.to_dict(), allow_unicode=True, sort_keys=False))
         return 0
     if args.cmd == "show":
         doc = latest_filing(args.ticker)
@@ -521,7 +733,12 @@ def main(argv: list[str] | None = None) -> int:
         except FilingRequiredError as e:
             print(e)
             return 2
-        print(f"OK {doc.ticker} {doc.period_end} ← {doc.source_pdf}")
+        print(f"OK official {doc.ticker} {doc.period_end} ← {doc.source_pdf}")
+        return 0
+    if args.cmd == "resolve":
+        doc = resolve_filing(args.ticker, allow_unofficial=not args.official_only)
+        print(f"OK {doc.source_kind} {doc.ticker} {doc.period_end}")
+        print("MEMO:", doc.portfolio_memo)
         return 0
     return 1
 

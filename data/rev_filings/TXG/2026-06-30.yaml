@@ -6,6 +6,7 @@ source_pdf: data/rev_filings/TXG/source/TXG_Q2-2026-Earnings-Press-Release-08-06
 source_label: Q2 2026 Earnings Press Release (Exhibit-style)
 currency: USD
 units: millions
+source_kind: official
 revenue_total_m: 151.0
 revenue_ex_onetime_m: 149.4
 revenue_prior_m: 172.9

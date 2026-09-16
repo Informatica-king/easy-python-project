@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""수익구조분석(TXG) — 공식 실적 YAML(SSOT) 기반 · WeasyPrint PDF.
+"""수익구조분석(TXG) — 실적 YAML(SSOT) 기반 · WeasyPrint PDF.
 
-Policy: ``sepa.rev_filing.require_filing("TXG")`` — YAML 없으면 중단.
+Policy: ``sepa.rev_filing.resolve_filing("TXG")``
+  * 공식 IR/earnings PDF YAML 우선
+  * IR 없으면 비공식(yfinance) 폴백 · 표지에 ``비공식`` 배지
 """
 
 from __future__ import annotations
@@ -24,7 +26,7 @@ if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
 from sepa.rev_compete import build_compete_charts  # noqa: E402
-from sepa.rev_filing import FilingRequiredError, require_filing  # noqa: E402
+from sepa.rev_filing import FilingRequiredError, resolve_filing  # noqa: E402
 from sepa.rev_price_chart import build_and_insert_price  # noqa: E402
 
 FONT_REG = "/tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
@@ -162,6 +164,10 @@ def chart_business_flow() -> Path:
     return save_fig(fig, "01_business_flow.png")
 
 
+def _src_tag(doc) -> str:
+    return "공식" if getattr(doc, "is_official", True) else "비공식"
+
+
 def chart_segment_mix(doc) -> Path:
     cons = _mix(doc, "Consumables total")
     inst = _mix(doc, "Instruments total")
@@ -171,6 +177,7 @@ def chart_segment_mix(doc) -> Path:
     sp_c = _mix(doc, "Consumables — Spatial")
     sc_i = _mix(doc, "Instruments — Single Cell")
     sp_i = _mix(doc, "Instruments — Spatial")
+    tag = _src_tag(doc)
 
     fig, axes = plt.subplots(1, 2, figsize=(9.2, 4.0))
     ax = axes[0]
@@ -180,22 +187,37 @@ def chart_segment_mix(doc) -> Path:
         svc["amount_m"] if svc else 0,
         lic["amount_m"] if lic else 0,
     ]
-    total = sum(sizes) or 1
-    labels = [
-        f"Consumables\n{sizes[0]:.1f}M ({100*sizes[0]/total:.0f}%)",
-        f"Instruments\n{sizes[1]:.1f}M ({100*sizes[1]/total:.0f}%)",
-        f"Services\n{sizes[2]:.1f}M ({100*sizes[2]/total:.0f}%)",
-        f"License\n{sizes[3]:.1f}M",
-    ]
+    # Unofficial fallback may only have Total revenue
+    if sum(sizes) <= 0 and doc.mix_product:
+        sizes = [float(r.get("amount_m") or 0) for r in doc.mix_product]
+        labels = [
+            f"{r.get('name', '?')}\n{float(r.get('amount_m') or 0):.1f}M"
+            for r in doc.mix_product
+        ]
+        colors = [C["teal"], C["gold"], C["navy"], C["sand"], C["slate"]][: len(sizes)]
+    else:
+        total = sum(sizes) or 1
+        labels = [
+            f"Consumables\n{sizes[0]:.1f}M ({100*sizes[0]/total:.0f}%)",
+            f"Instruments\n{sizes[1]:.1f}M ({100*sizes[1]/total:.0f}%)",
+            f"Services\n{sizes[2]:.1f}M ({100*sizes[2]/total:.0f}%)",
+            f"License\n{sizes[3]:.1f}M",
+        ]
+        colors = [C["teal"], C["gold"], C["navy"], C["sand"]]
+    if sum(sizes) <= 0:
+        sizes = [1.0]
+        labels = ["데이터 없음"]
+        colors = [C["sand"]]
     ax.pie(
         sizes, labels=labels,
-        colors=[C["teal"], C["gold"], C["navy"], C["sand"]],
+        colors=colors,
         startangle=90,
         wedgeprops=dict(width=0.72, edgecolor="white", linewidth=2),
         textprops=dict(fontproperties=PROP, fontsize=7.5),
     )
+    rev = doc.revenue_total_m or 0
     ax.set_title(
-        f"매출 유형 (공식 Q · 총 ${doc.revenue_total_m:.1f}M)",
+        f"매출 유형 ({tag} · 총 ${rev:.1f}M)",
         fontproperties=PROP_B, fontsize=11,
     )
 
@@ -207,9 +229,15 @@ def chart_segment_mix(doc) -> Path:
         sc_i["amount_m"] if sc_i else 0,
         sp_i["amount_m"] if sp_i else 0,
     ]
-    bars = ax.bar(cats, vals, color=[C["navy"], C["teal"], C["gold"], C["sand"]], width=0.55)
+    if sum(vals) <= 0 and doc.mix_product:
+        cats = [str(r.get("name", "?"))[:12] for r in doc.mix_product]
+        vals = [float(r.get("amount_m") or 0) for r in doc.mix_product]
+        bar_colors = [C["navy"], C["teal"], C["gold"], C["sand"]][: len(vals)]
+    else:
+        bar_colors = [C["navy"], C["teal"], C["gold"], C["sand"]]
+    bars = ax.bar(cats, vals, color=bar_colors, width=0.55)
     ax.set_ylabel("백만 USD", fontproperties=PROP)
-    ax.set_title("제품 라인 상세 (공식)", fontproperties=PROP_B, fontsize=11)
+    ax.set_title(f"제품 라인 상세 ({tag})", fontproperties=PROP_B, fontsize=11)
     for b, v in zip(bars, vals):
         ax.text(b.get_x() + b.get_width() / 2, v + 1.2, f"{v:.1f}", ha="center", fontproperties=PROP, fontsize=8)
     for lbl in ax.get_xticklabels():
@@ -241,7 +269,7 @@ def chart_growth_bridge(doc) -> Path:
     bars = ax.bar(cats, vals, color=colors, width=0.55)
     ax.axhline(0, color=C["muted"], lw=0.8)
     ax.set_ylabel("YoY %", fontproperties=PROP)
-    ax.set_title("성장 브리지 — 공식 표 기준 (일회성 분리)", fontproperties=PROP_B, fontsize=11)
+    ax.set_title(f"성장 브리지 — {_src_tag(doc)} 표 기준 (일회성 분리)", fontproperties=PROP_B, fontsize=11)
     for b, v in zip(bars, vals):
         ax.text(
             b.get_x() + b.get_width() / 2, v + (1.2 if v >= 0 else -3.2),
@@ -284,7 +312,7 @@ def chart_geo(doc) -> Path:
         yoy.append(r.get("yoy_pct") if r else None)
     bars = ax.bar(names, vals, color=[C["navy"], C["teal"], C["red"], C["gold"]], width=0.55)
     ax.set_ylabel("백만 USD", fontproperties=PROP)
-    ax.set_title("지역 매출 (공식)", fontproperties=PROP_B, fontsize=11)
+    ax.set_title(f"지역 매출 ({_src_tag(doc)})", fontproperties=PROP_B, fontsize=11)
     for b, v, y in zip(bars, vals, yoy):
         t = f"{v:.0f}" + (f"\n{y:+.0f}%" if y is not None else "")
         ax.text(b.get_x() + b.get_width() / 2, v + 1.5, t, ha="center", fontproperties=PROP, fontsize=7.5)
@@ -306,10 +334,14 @@ def chart_guidance(doc) -> Path:
     vals = [lo, mid, hi, rr]
     bars = ax.bar(cats, vals, color=[C["slate"], C["teal"], C["navy"], C["gold"]], width=0.55)
     ax.set_ylabel("연간 매출 (백만 USD)", fontproperties=PROP)
-    ax.set_title("FY 가이던스 (공식 상향) vs 분기 런레이트", fontproperties=PROP_B, fontsize=11)
+    ax.set_title(f"FY 가이던스 ({_src_tag(doc)}) vs 분기 런레이트", fontproperties=PROP_B, fontsize=11)
     for b, v in zip(bars, vals):
         ax.text(b.get_x() + b.get_width() / 2, v + 3, f"{v:.0f}", ha="center", fontproperties=PROP, fontsize=8)
-    ax.set_ylim(min(vals) - 40, max(vals) + 40)
+    ymin = min(vals) - 40 if vals else 0
+    ymax = max(vals) + 40 if vals else 100
+    if ymax <= ymin:
+        ymax = ymin + 100
+    ax.set_ylim(ymin, ymax)
     for lbl in ax.get_xticklabels():
         lbl.set_fontproperties(PROP)
         lbl.set_fontsize(8)
@@ -375,23 +407,30 @@ def chart_scenarios(px: float, pt: float | None) -> Path:
 def chart_catalysts(doc) -> Path:
     fig, ax = plt.subplots(figsize=(9.0, 3.4))
     ax.axis("off")
+    tag = _src_tag(doc)
+    rev = doc.revenue_total_m
+    yoy = doc.yoy_ex_onetime_pct if doc.yoy_ex_onetime_pct is not None else doc.yoy_reported_pct
+    rev_s = f"${rev:.0f}M" if rev is not None else "—"
+    yoy_s = f"\nYoY {yoy:+.0f}%" if yoy is not None else ""
+    g_lo, g_hi = doc.guidance_fy_low_m, doc.guidance_fy_high_m
+    guide_s = f"${g_lo:.0f}–{g_hi:.0f}M" if g_lo is not None and g_hi is not None else "IR미확보"
     items = [
-        (0.05, "실적", "공식Q", f"${doc.revenue_total_m:.0f}M\nex+{doc.yoy_ex_onetime_pct:.0f}%", C["teal"]),
-        (0.28, "Atera", "촉매", "초기주문\n강세", C["navy"]),
-        (0.52, "가이드", "상향", f"${doc.guidance_fy_low_m:.0f}–{doc.guidance_fy_high_m:.0f}M", C["gold"]),
-        (0.76, "지역", "리스크", "US·중국\n약세", C["red"]),
+        (0.05, "실적", tag, f"{rev_s}{yoy_s}", C["teal"]),
+        (0.28, "Atera", "촉매", "초기주문\n강세" if doc.is_official else "세그먼트\n미제공", C["navy"]),
+        (0.52, "가이드", "상향" if doc.is_official else "없음", guide_s, C["gold"]),
+        (0.76, "지역", "리스크", "US·중국\n약세" if doc.is_official else "지역믹스\n미제공", C["red"]),
     ]
-    for x, tag, title, body, c in items:
+    for x, ttag, title, body, c in items:
         ax.add_patch(
             FancyBboxPatch(
                 (x, 0.25), 0.2, 0.55, boxstyle="round,pad=0.02,rounding_size=0.04",
                 facecolor=c, edgecolor="white", lw=1.5, transform=ax.transAxes,
             )
         )
-        ax.text(x + 0.1, 0.68, tag, ha="center", transform=ax.transAxes, fontproperties=PROP_B, fontsize=9, color="white")
+        ax.text(x + 0.1, 0.68, ttag, ha="center", transform=ax.transAxes, fontproperties=PROP_B, fontsize=9, color="white")
         ax.text(x + 0.1, 0.55, title, ha="center", transform=ax.transAxes, fontproperties=PROP_B, fontsize=10, color="white")
         ax.text(x + 0.1, 0.38, body, ha="center", transform=ax.transAxes, fontproperties=PROP, fontsize=7.5, color="white")
-    ax.set_title("촉매 카드 — 공식 숫자 + 보도 하이라이트", fontproperties=PROP_B, fontsize=12, pad=8)
+    ax.set_title(f"촉매 카드 — {tag} 숫자 + 하이라이트", fontproperties=PROP_B, fontsize=12, pad=8)
     return save_fig(fig, "09_catalysts.png")
 
 
@@ -404,7 +443,7 @@ def chart_position(px: float, upside: float | None) -> Path:
     rows = [
         (0.3, 2.6, 9.4, 1.0, C["red"], "white",
          f"포트: 보유 4주 · 품질C · 비중 OVER · NO_ADD · PT대비 {ups}"),
-        (0.3, 1.4, 4.5, 0.95, C["gold"], C["ink"], "공식실적 반영\n소모품·가이드 확인"),
+        (0.3, 1.4, 4.5, 0.95, C["gold"], C["ink"], "실적 YAML 반영\n소모품·가이드 확인"),
         (5.0, 1.4, 4.7, 0.95, C["slate"], "white", "추가매수 금지\n추격 금지"),
         (0.3, 0.25, 9.4, 0.95, C["sand"], C["ink"],
          "게이트: US/중국 회복 · 장비 저점 · Atera 기여 · stop $42"),
@@ -471,6 +510,14 @@ def build_html(doc, charts, *, compete_html: str, marks: dict) -> str:
     asof = doc.report_date
     period = doc.period_end
     earn = marks.get("earn") or "—"
+    official = bool(getattr(doc, "is_official", True))
+    src_ko = "공식" if official else "비공식"
+    ssot_label = "근거: 공식 실적 PDF" if official else "근거: 비공식(공개데이터) · IR미확보"
+    cover_sub = (
+        "10x Genomics · 공식 실적 PDF SSOT"
+        if official
+        else "10x Genomics · 비공식 공개데이터 폴백 (IR PDF 미확보)"
+    )
 
     cons = _mix(doc, "Consumables total")
     sc_c = _mix(doc, "Consumables — Single Cell")
@@ -488,6 +535,14 @@ def build_html(doc, charts, *, compete_html: str, marks: dict) -> str:
         yoy = f"{r['yoy_pct']:+.0f}%" if r.get("yoy_pct") is not None else "—"
         pct = f"{100*r['amount_m']/doc.revenue_total_m:.0f}%" if doc.revenue_total_m else "—"
         return f"<tr><td>{name}</td><td>{r['amount_m']:.1f}M</td><td>{pct}</td><td>{yoy}</td></tr>"
+
+    def fmt_m(v, digits=1):
+        return f"${v:.{digits}f}M" if v is not None else "—"
+
+    def fmt_pct(v, signed=False):
+        if v is None:
+            return "—"
+        return f"{v:+.0f}%" if signed else f"{v:.0f}%"
 
     css = f"""
     @font-face {{ font-family:'NanumGothic'; src:url('file://{FONT_REG}'); font-weight:normal; }}
@@ -507,6 +562,7 @@ def build_html(doc, charts, *, compete_html: str, marks: dict) -> str:
     .tag.bad {{ background:#fecaca; }}
     .tag.good {{ background:#bbf7d0; }}
     .tag.ssot {{ background:#0f766e; color:white; }}
+    .tag.unoff {{ background:#92400e; color:white; }}
     table {{ width:100%; border-collapse:collapse; font-size:8.5pt; margin:8px 0; }}
     th,td {{ border:1px solid #ccc; padding:4px 6px; vertical-align:top; }}
     th {{ background:#edf2f7; }}
@@ -527,30 +583,126 @@ def build_html(doc, charts, *, compete_html: str, marks: dict) -> str:
     """
 
     ups_s = f"{upside*100:+.1f}%" if upside is not None else "—"
-    thesis = (
-        f"공식 실적(기간 {period}) 기준 매출 <b>${doc.revenue_total_m:.1f}M</b>. "
-        f"특허합의 일회성 ${doc.onetime_items[0]['amount_m']:.1f}M 제외 시 "
-        f"<b>${doc.revenue_ex_onetime_m:.1f}M · YoY +{doc.yoy_ex_onetime_pct:.0f}%</b>. "
-        f"소모품이 본업(공식 표), 장비·미국·중국은 약함. "
-        f"FY26 가이드 <b>${doc.guidance_fy_low_m:.0f}–{doc.guidance_fy_high_m:.0f}M</b> 상향. "
-        f"보유 NO_ADD · 추격 금지."
+    rev = doc.revenue_total_m
+    yoy_ex = doc.yoy_ex_onetime_pct
+    yoy_rep = doc.yoy_reported_pct
+    g_lo, g_hi = doc.guidance_fy_low_m, doc.guidance_fy_high_m
+    onetime0 = (doc.onetime_items or [{}])[0].get("amount_m") if doc.onetime_items else None
+
+    if official and rev is not None and doc.revenue_ex_onetime_m is not None and yoy_ex is not None:
+        thesis = (
+            f"공식 실적(기간 {period}) 기준 매출 <b>{fmt_m(rev)}</b>. "
+            + (
+                f"특허합의 일회성 ${onetime0:.1f}M 제외 시 "
+                f"<b>{fmt_m(doc.revenue_ex_onetime_m)} · YoY {fmt_pct(yoy_ex, True)}</b>. "
+                if onetime0 is not None
+                else ""
+            )
+            + "소모품이 본업(공식 표), 장비·미국·중국은 약함. "
+            + (
+                f"FY26 가이드 <b>{fmt_m(g_lo, 0)}–{g_hi:.0f}M</b> 상향. "
+                if g_lo is not None and g_hi is not None
+                else ""
+            )
+            + "보유 NO_ADD · 추격 금지."
+        )
+    else:
+        thesis = (
+            f"<b>비공식</b> 공개데이터(기간 {period}) 기준 매출 <b>{fmt_m(rev)}</b>"
+            + (f" · YoY <b>{fmt_pct(yoy_rep or yoy_ex, True)}</b>" if (yoy_rep or yoy_ex) is not None else "")
+            + ". IR/실적보도 PDF 미확보로 세그먼트·가이던스·일회성 분해가 제한됩니다. "
+            "공식 PDF 확보 시 자동으로 공식본을 우선합니다. 보유 NO_ADD · 추격 금지."
+        )
+
+    badge_class = "ssot" if official else "unoff"
+    extra_tags = (
+        '<span class="tag good">일회성 분리</span>'
+        if official
+        else '<span class="tag warn">세그먼트 미제공</span>'
     )
+    kpi_rev_sub = (
+        f"ex-합의 {fmt_pct(yoy_ex, True)}"
+        if official and yoy_ex is not None
+        else (f"YoY {fmt_pct(yoy_rep, True)}" if yoy_rep is not None else "IR미확보")
+    )
+    kpi_guide = (
+        f"{g_lo:.0f}–{g_hi:.0f}M"
+        if g_lo is not None and g_hi is not None
+        else "—"
+    )
+    guide_note = doc.guidance_note or ("비공식 · 가이던스 없음" if not official else "")
+
+    mix_rows = "".join(
+        [
+            row(sc_c),
+            row(sp_c),
+            row(cons, "<b>Consumables 합계</b>"),
+            row(sc_i),
+            row(sp_i),
+            row(inst, "Instruments 합계"),
+            row(svc),
+            row(lic),
+        ]
+    )
+    if not mix_rows and doc.mix_product:
+        mix_rows = "".join(row(r) for r in doc.mix_product)
+
+    yoy_cell = (
+        f"{fmt_pct(yoy_rep, True)} / <b>ex-합의 {fmt_pct(yoy_ex, True)}</b>"
+        if official
+        else fmt_pct(yoy_rep or yoy_ex, True)
+    )
+    gm = doc.gross_margin_pct
+    gm_pri = doc.gross_margin_prior_pct
+    gm_cell = (
+        f"{fmt_pct(gm)}" + (f" (전년 {fmt_pct(gm_pri)})" if gm_pri is not None else "")
+        if gm is not None
+        else "—"
+    )
+    easy_growth = (
+        f"보고 매출은 작년보다 줄었지만, 합의금을 빼면 본업은 소폭 성장({fmt_pct(yoy_ex, True)}). "
+        "미국·중국은 약하고 EMEA는 상대적 버팀목."
+        if official and yoy_ex is not None
+        else "비공식 폴백 — 세그먼트·지역 믹스 없음. 총매출·YoY만 참고하고 공식 PDF를 기다릴 것."
+    )
+    conclusion = (
+        "공식 PDF 기준으로 본업(소모품·ex-합의 성장·가이드 상향)은 버팀. "
+        "다만 장비·US/중국 약세와 고평가·NO_ADD가 겹쳐 <u>추가매수는 금지</u>."
+        if official
+        else "IR 미확보 비공식 숫자만으로 세그먼트 결론을 내리지 말 것. "
+        "공개 매출·YoY는 참고용이며 <u>추가매수는 금지(NO_ADD)</u>."
+    )
+    gloss_items = (
+        [
+            ("공식 PDF SSOT", "회사가 낸 실적 보도자료를 숫자 근거로 씀. 추정·뉴스보다 우선."),
+            ("일회성(합의)", "특허 소송 합의로 들어온 돈 — 본업 성장과 따로 봐야 함."),
+            ("Consumables", "실험마다 쓰는 칩·시약 — 반복 매출."),
+        ]
+        if official
+        else [
+            ("비공식 폴백", "IR/실적보도 PDF가 없을 때 yfinance 등 공개 데이터로 초안."),
+            ("공식 우선", "나중에 공식 PDF를 ingest하면 자동으로 공식본을 씀."),
+            ("제한", "세그먼트·지역·가이던스·일회성 분해는 제공되지 않음."),
+        ]
+    )
+    h52_s = f"{h52:.2f}" if h52 is not None else "—"
+    pt_s = f"{pt:.1f}" if pt is not None else "—"
 
     return f"""<!DOCTYPE html>
 <html lang="ko"><head><meta charset="utf-8"/><title>TXG 수익구조분석</title><style>{css}</style></head>
 <body>
 <section class="cover">
   <h1>TXG 수익구조분석</h1>
-  <p style="font-size:12pt;color:#444;margin-top:10px">10x Genomics · 공식 실적 PDF SSOT</p>
+  <p style="font-size:12pt;color:#444;margin-top:10px">{cover_sub}</p>
   <p style="margin-top:14px;color:#555">보고일 {asof} · 기간종료 {period} · 다음실적 ~{earn}</p>
-  <p style="margin-top:10px"><span class="tag ssot">근거: 공식 실적 PDF</span>
-    <span class="tag good">일회성 분리</span>
+  <p style="margin-top:10px"><span class="tag {badge_class}">{ssot_label}</span>
+    {extra_tags}
     <span class="tag bad">보유 NO_ADD</span></p>
   <p style="margin-top:16px">
-    <span class="kpi"><div class="l">현재가</div><div class="v">~${px:.2f}</div><div class="s">52주고 ${h52:.2f}</div></span>
-    <span class="kpi"><div class="l">PT 평균</div><div class="v">~${pt:.1f}</div><div class="s">{ups_s}</div></span>
-    <span class="kpi"><div class="l">공식 분기매출</div><div class="v">${doc.revenue_total_m:.1f}M</div><div class="s">ex-합의 +{doc.yoy_ex_onetime_pct:.0f}%</div></span>
-    <span class="kpi"><div class="l">FY 가이드</div><div class="v">${doc.guidance_fy_low_m:.0f}–{doc.guidance_fy_high_m:.0f}M</div><div class="s">{doc.guidance_note}</div></span>
+    <span class="kpi"><div class="l">현재가</div><div class="v">~${px:.2f}</div><div class="s">52주고 ${h52_s}</div></span>
+    <span class="kpi"><div class="l">PT 평균</div><div class="v">~${pt_s}</div><div class="s">{ups_s}</div></span>
+    <span class="kpi"><div class="l">{src_ko} 분기매출</div><div class="v">{fmt_m(rev)}</div><div class="s">{kpi_rev_sub}</div></span>
+    <span class="kpi"><div class="l">FY 가이드</div><div class="v">{kpi_guide}</div><div class="s">{guide_note}</div></span>
   </p>
 </section>
 
@@ -560,27 +712,20 @@ def build_html(doc, charts, *, compete_html: str, marks: dict) -> str:
 <p>{thesis}</p>
 {fig_block(charts['01'], '비즈니스 플로우')}
 <div class="easy"><b>쉽게:</b> 연구소에 분석 기계를 팔고, 그 기계에 넣는 시약·칩을 계속 판다. 면도기·면도날 모델.</div>
-{gloss([
-    ("공식 PDF SSOT", "회사가 낸 실적 보도자료를 숫자 근거로 씀. 추정·뉴스보다 우선."),
-    ("일회성(합의)", "특허 소송 합의로 들어온 돈 — 본업 성장과 따로 봐야 함."),
-    ("Consumables", "실험마다 쓰는 칩·시약 — 반복 매출."),
-])}
+{gloss(gloss_items)}
 
-<h2>1. 어디서 돈이 오나 (공식 표)</h2>
+<h2>1. 어디서 돈이 오나 ({src_ko} 표)</h2>
 {fig_block(charts['02'], '유형·제품 믹스')}
 <table>
-  <tr><th>구분 (공식)</th><th>매출</th><th>비중</th><th>YoY</th></tr>
-  {row(sc_c)}{row(sp_c)}{row(cons, '<b>Consumables 합계</b>')}
-  {row(sc_i)}{row(sp_i)}{row(inst, 'Instruments 합계')}
-  {row(svc)}{row(lic)}
-  <tr><td><b>총매출</b></td><td><b>{doc.revenue_total_m:.1f}M</b></td><td>100%</td>
-      <td>{doc.yoy_reported_pct:+.0f}% / <b>ex-합의 +{doc.yoy_ex_onetime_pct:.0f}%</b></td></tr>
+  <tr><th>구분 ({src_ko})</th><th>매출</th><th>비중</th><th>YoY</th></tr>
+  {mix_rows}
+  <tr><td><b>총매출</b></td><td><b>{fmt_m(rev)}</b></td><td>100%</td>
+      <td>{yoy_cell}</td></tr>
 </table>
 {fig_block(charts['04'], '레이저-블레이드')}
 {fig_block(charts['03'], '성장 브리지')}
 {fig_block(charts['05'], '지역 매출')}
-<div class="easy"><b>쉽게:</b> 보고 매출은 작년보다 줄었지만, 합의금을 빼면 본업은 소폭 성장(+{doc.yoy_ex_onetime_pct:.0f}%).
-미국·중국은 약하고 EMEA는 상대적 버팀목.</div>
+<div class="easy"><b>쉽게:</b> {easy_growth}</div>
 
 {compete_html}
 
@@ -588,12 +733,12 @@ def build_html(doc, charts, *, compete_html: str, marks: dict) -> str:
 {fig_block(charts['07'], '손익·마진')}
 {fig_block(charts['06'], 'FY 가이던스')}
 <table>
-  <tr><th>항목</th><th>공식 수치</th></tr>
-  <tr><td>총이익률</td><td>{doc.gross_margin_pct:.0f}% (전년 {doc.gross_margin_prior_pct:.0f}%)</td></tr>
-  <tr><td>영업손익</td><td>{doc.operating_income_m:+.1f}M</td></tr>
-  <tr><td>순손익</td><td>{doc.net_income_m:+.1f}M</td></tr>
-  <tr><td>현금+단기투자</td><td><b>${doc.cash_and_securities_m:.0f}M</b></td></tr>
-  <tr><td>FY26 가이드</td><td><b>${doc.guidance_fy_low_m:.0f}–{doc.guidance_fy_high_m:.0f}M</b> ({doc.guidance_note})</td></tr>
+  <tr><th>항목</th><th>{src_ko} 수치</th></tr>
+  <tr><td>총이익률</td><td>{gm_cell}</td></tr>
+  <tr><td>영업손익</td><td>{fmt_m(doc.operating_income_m) if doc.operating_income_m is None else f'{doc.operating_income_m:+.1f}M'}</td></tr>
+  <tr><td>순손익</td><td>{fmt_m(doc.net_income_m) if doc.net_income_m is None else f'{doc.net_income_m:+.1f}M'}</td></tr>
+  <tr><td>현금+단기투자</td><td><b>{fmt_m(doc.cash_and_securities_m, 0)}</b></td></tr>
+  <tr><td>FY26 가이드</td><td><b>{kpi_guide}</b>{(' (' + guide_note + ')') if guide_note else ''}</td></tr>
 </table>
 
 <h2>3. 촉매 · 리스크 · 시나리오</h2>
@@ -610,24 +755,24 @@ def build_html(doc, charts, *, compete_html: str, marks: dict) -> str:
 <div class="box">
 <b>포폴 인용</b><br/>{doc.portfolio_memo}<br/><br/>
 보유 4주 · stop $42 · 품질C · 비중 OVER · <b>NO_ADD</b><br/>
-가격 ~${px:.2f} · PT ~${pt:.1f} ({ups_s}) — 추격 금지 · 공식 숫자로 본업만 재확인.
+가격 ~${px:.2f} · PT ~${pt_s} ({ups_s}) — 추격 금지 · {src_ko} 숫자로 본업만 재확인.
 </div>
-<div class="easy"><b>한줄 결론:</b> 공식 PDF 기준으로 본업(소모품·ex-합의 성장·가이드 상향)은 버팀.
-다만 장비·US/중국 약세와 고평가·NO_ADD가 겹쳐 <u>추가매수는 금지</u>.</div>
+<div class="easy"><b>한줄 결론:</b> {conclusion}</div>
 
 <h2>부록 · 출처</h2>
 <p class="small">
-{doc.source_label} · {doc.source_pdf} · report {doc.report_date} · period {doc.period_end}.<br/>
+{doc.source_label} · {doc.source_pdf or '(no pdf)'} · report {doc.report_date} · period {doc.period_end}
+ · source_kind={doc.source_kind}.<br/>
 피어 점유/믹스는 추정. 가격·PT는 라이브/스냅. 투자 권유 아님.
 </p>
-<p class="small">생성: 수익구조분석() · TXG · 공식 YAML SSOT · WeasyPrint + NanumGothic</p>
+<p class="small">생성: 수익구조분석() · TXG · {src_ko} YAML SSOT · WeasyPrint + NanumGothic</p>
 </body></html>
 """
 
 
 def main() -> int:
     try:
-        doc = require_filing("TXG")
+        doc = resolve_filing("TXG", allow_unofficial=True)
     except FilingRequiredError as e:
         print(e)
         return 2
@@ -670,24 +815,33 @@ def main() -> int:
     try:
         from sepa.artifacts import print_release_result, publish_github_release_asset
 
+        kind = "공식 PDF" if doc.is_official else "비공식 폴백"
+        rev = doc.revenue_total_m
+        yoy = doc.yoy_ex_onetime_pct if doc.yoy_ex_onetime_pct is not None else doc.yoy_reported_pct
+        g_lo, g_hi = doc.guidance_fy_low_m, doc.guidance_fy_high_m
         notes = (
-            f"## TXG 수익구조분석 ({doc.report_date}) · 공식 PDF SSOT\n\n"
-            f"- 기간 {doc.period_end} · 매출 ${doc.revenue_total_m:.1f}M · ex-합의 +{doc.yoy_ex_onetime_pct:.0f}%\n"
-            f"- FY 가이드 ${doc.guidance_fy_low_m:.0f}–{doc.guidance_fy_high_m:.0f}M\n"
+            f"## TXG 수익구조분석 ({doc.report_date}) · {kind}\n\n"
+            f"- source_kind: `{doc.source_kind}`\n"
+            f"- 기간 {doc.period_end} · 매출 {f'${rev:.1f}M' if rev is not None else '—'}"
+            f" · YoY {f'{yoy:+.0f}%' if yoy is not None else '—'}\n"
+        )
+        if g_lo is not None and g_hi is not None:
+            notes += f"- FY 가이드 ${g_lo:.0f}–{g_hi:.0f}M\n"
+        notes += (
             f"- 포폴: {doc.portfolio_memo}\n"
-            f"- 출처: `{doc.source_pdf}`\n"
+            f"- 출처: `{doc.source_pdf or doc.source_label}`\n"
         )
         rel = publish_github_release_asset(
             OUT_PDF[1],
             tag="sepa-rev-txg",
-            title="SEPA Revenue Structure — TXG (official filing)",
+            title=f"SEPA Revenue Structure — TXG ({doc.source_kind})",
             notes=notes,
         )
         print_release_result(rel, label="수익구조분석 PDF")
     except Exception as exc:  # noqa: BLE001
         print(f"[warn] GitHub Release publish skipped: {exc}")
 
-    print(f"TXG filing {doc.period_end} memo={doc.portfolio_memo}")
+    print(f"TXG filing kind={doc.source_kind} {doc.period_end} memo={doc.portfolio_memo}")
     return 0
 
 

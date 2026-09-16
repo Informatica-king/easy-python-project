@@ -756,8 +756,9 @@ def week_plan_mode(as_of: date) -> str:
 
 
 def apply_filing_memos(book: PortfolioBook) -> list[str]:
-    """Append official filing one-liners into holding notes (policy 3-B).
+    """Append filing one-liners into holding notes (policy 3-B).
 
+    Prefers official IR YAML; if missing, may cite unofficial (IR미확보) memo.
     Returns list of applied ``TICKER: memo`` strings for ops HTML.
     """
     try:
