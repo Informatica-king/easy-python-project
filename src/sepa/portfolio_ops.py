@@ -755,6 +755,32 @@ def week_plan_mode(as_of: date) -> str:
     return "next_5bd"
 
 
+def apply_filing_memos(book: PortfolioBook) -> list[str]:
+    """Append filing one-liners into holding notes (policy 3-B).
+
+    Prefers official IR YAML; if missing, may cite unofficial (IR미확보) memo.
+    Returns list of applied ``TICKER: memo`` strings for ops HTML.
+    """
+    try:
+        from sepa.rev_filing import portfolio_memo_line
+    except Exception:
+        return []
+    applied: list[str] = []
+    for h in book.holdings:
+        memo = portfolio_memo_line(h.ticker)
+        if not memo:
+            continue
+        applied.append(f"{h.ticker}: {memo}")
+        if memo in (h.note or ""):
+            continue
+        # keep existing note; add filing cite once
+        if h.note:
+            h.note = f"{h.note} · {memo}"
+        else:
+            h.note = memo
+    return applied
+
+
 def build_ops_plan(book: PortfolioBook, ideas: list[BuyIdea]) -> list[str]:
     asof = book.effective_date
     mode = week_plan_mode(asof)

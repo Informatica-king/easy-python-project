@@ -1,0 +1,119 @@
+ticker: TXG
+company: 10x Genomics, Inc.
+period_end: '2026-06-30'
+report_date: '2026-08-06'
+source_pdf: data/rev_filings/TXG/source/TXG_Q2-2026-Earnings-Press-Release-08-06-26_4f0b.pdf
+source_label: Q2 2026 Earnings Press Release (Exhibit-style)
+currency: USD
+units: millions
+source_kind: official
+revenue_total_m: 151.0
+revenue_ex_onetime_m: 149.4
+revenue_prior_m: 172.9
+revenue_prior_ex_onetime_m: 145.6
+yoy_reported_pct: -12.7
+yoy_ex_onetime_pct: 3.0
+gross_margin_pct: 74.0
+gross_margin_prior_pct: 72.0
+operating_income_m: -19.6
+net_income_m: -17.9
+eps_basic: null
+cash_and_securities_m: 552.0
+guidance_fy_low_m: 610.0
+guidance_fy_high_m: 630.0
+guidance_note: ex-settlement FY 성장 2–5%
+onetime_items:
+- label: Patent litigation settlement (license/royalty)
+  amount_m: 1.6
+  period: current
+- label: Patent litigation settlement (license/royalty)
+  amount_m: 27.3
+  period: prior_year
+mix_product:
+- name: Instruments — Single Cell
+  amount_m: 3.087
+  prior_m: 5.727
+  yoy_pct: -46.1
+- name: Instruments — Spatial
+  amount_m: 4.574
+  prior_m: 8.77
+  yoy_pct: -47.8
+- name: Instruments total
+  amount_m: 7.661
+  prior_m: 14.497
+  yoy_pct: -47.2
+- name: Consumables — Single Cell
+  amount_m: 88.451
+  prior_m: 85.788
+  yoy_pct: 3.1
+- name: Consumables — Spatial
+  amount_m: 42.301
+  prior_m: 36.397
+  yoy_pct: 16.2
+- name: Consumables total
+  amount_m: 130.752
+  prior_m: 122.185
+  yoy_pct: 7.0
+- name: Services
+  amount_m: 10.681
+  prior_m: 8.475
+  yoy_pct: 26.0
+- name: Products & services
+  amount_m: 149.094
+  prior_m: 145.157
+  yoy_pct: 2.7
+- name: License & royalty
+  amount_m: 1.942
+  prior_m: 27.751
+  yoy_pct: -93.0
+- name: Total revenue
+  amount_m: 151.036
+  prior_m: 172.908
+  yoy_pct: -12.6
+mix_geo:
+- name: United States
+  amount_m: 82.109
+  prior_m: 103.491
+  yoy_pct: -20.7
+- name: Americas ex-US
+  amount_m: 2.917
+  prior_m: 2.667
+  yoy_pct: 9.4
+- name: Americas total
+  amount_m: 85.026
+  prior_m: 106.158
+  yoy_pct: -19.9
+- name: EMEA
+  amount_m: 39.972
+  prior_m: 34.734
+  yoy_pct: 15.1
+- name: China
+  amount_m: 14.968
+  prior_m: 23.17
+  yoy_pct: -35.4
+- name: APAC ex-China
+  amount_m: 11.07
+  prior_m: 8.846
+  yoy_pct: 25.1
+- name: APAC total
+  amount_m: 26.038
+  prior_m: 32.016
+  yoy_pct: -18.7
+highlights:
+- Q 매출 $151.0M · ex-settlement $149.4M
+- 일회성 제외 YoY +3%
+- 총이익률 74%
+- 현금+단기투자 $552M
+catalysts:
+- Atera — 고객 반응·초기 주문 강세 (CEO)
+- Proteintech Genomics 인수 — 단백질(multiomics) 역량
+- Cleveland Clinic·Lausanne — 진단/암 연구 협력
+- FY26 매출 가이던스 상향
+risks:
+- 장비 매출 YoY -47%
+- 미국 매출 YoY -21%
+- 중국 매출 YoY -35%
+quotes: []
+portfolio_memo: 공식Q2'26 매출 $151.0M · ex-합의 +3% · 소모품~87% · FY가이드 $610–630M↑ · NO_ADD
+extracted_by: sepa.rev_filing
+notes: Amounts in millions USD. Statement tables originally in thousands.

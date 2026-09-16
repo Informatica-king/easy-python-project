@@ -29,6 +29,7 @@ from sepa.portfolio_ops import (  # noqa: E402
     NavPoint,
     PortfolioBook,
     apply_buy_scores,
+    apply_filing_memos,
     bench_summary_from_series,
     build_actions,
     build_ops_plan,
@@ -491,6 +492,7 @@ def build_html(
     bench_sum: BenchSummary | None = None,
     nav_chart: Path | None = None,
     nav_blurb: str | None = None,
+    filing_memos: list[str] | None = None,
 ) -> str:
     mode = week_plan_mode(book.effective_date)
     plan_title = "차주 운영계획" if mode == "next_week" else "향후 5영업일 브리프"
@@ -528,6 +530,13 @@ def build_html(
         )
 
     warn = f"<div class='box risk'><b>freshness</b> {esc(fresh_warn)}</div>" if fresh_warn else ""
+    filing_block = ""
+    if filing_memos:
+        lis = "".join(f"<li>{esc(m)}</li>" for m in filing_memos)
+        filing_block = (
+            f"<div class='box ok'><b>공식실적 인용</b><ul>{lis}</ul>"
+            "<p class='small'>data/rev_filings · 수익구조분석 SSOT</p></div>"
+        )
     return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"/>
 <title>포폴() {book.effective_date.isoformat()}</title><style>{build_css()}</style></head><body>
 <h1>포폴() 운영브리프</h1>
@@ -542,6 +551,7 @@ def build_html(
   ({fmt_pct(book.cash_pct, False)}) · 유동 {fmt_usd(book.liquid_usd)} · 바닥 ${book.cash_floor_usd:.0f}
 </div>
 {growth_block}
+{filing_block}
 {warn}
 <div class="box risk"><b>리스크 스트립</b><ul>{risk_html}</ul></div>
 <div class="box forbid"><b>금지 / 홀드</b><ul>{forbid_html}</ul></div>
@@ -582,6 +592,7 @@ def main(argv: list[str] | None = None) -> int:
         i = argv.index("--as-of")
         ops_date = date.fromisoformat(argv[i + 1][:10])
     book = load_book(snap)
+    filing_memos = apply_filing_memos(book)
     book = enrich_marks(book, ops_date=ops_date)
     prop, prop_b = _fonts()
     pie_s, pie_l = chart_pies(book, prop, prop_b)
@@ -624,6 +635,7 @@ def main(argv: list[str] | None = None) -> int:
         bench_sum=bench_sum,
         nav_chart=nav_chart,
         nav_blurb=nav_blurb,
+        filing_memos=filing_memos,
     )
     tag = book.effective_date.isoformat()
     html_path = Path(f"/workspace/reports/Portfolio_Ops_{tag}.html")

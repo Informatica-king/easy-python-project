@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""수익구조분석(TXG) — 10x Genomics 소모품·장비 + 경쟁점유/믹스 + WeasyPrint PDF."""
+"""수익구조분석(TXG) — 실적 YAML(SSOT) 기반 · WeasyPrint PDF.
+
+Policy: ``sepa.rev_filing.resolve_filing("TXG")``
+  * 공식 IR/earnings PDF YAML 우선
+  * IR 없으면 비공식(yfinance) 폴백 · 표지에 ``비공식`` 배지
+"""
 
 from __future__ import annotations
 
@@ -21,16 +26,12 @@ if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
 from sepa.rev_compete import build_compete_charts  # noqa: E402
+from sepa.rev_filing import FilingRequiredError, resolve_filing  # noqa: E402
 from sepa.rev_price_chart import build_and_insert_price  # noqa: E402
 
 FONT_REG = "/tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
 FONT_BOLD = "/tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf"
-ASOF = "2026-08-01"
-PX = 47.27
-PT = 41.54
-H52 = 50.34
-UPSIDE = PT / PX - 1.0
-EARN = "08-06"
+
 OUT_PDF = [
     Path("/opt/cursor/artifacts/TXG_Revenue_Structure_Analysis.pdf"),
     Path("/workspace/reports/TXG_Revenue_Structure_Analysis.pdf"),
@@ -58,7 +59,6 @@ C = {
     "red": "#9f1239",
     "green": "#166534",
     "slate": "#334155",
-    "txg": "#0f766e",
 }
 
 
@@ -71,6 +71,64 @@ def save_fig(fig, name: str) -> Path:
     fig.savefig(p, dpi=160, bbox_inches="tight", facecolor="white")
     plt.close(fig)
     return p
+
+
+def fig_block(path: Path, caption: str) -> str:
+    return (
+        f"<figure><img src='data:image/png;base64,{img_b64(path)}'/>"
+        f"<figcaption>{caption}</figcaption></figure>"
+    )
+
+
+def gloss(items: list[tuple[str, str]]) -> str:
+    lis = "".join(f"<li><span class='term'>{a}</span> — {b}</li>" for a, b in items)
+    return f"<div class='gloss'><div class='gloss-title'>이 블록 용어 주석</div><ul>{lis}</ul></div>"
+
+
+def _mix(doc, name: str) -> dict | None:
+    for r in doc.mix_product:
+        if r.get("name") == name:
+            return r
+    return None
+
+
+def _geo(doc, name: str) -> dict | None:
+    for r in doc.mix_geo:
+        if r.get("name") == name:
+            return r
+    return None
+
+
+def live_marks() -> dict:
+    """Prefer latest chase rank snap; fallback yfinance."""
+    rank = Path("/workspace/reports/rank_20260916.json")
+    if rank.exists():
+        import json
+
+        rows = json.loads(rank.read_text(encoding="utf-8")).get("rows") or []
+        for r in rows:
+            if r.get("t") == "TXG":
+                return {
+                    "px": float(r["px"]),
+                    "pt": float(r["ptA"]) if r.get("ptA") is not None else None,
+                    "h52": float(r["h"]) if r.get("h") is not None else None,
+                    "earn": str(r.get("earnDate") or "")[5:10].replace("-", "-")
+                    if r.get("earnDate")
+                    else "—",
+                }
+    try:
+        import yfinance as yf
+
+        info = yf.Ticker("TXG").info or {}
+        px = info.get("currentPrice") or info.get("regularMarketPrice")
+        return {
+            "px": float(px) if px else None,
+            "pt": float(info["targetMeanPrice"]) if info.get("targetMeanPrice") else None,
+            "h52": float(info["fiftyTwoWeekHigh"]) if info.get("fiftyTwoWeekHigh") else None,
+            "earn": "—",
+        }
+    except Exception:
+        return {"px": None, "pt": None, "h52": None, "earn": "—"}
 
 
 def chart_business_flow() -> Path:
@@ -93,43 +151,95 @@ def chart_business_flow() -> Path:
             )
         )
         tc = C["ink"] if c in (C["sand"], C["gold"], C["teal2"]) else "white"
-        ax.text(x + w / 2, y + h / 2, t, ha="center", va="center",
-                fontproperties=PROP_B, fontsize=8.5, color=tc)
+        ax.text(
+            x + w / 2, y + h / 2, t, ha="center", va="center",
+            fontproperties=PROP_B, fontsize=8.5, color=tc,
+        )
     for x in (1.95, 3.95, 5.95, 7.9):
         ax.annotate(
             "", xy=(x + 0.08, 1.5), xytext=(x - 0.08, 1.5),
             arrowprops=dict(arrowstyle="->", color=C["slate"], lw=1.6),
         )
-    ax.set_title("비즈니스 한눈에 — 장비 깔고, 시약·칩을 반복 판매",
-                 fontproperties=PROP_B, fontsize=12, pad=6)
+    ax.set_title("비즈니스 한눈에 — 장비 깔고, 시약·칩을 반복 판매", fontproperties=PROP_B, fontsize=12, pad=6)
     return save_fig(fig, "01_business_flow.png")
 
 
-def chart_segment_mix() -> Path:
+def _src_tag(doc) -> str:
+    return "공식" if getattr(doc, "is_official", True) else "비공식"
+
+
+def chart_segment_mix(doc) -> Path:
+    cons = _mix(doc, "Consumables total")
+    inst = _mix(doc, "Instruments total")
+    svc = _mix(doc, "Services")
+    lic = _mix(doc, "License & royalty")
+    sc_c = _mix(doc, "Consumables — Single Cell")
+    sp_c = _mix(doc, "Consumables — Spatial")
+    sc_i = _mix(doc, "Instruments — Single Cell")
+    sp_i = _mix(doc, "Instruments — Spatial")
+    tag = _src_tag(doc)
+
     fig, axes = plt.subplots(1, 2, figsize=(9.2, 4.0))
     ax = axes[0]
-    sizes = [129.8, 11.3, 8.8, 0.9]
-    labels = ["Consumables\n129.8M (86%)", "Instruments\n11.3M (7%)",
-              "Services\n8.8M (6%)", "License\n0.9M"]
+    sizes = [
+        cons["amount_m"] if cons else 0,
+        inst["amount_m"] if inst else 0,
+        svc["amount_m"] if svc else 0,
+        lic["amount_m"] if lic else 0,
+    ]
+    # Unofficial fallback may only have Total revenue
+    if sum(sizes) <= 0 and doc.mix_product:
+        sizes = [float(r.get("amount_m") or 0) for r in doc.mix_product]
+        labels = [
+            f"{r.get('name', '?')}\n{float(r.get('amount_m') or 0):.1f}M"
+            for r in doc.mix_product
+        ]
+        colors = [C["teal"], C["gold"], C["navy"], C["sand"], C["slate"]][: len(sizes)]
+    else:
+        total = sum(sizes) or 1
+        labels = [
+            f"Consumables\n{sizes[0]:.1f}M ({100*sizes[0]/total:.0f}%)",
+            f"Instruments\n{sizes[1]:.1f}M ({100*sizes[1]/total:.0f}%)",
+            f"Services\n{sizes[2]:.1f}M ({100*sizes[2]/total:.0f}%)",
+            f"License\n{sizes[3]:.1f}M",
+        ]
+        colors = [C["teal"], C["gold"], C["navy"], C["sand"]]
+    if sum(sizes) <= 0:
+        sizes = [1.0]
+        labels = ["데이터 없음"]
+        colors = [C["sand"]]
     ax.pie(
         sizes, labels=labels,
-        colors=[C["teal"], C["gold"], C["navy"], C["sand"]],
+        colors=colors,
         startangle=90,
         wedgeprops=dict(width=0.72, edgecolor="white", linewidth=2),
         textprops=dict(fontproperties=PROP, fontsize=7.5),
     )
-    ax.set_title("매출 유형 (Q1'26, 총 150.8M)", fontproperties=PROP_B, fontsize=11)
+    rev = doc.revenue_total_m or 0
+    ax.set_title(
+        f"매출 유형 ({tag} · 총 ${rev:.1f}M)",
+        fontproperties=PROP_B, fontsize=11,
+    )
 
     ax = axes[1]
     cats = ["SC\nConsum.", "Spatial\nConsum.", "SC\nInstr.", "Spatial\nInstr."]
-    vals = [88.9, 40.9, 5.2, 6.0]
-    colors = [C["navy"], C["teal"], C["gold"], C["sand"]]
-    bars = ax.bar(cats, vals, color=colors, width=0.55)
+    vals = [
+        sc_c["amount_m"] if sc_c else 0,
+        sp_c["amount_m"] if sp_c else 0,
+        sc_i["amount_m"] if sc_i else 0,
+        sp_i["amount_m"] if sp_i else 0,
+    ]
+    if sum(vals) <= 0 and doc.mix_product:
+        cats = [str(r.get("name", "?"))[:12] for r in doc.mix_product]
+        vals = [float(r.get("amount_m") or 0) for r in doc.mix_product]
+        bar_colors = [C["navy"], C["teal"], C["gold"], C["sand"]][: len(vals)]
+    else:
+        bar_colors = [C["navy"], C["teal"], C["gold"], C["sand"]]
+    bars = ax.bar(cats, vals, color=bar_colors, width=0.55)
     ax.set_ylabel("백만 USD", fontproperties=PROP)
-    ax.set_title("제품 라인 상세 (Q1'26)", fontproperties=PROP_B, fontsize=11)
+    ax.set_title(f"제품 라인 상세 ({tag})", fontproperties=PROP_B, fontsize=11)
     for b, v in zip(bars, vals):
-        ax.text(b.get_x() + b.get_width() / 2, v + 1.5, f"{v:.1f}",
-                ha="center", fontproperties=PROP, fontsize=8)
+        ax.text(b.get_x() + b.get_width() / 2, v + 1.2, f"{v:.1f}", ha="center", fontproperties=PROP, fontsize=8)
     for lbl in ax.get_xticklabels():
         lbl.set_fontproperties(PROP)
         lbl.set_fontsize(7.5)
@@ -137,20 +247,34 @@ def chart_segment_mix() -> Path:
     return save_fig(fig, "02_segment_mix.png")
 
 
-def chart_growth_bridge() -> Path:
+def chart_growth_bridge(doc) -> Path:
+    keys = [
+        ("Consumables total", "Consum.\nYoY"),
+        ("Consumables — Single Cell", "SC Cons.\nYoY"),
+        ("Consumables — Spatial", "Spatial\nCons. YoY"),
+        ("Instruments total", "Instruments\nYoY"),
+    ]
+    cats, vals = [], []
+    for name, label in keys:
+        row = _mix(doc, name)
+        cats.append(label)
+        vals.append(row["yoy_pct"] if row and row.get("yoy_pct") is not None else 0)
+    cats += ["Reported\nTotal YoY", "Ex-settlement\nYoY"]
+    vals += [
+        doc.yoy_reported_pct or 0,
+        doc.yoy_ex_onetime_pct or 0,
+    ]
     fig, ax = plt.subplots(figsize=(8.8, 3.8))
-    cats = ["Consum.\nYoY", "SC Cons.\nYoY", "Spatial\nCons. YoY",
-            "Instruments\nYoY", "Reported\nTotal YoY", "Ex-license\nYoY"]
-    vals = [13, 6, 31, -24, -3, 9]
     colors = [C["green"] if v >= 0 else C["red"] for v in vals]
     bars = ax.bar(cats, vals, color=colors, width=0.55)
     ax.axhline(0, color=C["muted"], lw=0.8)
     ax.set_ylabel("YoY %", fontproperties=PROP)
-    ax.set_title("성장 브리지 — 소모품 강·장비 약·라이선스 기저효과",
-                 fontproperties=PROP_B, fontsize=11)
+    ax.set_title(f"성장 브리지 — {_src_tag(doc)} 표 기준 (일회성 분리)", fontproperties=PROP_B, fontsize=11)
     for b, v in zip(bars, vals):
-        ax.text(b.get_x() + b.get_width() / 2, v + (1.5 if v >= 0 else -3.5),
-                f"{v:+d}%", ha="center", fontproperties=PROP, fontsize=8)
+        ax.text(
+            b.get_x() + b.get_width() / 2, v + (1.2 if v >= 0 else -3.2),
+            f"{v:+.0f}%", ha="center", fontproperties=PROP, fontsize=8,
+        )
     for lbl in ax.get_xticklabels():
         lbl.set_fontproperties(PROP)
         lbl.set_fontsize(7.5)
@@ -170,167 +294,170 @@ def chart_razor_blade() -> Path:
     ]
     for x, y, w, h, t, c in boxes:
         ax.add_patch(
-            FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.03,rounding_size=0.12",
-                           facecolor=c, edgecolor="white", lw=2)
+            FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.03,rounding_size=0.12", facecolor=c, edgecolor="white", lw=2)
         )
         tc = C["ink"] if c in (C["gold"], C["teal2"]) else "white"
-        ax.text(x + w / 2, y + h / 2, t, ha="center", va="center",
-                fontproperties=PROP_B, fontsize=9, color=tc)
-    ax.set_title("레이저-블레이드 모델 — 장비는 문, 소모품이 본업",
-                 fontproperties=PROP_B, fontsize=12, pad=4)
+        ax.text(x + w / 2, y + h / 2, t, ha="center", va="center", fontproperties=PROP_B, fontsize=9, color=tc)
+    ax.set_title("레이저-블레이드 모델 — 장비는 문, 소모품이 본업", fontproperties=PROP_B, fontsize=12, pad=4)
     return save_fig(fig, "04_razor_blade.png")
 
 
-def chart_quarterly() -> Path:
+def chart_geo(doc) -> Path:
     fig, ax = plt.subplots(figsize=(9.0, 3.8))
-    qs = ["Q1'25", "Q2'25", "Q3'25", "Q4'25", "Q1'26"]
-    rev = [154.9, 172.9, 149.0, 166.0, 150.8]
-    colors = [C["slate"]] * 4 + [C["teal"]]
-    bars = ax.bar(qs, rev, color=colors, width=0.55)
-    ax.set_ylabel("매출 (백만 USD)", fontproperties=PROP)
-    ax.set_title("분기 매출 — 라이선스 기저 제거 후 핵심은 완만 성장",
-                 fontproperties=PROP_B, fontsize=11)
-    for b, v in zip(bars, rev):
-        ax.text(b.get_x() + b.get_width() / 2, v + 2, f"{v:.0f}",
-                ha="center", fontproperties=PROP, fontsize=8)
-    ax.axhline(150, color=C["gold"], ls="--", lw=1, alpha=0.7)
-    ax.set_ylim(0, 200)
-    for lbl in ax.get_xticklabels():
-        lbl.set_fontproperties(PROP)
-    fig.tight_layout()
-    return save_fig(fig, "05_quarterly.png")
-
-
-def chart_eps_surprise() -> Path:
-    fig, ax = plt.subplots(figsize=(8.6, 3.5))
-    qs = ["Q2'25", "Q3'25", "Q4'25", "Q1'26"]
-    actual = [0.48, -0.02, 0.07, 0.07]
-    colors = [C["green"] if a >= 0 else C["teal"] for a in actual]
-    bars = ax.bar(qs, actual, color=colors, width=0.55)
-    ax.axhline(0, color=C["ink"], lw=0.8)
-    ax.set_ylabel("Non-GAAP EPS (근사)", fontproperties=PROP)
-    ax.set_title("최근 4분기 EPS — 컨센서스 대비 연속 Beat",
-                 fontproperties=PROP_B, fontsize=11)
-    notes = ["+대형Beat", "Beat(소폭)", "Beat", "Beat"]
-    for b, a, n in zip(bars, actual, notes):
-        ax.text(b.get_x() + b.get_width() / 2, a + (0.04 if a >= 0 else -0.06),
-                f"{a:.2f}\n{n}", ha="center", fontproperties=PROP, fontsize=7.5)
-    for lbl in ax.get_xticklabels():
-        lbl.set_fontproperties(PROP)
-    fig.tight_layout()
-    return save_fig(fig, "06_eps_surprise.png")
-
-
-def chart_scenarios() -> Path:
-    fig, ax = plt.subplots(figsize=(8.6, 3.6))
-    names = ["Bear", "Base", "Bull"]
-    lows = [22, 32, 42]
-    highs = [32, 42, 55]
-    colors = [C["red"], C["teal"], C["navy"]]
-    ax.barh(names, [h - l for l, h in zip(lows, highs)], left=lows, color=colors, height=0.55)
-    ax.axvline(PX, color=C["gold"], ls="--", lw=1.5)
-    ax.text(PX + 0.3, 2.35, f"현재 ~{PX:.1f}", fontproperties=PROP, fontsize=8, color=C["gold"])
-    ax.axvline(PT, color="#2563eb", ls=":", lw=1.2)
-    ax.text(PT + 0.3, -0.55, f"PT평균 ~{PT:.1f}", fontproperties=PROP, fontsize=7.5, color="#2563eb")
-    for i, (lo, hi) in enumerate(zip(lows, highs)):
-        mid = (lo + hi) / 2
-        ax.text(mid, i, f"{lo}–{hi}", ha="center", va="center",
-                color="white", fontproperties=PROP_B, fontsize=9)
-    ax.set_xlim(15, 60)
-    ax.set_xlabel("주가 (USD)", fontproperties=PROP)
-    ax.set_title("Bull / Base / Bear — 현재는 PT 대비 프리미엄",
-                 fontproperties=PROP_B, fontsize=11)
-    for lbl in ax.get_yticklabels():
-        lbl.set_fontproperties(PROP_B)
-    fig.tight_layout()
-    return save_fig(fig, "07_scenarios.png")
-
-
-def chart_sensitivity() -> Path:
-    fig, ax = plt.subplots(figsize=(8.6, 3.6))
-    cats = ["가이드\n하단 600", "가이드\n중단 612", "가이드\n상단 625", "Q1런레이트\n~603"]
-    vals = [600, 612, 625, 603]
-    bars = ax.bar(cats, vals, color=[C["slate"], C["teal"], C["navy"], C["gold"]], width=0.55)
-    ax.set_ylabel("연간 매출 (백만 USD)", fontproperties=PROP)
-    ax.set_title("FY26 가이던스 600–625M vs Q1 런레이트",
-                 fontproperties=PROP_B, fontsize=11)
-    for b, v in zip(bars, vals):
-        ax.text(b.get_x() + b.get_width() / 2, v + 3, f"{v}",
-                ha="center", fontproperties=PROP, fontsize=8)
-    ax.set_ylim(560, 650)
+    names = ["United States", "EMEA", "China", "APAC ex-China"]
+    vals, yoy = [], []
+    for n in names:
+        r = _geo(doc, n)
+        vals.append(r["amount_m"] if r else 0)
+        yoy.append(r.get("yoy_pct") if r else None)
+    bars = ax.bar(names, vals, color=[C["navy"], C["teal"], C["red"], C["gold"]], width=0.55)
+    ax.set_ylabel("백만 USD", fontproperties=PROP)
+    ax.set_title(f"지역 매출 ({_src_tag(doc)})", fontproperties=PROP_B, fontsize=11)
+    for b, v, y in zip(bars, vals, yoy):
+        t = f"{v:.0f}" + (f"\n{y:+.0f}%" if y is not None else "")
+        ax.text(b.get_x() + b.get_width() / 2, v + 1.5, t, ha="center", fontproperties=PROP, fontsize=7.5)
     for lbl in ax.get_xticklabels():
         lbl.set_fontproperties(PROP)
         lbl.set_fontsize(8)
     fig.tight_layout()
-    return save_fig(fig, "08_sensitivity.png")
+    return save_fig(fig, "05_geo.png")
 
 
-def chart_catalysts() -> Path:
+def chart_guidance(doc) -> Path:
+    fig, ax = plt.subplots(figsize=(8.6, 3.6))
+    lo = doc.guidance_fy_low_m or 0
+    hi = doc.guidance_fy_high_m or 0
+    mid = (lo + hi) / 2 if lo and hi else 0
+    # Q2 run-rate approx from ex-onetime
+    rr = (doc.revenue_ex_onetime_m or 0) * 4
+    cats = ["가이드\n하단", "가이드\n중단", "가이드\n상단", "Q2ex×4\n런레이트"]
+    vals = [lo, mid, hi, rr]
+    bars = ax.bar(cats, vals, color=[C["slate"], C["teal"], C["navy"], C["gold"]], width=0.55)
+    ax.set_ylabel("연간 매출 (백만 USD)", fontproperties=PROP)
+    ax.set_title(f"FY 가이던스 ({_src_tag(doc)}) vs 분기 런레이트", fontproperties=PROP_B, fontsize=11)
+    for b, v in zip(bars, vals):
+        ax.text(b.get_x() + b.get_width() / 2, v + 3, f"{v:.0f}", ha="center", fontproperties=PROP, fontsize=8)
+    ymin = min(vals) - 40 if vals else 0
+    ymax = max(vals) + 40 if vals else 100
+    if ymax <= ymin:
+        ymax = ymin + 100
+    ax.set_ylim(ymin, ymax)
+    for lbl in ax.get_xticklabels():
+        lbl.set_fontproperties(PROP)
+        lbl.set_fontsize(8)
+    fig.tight_layout()
+    return save_fig(fig, "06_guidance.png")
+
+
+def chart_pnl(doc) -> Path:
+    fig, axes = plt.subplots(1, 2, figsize=(9.2, 3.7))
+    ax = axes[0]
+    cats = ["총이익률", "전년\n총이익률"]
+    vals = [doc.gross_margin_pct or 0, doc.gross_margin_prior_pct or 0]
+    ax.bar(cats, vals, color=[C["teal"], C["slate"]], width=0.5)
+    ax.set_ylim(0, 100)
+    ax.set_ylabel("%", fontproperties=PROP)
+    ax.set_title("총이익률", fontproperties=PROP_B, fontsize=11)
+    for i, v in enumerate(vals):
+        ax.text(i, v + 1.5, f"{v:.0f}%", ha="center", fontproperties=PROP, fontsize=9)
+    for lbl in ax.get_xticklabels():
+        lbl.set_fontproperties(PROP)
+
+    ax = axes[1]
+    cats = ["영업손익", "순손익", "현금+단기"]
+    vals = [doc.operating_income_m or 0, doc.net_income_m or 0, doc.cash_and_securities_m or 0]
+    colors = [C["red"] if vals[0] < 0 else C["green"], C["red"] if vals[1] < 0 else C["green"], C["navy"]]
+    # scale cash on secondary feel: show cash/10 for bar comparability? Better two groups.
+    ax.bar(["영업", "순이익"], vals[:2], color=colors[:2], width=0.5)
+    ax.axhline(0, color=C["muted"], lw=0.8)
+    ax.set_ylabel("백만 USD", fontproperties=PROP)
+    ax.set_title(f"손익 · 현금 ${vals[2]:.0f}M", fontproperties=PROP_B, fontsize=11)
+    for i, v in enumerate(vals[:2]):
+        ax.text(i, v + (2 if v >= 0 else -5), f"{v:+.1f}", ha="center", fontproperties=PROP, fontsize=8)
+    for lbl in ax.get_xticklabels():
+        lbl.set_fontproperties(PROP)
+    fig.tight_layout()
+    return save_fig(fig, "07_pnl.png")
+
+
+def chart_scenarios(px: float, pt: float | None) -> Path:
+    fig, ax = plt.subplots(figsize=(8.6, 3.6))
+    names = ["Bear", "Base", "Bull"]
+    lows = [28, 42, 58]
+    highs = [42, 58, 85]
+    colors = [C["red"], C["teal"], C["navy"]]
+    ax.barh(names, [h - l for l, h in zip(lows, highs)], left=lows, color=colors, height=0.55)
+    if px:
+        ax.axvline(px, color=C["gold"], ls="--", lw=1.5)
+        ax.text(px + 0.5, 2.35, f"현재 ~{px:.1f}", fontproperties=PROP, fontsize=8, color=C["gold"])
+    if pt:
+        ax.axvline(pt, color="#2563eb", ls=":", lw=1.2)
+        ax.text(pt + 0.5, -0.55, f"PT평균 ~{pt:.1f}", fontproperties=PROP, fontsize=7.5, color="#2563eb")
+    for i, (lo, hi) in enumerate(zip(lows, highs)):
+        ax.text((lo + hi) / 2, i, f"{lo}–{hi}", ha="center", va="center", color="white", fontproperties=PROP_B, fontsize=9)
+    ax.set_xlim(20, 95)
+    ax.set_xlabel("주가 (USD)", fontproperties=PROP)
+    ax.set_title("Bull / Base / Bear — 예시 밴드(권유 아님)", fontproperties=PROP_B, fontsize=11)
+    for lbl in ax.get_yticklabels():
+        lbl.set_fontproperties(PROP_B)
+    fig.tight_layout()
+    return save_fig(fig, "08_scenarios.png")
+
+
+def chart_catalysts(doc) -> Path:
     fig, ax = plt.subplots(figsize=(9.0, 3.4))
     ax.axis("off")
+    tag = _src_tag(doc)
+    rev = doc.revenue_total_m
+    yoy = doc.yoy_ex_onetime_pct if doc.yoy_ex_onetime_pct is not None else doc.yoy_reported_pct
+    rev_s = f"${rev:.0f}M" if rev is not None else "—"
+    yoy_s = f"\nYoY {yoy:+.0f}%" if yoy is not None else ""
+    g_lo, g_hi = doc.guidance_fy_low_m, doc.guidance_fy_high_m
+    guide_s = f"${g_lo:.0f}–{g_hi:.0f}M" if g_lo is not None and g_hi is not None else "IR미확보"
     items = [
-        (0.05, EARN, "실적", "Q2 소모품\n장비·가이드", C["teal"]),
-        (0.28, "Atera", "촉매", "공간 전장\nH2 출하", C["navy"]),
-        (0.52, "Spatial", "성장", "소모품 +31%\n모멘텀 유지?", C["gold"]),
-        (0.76, "밸류", "리스크", f"PT {UPSIDE*100:+.0f}%\n고점권", C["red"]),
+        (0.05, "실적", tag, f"{rev_s}{yoy_s}", C["teal"]),
+        (0.28, "Atera", "촉매", "초기주문\n강세" if doc.is_official else "세그먼트\n미제공", C["navy"]),
+        (0.52, "가이드", "상향" if doc.is_official else "없음", guide_s, C["gold"]),
+        (0.76, "지역", "리스크", "US·중국\n약세" if doc.is_official else "지역믹스\n미제공", C["red"]),
     ]
-    for x, tag, title, body, c in items:
+    for x, ttag, title, body, c in items:
         ax.add_patch(
             FancyBboxPatch(
                 (x, 0.25), 0.2, 0.55, boxstyle="round,pad=0.02,rounding_size=0.04",
                 facecolor=c, edgecolor="white", lw=1.5, transform=ax.transAxes,
             )
         )
-        ax.text(x + 0.1, 0.68, tag, ha="center", transform=ax.transAxes,
-                fontproperties=PROP_B, fontsize=9, color="white")
-        ax.text(x + 0.1, 0.55, title, ha="center", transform=ax.transAxes,
-                fontproperties=PROP_B, fontsize=10, color="white")
-        ax.text(x + 0.1, 0.38, body, ha="center", transform=ax.transAxes,
-                fontproperties=PROP, fontsize=7.5, color="white")
-    ax.set_title(f"촉매 — {EARN} 실적 · Atera · Spatial · 밸류",
-                 fontproperties=PROP_B, fontsize=12, pad=8)
+        ax.text(x + 0.1, 0.68, ttag, ha="center", transform=ax.transAxes, fontproperties=PROP_B, fontsize=9, color="white")
+        ax.text(x + 0.1, 0.55, title, ha="center", transform=ax.transAxes, fontproperties=PROP_B, fontsize=10, color="white")
+        ax.text(x + 0.1, 0.38, body, ha="center", transform=ax.transAxes, fontproperties=PROP, fontsize=7.5, color="white")
+    ax.set_title(f"촉매 카드 — {tag} 숫자 + 하이라이트", fontproperties=PROP_B, fontsize=12, pad=8)
     return save_fig(fig, "09_catalysts.png")
 
 
-def chart_position() -> Path:
+def chart_position(px: float, upside: float | None) -> Path:
     fig, ax = plt.subplots(figsize=(9.0, 3.4))
     ax.set_xlim(0, 10)
     ax.set_ylim(0, 4)
     ax.axis("off")
+    ups = f"{upside*100:+.0f}%" if upside is not None else "—"
     rows = [
         (0.3, 2.6, 9.4, 1.0, C["red"], "white",
-         f"포트 적합도: 낮음 — PT 프리미엄({UPSIDE*100:+.0f}%) · 52주고점권 · Chase 하·과열"),
-        (0.3, 1.4, 4.5, 0.95, C["gold"], C["ink"], f"실적 {EARN}\nEARN_D5 관전"),
-        (5.0, 1.4, 4.7, 0.95, C["slate"], "white", "오늘 배분\n편입 없음"),
+         f"포트: 보유 4주 · 품질C · 비중 OVER · NO_ADD · PT대비 {ups}"),
+        (0.3, 1.4, 4.5, 0.95, C["gold"], C["ink"], "실적 YAML 반영\n소모품·가이드 확인"),
+        (5.0, 1.4, 4.7, 0.95, C["slate"], "white", "추가매수 금지\n추격 금지"),
         (0.3, 0.25, 9.4, 0.95, C["sand"], C["ink"],
-         "관심만: Atera·소모품 확인 후 · 코어(ECPG/AMRX)·SCHD와 예산 경쟁 금지"),
+         "게이트: US/중국 회복 · 장비 저점 · Atera 기여 · stop $42"),
     ]
     for x, y, w, h, c, tc, t in rows:
         ax.add_patch(
-            FancyBboxPatch(
-                (x, y), w, h, boxstyle="round,pad=0.02,rounding_size=0.1",
-                facecolor=c, edgecolor="white", lw=1.5,
-            )
+            FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.02,rounding_size=0.1", facecolor=c, edgecolor="white", lw=1.5)
         )
-        ax.text(x + w / 2, y + h / 2, t, ha="center", va="center",
-                fontproperties=PROP_B, fontsize=9, color=tc)
-    ax.set_title("실행 포지션 맵 (사용자 계좌 기준)", fontproperties=PROP_B, fontsize=12, pad=4)
+        ax.text(x + w / 2, y + h / 2, t, ha="center", va="center", fontproperties=PROP_B, fontsize=9, color=tc)
+    ax.set_title("실행 포지션 맵 (09-16 포폴 SSOT)", fontproperties=PROP_B, fontsize=12, pad=4)
     return save_fig(fig, "10_position.png")
 
 
-def gloss(items: list[tuple[str, str]]) -> str:
-    lis = "".join(f"<li><span class='term'>{a}</span> — {b}</li>" for a, b in items)
-    return f"<div class='gloss'><div class='gloss-title'>이 블록 용어 주석</div><ul>{lis}</ul></div>"
-
-
-def fig_block(path: Path, caption: str) -> str:
-    return (
-        f"<figure><img src='data:image/png;base64,{img_b64(path)}'/>"
-        f"<figcaption>{caption}</figcaption></figure>"
-    )
-
-
-def _compete_section(charts: dict[str, Path], bundle) -> str:
+def _compete_section(charts: dict[str, Path], bundle, doc) -> str:
     if bundle is None or "share" not in charts:
         return ""
     share_rows = "".join(
@@ -346,12 +473,14 @@ def _compete_section(charts: dict[str, Path], bundle) -> str:
         mix_body.append(
             f"<tr><td>{r['name']}{tag}</td>{cells}<td class='small'>{r.get('note', '')}</td></tr>"
         )
+    cons = _mix(doc, "Consumables total")
+    cons_pct = 100.0 * cons["amount_m"] / doc.revenue_total_m if cons and doc.revenue_total_m else 0
     ttm_fig = fig_block(charts["ttm"], "TTM 매출 규모") if "ttm" in charts else ""
     return f"""
 <h2>1-B. 심층 섹터 경쟁 점유율 · 변화</h2>
 <p><b>섹터</b> {bundle.sector_ko}</p>
-<div class="easy"><b>쉽게:</b> TXG는 <b>단일세포·공간전사체</b> 툴 피어셋에서 선두 성격이다.
-Illumina는 NGS 전체 스케일이 커서 SC 전용 점유와 다르다 — 순위·Δpp 감각용.</div>
+<div class="easy"><b>쉽게:</b> TXG는 단일세포·공간 툴 피어셋에서 선두 성격.
+아래 점유는 방향 비교용 추정(공식 PDF 밖).</div>
 {fig_block(charts['share'], bundle.share_title)}
 {fig_block(charts['delta'], '점유율 변화 (pp)')}
 <table>
@@ -359,14 +488,10 @@ Illumina는 NGS 전체 스케일이 커서 SC 전용 점유와 다르다 — 순
   {share_rows}
 </table>
 <p class="small">{bundle.share_note}<br/>출처: {bundle.share_source} · {bundle.share_as_of}</p>
-{gloss([
-    ("Single Cell", "세포 단위 유전자 발현 분석 — Chromium 계열."),
-    ("Spatial", "조직 내 위치까지 보는 전사체 — Xenium·Atera."),
-])}
 
 <h2>1-C. 경쟁사 매출 구조 비율 비교</h2>
-<div class="easy"><b>쉽게:</b> TXG 매출의 약 <b>86%가 소모품</b>이다. 장비는 ‘문’, 시약·칩이 본업.
-피어(ILMN/TECH/TWST)도 소모품 편중이 크고, PACB만 장비 비중이 상대적으로 높다.</div>
+<div class="easy"><b>쉽게:</b> 이번 공식 분기 기준 TXG 매출의 약 <b>{cons_pct:.0f}%가 소모품</b>.
+장비는 ‘문’, 시약·칩이 본업.</div>
 {fig_block(charts['mix'], '매출 믹스 스택 비교')}
 {ttm_fig}
 <table>
@@ -374,25 +499,60 @@ Illumina는 NGS 전체 스케일이 커서 SC 전용 점유와 다르다 — 순
   {''.join(mix_body)}
 </table>
 <p class="small">{bundle.mix_note} · {bundle.mix_as_of}</p>
-{gloss([
-    ("Consumables", "칩·시약·키트 — 고마진·반복 매출."),
-    ("Instruments", "분석 장비 — 신규 설치·교체."),
-    ("Installed base", "설치 대수. 소모품 수요의 기반."),
-])}
 """
 
 
-def build_html(charts: dict[str, Path], *, compete_html: str = "") -> str:
+def build_html(doc, charts, *, compete_html: str, marks: dict) -> str:
+    px = marks.get("px") or 0.0
+    pt = marks.get("pt")
+    h52 = marks.get("h52")
+    upside = (pt / px - 1.0) if pt and px else None
+    asof = doc.report_date
+    period = doc.period_end
+    earn = marks.get("earn") or "—"
+    official = bool(getattr(doc, "is_official", True))
+    src_ko = "공식" if official else "비공식"
+    ssot_label = "근거: 공식 실적 PDF" if official else "근거: 비공식(공개데이터) · IR미확보"
+    cover_sub = (
+        "10x Genomics · 공식 실적 PDF SSOT"
+        if official
+        else "10x Genomics · 비공식 공개데이터 폴백 (IR PDF 미확보)"
+    )
+
+    cons = _mix(doc, "Consumables total")
+    sc_c = _mix(doc, "Consumables — Single Cell")
+    sp_c = _mix(doc, "Consumables — Spatial")
+    inst = _mix(doc, "Instruments total")
+    sc_i = _mix(doc, "Instruments — Single Cell")
+    sp_i = _mix(doc, "Instruments — Spatial")
+    svc = _mix(doc, "Services")
+    lic = _mix(doc, "License & royalty")
+
+    def row(r, label=None):
+        if not r:
+            return ""
+        name = label or r["name"]
+        yoy = f"{r['yoy_pct']:+.0f}%" if r.get("yoy_pct") is not None else "—"
+        pct = f"{100*r['amount_m']/doc.revenue_total_m:.0f}%" if doc.revenue_total_m else "—"
+        return f"<tr><td>{name}</td><td>{r['amount_m']:.1f}M</td><td>{pct}</td><td>{yoy}</td></tr>"
+
+    def fmt_m(v, digits=1):
+        return f"${v:.{digits}f}M" if v is not None else "—"
+
+    def fmt_pct(v, signed=False):
+        if v is None:
+            return "—"
+        return f"{v:+.0f}%" if signed else f"{v:.0f}%"
+
     css = f"""
     @font-face {{ font-family:'NanumGothic'; src:url('file://{FONT_REG}'); font-weight:normal; }}
     @font-face {{ font-family:'NanumGothic'; src:url('file://{FONT_BOLD}'); font-weight:bold; }}
     @page {{ size:A4; margin:14mm 12mm 16mm 12mm;
-      @bottom-center {{ content:"TXG 수익구조분석 {ASOF} — " counter(page);
+      @bottom-center {{ content:"TXG 수익구조분석 {asof} — " counter(page);
         font-size:8pt; color:#666; font-family:'NanumGothic',sans-serif; }} }}
     body {{ font-family:'NanumGothic',sans-serif; font-size:9.5pt; line-height:1.45; color:#1a1a1a; }}
     h1 {{ font-size:22pt; margin:0 0 6px; color:#1e3a5f; }}
     h2 {{ font-size:13pt; margin:14px 0 6px; border-bottom:2px solid #0f766e; padding-bottom:3px; color:#1e3a5f; }}
-    h3 {{ font-size:10.5pt; margin:10px 0 4px; color:#0f766e; }}
     .cover {{ page-break-after:always; min-height:230mm; display:flex; flex-direction:column;
       justify-content:center; text-align:center;
       background:linear-gradient(165deg,#f0f7f6 0%,#e8eef5 55%,#f7f3e8 100%);
@@ -401,6 +561,8 @@ def build_html(charts: dict[str, Path], *, compete_html: str = "") -> str:
     .tag.warn {{ background:#fde68a; }}
     .tag.bad {{ background:#fecaca; }}
     .tag.good {{ background:#bbf7d0; }}
+    .tag.ssot {{ background:#0f766e; color:white; }}
+    .tag.unoff {{ background:#92400e; color:white; }}
     table {{ width:100%; border-collapse:collapse; font-size:8.5pt; margin:8px 0; }}
     th,td {{ border:1px solid #ccc; padding:4px 6px; vertical-align:top; }}
     th {{ background:#edf2f7; }}
@@ -420,178 +582,268 @@ def build_html(charts: dict[str, Path], *, compete_html: str = "") -> str:
     .kpi .s {{ font-size:7.5pt; color:#0f766e; }}
     """
 
+    ups_s = f"{upside*100:+.1f}%" if upside is not None else "—"
+    rev = doc.revenue_total_m
+    yoy_ex = doc.yoy_ex_onetime_pct
+    yoy_rep = doc.yoy_reported_pct
+    g_lo, g_hi = doc.guidance_fy_low_m, doc.guidance_fy_high_m
+    onetime0 = (doc.onetime_items or [{}])[0].get("amount_m") if doc.onetime_items else None
+
+    if official and rev is not None and doc.revenue_ex_onetime_m is not None and yoy_ex is not None:
+        thesis = (
+            f"공식 실적(기간 {period}) 기준 매출 <b>{fmt_m(rev)}</b>. "
+            + (
+                f"특허합의 일회성 ${onetime0:.1f}M 제외 시 "
+                f"<b>{fmt_m(doc.revenue_ex_onetime_m)} · YoY {fmt_pct(yoy_ex, True)}</b>. "
+                if onetime0 is not None
+                else ""
+            )
+            + "소모품이 본업(공식 표), 장비·미국·중국은 약함. "
+            + (
+                f"FY26 가이드 <b>{fmt_m(g_lo, 0)}–{g_hi:.0f}M</b> 상향. "
+                if g_lo is not None and g_hi is not None
+                else ""
+            )
+            + "보유 NO_ADD · 추격 금지."
+        )
+    else:
+        thesis = (
+            f"<b>비공식</b> 공개데이터(기간 {period}) 기준 매출 <b>{fmt_m(rev)}</b>"
+            + (f" · YoY <b>{fmt_pct(yoy_rep or yoy_ex, True)}</b>" if (yoy_rep or yoy_ex) is not None else "")
+            + ". IR/실적보도 PDF 미확보로 세그먼트·가이던스·일회성 분해가 제한됩니다. "
+            "공식 PDF 확보 시 자동으로 공식본을 우선합니다. 보유 NO_ADD · 추격 금지."
+        )
+
+    badge_class = "ssot" if official else "unoff"
+    extra_tags = (
+        '<span class="tag good">일회성 분리</span>'
+        if official
+        else '<span class="tag warn">세그먼트 미제공</span>'
+    )
+    kpi_rev_sub = (
+        f"ex-합의 {fmt_pct(yoy_ex, True)}"
+        if official and yoy_ex is not None
+        else (f"YoY {fmt_pct(yoy_rep, True)}" if yoy_rep is not None else "IR미확보")
+    )
+    kpi_guide = (
+        f"{g_lo:.0f}–{g_hi:.0f}M"
+        if g_lo is not None and g_hi is not None
+        else "—"
+    )
+    guide_note = doc.guidance_note or ("비공식 · 가이던스 없음" if not official else "")
+
+    mix_rows = "".join(
+        [
+            row(sc_c),
+            row(sp_c),
+            row(cons, "<b>Consumables 합계</b>"),
+            row(sc_i),
+            row(sp_i),
+            row(inst, "Instruments 합계"),
+            row(svc),
+            row(lic),
+        ]
+    )
+    if not mix_rows and doc.mix_product:
+        mix_rows = "".join(row(r) for r in doc.mix_product)
+
+    yoy_cell = (
+        f"{fmt_pct(yoy_rep, True)} / <b>ex-합의 {fmt_pct(yoy_ex, True)}</b>"
+        if official
+        else fmt_pct(yoy_rep or yoy_ex, True)
+    )
+    gm = doc.gross_margin_pct
+    gm_pri = doc.gross_margin_prior_pct
+    gm_cell = (
+        f"{fmt_pct(gm)}" + (f" (전년 {fmt_pct(gm_pri)})" if gm_pri is not None else "")
+        if gm is not None
+        else "—"
+    )
+    easy_growth = (
+        f"보고 매출은 작년보다 줄었지만, 합의금을 빼면 본업은 소폭 성장({fmt_pct(yoy_ex, True)}). "
+        "미국·중국은 약하고 EMEA는 상대적 버팀목."
+        if official and yoy_ex is not None
+        else "비공식 폴백 — 세그먼트·지역 믹스 없음. 총매출·YoY만 참고하고 공식 PDF를 기다릴 것."
+    )
+    conclusion = (
+        "공식 PDF 기준으로 본업(소모품·ex-합의 성장·가이드 상향)은 버팀. "
+        "다만 장비·US/중국 약세와 고평가·NO_ADD가 겹쳐 <u>추가매수는 금지</u>."
+        if official
+        else "IR 미확보 비공식 숫자만으로 세그먼트 결론을 내리지 말 것. "
+        "공개 매출·YoY는 참고용이며 <u>추가매수는 금지(NO_ADD)</u>."
+    )
+    gloss_items = (
+        [
+            ("공식 PDF SSOT", "회사가 낸 실적 보도자료를 숫자 근거로 씀. 추정·뉴스보다 우선."),
+            ("일회성(합의)", "특허 소송 합의로 들어온 돈 — 본업 성장과 따로 봐야 함."),
+            ("Consumables", "실험마다 쓰는 칩·시약 — 반복 매출."),
+        ]
+        if official
+        else [
+            ("비공식 폴백", "IR/실적보도 PDF가 없을 때 yfinance 등 공개 데이터로 초안."),
+            ("공식 우선", "나중에 공식 PDF를 ingest하면 자동으로 공식본을 씀."),
+            ("제한", "세그먼트·지역·가이던스·일회성 분해는 제공되지 않음."),
+        ]
+    )
+    h52_s = f"{h52:.2f}" if h52 is not None else "—"
+    pt_s = f"{pt:.1f}" if pt is not None else "—"
+
     return f"""<!DOCTYPE html>
 <html lang="ko"><head><meta charset="utf-8"/><title>TXG 수익구조분석</title><style>{css}</style></head>
 <body>
 <section class="cover">
   <h1>TXG 수익구조분석</h1>
-  <p style="font-size:12pt;color:#444;margin-top:10px">10x Genomics · 단일세포 · 공간전사체 (Spatial)</p>
-  <p style="margin-top:18px;color:#555">기준일 {ASOF} · Q1'26(종료 2026-03-31) · 다음 실적 {EARN} · 시총 ~$6.0B</p>
+  <p style="font-size:12pt;color:#444;margin-top:10px">{cover_sub}</p>
+  <p style="margin-top:14px;color:#555">보고일 {asof} · 기간종료 {period} · 다음실적 ~{earn}</p>
+  <p style="margin-top:10px"><span class="tag {badge_class}">{ssot_label}</span>
+    {extra_tags}
+    <span class="tag bad">보유 NO_ADD</span></p>
   <p style="margin-top:16px">
-    <span class="kpi"><div class="l">현재가</div><div class="v">~${PX:.2f}</div><div class="s">52주고 ${H52:.2f}</div></span>
-    <span class="kpi"><div class="l">PT 평균</div><div class="v">~${PT:.1f}</div><div class="s">{UPSIDE*100:+.1f}%</div></span>
-    <span class="kpi"><div class="l">Q1 매출</div><div class="v">$150.8M</div><div class="s">ex-lic +9% YoY</div></span>
-    <span class="kpi"><div class="l">소모품 비중</div><div class="v">86%</div><div class="s">Spatial +31%</div></span>
-  </p>
-  <p style="margin-top:18px">
-    <span class="tag bad">Chase 하·과열</span>
-    <span class="tag warn">PT 프리미엄 · 고점권</span>
-    <span class="tag warn">실적 {EARN} · EARN_D5</span>
-    <span class="tag bad">오늘 포트 편입 비추천</span>
+    <span class="kpi"><div class="l">현재가</div><div class="v">~${px:.2f}</div><div class="s">52주고 ${h52_s}</div></span>
+    <span class="kpi"><div class="l">PT 평균</div><div class="v">~${pt_s}</div><div class="s">{ups_s}</div></span>
+    <span class="kpi"><div class="l">{src_ko} 분기매출</div><div class="v">{fmt_m(rev)}</div><div class="s">{kpi_rev_sub}</div></span>
+    <span class="kpi"><div class="l">FY 가이드</div><div class="v">{kpi_guide}</div><div class="s">{guide_note}</div></span>
   </p>
 </section>
 
-<h2>0. 한줄 Thesis</h2>
-<p><b>장비(문) + 소모품(본업) 레이저-블레이드.</b> Q1 매출 150.8M — 보고 YoY −3%이나,
-작년 일회성 라이선스(~16.8M) 제외 시 <b>핵심 +9%</b>. 소모품 +13%(Spatial +31%), 장비 −24%.
-FY26 가이드 600–625M. <b>Atera</b> 신제품이 중기 촉매.
-다만 주가는 52주 고점·PT 대비 프리미엄({UPSIDE*100:+.0f}%) → <b>Chase 하·과열 · 오늘 배분 없음</b>.</p>
-{fig_block(charts['01'], '비즈니스 플로우')}
-<div class="easy"><b>쉽게:</b> 연구소에 ‘분석 기계’를 팔고, 그 기계에 넣는 ‘시약·칩’을 계속 팔아 돈을 번다. 면도기와 면도날 모델.</div>
-{gloss([
-    ("Single Cell (단일세포)", "세포 하나하나를 따로 읽어 유전자 발현을 보는 분석."),
-    ("Spatial (공간전사체)", "조직에서 ‘어디서’ 어떤 유전자가 켜졌는지 위치까지 보는 기술."),
-    ("Chromium / Xenium", "10x의 대표 단일세포·공간 플랫폼 브랜드."),
-    ("Atera", "2026 출시 공간 전장전사체 신플랫폼 — 경영진이 ‘역사상 최대 제품’으로 언급."),
-])}
+<!--PRICE_CHARTS-->
 
-<h2>1. 어디서 돈이 오나</h2>
+<h2>0. 한줄 Thesis</h2>
+<p>{thesis}</p>
+{fig_block(charts['01'], '비즈니스 플로우')}
+<div class="easy"><b>쉽게:</b> 연구소에 분석 기계를 팔고, 그 기계에 넣는 시약·칩을 계속 판다. 면도기·면도날 모델.</div>
+{gloss(gloss_items)}
+
+<h2>1. 어디서 돈이 오나 ({src_ko} 표)</h2>
 {fig_block(charts['02'], '유형·제품 믹스')}
 <table>
-  <tr><th>구분 (Q1'26)</th><th>매출</th><th>비중</th><th>YoY</th></tr>
-  <tr><td>Consumables — Single Cell</td><td>88.9M</td><td>59%</td><td>+6%</td></tr>
-  <tr><td>Consumables — Spatial</td><td>40.9M</td><td>27%</td><td>+31%</td></tr>
-  <tr><td><b>Consumables 합계</b></td><td><b>129.8M</b></td><td><b>86%</b></td><td><b>+13%</b></td></tr>
-  <tr><td>Instruments — Single Cell</td><td>5.2M</td><td>3%</td><td>−12%</td></tr>
-  <tr><td>Instruments — Spatial</td><td>6.0M</td><td>4%</td><td>−32%</td></tr>
-  <tr><td>Instruments 합계</td><td>11.3M</td><td>7%</td><td>−24%</td></tr>
-  <tr><td>Services</td><td>8.8M</td><td>6%</td><td>+15%</td></tr>
-  <tr><td>License &amp; royalty</td><td>0.9M</td><td>&lt;1%</td><td>급감(기저)</td></tr>
-  <tr><td><b>총매출</b></td><td><b>150.8M</b></td><td>100%</td><td>−3% / <b>ex-lic +9%</b></td></tr>
+  <tr><th>구분 ({src_ko})</th><th>매출</th><th>비중</th><th>YoY</th></tr>
+  {mix_rows}
+  <tr><td><b>총매출</b></td><td><b>{fmt_m(rev)}</b></td><td>100%</td>
+      <td>{yoy_cell}</td></tr>
 </table>
 {fig_block(charts['04'], '레이저-블레이드')}
-<div class="easy"><b>쉽게:</b> 지금 돈의 86%는 소모품. 장비 매출이 줄어도, 이미 깔린 기계가 시약을 계속 사게 만드는 구조가 핵심이다.</div>
-{gloss([
-    ("Consumables", "칩·시약·키트 등 실험마다 쓰는 소모품 — 고마진·반복 매출."),
-    ("Instruments", "Chromium·Xenium 등 분석 장비 — 신규 설치·교체 수요."),
-    ("Installed base (IB)", "고객 현장에 설치된 장비 대수. 소모품 수요의 기반."),
-    ("License & royalty", "특허 소송 합의 등 라이선스 수입 — 2025에 일회성 크게 잡힘."),
-])}
+{fig_block(charts['03'], '성장 브리지')}
+{fig_block(charts['05'], '지역 매출')}
+<div class="easy"><b>쉽게:</b> {easy_growth}</div>
 
 {compete_html}
 
-<h2>2. 성장·둔화의 구조</h2>
-{fig_block(charts['03'], '성장 브리지')}
-<ul>
-  <li><b>Spatial 소모품 +31%</b> — Xenium 모멘텀이 성장 엔진</li>
-  <li>Single Cell 소모품 +6% · 반응(reaction) 볼륨은 두 자릿수↑ (ASP/믹스 영향)</li>
-  <li>장비 −24% — 신규 캐펙스/구매 사이클 약함 → 단기 톱라인 부담</li>
-  <li>보고 −3%는 <b>작년 라이선스 16.8M 기저</b> 효과가 큼</li>
-</ul>
-{gloss([
-    ("Reaction volume", "소모품으로 돌린 실험 반응 수 — 사용량 지표."),
-    ("ASP/믹스", "제품 구성·할인에 따른 평균판매가 변화."),
-    ("기저효과", "작년 일회성 매출이 커서 올해 성장률이 낮아 보이는 현상."),
-])}
-
-<h2>3. 분기 궤적 · FY 가이드</h2>
-{fig_block(charts['05'], '분기 매출')}
-{fig_block(charts['08'], 'FY26 가이드')}
-<p>FY26 매출 가이던스 <b>600–625M</b> (2025 일회성 라이선스 제외 시 약 0–4% 성장).
-Q1 런레이트(~603M)는 가이드 하단 근처 — <b>상단 달성엔 하반기(Atera 등) 필요</b>.</p>
-<div class="box"><b>촉매:</b> Atera(공간 전장전사체) 출시·H2 초기 출하. 중기적으로 Spatial IB·소모품 확장 스토리.</div>
-{gloss([
-    ("가이던스", "회사가 제시하는 연간 매출 전망 구간."),
-    ("런레이트", "현재 분기 매출×4로 연환산한 속도."),
-])}
-
-<h2>4. 수익성 · 서프라이즈</h2>
-{fig_block(charts['06'], 'EPS')}
+<h2>2. 수익성 · 현금 · 가이던스</h2>
+{fig_block(charts['07'], '손익·마진')}
+{fig_block(charts['06'], 'FY 가이던스')}
 <table>
-  <tr><th>항목</th><th>수치</th></tr>
-  <tr><td>Q1 매출총이익률</td><td>~70% (전년 ~68%)</td></tr>
-  <tr><td>영업이익</td><td>여전히 적자 구간 (개선 중)</td></tr>
-  <tr><td>EPS</td><td>최근 4Q 컨센서스 대비 Beat 기조</td></tr>
-  <tr><td>다음 실적</td><td><b>2026-{EARN}</b></td></tr>
-  <tr><td>현재가 / PT</td><td>~{PX:.1f} / 평균 ~{PT:.1f} · 고 ~{H52:.1f}</td></tr>
-  <tr><td>시총</td><td>~6.0B</td></tr>
+  <tr><th>항목</th><th>{src_ko} 수치</th></tr>
+  <tr><td>총이익률</td><td>{gm_cell}</td></tr>
+  <tr><td>영업손익</td><td>{fmt_m(doc.operating_income_m) if doc.operating_income_m is None else f'{doc.operating_income_m:+.1f}M'}</td></tr>
+  <tr><td>순손익</td><td>{fmt_m(doc.net_income_m) if doc.net_income_m is None else f'{doc.net_income_m:+.1f}M'}</td></tr>
+  <tr><td>현금+단기투자</td><td><b>{fmt_m(doc.cash_and_securities_m, 0)}</b></td></tr>
+  <tr><td>FY26 가이드</td><td><b>{kpi_guide}</b>{(' (' + guide_note + ')') if guide_note else ''}</td></tr>
 </table>
-{gloss([
-    ("Gross margin", "매출총이익률 — 소모품 비중이 높을수록 유리한 편."),
-    ("Beat", "컨센서스보다 좋은 EPS/매출."),
-])}
 
-<h2>5. 시나리오 · Breaker · 촉매</h2>
-{fig_block(charts['07'], '주가 시나리오')}
+<h2>3. 촉매 · 리스크 · 시나리오</h2>
 {fig_block(charts['09'], '촉매')}
-<table>
-  <tr><th>시나리오</th><th>밴드</th><th>가정</th></tr>
-  <tr><td>Bull</td><td>42–55</td><td>Atera 조기 기여 · 가이드 상향 · PT 재상향</td></tr>
-  <tr><td>Base</td><td>32–42</td><td>가이드 유지 · PT 평균대 회귀</td></tr>
-  <tr><td>Bear</td><td>22–32</td><td>학술/바이오 예산 둔화 · 장비 부진 지속 · 가이드 컷</td></tr>
-</table>
-<p><b>Breaker:</b> FY 가이드 하향 · Spatial 성장 둔화 · Atera 출하/수요 미스 · 경쟁(공간·단일세포) 심화</p>
+{fig_block(charts['08'], '시나리오')}
+<ul>
+  {''.join(f'<li>{c}</li>' for c in doc.catalysts)}
+</ul>
+<p><b>리스크:</b> {' · '.join(doc.risks) if doc.risks else '—'}</p>
+{(''.join(f'<blockquote class="small">“{q}”</blockquote>' for q in doc.quotes)) if doc.quotes else ''}
 
-<h2>6. 포트폴리오 위치</h2>
+<h2>4. 포트폴리오 위치</h2>
 {fig_block(charts['10'], '포지션 맵')}
-<table>
-  <tr><th>항목</th><th>권고</th></tr>
-  <tr><td>오늘 최종 배분</td><td><b>편입 없음</b> (코어 ECPG/AMRX · SCHD 우선)</td></tr>
-  <tr><td>이유</td><td>52주 고점 근접 · PT 프리미엄({UPSIDE*100:+.0f}%) · Chase 하·과열 · EARN_D5</td></tr>
-  <tr><td>관전 포인트</td><td>{EARN} 실적 · Atera 초기 반응 · 소모품 YoY 유지 여부</td></tr>
-  <tr><td>관심 재진입 힌트</td><td>PT 평균(~{PT:.0f}) 하회 또는 실적 후 A′/B 셋업 + 가이드 상향</td></tr>
-</table>
 <div class="box">
-<b>계좌 기준 실행</b><br/>
-· 역할: 심층 <b>Chase 하·과열</b> · 코어/위성 우선순위 낮음<br/>
-· 가격: ~${PX:.2f} · PT~${PT:.1f} · <b>업사이드 {UPSIDE*100:+.1f}% · 고점권</b> → 추격 금지<br/>
-· 트리거: <b>{EARN}</b> Q2에서 소모품·장비·가이드·Atera 확인 후 재평가<br/>
-· A′/B: 실적창이라 신규 게이트 모두 0 — 소화 후 재스캔
+<b>포폴 인용</b><br/>{doc.portfolio_memo}<br/><br/>
+보유 4주 · stop $42 · 품질C · 비중 OVER · <b>NO_ADD</b><br/>
+가격 ~${px:.2f} · PT ~${pt_s} ({ups_s}) — 추격 금지 · {src_ko} 숫자로 본업만 재확인.
 </div>
-<div class="easy"><b>한줄 결론:</b> 사업은 ‘소모품 반복’이 건강하고 Spatial이 성장축이다.
-다만 <u>가격이 이미 앞서가</u> 당신 시드(코어·SCHD·실적창)와는 지금 충돌한다. 수익구조 공부는 OK, 매수는 대기.</div>
+<div class="easy"><b>한줄 결론:</b> {conclusion}</div>
 
 <h2>부록 · 출처</h2>
 <p class="small">
-10x Genomics Q1 2026 earnings release (2026-05-07, SEC Exhibit 99.1) · earnings call 요약 ·
-Yahoo/yfinance 가격·PT·분기 매출 ({ASOF}). 피어 믹스·점유는 추정(투자 권유 아님).
+{doc.source_label} · {doc.source_pdf or '(no pdf)'} · report {doc.report_date} · period {doc.period_end}
+ · source_kind={doc.source_kind}.<br/>
+피어 점유/믹스는 추정. 가격·PT는 라이브/스냅. 투자 권유 아님.
 </p>
-<p class="small">생성: 수익구조분석() · 티커 TXG · 기준 {ASOF} · WeasyPrint + NanumGothic · sepa.rev_compete · sepa.rev_price_chart</p>
+<p class="small">생성: 수익구조분석() · TXG · {src_ko} YAML SSOT · WeasyPrint + NanumGothic</p>
 </body></html>
 """
 
 
-def main() -> None:
+def main() -> int:
+    try:
+        doc = resolve_filing("TXG", allow_unofficial=True)
+    except FilingRequiredError as e:
+        print(e)
+        return 2
+
+    marks = live_marks()
+    px = marks.get("px") or 0.0
+    pt = marks.get("pt")
+    upside = (pt / px - 1.0) if pt and px else None
+
     charts = {
         "01": chart_business_flow(),
-        "02": chart_segment_mix(),
-        "03": chart_growth_bridge(),
+        "02": chart_segment_mix(doc),
+        "03": chart_growth_bridge(doc),
         "04": chart_razor_blade(),
-        "05": chart_quarterly(),
-        "06": chart_eps_surprise(),
-        "07": chart_scenarios(),
-        "08": chart_sensitivity(),
-        "09": chart_catalysts(),
-        "10": chart_position(),
+        "05": chart_geo(doc),
+        "06": chart_guidance(doc),
+        "07": chart_pnl(doc),
+        "08": chart_scenarios(px, pt),
+        "09": chart_catalysts(doc),
+        "10": chart_position(px, upside),
     }
     bundle, cpaths = build_compete_charts("TXG", CHART_DIR)
     charts.update(cpaths)
-    compete_html = _compete_section(charts, bundle)
-    html = build_html(charts, compete_html=compete_html)
+    compete_html = _compete_section(charts, bundle, doc)
+    html = build_html(doc, charts, compete_html=compete_html, marks=marks)
     html, _px = build_and_insert_price("TXG", CHART_DIR, html)
     if _px.ok:
         print(f"price-charts {_px.candle_path} {_px.momentum_path}")
     else:
         print(f"price-charts SKIP {_px.error}")
+
     OUT_HTML.write_text(html, encoding="utf-8")
     print(f"HTML {OUT_HTML} {OUT_HTML.stat().st_size}")
-    doc = HTML(filename=str(OUT_HTML))
+    pdf = HTML(filename=str(OUT_HTML)).write_pdf()
     for p in OUT_PDF:
         p.parent.mkdir(parents=True, exist_ok=True)
-        doc.write_pdf(str(p))
+        p.write_bytes(pdf)
         print(f"PDF {p} {p.stat().st_size}")
-    print(f"TXG rev px={PX} pt={PT} upside={UPSIDE*100:.1f}% earn={EARN} compete={bundle is not None}")
+
+    try:
+        from sepa.artifacts import print_release_result, publish_github_release_asset
+
+        kind = "공식 PDF" if doc.is_official else "비공식 폴백"
+        rev = doc.revenue_total_m
+        yoy = doc.yoy_ex_onetime_pct if doc.yoy_ex_onetime_pct is not None else doc.yoy_reported_pct
+        g_lo, g_hi = doc.guidance_fy_low_m, doc.guidance_fy_high_m
+        notes = (
+            f"## TXG 수익구조분석 ({doc.report_date}) · {kind}\n\n"
+            f"- source_kind: `{doc.source_kind}`\n"
+            f"- 기간 {doc.period_end} · 매출 {f'${rev:.1f}M' if rev is not None else '—'}"
+            f" · YoY {f'{yoy:+.0f}%' if yoy is not None else '—'}\n"
+        )
+        if g_lo is not None and g_hi is not None:
+            notes += f"- FY 가이드 ${g_lo:.0f}–{g_hi:.0f}M\n"
+        notes += (
+            f"- 포폴: {doc.portfolio_memo}\n"
+            f"- 출처: `{doc.source_pdf or doc.source_label}`\n"
+        )
+        rel = publish_github_release_asset(
+            OUT_PDF[1],
+            tag="sepa-rev-txg",
+            title=f"SEPA Revenue Structure — TXG ({doc.source_kind})",
+            notes=notes,
+        )
+        print_release_result(rel, label="수익구조분석 PDF")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[warn] GitHub Release publish skipped: {exc}")
+
+    print(f"TXG filing kind={doc.source_kind} {doc.period_end} memo={doc.portfolio_memo}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

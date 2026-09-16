@@ -134,6 +134,21 @@ def run_one(ticker: str, *, python: str = sys.executable) -> dict:
             "skipped": True,
             "reason": f"생성기 없음: reports/generate_revenue_structure_{t.lower()}.py",
         }
+    # Filing SSOT: official YAML preferred; IR-missing → unofficial yfinance fallback
+    if t == "TXG":
+        try:
+            from sepa.rev_filing import resolve_filing
+
+            doc = resolve_filing(t, allow_unofficial=True, save_unofficial=True)
+            print(f"[run] {t} filing source_kind={doc.source_kind} period={doc.period_end}")
+        except Exception as exc:  # noqa: BLE001
+            return {
+                "ticker": t,
+                "ok": False,
+                "skipped": False,
+                "asof": info.asof,
+                "error": str(exc),
+            }
     env = {**os.environ, "PYTHONPATH": str(ROOT / "src")}
     try:
         proc = subprocess.run(
