@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Fetch Chase rank + qual stubs for 2026-09-22 deep universe (45 tickers)."""
+"""Fetch Chase rank + qual stubs for 2026-09-22 deep universe (48 tickers)."""
 from __future__ import annotations
 
 import json
@@ -13,11 +13,11 @@ from sepa.share_gain import FORMULA_SHARE_SUFFIX, assess_share_gain, enrich_qual
 
 ASOF = date(2026, 9, 22)
 TICKERS = [
-    "CDNA", "ETON", "CRSR", "FTNT", "TH", "SLDE", "RDVT", "SBLK", "ROKU", "ZBRA",
-    "FIVE", "NESR", "XNCR", "FA", "PLPC", "ECPG", "NTNX", "CORT", "QRVO", "NEOG",
-    "AVT", "PEBO", "FROG", "NSIT", "NTRA", "CNXN", "CHEF", "SCSC", "GCT", "LITE",
-    "SAIC", "TXG", "PLSE", "OMER", "LFST", "APA", "SEPN", "HALO", "PRCH", "BLFS",
-    "ZD", "CLBK", "DBX", "KSPI", "OSBC",
+    "MU", "QMCO", "CDNA", "ETON", "INTC", "CLMT", "APPS", "FSLY", "FEIM", "TH",
+    "CRSR", "NBIS", "COHU", "FTNT", "RDVT", "SBLK", "VCTR", "SLDE", "ZBRA", "ROKU",
+    "TER", "IOVA", "NESR", "INCY", "SNDK", "XNCR", "HTFL", "STX", "PLPC", "ECPG",
+    "SIMO", "DXCM", "NTNX", "CORT", "MRVL", "QRVO", "NEOG", "AVT", "ALNT", "FROG",
+    "NSIT", "NTRA", "CNXN", "AMRX", "DGII", "DDOG", "CHEF", "SCSC",
 ]
 
 OUT = Path("/workspace/reports/rank_20260922.json")

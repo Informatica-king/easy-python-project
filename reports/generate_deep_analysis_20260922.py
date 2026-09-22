@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""NASDAQ 심층분석 PDF — 2026-09-22 (45종목 · 매수시나리오 A′ 점검) + Chase 스냅샷 + 기술적분석 훅."""
+"""NASDAQ 심층분석 PDF — 2026-09-22 (48종목 · 매수시나리오 A′ 점검) + Chase 스냅샷 + 기술적분석 훅."""
 
 from __future__ import annotations
 
@@ -33,6 +33,186 @@ CHASE_OUT = Path("/workspace/reports/chase_rr_20260922.json")
 
 # Manual qualitative for tickers missing / thin in prior reports
 NEW_Q = {
+    "DGII": {
+        "name": "Digi International",
+        "sector": "IT·IoT",
+        "feat": "IoT·연결",
+        "item": "IoT. 한줄: IoT 연결·임베디드",
+        "fin": "라이브 stub",
+        "strat": "중 · 신규 유니버스 · 추격 주의",
+        "news": "실적·가이던스",
+        "bull": "—", "base": "—", "bear": "—",
+        "brk": "실적 미스·가이던스 컷", "eps": "—", "entry": "관망",
+        "drop": "가이던스 컷", "chase": "중", "abc": "—",
+    },
+    "MRVL": {
+        "name": "Marvell",
+        "sector": "IT·반도체",
+        "feat": "데이터센터·커넥티비티",
+        "item": "반도체. 한줄: 데이터센터·커넥티비티 칩",
+        "fin": "라이브 stub",
+        "strat": "중 · 신규 유니버스 · 추격 주의",
+        "news": "실적·가이던스",
+        "bull": "—", "base": "—", "bear": "—",
+        "brk": "실적 미스·가이던스 컷", "eps": "—", "entry": "관망",
+        "drop": "가이던스 컷", "chase": "중", "abc": "—",
+    },
+    "DXCM": {
+        "name": "DexCom",
+        "sector": "헬스케어·메드테크",
+        "feat": "CGM 당뇨",
+        "item": "메드테크. 한줄: 연속혈당측정 CGM",
+        "fin": "라이브 stub",
+        "strat": "중 · 신규 유니버스 · 추격 주의",
+        "news": "실적·가이던스",
+        "bull": "—", "base": "—", "bear": "—",
+        "brk": "실적 미스·가이던스 컷", "eps": "—", "entry": "관망",
+        "drop": "가이던스 컷", "chase": "중", "abc": "—",
+    },
+    "SIMO": {
+        "name": "Silicon Motion",
+        "sector": "IT·반도체",
+        "feat": "NAND 컨트롤러",
+        "item": "반도체. 한줄: NAND 플래시 컨트롤러",
+        "fin": "라이브 stub",
+        "strat": "중 · 신규 유니버스 · 추격 주의",
+        "news": "실적·가이던스",
+        "bull": "—", "base": "—", "bear": "—",
+        "brk": "실적 미스·가이던스 컷", "eps": "—", "entry": "관망",
+        "drop": "가이던스 컷", "chase": "중", "abc": "—",
+    },
+    "STX": {
+        "name": "Seagate",
+        "sector": "IT·스토리지",
+        "feat": "HDD·스토리지",
+        "item": "스토리지. 한줄: HDD·대용량 스토리지",
+        "fin": "라이브 stub",
+        "strat": "중 · 신규 유니버스 · 추격 주의",
+        "news": "실적·가이던스",
+        "bull": "—", "base": "—", "bear": "—",
+        "brk": "실적 미스·가이던스 컷", "eps": "—", "entry": "관망",
+        "drop": "가이던스 컷", "chase": "중", "abc": "—",
+    },
+    "HTFL": {
+        "name": "Heartflow",
+        "sector": "헬스케어·메드테크",
+        "feat": "심장 CT AI",
+        "item": "메드테크. 한줄: 심장 CT 기반 AI 진단",
+        "fin": "라이브 stub",
+        "strat": "중 · 신규 유니버스 · 추격 주의",
+        "news": "실적·가이던스",
+        "bull": "—", "base": "—", "bear": "—",
+        "brk": "실적 미스·가이던스 컷", "eps": "—", "entry": "관망",
+        "drop": "가이던스 컷", "chase": "중", "abc": "—",
+    },
+    "SNDK": {
+        "name": "Sandisk",
+        "sector": "IT·반도체",
+        "feat": "NAND 스토리지",
+        "item": "반도체. 한줄: NAND 플래시·스토리지",
+        "fin": "라이브 stub",
+        "strat": "중 · 신규 유니버스 · 추격 주의",
+        "news": "실적·가이던스",
+        "bull": "—", "base": "—", "bear": "—",
+        "brk": "실적 미스·가이던스 컷", "eps": "—", "entry": "관망",
+        "drop": "가이던스 컷", "chase": "중", "abc": "—",
+    },
+    "IOVA": {
+        "name": "Iovance",
+        "sector": "헬스케어·바이오",
+        "feat": "TIL 세포치료",
+        "item": "바이오. 한줄: TIL 기반 고형암 세포치료",
+        "fin": "라이브 stub",
+        "strat": "중 · 신규 유니버스 · 추격 주의",
+        "news": "실적·가이던스",
+        "bull": "—", "base": "—", "bear": "—",
+        "brk": "실적 미스·가이던스 컷", "eps": "—", "entry": "관망",
+        "drop": "가이던스 컷", "chase": "중", "abc": "—",
+    },
+    "TER": {
+        "name": "Teradyne",
+        "sector": "IT·반도체장비",
+        "feat": "ATE·테스트",
+        "item": "반도체장비. 한줄: ATE·반도체 테스트 장비",
+        "fin": "라이브 stub",
+        "strat": "중 · 신규 유니버스 · 추격 주의",
+        "news": "실적·가이던스",
+        "bull": "—", "base": "—", "bear": "—",
+        "brk": "실적 미스·가이던스 컷", "eps": "—", "entry": "관망",
+        "drop": "가이던스 컷", "chase": "중", "abc": "—",
+    },
+    "VCTR": {
+        "name": "Victory Capital",
+        "sector": "금융·자산운용",
+        "feat": "자산운용",
+        "item": "자산운용. 한줄: 액티브·ETF 자산운용",
+        "fin": "라이브 stub",
+        "strat": "중 · 신규 유니버스 · 추격 주의",
+        "news": "실적·가이던스",
+        "bull": "—", "base": "—", "bear": "—",
+        "brk": "실적 미스·가이던스 컷", "eps": "—", "entry": "관망",
+        "drop": "가이던스 컷", "chase": "중", "abc": "—",
+    },
+    "COHU": {
+        "name": "Cohu",
+        "sector": "IT·반도체장비",
+        "feat": "테스트·핸들링",
+        "item": "반도체장비. 한줄: 반도체 테스트·핸들링 장비",
+        "fin": "라이브 stub",
+        "strat": "중 · 신규 유니버스 · 추격 주의",
+        "news": "실적·가이던스",
+        "bull": "—", "base": "—", "bear": "—",
+        "brk": "실적 미스·가이던스 컷", "eps": "—", "entry": "관망",
+        "drop": "가이던스 컷", "chase": "중", "abc": "—",
+    },
+    "FEIM": {
+        "name": "Frequency Electronics",
+        "sector": "산업·방산",
+        "feat": "정밀 타이밍",
+        "item": "방산. 한줄: 위성·방산 정밀 타이밍",
+        "fin": "라이브 stub",
+        "strat": "중 · 신규 유니버스 · 추격 주의",
+        "news": "실적·가이던스",
+        "bull": "—", "base": "—", "bear": "—",
+        "brk": "실적 미스·가이던스 컷", "eps": "—", "entry": "관망",
+        "drop": "가이던스 컷", "chase": "중", "abc": "—",
+    },
+    "FSLY": {
+        "name": "Fastly",
+        "sector": "IT·클라우드",
+        "feat": "엣지 클라우드·CDN",
+        "item": "클라우드. 한줄: 엣지 클라우드·CDN 플랫폼",
+        "fin": "라이브 stub",
+        "strat": "중 · 신규 유니버스 · 추격 주의",
+        "news": "실적·가이던스",
+        "bull": "—", "base": "—", "bear": "—",
+        "brk": "실적 미스·가이던스 컷", "eps": "—", "entry": "관망",
+        "drop": "가이던스 컷", "chase": "중", "abc": "—",
+    },
+    "INTC": {
+        "name": "Intel",
+        "sector": "IT·반도체",
+        "feat": "CPU·파운드리",
+        "item": "반도체. 한줄: CPU·파운드리·AI 가속기",
+        "fin": "라이브 stub",
+        "strat": "중 · 신규 유니버스 · 추격 주의",
+        "news": "실적·가이던스",
+        "bull": "—", "base": "—", "bear": "—",
+        "brk": "실적 미스·가이던스 컷", "eps": "—", "entry": "관망",
+        "drop": "가이던스 컷", "chase": "중", "abc": "—",
+    },
+    "QMCO": {
+        "name": "Quantum Corp",
+        "sector": "IT·스토리지",
+        "feat": "데이터 스토리지",
+        "item": "스토리지. 한줄: 엔터프라이즈 데이터 스토리지",
+        "fin": "라이브 stub",
+        "strat": "중 · 신규 유니버스 · 추격 주의",
+        "news": "실적·가이던스",
+        "bull": "—", "base": "—", "bear": "—",
+        "brk": "실적 미스·가이던스 컷", "eps": "—", "entry": "관망",
+        "drop": "가이던스 컷", "chase": "중", "abc": "—",
+    },
 
     "NBIS": {
         "name": "Nebius Group",
@@ -1533,7 +1713,7 @@ def main() -> None:
     <title>NASDAQ 심층분석 {DATE_TAG}</title><style>{build_css()}</style></head><body>
     <section class="cover">
       <h1>NASDAQ 심층분석</h1>
-      <p class="sub">Chase 본선 · 타이밍 GO · 확정 EARN_D5 · 45종 · 군인 프리마켓 실행</p>
+      <p class="sub">Chase 본선 · 타이밍 GO · 확정 EARN_D5 · 48종 · 군인 프리마켓 실행</p>
       <p class="meta">기준일 {DATE_TAG} · 라이브 가격/PT/실적일 · earn_confirmed SSOT · 종료 후 기술적분석 자동</p>
       {exec_cover}
       <div class="portfolio-box" style="text-align:left;max-width:560px;margin:24px auto;">
@@ -1546,14 +1726,14 @@ def main() -> None:
         <b>포트 실행 메모 (9/16 스냅 · 최신 SSOT)</b><br/>
         보유: TXG4 · ECPG3 · APPS20 · ANAB4 · DRH14 · ROKU1 · APA3 · ATRO1 · 평가~$1,608 · 현금합≈$232<br/>
         APA +2(1→3) · ATRO −1(2→1) · Top3≈53.6% · 8종 전원 NO_ADD · 전개가능≈$82<br/>
-        유니버스∩보유: TXG·ECPG·ROKU·APA (ANAB·APPS·DRH·ATRO는 유니버스 외·NO_ADD 유지) · APA3·ATRO1<br/>
+        유니버스∩보유: APPS·ECPG·ROKU (TXG·ANAB·DRH·APA·ATRO는 유니버스 외·NO_ADD 유지)<br/>
         AMRX/FTNT/SCSC/CMPR/NESR 청산후 추격금지 · ATRO stop $68 하회·축소검토 · 실행창 17:30~20:55 지정가<br/>
-        유니버스 45종 · 본선∩GO 강조 · PDF=GitHub Release만
+        유니버스 48종 · 본선∩GO 강조 · PDF=GitHub Release만
       </div>
     </section>
     {buy_scenario_section(scenarios, exec_hits=exec_live)}
     <h2>Surprise / Chase 요약</h2>
-    <p class="small">정렬: Chase RR. 가격·PT는 {DATE_TAG} 라이브. 45종 · 유니버스: MU·NBIS·FIVE·OMDA·CORT·BLFS·KSPI·ZLAB 등 · APA 보유3주·ATRO 보유1주 NO_ADD.<br/>
+    <p class="small">정렬: Chase RR. 가격·PT는 {DATE_TAG} 라이브. 48종 · 유니버스: MU·NBIS·FIVE·OMDA·CORT·BLFS·KSPI·ZLAB 등 · APA 보유3주·ATRO 보유1주 NO_ADD.<br/>
     가산: 경쟁점유 Δ≥+0.3pp → +0.35 (마진유지 시 +0.15 추가 · 마진악화 시 가산취소). 해당 종목 strat/Chase에 코멘트.</p>
     <table>
       <tr><th>#</th><th>티커</th><th>가격</th><th>PT</th><th>업사이드</th><th>EPS B/N</th><th>실적일</th><th>Chase</th></tr>
