@@ -30,10 +30,10 @@ class HoldingRow:
     ticker: str
     shares: float
     cost: float | None
-    grade: str = "C"  # effective after enrich; yaml quality before
-    max_pct: float = 0.06  # effective ADD cap (0 if 금지)
-    quality_grade: str = "C"
-    quality_max_pct: float = 0.06
+    grade: str = "OK"  # effective after enrich: OK | 금지
+    max_pct: float = 0.20  # effective ADD cap (0 if 금지)
+    quality_grade: str = "—"  # deprecated (A/B/C removed)
+    quality_max_pct: float = 0.20  # structural name cap (== NAME_CAP)
     stop: float | None = None
     tp1: float | None = None
     tp2: float | None = None
@@ -56,11 +56,13 @@ class HoldingRow:
 
     @property
     def grade_label(self) -> str:
-        """Display: quality→effective · structural max%."""
-        q = self.quality_grade or self.grade
-        if self.grade == "금지" and q != "금지":
-            return f"{q}→금지·구조{self.quality_max_pct*100:.0f}%"
-        return f"{self.grade}·맥스{self.max_pct*100:.0f}%"
+        """Display: OK|금지 · name ceiling %."""
+        from sepa.position_grade import NAME_CAP
+
+        cap = self.quality_max_pct if self.quality_max_pct > 0 else NAME_CAP
+        if self.grade == "금지" or self.max_pct <= 0:
+            return f"금지·ADD0·천장{cap*100:.0f}%"
+        return f"종목천장{self.max_pct*100:.0f}%"
 
 
 @dataclass
@@ -206,7 +208,7 @@ def load_book(path: str | Path = "config/portfolio_watch.yaml") -> PortfolioBook
     cash_krw_usd = 0.0
     if cash_krw and fx_f and fx_f > 0:
         cash_krw_usd = float(cash_krw) / fx_f
-    from sepa.position_grade import GRADE_MAX
+    from sepa.position_grade import NAME_CAP
 
     holdings: list[HoldingRow] = []
     for h in raw.get("holdings") or []:
@@ -218,25 +220,24 @@ def load_book(path: str | Path = "config/portfolio_watch.yaml") -> PortfolioBook
         band_t = None
         if isinstance(band, (list, tuple)) and len(band) == 2:
             band_t = (float(band[0]), float(band[1]))
-        q_raw = str(h.get("grade") or h.get("quality_grade") or "C").strip()
-        q = q_raw.upper() if q_raw != "금지" else "금지"
-        if q not in ("A", "B", "C", "금지"):
-            q = "C"
+        # A/B/C quality grades removed — flat name cap (default 20%)
         if h.get("max_pct") is not None:
-            q_max = float(h["max_pct"])
-            if q_max > 1.0:  # yaml stores 18 not 0.18
-                q_max /= 100.0
+            name_cap = float(h["max_pct"])
+            if name_cap > 1.0:  # yaml stores 20 not 0.20
+                name_cap /= 100.0
         else:
-            q_max = GRADE_MAX.get(q if q != "금지" else "C", 0.06)
+            name_cap = NAME_CAP
+        g_raw = str(h.get("grade") or "").strip()
+        init_grade = "금지" if g_raw == "금지" else "OK"
         holdings.append(
             HoldingRow(
                 ticker=str(h["ticker"]).upper(),
                 shares=float(h.get("shares") or 0),
                 cost=float(h["cost_approx"]) if h.get("cost_approx") is not None else None,
-                grade=q,
-                max_pct=q_max,
-                quality_grade=q if q != "금지" else "C",
-                quality_max_pct=q_max if q != "금지" else GRADE_MAX["C"],
+                grade=init_grade,
+                max_pct=0.0 if init_grade == "금지" else name_cap,
+                quality_grade="—",
+                quality_max_pct=name_cap,
                 stop=float(h["stop"]) if h.get("stop") is not None else None,
                 tp1=float(h["tp1"]) if h.get("tp1") is not None else None,
                 tp2=float(h["tp2"]) if h.get("tp2") is not None else None,
@@ -341,8 +342,8 @@ def enrich_marks(
 
 
 def apply_holding_grade(h: HoldingRow, sc: Any | None = None) -> HoldingRow:
-    """Set effective grade from yaml quality + hard gates (+ optional BuyScore)."""
-    from sepa.position_grade import GRADE_MAX, assign_from_buy_score, assign_position_grade
+    """Set effective grade: OK (name cap 20%) or 금지 (ADD 0%) from hard gates."""
+    from sepa.position_grade import NAME_CAP, assign_from_buy_score, assign_position_grade
 
     has_stop = h.stop is not None or h.invalidation is not None
     if sc is not None:
@@ -351,17 +352,16 @@ def apply_holding_grade(h: HoldingRow, sc: Any | None = None) -> HoldingRow:
             earn_d5=h.earn_d5,
             no_add=h.no_add,
             has_stop=has_stop,
-            yaml_grade=h.quality_grade,
         )
     else:
         pg = assign_position_grade(
             earn_d5=h.earn_d5,
             no_add=h.no_add,
             has_stop=has_stop,
-            yaml_grade=h.quality_grade,
         )
-    h.quality_grade = pg.quality_grade
-    h.quality_max_pct = GRADE_MAX.get(pg.quality_grade, h.quality_max_pct)
+    h.quality_grade = "—"
+    # Structural ceiling is always the flat name cap (ignore legacy yaml A/B/C %)
+    h.quality_max_pct = NAME_CAP
     h.grade = pg.grade
     h.max_pct = pg.max_pct
     h.grade_reasons = list(pg.reasons)
@@ -389,9 +389,9 @@ def stance_for(h: HoldingRow, as_of: date) -> str:
         bits.append("NO_ADD")
     if h.grade == "금지":
         bits.append("유효금지")
-    if h.w_stock is not None:
-        # OVER vs structural (quality) cap — not the effective ADD=0 cap
-        ws = weight_status(h.w_stock, h.quality_max_pct)
+    if h.w_liquid is not None:
+        # OVER vs name cap on liquid (equity+cash) — not the effective ADD=0 cap
+        ws = weight_status(h.w_liquid, h.quality_max_pct)
         if ws:
             bits.append(ws)
     if h.px is not None and h.tp1 is not None and h.px >= h.tp1:
@@ -415,17 +415,17 @@ def build_risks(book: PortfolioBook) -> list[str]:
             out.append(f"{h.ticker} EARN_D5 (~{h.earn_date})")
         if h.px is not None and h.stop is not None and h.px <= h.stop * 1.03:
             out.append(f"{h.ticker} stop경계 (${h.stop:g})")
-        if h.w_stock is not None:
-            ws = weight_status(h.w_stock, h.quality_max_pct)
+        if h.w_liquid is not None:
+            ws = weight_status(h.w_liquid, h.quality_max_pct)
             if ws:
                 out.append(
-                    f"{h.ticker} {ws} {h.w_stock*100:.1f}% "
-                    f"(품질{h.quality_grade}≤{h.quality_max_pct*100:.0f}%)"
+                    f"{h.ticker} {ws} {h.w_liquid*100:.1f}% "
+                    f"(유동천장≤{h.quality_max_pct*100:.0f}%)"
                 )
-    weights = [h.w_stock for h in book.holdings if h.w_stock is not None]
+    weights = [h.w_liquid for h in book.holdings if h.w_liquid is not None]
     if top3_over_cap(weights):
         top3 = sorted(weights, reverse=True)[:3]
-        out.append(f"Top3 합 {sum(top3)*100:.1f}% > 50%")
+        out.append(f"Top3 합 {sum(top3)*100:.1f}% > 50% (유동)")
     if book.pending_note:
         out.append(book.pending_note)
     return out
@@ -797,7 +797,7 @@ def build_ops_plan(book: PortfolioBook, ideas: list[BuyIdea]) -> list[str]:
         lines.append("매수 예외: 실행후보 있으나 점수 패스(L1=0/마진악화/Σ낮음) → 이번 주 신규 0")
     else:
         lines.append("매수 예외: 없음 (기본 신규 0)")
-    lines.append("금지: NO_ADD·유효금지 · 과열 · 업사이드 음수 · 현금바닥 파괴 · L1=0 · 등급한도 초과 추가")
+    lines.append("금지: NO_ADD·유효금지 · 과열 · 업사이드 음수 · 현금바닥 파괴 · L1=0 · 종목천장20% 초과 추가")
     return lines
 
 
