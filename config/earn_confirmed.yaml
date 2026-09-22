@@ -1,9 +1,9 @@
-as_of: '2026-09-16'
-note: portfolio sync · AMRX exit · ROKU1·APA1 new · ECPG3 · DRH14 · ATRO2 · estimate 자동승격 금지
+as_of: '2026-09-22'
+note: portfolio sync · APA3 · ATRO1 · ECPG3 · DRH14 · ROKU1 · 8 holds NO_ADD · estimate 자동승격 금지
 entries:
   ECPG:
     earn_date: '2026-11-04'
-    note: portfolio SSOT · hold 3sh (+1)
+    note: portfolio SSOT · hold 3sh
     confirmed_on: '2026-08-12'
   TXG:
     earn_date: '2026-11-05'
@@ -19,19 +19,19 @@ entries:
     confirmed_on: '2026-08-18'
   DRH:
     earn_date: '2026-07-30'
-    note: portfolio SSOT · reported · hold 14sh (+1)
+    note: portfolio SSOT · reported · hold 14sh
     confirmed_on: '2026-07-30'
   ROKU:
     earn_date: '2026-11-05'
-    note: portfolio SSOT · new hold
+    note: portfolio SSOT · hold 1sh
     confirmed_on: '2026-09-16'
   ATRO:
     earn_date: '2026-11-05'
-    note: portfolio SSOT · hold 2sh (+1)
+    note: portfolio SSOT · hold 1sh (−1)
     confirmed_on: '2026-09-08'
   APA:
     earn_date: '2026-11-04'
-    note: portfolio SSOT · new hold
+    note: portfolio SSOT · hold 3sh (+2)
     confirmed_on: '2026-09-16'
   AMRX:
     earn_date: '2026-10-29'

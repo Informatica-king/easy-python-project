@@ -1,5 +1,5 @@
 # TA 워치리스트 + 포트 훅 메타 (≤20)
-# 2026-09-16: ROKU1·APA1 신규 · ECPG3 · DRH14 · ATRO2 · AMRX 청산
+# 2026-09-22: APA3 · ATRO1 · ECPG3 · DRH14 · ROKU1 · 8종 NO_ADD
 
 tickers:
   - symbol: ECPG
@@ -48,46 +48,35 @@ tickers:
     earn_date: "2026-10-29"
     stop: 15.5
     tp1: 19.0
-    tp2: 20.0
     no_add: true
+    note: "exited 2026-09-16"
 
   - symbol: FTNT
-    earn_date: "2026-11-05"
-    stop: 145.0
+    earn_date: "2026-11-06"
+    stop: 70.0
     no_add: true
+    note: "exited 2026-09-08"
 
   - symbol: SCSC
-    earn_date: "2026-08-20"
-    stop: 51.0
     no_add: true
+    note: "exited 2026-08-22"
 
   - symbol: CMPR
-    earn_date: "2026-10-28"
-    stop: 90.0
-    tp1: 110.0
-    tp2: 120.0
     no_add: true
-
-  - symbol: ALKS
-    no_add: true
-
-  - symbol: LASR
-    earn_date: "2026-08-06"
-    stop: 60.50
-    no_add: true
+    note: "exited 2026-08-20"
 
   - symbol: NESR
-    earn_date: "2026-08-18"
-    band: [25.0, 27.0]
-    stop: 24.0
-    tp1: 32.0
-    tp2: 33.0
     no_add: true
+    note: "exited 2026-08-11"
+
+  - symbol: LASR
+    no_add: true
+    note: "exited"
 
   - symbol: RELY
-    earn_date: "2026-08-05"
-    stop: 20.0
     no_add: true
+    note: "exited"
 
   - symbol: SCHD
     no_add: true
+    note: "exited buffer ETF"

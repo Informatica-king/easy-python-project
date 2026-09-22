@@ -14,10 +14,10 @@ from sepa.portfolio_ops import (
 )
 
 
-def test_load_book_snap_20260916():
+def test_load_book_snap_20260922():
     book = load_book("config/portfolio_watch.yaml")
-    assert book.as_of == date(2026, 9, 16)
-    assert abs(book.cash_usd - 254.80) < 1e-6
+    assert book.as_of == date(2026, 9, 22)
+    assert abs(book.cash_usd - 232.22) < 1e-6
     assert book.cash_krw is not None and abs(book.cash_krw - 3) < 1e-3
     assert book.cash_krw_usd >= 0
     assert book.target_krw == 100_000_000
@@ -35,10 +35,10 @@ def test_load_book_snap_20260916():
     assert roku.shares == 1
     assert roku.stop == 140.0
     atro = next(h for h in book.holdings if h.ticker == "ATRO")
-    assert atro.shares == 2
+    assert atro.shares == 1
     assert atro.stop == 68.0
     apa = next(h for h in book.holdings if h.ticker == "APA")
-    assert apa.shares == 1
+    assert apa.shares == 3
     assert apa.stop == 40.0
     apps = next(h for h in book.holdings if h.ticker == "APPS")
     assert apps.shares == 20
