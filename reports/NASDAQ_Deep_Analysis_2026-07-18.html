@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<title>NASDAQ 심층분석 보고서 2026-07-18</title>
+<style>
+@font-face {
+  font-family: 'NanumReport';
+  src: url('file:///tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothic.ttf');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'NanumReport';
+  src: url('file:///tmp/nanum/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf');
+  font-weight: 700;
+}
+@page {
+  size: A4;
+  margin: 18mm 14mm 18mm 14mm;
+  @bottom-center {
+    content: counter(page);
+    font-family: 'NanumReport', sans-serif;
+    font-size: 9pt;
+    color: #666;
+  };
+}
+body {
+  font-family: 'NanumReport', sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.45;
+  color: #1e1e1e;
+}
+h1 { font-size: 22pt; color: #142846; margin: 0 0 8pt; }
+h2 { font-size: 15pt; color: #19375f; margin: 0 0 6pt; page-break-after: avoid; }
+h3 {
+  font-size: 11pt; color: #14325a; margin: 10pt 0 4pt;
+  background: #e6eef8; padding: 5pt 8pt; page-break-after: avoid;
+}
+.cover { text-align: center; padding-top: 40mm; page-break-after: always; }
+.cover .sub { font-size: 14pt; font-weight: 700; margin: 8pt 0 18pt; }
+.cover .meta { font-size: 11pt; color: #333; margin: 4pt 0; }
+.cover .disclaimer { margin-top: 28pt; font-size: 9pt; color: #777; }
+.ticker { page-break-before: always; }
+.price { font-size: 9.5pt; color: #333; margin-bottom: 8pt; }
+table.data, table.kv {
+  width: 100%; border-collapse: collapse; margin: 6pt 0 10pt; font-size: 9.5pt;
+}
+table.data th {
+  background: #1e3c64; color: #fff; padding: 5pt; border: 1px solid #1e3c64;
+}
+table.data td {
+  border: 1px solid #c5d0de; padding: 4pt 5pt; text-align: center;
+}
+table.data tr:nth-child(even) td { background: #f0f5fa; }
+table.kv th {
+  width: 22%; text-align: left; vertical-align: top;
+  background: #f3f6fa; border: 1px solid #d0dae6; padding: 4pt 6pt; font-weight: 700;
+}
+table.kv td {
+  border: 1px solid #d0dae6; padding: 4pt 6pt; vertical-align: top;
+}
+ul { margin: 4pt 0 8pt 16pt; padding: 0; }
+li { margin: 2pt 0; }
+.headerbar {
+  font-size: 8.5pt; color: #777; border-bottom: 1px solid #ddd;
+  margin-bottom: 10pt; padding-bottom: 3pt;
+}
+</style>
+</head>
+<body>
+
+<section class="cover">
+  <h1>NASDAQ 심층분석 보고서</h1>
+  <div class="sub">2026년 7월 18일 티커 유니버스</div>
+  <p class="meta">전략: NASDAQ 전용 · 중단기 모멘텀 추격 · 어닝 서프라이즈 중시</p>
+  <p class="meta">기준가: 2026-07-17 종가</p>
+  <p class="meta">PT 출처: StockAnalysis (S&amp;P Global 컨센서스)</p>
+  <p class="meta">서프라이즈: ChartMill / Benzinga / MarketBeat / 회사 IR</p>
+  <p class="meta" style="margin-top:16pt;font-weight:700;">분석 대상 (13)</p>
+  <p class="meta">ECPG · ASTH · NESR · KNSA · INDV · JBHT · EXTR</p>
+  <p class="meta">BTSG · VCYT · TGTX · KRYS · DAVE · SEZL</p>
+  <p class="meta" style="margin-top:10pt;font-size:9pt;color:#555;">폰트: NanumGothic (CID / Identity-H 임베드)</p>
+  <p class="disclaimer">면책: 본 보고서는 투자 권유가 아니며, 공개 자료 기반의 분석 노트입니다.<br/>
+  실제 매매 전 최신 시세·공시·리스크를 재확인하십시오.</p>
+</section>
+
+<section>
+  <div class="headerbar">심층분석 보고서 | 2026-07-18 | NASDAQ Chase Strategy</div>
+  <h2>0. 어닝 서프라이즈 요약 (최근 4분기)</h2>
+  <p>어닝 서프라이즈 여부는 본 전략의 핵심 필터입니다. EPS Beat 횟수·연속성·매출 Beat를 함께 봅니다.</p>
+  <table class="data">
+    <thead><tr><th>티커</th><th>EPS</th><th>연속</th><th>Rev</th><th>품질</th></tr></thead>
+    <tbody><tr><td>ECPG</td><td>4/4</td><td>6연속</td><td>4/4</td><td>최상</td></tr><tr><td>INDV</td><td>4/4</td><td>4연속+</td><td>4/4</td><td>최상</td></tr><tr><td>EXTR</td><td>4/4</td><td>4연속</td><td>2/4</td><td>상(매출혼조)</td></tr><tr><td>SEZL</td><td>4/4</td><td>4연속</td><td>3/4</td><td>상(과열)</td></tr><tr><td>KRYS</td><td>4/4</td><td>4연속</td><td>4/4</td><td>상(고점)</td></tr><tr><td>JBHT</td><td>4/4</td><td>4연속</td><td>혼조</td><td>상(반영됨)</td></tr><tr><td>NESR</td><td>3~4/4</td><td>2~4연속</td><td>3~4/4</td><td>상</td></tr><tr><td>DAVE</td><td>3/4</td><td>3연속</td><td>4/4</td><td>중상(변동)</td></tr><tr><td>VCYT</td><td>3/4</td><td>2연속</td><td>4/4</td><td>중상</td></tr><tr><td>BTSG</td><td>3/4</td><td>1연속</td><td>4/4</td><td>중</td></tr><tr><td>ASTH</td><td>2/4</td><td>2연속</td><td>4/4</td><td>중(턴)</td></tr><tr><td>KNSA</td><td>2/4</td><td>1연속</td><td>4/4</td><td>중</td></tr><tr><td>TGTX</td><td>0/4</td><td>0(4미스)</td><td>2/4</td><td>하</td></tr></tbody>
+  </table>
+  <p>가격 참고: 현재가 / 52주 / PT(저·평균·고)는 각 티커 본문에 포함.</p>
+</section>
+
+
+    <section class="ticker">
+      <h2>1. ECPG — Encore Capital Group</h2>
+      <p class="price">현재 $91.33 | 52주 $35.67–$94.60 | PT $105/$113/$120 | A/B/C $100/$110/$120</p>
+
+      <div class="section"><h3>1. One-line Thesis</h3><p>채권회수 사이클 확장 + EPS/매출 서프라이즈 연속성이 가장 깨끗한 중단기 모멘텀. 현재가 $91.33 · 시총 ~$2.0B · 촉매: 2026-08-06 06:00 KST 실적 콜.</p></div>
+
+      <div class="section"><h3>2. 섹터 · 섹터주 특징 · 시총 순위</h3><table class="kv"><tr><th>섹터</th><td>금융 · 채권회수(NPL)</td></tr><tr><th>특징</th><td>금리·연체율에 민감. 포트폴리오 매입 가격과 회수율이 핵심. 성장주보다 현금흐름·운영 레버리지 장세.</td></tr><tr><th>시총/순위</th><td>시총 ~$2.0B. 동종 소형 금융 내 상위권. 절대 시총은 중소형.</td></tr></table></div>
+
+      <div class="section"><h3>3. 핵심 아이템</h3><p>연체채권(NPL) 매입 후 회수·법적 추심. 한 줄: 싸게 산 빚을 회수해 이익을 내는 회사.</p></div>
+
+      <div class="section"><h3>4. 실적 (YoY+QoQ · 컨센서스 · 서프라이즈 · 전략 비교)</h3><table class="kv"><tr><th>실적</th><td>Q1&#x27;26 매출 $475M(YoY +21%), Non-GAAP EPS $3.86. QoQ도 고수준 유지. 회수 효율과 포트폴리오 회전이 개선 중.</td></tr><tr><th>컨센서스</th><td>대형 IB/전문 증권: Buy 우세. PT 저 $105 / 평균 $113 / 고 $120 (StockAnalysis). 현재가 대비 평균 +24% 업사이드.</td></tr><tr><th>서프라이즈</th><td>최근 4Q EPS 4/4 Beat, Rev 4/4 Beat, 연속 6분기 EPS Beat. Q1&#x27;26 EPS +26%, 평균 서프라이즈 ~+56%. 서프라이즈 품질 최상.</td></tr><tr><th>전략 관점</th><td>우리 전략(어닝 서프라이즈·중단기 추격)과 정합. PT 프리미엄 없고 Beat 신뢰 최고 → 코어 1순위.</td></tr></table></div>
+
+      <div class="section"><h3>5. 섹터·기업 뉴스 (출처)</h3><ul><li>채권회수·소비자 신용 연체 관련 섹터 관심 지속 (회사 IR / 실적자료).</li><li>Q1 실적 발표에서 EPS·매출 모두 컨센서스 상회 (ChartMill / Benzinga earnings history).</li><li>차기 실적: 2026-08-05/06 전후 (회사 일정).</li></ul></div>
+
+      <div class="section"><h3>6. 중단기 시나리오 (BULL / BASE / BEAR)</h3><table class="kv"><tr><th>BULL</th><td>연속 Beat + 가이던스 상향 → $110–120 (PT 고점권).</td></tr><tr><th>BASE</th><td>완만한 회수 개선 → $100–110.</td></tr><tr><th>BEAR</th><td>회수율 둔화·규제/금리 쇼크 → $80–88.</td></tr><tr><th>Thesis breaker</th><td>연속 Beat 끊김, 포트폴리오 매입 마진 악화, 규제 강화.</td></tr></table></div>
+
+      <div class="section"><h3>7. 결론 표</h3><table class="kv"><tr><th>섹터</th><td>금융·채권회수</td></tr><tr><th>핵심 아이템</th><td>NPL 회수</td></tr><tr><th>EPS</th><td>Non-GAAP 강세, 6연속 Beat</td></tr><tr><th>신규진입</th><td>$88–93 (보유·분할 가능)</td></tr><tr><th>탈락</th><td>회수율 둔화·가이던스 하향</td></tr><tr><th>Chase</th><td>최상 · 코어</td></tr></table></div>
+    </section>
+    
+    <section class="ticker">
+      <h2>2. ASTH — Astrana Health</h2>
+      <p class="price">현재 $44.94 | 52주 $18.08–$51.60 | PT $36/$48.6/$65 | A/B/C $48/$55/$62</p>
+
+      <div class="section"><h3>1. One-line Thesis</h3><p>Care Partners 성장 + 최근 2연속 Adj EPS 대형 Beat로 턴어라운드 확인. $44.94 · ~$2.2B · 촉매: 2026-08-07 06:30 KST 콜.</p></div>
+
+      <div class="section"><h3>2. 섹터 · 섹터주 특징 · 시총 순위</h3><table class="kv"><tr><th>섹터</th><td>헬스케어 서비스 · Value-based Care</td></tr><tr><th>특징</th><td>보험·메디케어 정책과 MSO/의사네트워크 확장이 핵심. 매출 성장은 빠르나 마진·레버리지 관리가 관건.</td></tr><tr><th>시총/순위</th><td>시총 ~$2.2B. 소형 헬스케어 서비스. 대형 보험사 대비 니치.</td></tr></table></div>
+
+      <div class="section"><h3>3. 핵심 아이템</h3><p>의사 중심 기술·Care Partners로 가치기반 진료. 한 줄: 병원/클리닉 네트워크를 묶어 효율적으로 환자를 관리.</p></div>
+
+      <div class="section"><h3>4. 실적 (YoY+QoQ · 컨센서스 · 서프라이즈 · 전략 비교)</h3><table class="kv"><tr><th>실적</th><td>Q1&#x27;26 매출 $965M(YoY +56%), Adj EBITDA $66.3M(+82%), Adj EPS $0.74. QoQ 규모 확대 지속.</td></tr><tr><th>컨센서스</th><td>컨센서스 Hold~Buy 혼재. PT 저 $36 / 평균 $48.6 / 고 $65. 현재가 대비 평균 +8% 내외.</td></tr><tr><th>서프라이즈</th><td>최근 4Q EPS 2/4 Beat이나 Q4&#x27;25·Q1&#x27;26 연속 대형 Beat(Adj). Rev는 대체로 4/4 Beat. GAAP/Adj 혼선 주의.</td></tr><tr><th>전략 관점</th><td>최근 서프라이즈 턴은 긍정적. 보유 적합. 다만 과거 미스 이력으로 ECPG보다 한 단계 아래.</td></tr></table></div>
+
+      <div class="section"><h3>5. 섹터·기업 뉴스 (출처)</h3><ul><li>Q1&#x27;26 실적: Adj EPS·매출 컨센서스 상회 (Yahoo Finance / IR 2026-05-07).</li><li>FY2026 매출·Adj EBITDA 가이던스 재확인 (회사 IR).</li><li>Q2 실적 일정: 2026-08-06 장마감 후 발표·콜 (IR).</li></ul></div>
+
+      <div class="section"><h3>6. 중단기 시나리오 (BULL / BASE / BEAR)</h3><table class="kv"><tr><th>BULL</th><td>가이던스 상향 + 레버리지 개선 → $55–65.</td></tr><tr><th>BASE</th><td>성장 유지·마진 안정 → $48–55.</td></tr><tr><th>BEAR</th><td>Adj/GAAP 괴리·비용 재확대 → $36–40.</td></tr><tr><th>Thesis breaker</th><td>Q2 Adj 미스, 레버리지 재상승, Care Partners 성장 둔화.</td></tr></table></div>
+
+      <div class="section"><h3>7. 결론 표</h3><table class="kv"><tr><th>섹터</th><td>헬스케어 서비스</td></tr><tr><th>핵심 아이템</th><td>Care Partners / VBC</td></tr><tr><th>EPS</th><td>Adj 최근 2연속 대형 Beat</td></tr><tr><th>신규진입</th><td>$42–46</td></tr><tr><th>탈락</th><td>Q2 가이던스 미스·레버리지 악화</td></tr><tr><th>Chase</th><td>상 · 코어 보유</td></tr></table></div>
+    </section>
+    
+    <section class="ticker">
+      <h2>3. NESR — National Energy Services Reunited</h2>
+      <p class="price">현재 $27.99 | 52주 $6.00–$30.31 | PT $30/$33/$36 | A/B/C $31/$34/$36</p>
+
+      <div class="section"><h3>1. One-line Thesis</h3><p>MENA 오일필드 서비스 실행력 + Q1 EPS +20%대 Beat로 실적 신뢰 회복. $27.99 · ~$2.8B · 차기 실적 ~08-05 전후.</p></div>
+
+      <div class="section"><h3>2. 섹터 · 섹터주 특징 · 시총 순위</h3><table class="kv"><tr><th>섹터</th><td>에너지 · 오일필드 서비스(MENA)</td></tr><tr><th>특징</th><td>중동 자본지출·비전통(프랙) 활동에 연동. 지정학 리스크와 동시에 구조적 프로젝트 파이프라인.</td></tr><tr><th>시총/순위</th><td>시총 ~$2.8B. 지역 특화 중형. SLB/HAL 대비 중소형 니치.</td></tr></table></div>
+
+      <div class="section"><h3>3. 핵심 아이템</h3><p>시추·완성·프랙 등 통합 에너지 서비스. 한 줄: 중동 유전에 장비·인력을 제공하는 회사.</p></div>
+
+      <div class="section"><h3>4. 실적 (YoY+QoQ · 컨센서스 · 서프라이즈 · 전략 비교)</h3><table class="kv"><tr><th>실적</th><td>Q1&#x27;26 매출 $405M(YoY +34%), Diluted EPS $0.23, Adj 기준 Street ~$0.26 Beat. Adj EBITDA $76.7M(+23% YoY).</td></tr><tr><th>컨센서스</th><td>Buy 톤. PT 저 $30 / 평균 $33 / 고 $36. 현재가 대비 평균 +18%.</td></tr><tr><th>서프라이즈</th><td>Q1&#x27;26 EPS +20~27% Beat, Q4&#x27;25 +23% Beat. L4Q 3~4/4(소스별). 최소 최근 2연속 확정 Beat.</td></tr><tr><th>전략 관점</th><td>서프라이즈·PT 업사이드·가격대 모두 진입 가능. 신규 1순위 후보(분할).</td></tr></table></div>
+
+      <div class="section"><h3>5. 섹터·기업 뉴스 (출처)</h3><ul><li>Q1&#x27;26 사상 최고 매출, 사우디 Jafurah 프랙 기여 (SEC 8-K / IR).</li><li>자본환원(캐피탈 리턴) 논의·실적 개선 보도 (Yahoo/Barchart).</li><li>지정학에도 운영 레질리언스 강조 (실적 코멘트).</li></ul></div>
+
+      <div class="section"><h3>6. 중단기 시나리오 (BULL / BASE / BEAR)</h3><table class="kv"><tr><th>BULL</th><td>활동량 가속 + 마진 확장 → $33–36.</td></tr><tr><th>BASE</th><td>완만한 성장 → $30–33.</td></tr><tr><th>BEAR</th><td>지정학·가동률 하락 → $22–25.</td></tr><tr><th>Thesis breaker</th><td>중동 프로젝트 지연, 마진 압축, EPS Beat 단절.</td></tr></table></div>
+
+      <div class="section"><h3>7. 결론 표</h3><table class="kv"><tr><th>섹터</th><td>에너지 서비스(MENA)</td></tr><tr><th>핵심 아이템</th><td>통합 OFS / 프랙</td></tr><tr><th>EPS</th><td>최근 연속 Beat</td></tr><tr><th>신규진입</th><td>$25–28 분할</td></tr><tr><th>탈락</th><td>지정학·유틸리티 둔화</td></tr><tr><th>Chase</th><td>상 · 신규 분할</td></tr></table></div>
+    </section>
+    
+    <section class="ticker">
+      <h2>4. KNSA — Kiniksa Pharmaceuticals</h2>
+      <p class="price">현재 $63.95 | 52주 $26.27–$67.53 | PT $60/$68.3/$74 | A/B/C $68/$74/$80</p>
+
+      <div class="section"><h3>1. One-line Thesis</h3><p>Arcalyst 매출은 Rev 4/4 Beat이나 EPS는 들쭉날쭉 → 07-28 실적 전 반만. $63.95 · ~$4.9B · 촉매: 07-28 ~20:00 KST.</p></div>
+
+      <div class="section"><h3>2. 섹터 · 섹터주 특징 · 시총 순위</h3><table class="kv"><tr><th>섹터</th><td>바이오 · 희귀/염증</td></tr><tr><th>특징</th><td>상업화 바이오. 단일 제품 의존도가 높아 볼륨·가격·적응증 확장이 주가 핵심.</td></tr><tr><th>시총/순위</th><td>시총 ~$4.9B. 중소형 상업화 바이오.</td></tr></table></div>
+
+      <div class="section"><h3>3. 핵심 아이템</h3><p>Arcalyst(릴로나셉트) 등. 한 줄: 희귀 염증 질환 치료제를 파는 바이오.</p></div>
+
+      <div class="section"><h3>4. 실적 (YoY+QoQ · 컨센서스 · 서프라이즈 · 전략 비교)</h3><table class="kv"><tr><th>실적</th><td>Q1&#x27;26 매출 $214M(YoY 강세), EPS $0.27. 매출 성장은 견조, EPS는 분기 변동.</td></tr><tr><th>컨센서스</th><td>Buy 우세. PT 저 $60 / 평균 $68.3 / 고 $74. 현재가 대비 평균 +7%.</td></tr><tr><th>서프라이즈</th><td>EPS 2/4 Beat(연속 1), Rev 4/4 Beat. Q1&#x27;26 EPS +32%. Q3·Q4&#x27;25 EPS Miss.</td></tr><tr><th>전략 관점</th><td>매출 서프라이즈는 좋으나 EPS 불안정 → 풀베팅 금지, 실적 전 반만.</td></tr></table></div>
+
+      <div class="section"><h3>5. 섹터·기업 뉴스 (출처)</h3><ul><li>Arcalyst 처방·매출 성장 지속 (회사 실적).</li><li>Q2 실적 예정 2026-07-27/28 (ChartMill/IR).</li><li>희귀질환 상업화 바이오 섹터 변동성 확대 (일반 섹터 동향).</li></ul></div>
+
+      <div class="section"><h3>6. 중단기 시나리오 (BULL / BASE / BEAR)</h3><table class="kv"><tr><th>BULL</th><td>Q2 Beat + 가이던스 상향 → $70–74.</td></tr><tr><th>BASE</th><td>매출 유지·EPS 혼조 → $64–70.</td></tr><tr><th>BEAR</th><td>EPS 재미스 → $55–60.</td></tr><tr><th>Thesis breaker</th><td>Q2 EPS·가이던스 미스, Arcalyst 성장 둔화.</td></tr></table></div>
+
+      <div class="section"><h3>7. 결론 표</h3><table class="kv"><tr><th>섹터</th><td>바이오(희귀염증)</td></tr><tr><th>핵심 아이템</th><td>Arcalyst</td></tr><tr><th>EPS</th><td>2/4 · 연속 1 · Rev는 완벽</td></tr><tr><th>신규진입</th><td>실적 전 반만 $60–64</td></tr><tr><th>탈락</th><td>Q2 EPS/가이드 미스</td></tr><tr><th>Chase</th><td>중상 · 반만</td></tr></table></div>
+    </section>
+    
+    <section class="ticker">
+      <h2>5. INDV — Indivior</h2>
+      <p class="price">현재 $40.54 | 52주 $15.55–$42.81 | PT $46/$50.8/$59 | A/B/C $46/$52/$58</p>
+
+      <div class="section"><h3>1. One-line Thesis</h3><p>EPS/Rev 4/4·대형 서프라이즈 머신이나 07-30 실적 이벤트 리스크. $40.54 · ~$4.9B · 보유·추가 금지.</p></div>
+
+      <div class="section"><h3>2. 섹터 · 섹터주 특징 · 시총 순위</h3><table class="kv"><tr><th>섹터</th><td>제약 · 중독치료(오피오이드 의존)</td></tr><tr><th>특징</th><td>정책·소송·약가·장기작용형 주사제 침투율이 핵심. 규제 헤드라인에 민감.</td></tr><tr><th>시총/순위</th><td>시총 ~$4.9B. 특수 제약 중소형.</td></tr></table></div>
+
+      <div class="section"><h3>3. 핵심 아이템</h3><p>SUBLOCADE 등 의존증 치료. 한 줄: 오피오이드 중독 치료 약을 파는 제약사.</p></div>
+
+      <div class="section"><h3>4. 실적 (YoY+QoQ · 컨센서스 · 서프라이즈 · 전략 비교)</h3><table class="kv"><tr><th>실적</th><td>Q1&#x27;26 매출 $317M, EPS $0.96. YoY·QoQ 모두 개선 추세. 장기작용형 제품 믹스 개선.</td></tr><tr><th>컨센서스</th><td>Buy. PT 저 $46 / 평균 $50.8 / 고 $59. 현재가 대비 평균 +25%.</td></tr><tr><th>서프라이즈</th><td>EPS 4/4·Rev 4/4, 연속 4+. Q1&#x27;26 EPS +44%, Rev +14%. 평균 EPS 서프라이즈 ~+57%.</td></tr><tr><th>전략 관점</th><td>서프라이즈 품질은 최상이나 이벤트 직전 → 홀드, 추격·추가 금지.</td></tr></table></div>
+
+      <div class="section"><h3>5. 섹터·기업 뉴스 (출처)</h3><ul><li>연속 대형 Beat 기록 (ChartMill).</li><li>Q2 실적 2026-07-30 (회사 일정).</li><li>중독치료·장기작용형 주사제 침투 관련 섹터 관심 지속 (업계 보도).</li></ul></div>
+
+      <div class="section"><h3>6. 중단기 시나리오 (BULL / BASE / BEAR)</h3><table class="kv"><tr><th>BULL</th><td>또 Beat + 가이드 상향 → $50–58.</td></tr><tr><th>BASE</th><td>성장 유지 → $46–52.</td></tr><tr><th>BEAR</th><td>소송/가격·볼륨 쇼크 → $32–36.</td></tr><tr><th>Thesis breaker</th><td>소송·약가 압력, 볼륨 가이던스 하향.</td></tr></table></div>
+
+      <div class="section"><h3>7. 결론 표</h3><table class="kv"><tr><th>섹터</th><td>제약(중독치료)</td></tr><tr><th>핵심 아이템</th><td>SUBLOCADE 등</td></tr><tr><th>EPS</th><td>4/4 Beat 머신</td></tr><tr><th>신규진입</th><td>07-30 전 관망·소량만</td></tr><tr><th>탈락</th><td>소송/가이드 하향</td></tr><tr><th>Chase</th><td>상 · 이벤트 대기</td></tr></table></div>
+    </section>
+    
+    <section class="ticker">
+      <h2>6. JBHT — J.B. Hunt Transport Services</h2>
+      <p class="price">현재 $291.41 | 52주 $130.12–$299.76 | PT $200/$298/$370 | A/B/C $300/$320/$350</p>
+
+      <div class="section"><h3>1. One-line Thesis</h3><p>EPS 4연속 Beat 확인됐으나 $291은 고점권·이미 상당 반영. 눌림 대기. $291.41 · ~$27B.</p></div>
+
+      <div class="section"><h3>2. 섹터 · 섹터주 특징 · 시총 순위</h3><table class="kv"><tr><th>섹터</th><td>산업재 · 운송/물류</td></tr><tr><th>특징</th><td>화물 사이클·운임·인터모달 점유율이 핵심. 경기민감 대형주.</td></tr><tr><th>시총/순위</th><td>시총 ~$27B. 운송 대장급.</td></tr></table></div>
+
+      <div class="section"><h3>3. 핵심 아이템</h3><p>Intermodal, Dedicated, ICS, Truckload. 한 줄: 트럭·철도 연계로 화물을 옮기는 물류 회사.</p></div>
+
+      <div class="section"><h3>4. 실적 (YoY+QoQ · 컨센서스 · 서프라이즈 · 전략 비교)</h3><table class="kv"><tr><th>실적</th><td>Q2&#x27;26 매출 $3.50B(+19% YoY), EPS $1.91(+45% YoY). 운영이익 +32%.</td></tr><tr><th>컨센서스</th><td>Buy/Overweight 혼재. PT 저 $200 / 평균 $298 / 고 $370. 현재가 ≈ 평균 PT.</td></tr><tr><th>서프라이즈</th><td>Q2&#x27;26 Beat, Q1/Q4/Q3도 Beat → EPS 4연속. Rev는 분기별 혼조.</td></tr><tr><th>전략 관점</th><td>서프라이즈는 우수하나 가격이 이미 반영 → 추격 금지, $260–275 대기.</td></tr></table></div>
+
+      <div class="section"><h3>5. 섹터·기업 뉴스 (출처)</h3><ul><li>Q2&#x27;26 실적: EPS $1.91, 매출 +19% (회사 IR 2026-07-15).</li><li>화물 수요·생산성·비용 절감 강조 (실적 발표).</li><li>운송 섹터 전반 매크로(금리·소비) 민감 (매크로 보도).</li></ul></div>
+
+      <div class="section"><h3>6. 중단기 시나리오 (BULL / BASE / BEAR)</h3><table class="kv"><tr><th>BULL</th><td>사이클 연장 → $320–350.</td></tr><tr><th>BASE</th><td>완만한 개선 → $290–310.</td></tr><tr><th>BEAR</th><td>운임·볼륨 피크아웃 → $240–260.</td></tr><tr><th>Thesis breaker</th><td>화물 둔화, 가이던스 하향, 마진 피크아웃.</td></tr></table></div>
+
+      <div class="section"><h3>7. 결론 표</h3><table class="kv"><tr><th>섹터</th><td>운송·물류</td></tr><tr><th>핵심 아이템</th><td>Intermodal/DCS</td></tr><tr><th>EPS</th><td>4연속 Beat</td></tr><tr><th>신규진입</th><td>대기 $260–275</td></tr><tr><th>탈락</th><td>운임·볼륨 피크아웃</td></tr><tr><th>Chase</th><td>중 · 눌림만</td></tr></table></div>
+    </section>
+    
+    <section class="ticker">
+      <h2>7. EXTR — Extreme Networks</h2>
+      <p class="price">현재 $30.34 | 52주 $13.48–$33.73 | PT $22.5/$29.6/$39 | A/B/C $33/$36/$39</p>
+
+      <div class="section"><h3>1. One-line Thesis</h3><p>EPS 4연속 Beat이나 매출은 아슬아슬, PT 평균이 현재가 아래. 눌림 선호. $30.34 · ~$4.0B · ~08-05 실적.</p></div>
+
+      <div class="section"><h3>2. 섹터 · 섹터주 특징 · 시총 순위</h3><table class="kv"><tr><th>섹터</th><td>IT · 엔터프라이즈 네트워킹</td></tr><tr><th>특징</th><td>캠퍼스/클라우드 네트 교체 사이클. AI 트래픽·보안 수요와 연동되나 경쟁(Cisco 등) 치열.</td></tr><tr><th>시총/순위</th><td>시총 ~$4.0B. 네트워킹 중소형.</td></tr></table></div>
+
+      <div class="section"><h3>3. 핵심 아이템</h3><p>스위치·무선·클라우드 관리. 한 줄: 기업·캠퍼스 네트워크 장비·소프트웨어.</p></div>
+
+      <div class="section"><h3>4. 실적 (YoY+QoQ · 컨센서스 · 서프라이즈 · 전략 비교)</h3><table class="kv"><tr><th>실적</th><td>최근 분기 EPS $0.26 전후, 매출 ~$317M. YoY 성장은 있으나 QoQ 정체 구간.</td></tr><tr><th>컨센서스</th><td>Hold/Buy 혼재. PT 저 $22.5 / 평균 $29.6 / 고 $39. 평균 PT &lt; 현재가.</td></tr><tr><th>서프라이즈</th><td>EPS 4/4 연속 Beat(평균 +5~6%). Rev 2/4(최근 2Q 소폭 Miss).</td></tr><tr><th>전략 관점</th><td>EPS Beat는 좋지만 Rev·PT가 약함 → 현재 추격보다 $27–29 선호.</td></tr></table></div>
+
+      <div class="section"><h3>5. 섹터·기업 뉴스 (출처)</h3><ul><li>연속 EPS Beat, 최근 매출은 컨센서스 근처/소폭 하회 (ChartMill).</li><li>엔터프라이즈 네트·AI 인프라 수요 테마 (섹터 보도).</li><li>차기 실적 ~2026-08-04/05 (일정).</li></ul></div>
+
+      <div class="section"><h3>6. 중단기 시나리오 (BULL / BASE / BEAR)</h3><table class="kv"><tr><th>BULL</th><td>매출 Beat 복귀 + 가이드 상향 → $36–39.</td></tr><tr><th>BASE</th><td>EPS만 Beat → $30–33.</td></tr><tr><th>BEAR</th><td>매출 가이던스 하향 → $24–27.</td></tr><tr><th>Thesis breaker</th><td>매출 가이던스 컷, 경쟁 심화.</td></tr></table></div>
+
+      <div class="section"><h3>7. 결론 표</h3><table class="kv"><tr><th>섹터</th><td>IT 네트워킹</td></tr><tr><th>핵심 아이템</th><td>캠퍼스/클라우드 네트</td></tr><tr><th>EPS</th><td>4연속 Beat / Rev 혼조</td></tr><tr><th>신규진입</th><td>$27–29</td></tr><tr><th>탈락</th><td>매출 가이드 하향</td></tr><tr><th>Chase</th><td>중 · 눌림</td></tr></table></div>
+    </section>
+    
+    <section class="ticker">
+      <h2>8. BTSG — BrightSpring Health Services</h2>
+      <p class="price">현재 $70.69 | 52주 $19.01–$72.22 | PT $49/$74.9/$90 | A/B/C $75/$82/$90</p>
+
+      <div class="section"><h3>1. One-line Thesis</h3><p>Rev 4/4 Beat, EPS는 Q4 미스 후 Q1 회복. 고점권이라 추가 금지·07-31 대기. $70.69 · ~$14.7B · 07-31 21:30 KST.</p></div>
+
+      <div class="section"><h3>2. 섹터 · 섹터주 특징 · 시총 순위</h3><table class="kv"><tr><th>섹터</th><td>헬스케어 서비스 · Specialty Pharmacy / Home Care</td></tr><tr><th>특징</th><td>약제비·홈케어 수요는 구조적. 통합·마진·레버리지가 리스크.</td></tr><tr><th>시총/순위</th><td>시총 ~$14.7B. 헬스케어 서비스 중대형.</td></tr></table></div>
+
+      <div class="section"><h3>3. 핵심 아이템</h3><p>전문약국 + 재택·커뮤니티 케어. 한 줄: 약 배송·재택 돌봄을 키우는 헬스케어 서비스.</p></div>
+
+      <div class="section"><h3>4. 실적 (YoY+QoQ · 컨센서스 · 서프라이즈 · 전략 비교)</h3><table class="kv"><tr><th>실적</th><td>Q1&#x27;26 매출 $3.61B, EPS $0.39. YoY 매출·이익 성장. 스페셜티 약국 중심.</td></tr><tr><th>컨센서스</th><td>Buy 우세. PT 저 $49 / 평균 $74.9 / 고 $90. 현재가 ≈ 평균 근처.</td></tr><tr><th>서프라이즈</th><td>EPS 3/4(연속 1), Rev 4/4. Q1&#x27;26 EPS +23%. Q4&#x27;25 EPS Miss.</td></tr><tr><th>전략 관점</th><td>보유분은 유지 가능하나 고점 추격·추가 매수 비권장. 실적 확인 후.</td></tr></table></div>
+
+      <div class="section"><h3>5. 섹터·기업 뉴스 (출처)</h3><ul><li>Q1 Beat 후 주가 강세 (FXEmpire/실적 반응).</li><li>Q2 실적 2026-07-31 (Benzinga).</li><li>스페셜티 약국·홈케어 통합 스토리 지속 (섹터 보도).</li></ul></div>
+
+      <div class="section"><h3>6. 중단기 시나리오 (BULL / BASE / BEAR)</h3><table class="kv"><tr><th>BULL</th><td>또 Beat + 마진 개선 → $80–90.</td></tr><tr><th>BASE</th><td>성장 유지 → $70–78.</td></tr><tr><th>BEAR</th><td>마진·통합 비용 쇼크 → $55–62.</td></tr><tr><th>Thesis breaker</th><td>마진 압축, 통합 실패, EPS 재미스.</td></tr></table></div>
+
+      <div class="section"><h3>7. 결론 표</h3><table class="kv"><tr><th>섹터</th><td>헬스케어 서비스</td></tr><tr><th>핵심 아이템</th><td>Specialty pharmacy + home care</td></tr><tr><th>EPS</th><td>3/4 · Rev 4/4</td></tr><tr><th>신규진입</th><td>대기 $58–62 / 추가 금지</td></tr><tr><th>탈락</th><td>마진·통합 쇼크</td></tr><tr><th>Chase</th><td>중 · 보유만</td></tr></table></div>
+    </section>
+    
+    <section class="ticker">
+      <h2>9. VCYT — Veracyte</h2>
+      <p class="price">현재 $59.13 | 52주 $22.61–$60.91 | PT $47/$59/$70 | A/B/C $62/$68/$75</p>
+
+      <div class="section"><h3>1. One-line Thesis</h3><p>Rev 4/4·EPS 3/4·최근 2연속 Beat. 품질은 괜찮으나 PT≈현재라 눌림만. $59.13 · ~$4.7B.</p></div>
+
+      <div class="section"><h3>2. 섹터 · 섹터주 특징 · 시총 순위</h3><table class="kv"><tr><th>섹터</th><td>헬스케어 · 분자진단/게놈</td></tr><tr><th>특징</th><td>검사 볼륨·보험 급여·신제품 침투가 핵심. 성장 진단주.</td></tr><tr><th>시총/순위</th><td>시총 ~$4.7B. 진단 중소형.</td></tr></table></div>
+
+      <div class="section"><h3>3. 핵심 아이템</h3><p>Afirma 등 분자진단. 한 줄: 조직·유전자 검사로 불필요한 수술을 줄이는 진단 회사.</p></div>
+
+      <div class="section"><h3>4. 실적 (YoY+QoQ · 컨센서스 · 서프라이즈 · 전략 비교)</h3><table class="kv"><tr><th>실적</th><td>Q1&#x27;26 매출 $139M, EPS $0.35. YoY 성장, 최근 분기 수익성 개선.</td></tr><tr><th>컨센서스</th><td>Buy/Hold 혼재. PT 저 $47 / 평균 $59 / 고 $70. 평균 ≈ 현재가.</td></tr><tr><th>서프라이즈</th><td>EPS 3/4(연속 2), Rev 4/4. Q1&#x27;26 EPS +133%. Q2&#x27;25 EPS Miss.</td></tr><tr><th>전략 관점</th><td>서프라이즈는 양호하나 업사이드 제한 → 랭킹 중하위, $52–55 대기.</td></tr></table></div>
+
+      <div class="section"><h3>5. 섹터·기업 뉴스 (출처)</h3><ul><li>연속 매출 Beat, 최근 EPS 대형 Beat (ChartMill).</li><li>분자진단·암 진단 섹터 성장 테마 (업계).</li><li>보험 급여·검사 볼륨이 관전 포인트 (섹터).</li></ul></div>
+
+      <div class="section"><h3>6. 중단기 시나리오 (BULL / BASE / BEAR)</h3><table class="kv"><tr><th>BULL</th><td>볼륨 가속 → $68–75.</td></tr><tr><th>BASE</th><td>완만한 성장 → $58–65.</td></tr><tr><th>BEAR</th><td>급여·볼륨 둔화 → $47–52.</td></tr><tr><th>Thesis breaker</th><td>보험 급여 축소, 검사 볼륨 둔화.</td></tr></table></div>
+
+      <div class="section"><h3>7. 결론 표</h3><table class="kv"><tr><th>섹터</th><td>분자진단</td></tr><tr><th>핵심 아이템</th><td>Afirma 등</td></tr><tr><th>EPS</th><td>3/4 · 연속 2</td></tr><tr><th>신규진입</th><td>$52–55</td></tr><tr><th>탈락</th><td>보험·볼륨 둔화</td></tr><tr><th>Chase</th><td>중하 · 눌림</td></tr></table></div>
+    </section>
+    
+    <section class="ticker">
+      <h2>10. TGTX — TG Therapeutics</h2>
+      <p class="price">현재 $54.87 | 52주 $25.28–$59.30 | PT $20/$55.9/$83 | A/B/C $55/$65/$75</p>
+
+      <div class="section"><h3>1. One-line Thesis</h3><p>BRIUMVI 스토리는 있으나 EPS 4연속 미스 → 서프라이즈 전략에서 감점. $54.87 · ~$7.8B.</p></div>
+
+      <div class="section"><h3>2. 섹터 · 섹터주 특징 · 시총 순위</h3><table class="kv"><tr><th>섹터</th><td>바이오 · 혈액암/면역</td></tr><tr><th>특징</th><td>상업화 바이오. 매출 성장과 수익성 전환 속도가 핵심. EPS 추정치 괴리 주의.</td></tr><tr><th>시총/순위</th><td>시총 ~$7.8B. 상업화 바이오 중형.</td></tr></table></div>
+
+      <div class="section"><h3>3. 핵심 아이템</h3><p>BRIUMVI(ublituximab). 한 줄: 다발성 경화증 등 혈액·면역 질환 치료제.</p></div>
+
+      <div class="section"><h3>4. 실적 (YoY+QoQ · 컨센서스 · 서프라이즈 · 전략 비교)</h3><table class="kv"><tr><th>실적</th><td>Q1&#x27;26 매출 $205M(YoY 강세), EPS $0.18. 매출은 성장, 이익은 컨센서스 하회 반복.</td></tr><tr><th>컨센서스</th><td>Buy 혼재, PT 분산 큼. 저 $20 / 평균 $55.9 / 고 $83.</td></tr><tr><th>서프라이즈</th><td>EPS 0/4 · 4연속 Miss(평균 −38%). Rev 2/4. Q1&#x27;26 EPS −40%.</td></tr><tr><th>전략 관점</th><td>테마성 모멘텀은 있으나 어닝 서프라이즈 전략과 불일치 → 후순위.</td></tr></table></div>
+
+      <div class="section"><h3>5. 섹터·기업 뉴스 (출처)</h3><ul><li>매출 성장에도 EPS 반복 미스 (ChartMill).</li><li>MS/혈액암 치료제 경쟁 구도 (섹터 보도).</li><li>주가 52주 고점권 근접 후 조정 (가격 데이터).</li></ul></div>
+
+      <div class="section"><h3>6. 중단기 시나리오 (BULL / BASE / BEAR)</h3><table class="kv"><tr><th>BULL</th><td>EPS Beat 전환 + 점유율 확대 → $65–75.</td></tr><tr><th>BASE</th><td>매출만 성장 → $50–58.</td></tr><tr><th>BEAR</th><td>또 EPS 미스 → $40–45.</td></tr><tr><th>Thesis breaker</th><td>연속 EPS 미스 지속, 경쟁 심화.</td></tr></table></div>
+
+      <div class="section"><h3>7. 결론 표</h3><table class="kv"><tr><th>섹터</th><td>바이오(혈액암/MS)</td></tr><tr><th>핵심 아이템</th><td>BRIUMVI</td></tr><tr><th>EPS</th><td>4연속 Miss</td></tr><tr><th>신규진입</th><td>비선호 / 깊게 $45–48</td></tr><tr><th>탈락</th><td>또 EPS 미스</td></tr><tr><th>Chase</th><td>하 · 감점</td></tr></table></div>
+    </section>
+    
+    <section class="ticker">
+      <h2>11. KRYS — Krystal Biotech</h2>
+      <p class="price">현재 $354.86 | 52주 $130.50–$382.54 | PT $284/$356/$474 | A/B/C $360/$400/$450</p>
+
+      <div class="section"><h3>1. One-line Thesis</h3><p>EPS 4연속 Beat 우수하나 $355≈PT 평균·고점권 → 추격 비추천. $354.86 · ~$10.5B.</p></div>
+
+      <div class="section"><h3>2. 섹터 · 섹터주 특징 · 시총 순위</h3><table class="kv"><tr><th>섹터</th><td>바이오 · 유전자치료</td></tr><tr><th>특징</th><td>상업화 유전자치료. 적응증 확장·해외 승인·파이프라인이 밸류에이션 핵심.</td></tr><tr><th>시총/순위</th><td>시총 ~$10.5B. 유전자치료 중대형.</td></tr></table></div>
+
+      <div class="section"><h3>3. 핵심 아이템</h3><p>VYJUVEK(B-VEC). 한 줄: 희귀 피부질환(DEB) 유전자치료제를 판매.</p></div>
+
+      <div class="section"><h3>4. 실적 (YoY+QoQ · 컨센서스 · 서프라이즈 · 전략 비교)</h3><table class="kv"><tr><th>실적</th><td>Q1&#x27;26 매출 $116M, EPS $1.83. YoY·QoQ 성장. 현금 여력 양호(과거 공시).</td></tr><tr><th>컨센서스</th><td>Buy. PT 저 $284 / 평균 $355.7 / 고 $474. 현재가 ≈ 평균.</td></tr><tr><th>서프라이즈</th><td>EPS 4/4 연속 Beat(Q2&#x27;25–Q1&#x27;26). Q1&#x27;26 +26%. Rev도 Beat.</td></tr><tr><th>전략 관점</th><td>서프라이즈는 최상급이나 가격·PT가 이미 반영 → 랭킹 하단, 눌림 대기.</td></tr></table></div>
+
+      <div class="section"><h3>5. 섹터·기업 뉴스 (출처)</h3><ul><li>Q1&#x27;26 EPS·매출 Beat (MarketBeat / Meyka).</li><li>영국 MHRA VYJUVEK 승인 관련 보도 (2026-05).</li><li>DEB 상업화·파이프라인 확장 스토리 (회사/섹터).</li></ul></div>
+
+      <div class="section"><h3>6. 중단기 시나리오 (BULL / BASE / BEAR)</h3><table class="kv"><tr><th>BULL</th><td>적응증·지역 확장 → $400–450.</td></tr><tr><th>BASE</th><td>안정 성장 → $340–380.</td></tr><tr><th>BEAR</th><td>상업화 둔화 → $280–300.</td></tr><tr><th>Thesis breaker</th><td>처방 둔화, 파이프라인 실패, 고밸류 디레이팅.</td></tr></table></div>
+
+      <div class="section"><h3>7. 결론 표</h3><table class="kv"><tr><th>섹터</th><td>유전자치료</td></tr><tr><th>핵심 아이템</th><td>VYJUVEK</td></tr><tr><th>EPS</th><td>4연속 Beat</td></tr><tr><th>신규진입</th><td>비추격 · $300–320 대기</td></tr><tr><th>탈락</th><td>상업화 둔화</td></tr><tr><th>Chase</th><td>하 · 고점</td></tr></table></div>
+    </section>
+    
+    <section class="ticker">
+      <h2>12. DAVE — Dave Inc.</h2>
+      <p class="price">현재 $440.42 | 52주 $152.21–$455.98 | PT $250/$373/$485 | A/B/C $400/$450/$485</p>
+
+      <div class="section"><h3>1. One-line Thesis</h3><p>최근 3연속 EPS Beat·Rev 4/4이나 $440&gt;PT $373 → 과열 추격 금지. $440.42 · ~$5.6B · ~08-05.</p></div>
+
+      <div class="section"><h3>2. 섹터 · 섹터주 특징 · 시총 순위</h3><table class="kv"><tr><th>섹터</th><td>핀테크 · 소비자 금융앱</td></tr><tr><th>특징</th><td>회원 성장·ExtraCash 수익화·신용비용·규제. 실적 변동성 큼.</td></tr><tr><th>시총/순위</th><td>시총 ~$5.6B. 핀테크 중소형.</td></tr></table></div>
+
+      <div class="section"><h3>3. 핵심 아이템</h3><p>예산·현금 선지급(ExtraCash) 앱. 한 줄: 급여 전 소액 현금과 뱅킹을 제공하는 앱.</p></div>
+
+      <div class="section"><h3>4. 실적 (YoY+QoQ · 컨센서스 · 서프라이즈 · 전략 비교)</h3><table class="kv"><tr><th>실적</th><td>Q1&#x27;26 매출 $158M(+47% YoY), Adj EPS 강세. 성장은 빠르나 가이던스 가시성 이슈.</td></tr><tr><th>컨센서스</th><td>Buy 혼재. PT 저 $250 / 평균 $373 / 고 $485. 현재가가 평균 PT 대비 +18% 프리미엄.</td></tr><tr><th>서프라이즈</th><td>EPS 3/4·연속 3, Rev 4/4. Q1&#x27;26 +37%. Q2&#x27;25는 대형 Miss. 서프라이즈 변동성 극대.</td></tr><tr><th>전략 관점</th><td>Beat여도 PT 대비 과열 → 전략상 비추격.</td></tr></table></div>
+
+      <div class="section"><h3>5. 섹터·기업 뉴스 (출처)</h3><ul><li>Q1 Beat 후에도 가이던스 공백으로 변동성 (ChartMill).</li><li>AI·수익화 내러티브와 실적 테스트 (Barchart 분석).</li><li>차기 실적 ~2026-08-05.</li></ul></div>
+
+      <div class="section"><h3>6. 중단기 시나리오 (BULL / BASE / BEAR)</h3><table class="kv"><tr><th>BULL</th><td>가이드 제시 + Beat → $450–485.</td></tr><tr><th>BASE</th><td>성장 유지·밸류 부담 → $380–420.</td></tr><tr><th>BEAR</th><td>규제·신용비용 → $300–350.</td></tr><tr><th>Thesis breaker</th><td>규제, 신용손실, 가이던스 실망.</td></tr></table></div>
+
+      <div class="section"><h3>7. 결론 표</h3><table class="kv"><tr><th>섹터</th><td>핀테크</td></tr><tr><th>핵심 아이템</th><td>ExtraCash</td></tr><tr><th>EPS</th><td>3/4 · 연속 3 · 변동성 큼</td></tr><tr><th>신규진입</th><td>회피 / $320–350만</td></tr><tr><th>탈락</th><td>규제·신용비용</td></tr><tr><th>Chase</th><td>최하권 · 과열</td></tr></table></div>
+    </section>
+    
+    <section class="ticker">
+      <h2>13. SEZL — Sezzle</h2>
+      <p class="price">현재 $174.67 | 52주 $49.50–$195.71 | PT $108/$154/$190 | A/B/C $160/$180/$190</p>
+
+      <div class="section"><h3>1. One-line Thesis</h3><p>EPS 4연속 Beat 우수하나 $175&gt;PT $154 → 과열. $174.67 · ~$5.9B.</p></div>
+
+      <div class="section"><h3>2. 섹터 · 섹터주 특징 · 시총 순위</h3><table class="kv"><tr><th>섹터</th><td>핀테크 · BNPL</td></tr><tr><th>특징</th><td>거래액·신용손실·규제·소비자 건전성. 성장과 리스크가 동시.</td></tr><tr><th>시총/순위</th><td>시총 ~$5.9B. BNPL 중소형.</td></tr></table></div>
+
+      <div class="section"><h3>3. 핵심 아이템</h3><p>후불결제(BNPL). 한 줄: 나눠 갚는 결제 서비스를 제공하는 핀테크.</p></div>
+
+      <div class="section"><h3>4. 실적 (YoY+QoQ · 컨센서스 · 서프라이즈 · 전략 비교)</h3><table class="kv"><tr><th>실적</th><td>Q1&#x27;26 매출 $136M, EPS $1.47. YoY 고성장. 수익성 개선 스토리.</td></tr><tr><th>컨센서스</th><td>Buy 혼재. PT 저 $108 / 평균 $154 / 고 $190. 현재가 평균 대비 +13% 프리미엄.</td></tr><tr><th>서프라이즈</th><td>EPS 4/4 연속 Beat(평균 ~+16%). Rev 3/4. Q1&#x27;26 EPS +17%.</td></tr><tr><th>전략 관점</th><td>서프라이즈는 좋지만 가격이 Street 앞섬 → 비추격.</td></tr></table></div>
+
+      <div class="section"><h3>5. 섹터·기업 뉴스 (출처)</h3><ul><li>연속 EPS Beat (ChartMill).</li><li>BNPL 규제·신용 리스크 섹터 이슈 (업계).</li><li>차기 실적 ~2026-08-05.</li></ul></div>
+
+      <div class="section"><h3>6. 중단기 시나리오 (BULL / BASE / BEAR)</h3><table class="kv"><tr><th>BULL</th><td>성장+마진 → $180–190.</td></tr><tr><th>BASE</th><td>밸류 조정 → $150–170.</td></tr><tr><th>BEAR</th><td>신용손실·규제 → $110–130.</td></tr><tr><th>Thesis breaker</th><td>신용손실 급증, 규제 강화.</td></tr></table></div>
+
+      <div class="section"><h3>7. 결론 표</h3><table class="kv"><tr><th>섹터</th><td>BNPL/핀테크</td></tr><tr><th>핵심 아이템</th><td>Sezzle 할부</td></tr><tr><th>EPS</th><td>4연속 Beat</td></tr><tr><th>신규진입</th><td>회피</td></tr><tr><th>탈락</th><td>신용손실·규제</td></tr><tr><th>Chase</th><td>최하 · 과열</td></tr></table></div>
+    </section>
+    
+
+<section class="ticker">
+  <h2>투자 우선순위 재편성 (Chase RR)</h2>
+  <p>당일 유니버스(13종)만 대상으로 재랭킹. 어닝 서프라이즈 · PT 대비 위치 · 이벤트 · 보유 포지션을 반영.</p>
+  <table class="data">
+    <thead><tr><th>순위</th><th>티커</th><th>핵심 이유</th></tr></thead>
+    <tbody><tr><td>1</td><td>ECPG</td><td>6연속 Beat + PT 업사이드 + 코어</td></tr><tr><td>2</td><td>ASTH</td><td>최근 2연속 대형 Beat + 합리적 진입</td></tr><tr><td>3</td><td>NESR</td><td>연속 Beat + PT 여유 + 분할 가능</td></tr><tr><td>4</td><td>KNSA</td><td>Rev 완벽·EPS 불안정 → 반만</td></tr><tr><td>5</td><td>INDV</td><td>Beat 머신 · 07-30 이벤트</td></tr><tr><td>6</td><td>JBHT</td><td>4연속 Beat · 고점 눌림 대기</td></tr><tr><td>7</td><td>EXTR</td><td>EPS 4연속 · Rev/PT 약함</td></tr><tr><td>8</td><td>BTSG</td><td>Rev 강 · 고점 · 추가 금지</td></tr><tr><td>9</td><td>VCYT</td><td>3/4 Beat · PT≈현재</td></tr><tr><td>10</td><td>TGTX</td><td>EPS 4연속 미스 감점</td></tr><tr><td>11</td><td>KRYS</td><td>Beat 우수하나 고점</td></tr><tr><td>12</td><td>DAVE</td><td>Beat나 PT 대비 과열</td></tr><tr><td>13</td><td>SEZL</td><td>Beat나 PT 대비 과열</td></tr></tbody>
+  </table>
+  <h3>실행 우선순위</h3>
+  <ul>
+    <li>유지(코어 홀드): ECPG, ASTH</li>
+    <li>관전: INDV(07-30), KNSA 반만(07-28), BTSG(07-31·추가X)</li>
+    <li>신규 1순위: NESR $25–28 분할</li>
+    <li>신규 대기: JBHT $260–275, EXTR $27–29, BTSG $58–62</li>
+    <li>비추격: DAVE, SEZL, KRYS 고점, TGTX(미스 패턴)</li>
+  </ul>
+  <h3>보유 포트폴리오 메모 (참고)</h3>
+  <ul>
+    <li>ECPG avg $92.32 — 서프라이즈 최상, 코어 홀드</li>
+    <li>ASTH avg $45.10 — 최근 턴, 홀드</li>
+    <li>INDV avg $40.99 — Beat 머신, 추가 금지·실적 관전</li>
+    <li>BTSG avg $68.38 — 추가 금지, 07-31 대기</li>
+    <li>현금 ~$7.42 — 추격보다 적립·대기 우선</li>
+  </ul>
+  <p style="font-size:9pt;color:#777;margin-top:14pt;">
+    데이터 기준일: 2026-07-17 종가 / 보고서일: 2026-07-18 (한글 폰트 수정판)<br/>
+    다음 트리거: 심층분석(티커1, 티커2, ...) → 채팅 요약 + MD/PDF 본문
+  </p>
+</section>
+
+</body>
+</html>
