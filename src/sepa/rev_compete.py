@@ -889,6 +889,72 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "제품 믹스(별도): Oil ~90% / NGL ~8% / Gas ~2% of hydrocarbon revenues."
         ),
     },
+    "NSIT": {
+        "sector_ko": "IT 솔루션 통합·리셀러 (심층: Hardware/Software/Services)",
+        "share_title": "북미 IT 솔루션·리셀 상장 피어셋 스케일 점유 (추정)",
+        "share_as_of": "2026 · TTM 매출/스케일 근사",
+        "share_note": (
+            "CDW·Insight·TD Synnex(기업 IT)·ePlus·PC Connection 등 상장 IT 솔루션/리셀 피어 대비 상대 스케일. "
+            "절대 시장점유 아님 — 피어셋 비교용. Synnex는 도매 비중이 커 스케일 왜곡 가능."
+        ),
+        "share_rows": [
+            ("CDW", 38.0, 37.0),
+            ("TD Synnex", 28.0, 29.0),
+            ("Insight (NSIT)", 14.0, 13.5),
+            ("ePlus", 6.0, 6.0),
+            ("PC Connection", 5.0, 5.5),
+            ("Others (listed)", 9.0, 9.0),
+        ],
+        "share_source": "Directional share of selected US-listed IT solutions/reseller peers (est.)",
+        "mix_buckets": ["Hardware", "Software", "Services"],
+        "mix_as_of": "Q2'26 net sales mix (NSIT 10-Q; peers approx)",
+        "mix_rows": [
+            {
+                "key": "NSIT",
+                "name": "NSIT",
+                "subject": True,
+                "yf": "NSIT",
+                "mix": {"Hardware": 59.9, "Software": 18.6, "Services": 21.4},
+                "note": "Q2'26 HW $1.44B / SW $447M / Svc $514M · GM 21.7%",
+            },
+            {
+                "key": "CDW",
+                "name": "CDW",
+                "subject": False,
+                "yf": "CDW",
+                "mix": {"Hardware": 55.0, "Software": 20.0, "Services": 25.0},
+                "note": "솔루션·서비스 비중 확대 전형 (근사)",
+            },
+            {
+                "key": "CNXN",
+                "name": "CNXN",
+                "subject": False,
+                "yf": "CNXN",
+                "mix": {"Hardware": 70.0, "Software": 15.0, "Services": 15.0},
+                "note": "하드웨어 편중 리셀러 성격 (근사)",
+            },
+            {
+                "key": "PLUS",
+                "name": "PLUS",
+                "subject": False,
+                "yf": "PLUS",
+                "mix": {"Hardware": 45.0, "Software": 20.0, "Services": 35.0},
+                "note": "보안·클라우드 서비스 비중 상대 높음 (근사)",
+            },
+            {
+                "key": "SNX",
+                "name": "SNX",
+                "subject": False,
+                "yf": "SNX",
+                "mix": {"Hardware": 75.0, "Software": 15.0, "Services": 10.0},
+                "note": "광역 IT 도매 · 제품 매출 편중 (근사)",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Hardware / Software / Services 순매출 구성. "
+            "NSIT는 10-Q Q2'26 공시, 피어는 업태 전형 근사 — 방향 비교용."
+        ),
+    },
 
 }
 
@@ -941,6 +1007,7 @@ SUBJECT_SHARE_ALIASES: dict[str, tuple[str, ...]] = {
     "CMPR": ("cimpress", "vistaprint", "vista"),
     "APPS": ("digital turbine",),
     "APA": ("apa corporation", "apache"),
+    "NSIT": ("insight",),
 }
 
 
