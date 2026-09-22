@@ -43,8 +43,8 @@
 
 ### 3.1 포트 스냅 (필수)
 - 경로(안): `config/portfolio_watch.yaml` → 발전 시 `data/portfolio_snap_YYYYMMDD.json`
-- 필수 필드(종목): `ticker, shares, cost(평단), grade, max_pct, stop, tp1/tp2?, no_add, earn_date?, band?, invalidation?`
-- ~~sleeve(core/satellite)~~ → **폐기**. 비중은 A/B/C/금지 기계 등급 (`reports/POSITION_GRADE_SIZING.md`)
+- 필수 필드(종목): `ticker, shares, cost(평단), max_pct(=20), stop, tp1/tp2?, no_add, earn_date?, band?, invalidation?`
+- ~~sleeve(core/satellite)~~ · ~~품질등급 A/B/C~~ → **폐기**. 비중은 종목천장 20% · 하드게이트 시 금지/ADD0 (`reports/POSITION_GRADE_SIZING.md`)
 - 필수 필드(북): `as_of, cash_usd, cash_floor_usd(=150), note/source`
 - **현금은 추정 금지** — 스냅의 `cash_usd`만 사용. 없으면 주식-only 파이만 그리고 경고.
 
@@ -126,7 +126,7 @@
 - 업사이드 음수(기본 제외, 예외 표시 가능)
 
 남으면:
-- **본선 ∩ 타이밍 GO** → **실행후보** (등급한도 A/B/C·현금바닥 여유 · 저녁창 지정가 카드)
+- **본선 ∩ 타이밍 GO** → **실행후보** (종목천장 20%·현금바닥 여유 · 저녁창 지정가 카드)
 - **본선 ∩ WAIT** → **워치** (삭제하지 않음 · GO_B 프리마켓 기본 WAIT)
 
 ---
