@@ -1,6 +1,11 @@
-"""기계적 비중 등급 (A/B/C/금지) — 코어·위성 대체.
+"""종목 비중 천장 — 품질등급(A/B/C) 폐기 후 단일 캡.
 
-감정·라벨 없이 L1/L2/L3 + 하드게이트로 max_pct만 결정.
+정책 (2026-09-22+):
+  * 종목당 최대 보유 비중 = 20% (주식 평가금 대비, 현금 제외)
+  * 하드게이트/NO_ADD → ADD 0%
+  * Top-3 합 ≤ 50%
+  * 현금바닥 $150 (portfolio_ops)
+
 See reports/POSITION_GRADE_SIZING.md.
 """
 
@@ -9,32 +14,37 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-# Stock-weight caps (vs equity, cash excluded)
-MAX_PCT_A = 0.18
-MAX_PCT_B = 0.10
-MAX_PCT_C = 0.06
+# Single per-name cap (vs equity, cash excluded)
+NAME_CAP = 0.20
 MAX_PCT_BAN = 0.0
-ABSOLUTE_CEILING = 0.20  # hard ceiling even for A
+ABSOLUTE_CEILING = NAME_CAP  # alias — ceiling == name cap
 TOP3_CAP = 0.50
 
+# Backward-compat aliases (all tradeable grades collapse to 20%)
+MAX_PCT_A = NAME_CAP
+MAX_PCT_B = NAME_CAP
+MAX_PCT_C = NAME_CAP
 GRADE_MAX: dict[str, float] = {
-    "A": MAX_PCT_A,
-    "B": MAX_PCT_B,
-    "C": MAX_PCT_C,
+    "A": NAME_CAP,
+    "B": NAME_CAP,
+    "C": NAME_CAP,
+    "OK": NAME_CAP,
     "금지": MAX_PCT_BAN,
 }
 
 
 @dataclass
 class PositionGrade:
-    grade: str  # A | B | C | 금지
+    grade: str  # OK | 금지  (legacy A/B/C may appear only as unused hints)
     max_pct: float
-    quality_grade: str  # A|B|C before hard gates (금지 시에도 품질 힌트)
+    quality_grade: str = "—"  # deprecated; kept for API compat
     reasons: list[str] = field(default_factory=list)
 
     @property
     def label(self) -> str:
-        return f"{self.grade}·맥스{self.max_pct*100:.0f}%"
+        if self.grade == "금지" or self.max_pct <= 0:
+            return "금지·ADD0"
+        return f"종목천장{self.max_pct*100:.0f}%"
 
 
 def quality_grade_from_scores(
@@ -46,16 +56,8 @@ def quality_grade_from_scores(
     l3_grade: str = "N/A",
     shrink: bool = False,
 ) -> str:
-    """Quality only (no hard gates). C is weakest tradeable quality."""
-    if shrink or str(l3_grade).upper() == "C":
-        return "C"
-    if l1 >= 2 and l2 >= 1 and str(l3_grade).upper() != "C":
-        return "A"
-    if l1 >= 1 and (l2 >= 1 or total >= 2):
-        return "B"
-    if l1 >= 1:
-        return "C"
-    return "C"
+    """Deprecated — quality grades removed. Always returns unused hint '—'."""
+    return "—"
 
 
 def assign_position_grade(
@@ -74,29 +76,14 @@ def assign_position_grade(
     overheated: bool = False,
     yaml_grade: str | None = None,
 ) -> PositionGrade:
-    """Return effective sizing grade.
+    """Return ADD cap: 20% if clear, else 금지/0%.
 
-    Hard gates → 금지 (max 0% add) regardless of quality.
-    If scores missing, fall back to yaml_grade or C.
+    Quality yaml_grade / BuyScore tiers no longer change the size cap.
+    Hard gates still force ADD 0%.
     """
+    del l2, l3, total, yaml_grade  # unused after grade removal
     reasons: list[str] = []
 
-    if l1 is None or l2 is None:
-        q = (yaml_grade or "C").upper().replace("금", "금지")
-        if q not in ("A", "B", "C", "금지"):
-            q = "C"
-        quality = q if q != "금지" else "C"
-    else:
-        quality = quality_grade_from_scores(
-            l1=int(l1),
-            l2=int(l2),
-            l3=int(l3 or 0),
-            total=int(total if total is not None else (l1 or 0) + (l2 or 0) + (l3 or 0)),
-            l3_grade=l3_grade,
-            shrink=shrink,
-        )
-
-    # Hard gates
     if earn_d5:
         reasons.append("EARN_D5")
     if no_add:
@@ -116,16 +103,15 @@ def assign_position_grade(
         return PositionGrade(
             grade="금지",
             max_pct=MAX_PCT_BAN,
-            quality_grade=quality,
+            quality_grade="—",
             reasons=reasons,
         )
 
-    max_pct = GRADE_MAX.get(quality, MAX_PCT_C)
     return PositionGrade(
-        grade=quality,
-        max_pct=max_pct,
-        quality_grade=quality,
-        reasons=["품질통과"],
+        grade="OK",
+        max_pct=NAME_CAP,
+        quality_grade="—",
+        reasons=["천장20%"],
     )
 
 
