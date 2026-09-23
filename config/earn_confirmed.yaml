@@ -1,5 +1,5 @@
-as_of: '2026-09-22'
-note: portfolio sync · APA3 · ATRO1 · ECPG3 · DRH14 · ROKU1 · 8 holds NO_ADD · estimate 자동승격 금지
+as_of: '2026-09-23'
+note: portfolio sync · APA3 · ATRO1 · ECPG3 · ANAB3(−1) · DRH14 · ROKU1 · 8 holds NO_ADD · estimate 자동승격 금지
 entries:
   ECPG:
     earn_date: '2026-11-04'
@@ -11,7 +11,7 @@ entries:
     confirmed_on: '2026-08-12'
   ANAB:
     earn_date: '2026-08-19'
-    note: portfolio SSOT · reported
+    note: portfolio SSOT · reported · hold 3sh (−1)
     confirmed_on: '2026-08-19'
   APPS:
     earn_date: '2026-11-03'
