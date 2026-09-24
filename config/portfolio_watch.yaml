@@ -7,11 +7,11 @@
 # band: 추가매수 허용 구간 (BAND)
 # max_pct: 종목천장(기본 20 = 유동자산 대비). 품질등급 A/B/C 폐기 · 하드게이트 시 유효=금지(ADD 0%)
 
-as_of: '2026-09-23'
-as_of_note: 앱 캡처 · 평가 $1,539.77(+8.8%·+$125.31) · USD$286.08 + ₩3 · 8종 · ANAB−1(4→3) · 해외주문 1건 대기
+as_of: '2026-09-24'
+as_of_note: 앱 캡처 · 평가 $1,316.14(+6.2%·+$77.27) · USD$455.86 + ₩3 · 7종 · DRH 전량청산(14→0) · 현금≈$456
 fx_krw_per_usd: 1402.5
-cost_basis_source: 앱 USD 손익역산 평단 2026-09-23
-source: app_screenshot_2026-09-23
+cost_basis_source: 앱 USD 손익역산 평단 2026-09-24
+source: app_screenshot_2026-09-24
 strategy:
   identity: 짧~중기 모멘텀을 실적·비중·손절로 걸러, 비대장주 챌린저를 규칙으로만 운영하는 생존형 포트 OS
   identity_short: 규칙형 챌린저 모멘텀 생존 OS
@@ -24,22 +24,22 @@ strategy:
     target_krw: 100000000
     note: 1억 · 군적금 27.2(+2000만) · 청년미래적금 29.8(만기 2138만) 주식 재투자
   book:
-    equity_usd: 1539.77
-    equity_pnl_usd: 125.31
-    equity_pnl_pct: 0.088
-    cash_usd: 286.08
+    equity_usd: 1316.14
+    equity_pnl_usd: 77.27
+    equity_pnl_pct: 0.062
+    cash_usd: 455.86
     cash_krw: 3
     cash_krw_usd: 0.0
-    liquid_usd: 1825.85
+    liquid_usd: 1772.0
     cash_floor_usd: 150
-    cash_deployable_usd: 136.08
-    cash_pct_of_liquid: 0.1567
-    pending_orders_note: 해외주식 주문 1건 대기 · ANAB 3 · 8종 전원 NO_ADD · Top3≈46.8%(유동) · TXG≈17.3% 천장여유 · 전원 유동20% 미만
+    cash_deployable_usd: 305.86
+    cash_pct_of_liquid: 0.2573
+    pending_orders_note: 7종 전원 NO_ADD · Top3≈45.8%(유동) · TXG≈16.8% · ECPG≈15.9% · APPS≈13.0% · 전원 유동20% 미만 · DRH 청산 · 전개가능≈$306
 cash:
-  usd: 286.08
+  usd: 455.86
   krw: 3
   floor_usd: 150
-  note: USD$286.08 + ₩3(≈$0) · 합 ≈$286 · 바닥 $150 · 전개가능 ≈$136
+  note: USD$455.86 + ₩3(≈$0) · 합 ≈$456 · 바닥 $150 · 전개가능 ≈$306
 contribution:
   payday: 매월 10일
   monthly_krw: 300000
@@ -51,8 +51,8 @@ allocation:
   top3_sum_max_pct: 50
   schd_target_pct: 0
   schd_role: 폐기 · 완충은 현금바닥+$150
-  note: '2026-09-23 (유동 $1,825.85): TXG 17.3% · ECPG 16.1% · APPS 13.4% · DRH 9.5% · ANAB 8.8% · ROKU 8.4% · APA 7.1%
-    · ATRO 3.8%. 현금합 ≈$286 (유동 ~15.7%). Top3≈46.8% ≤50% · 전원 유효금지(NO_ADD)·유동20% 미만. ANAB 3주(4→3).'
+  note: '2026-09-24 (유동 $1,772.00): TXG 16.8% · ECPG 15.9% · APPS 13.0% · ROKU 8.6% · ANAB 8.6% · APA 7.4%
+    · ATRO 3.9%. 현금합 ≈$456 (유동 ~25.7%). Top3≈45.8% ≤50% · 전원 유효금지(NO_ADD)·유동20% 미만. DRH 전량청산.'
 rules:
 - 물타기 금지
 - 확정 실적 D-5만 분할 차단 (추정 실적일은 주의, 하드블록 아님)
@@ -66,14 +66,14 @@ rules:
 - SCSC 청산 완료 — 추격 재매수 금지
 - FTNT 청산 완료 — 추격 재매수 금지
 - AMRX 청산 완료 — 추격 재매수 금지
-- TXG 4주 · +66.4% · 유동 17.3% · stop $42 · 추가금지
-- ECPG 3주 · 평단 $93.99 · 유동 16.1% · stop $80 · 추가금지
-- APPS 20주 · 평단 $11.54 · +5.7% · stop $10 · 추가금지
-- ANAB 3주(−1) · 평단 $57.43 · −6.8% · stop $48 · 추가금지
-- DRH 14주 · 평단 $12.54 · 유동 9.5% · stop $11.94 · 추가금지
-- ROKU 1주 · 평단 $154.98 · −0.6% · stop $140 · 추가금지
-- APA 3주 · 평단 $44.59 · −3.6% · stop $40 · 추가금지
-- ATRO 1주 · 평단 $75.30 · −8.9% · stop $68 근처 · 추가금지
+- DRH 전량청산 완료 (09-24) — 추격 재매수 금지
+- TXG 4주 · +57.1% · 유동 16.8% · stop $42 · 추가금지
+- ECPG 3주 · 평단 $93.99 · 유동 15.9% · stop $80 · 추가금지
+- APPS 20주 · 평단 $11.54 · +0.1% · stop $10 · 추가금지
+- ROKU 1주 · 평단 $154.98 · −1.6% · stop $140 · 추가금지
+- ANAB 3주 · 평단 $57.43 · −11.6% · stop $48 · 추가금지
+- APA 3주 · 평단 $44.59 · −2.1% · stop $40 · 추가금지
+- ATRO 1주 · 평단 $75.30 · −8.1% · stop $68 근처 · 추가금지
 - 동일종목 중복 주문 금지
 holdings:
 - ticker: TXG
@@ -82,30 +82,30 @@ holdings:
   max_pct: 20
   shares: 4
   cost_approx: 47.46
-  mark_approx: 79.0
-  value_approx: 316.0
-  weight_approx: 0.1731
-  pnl_usd: 126.16
-  pnl_pct: 0.664
+  mark_approx: 74.6
+  value_approx: 298.4
+  weight_approx: 0.1684
+  pnl_usd: 108.56
+  pnl_pct: 0.571
   stop: 42.0
   no_add: true
   earn_date: '2026-11-05'
-  note: 4주 · 평단 $47.46 · +66.4% · 유동 17.3% · 추가금지
+  note: 4주 · 평단 $47.46 · +57.1% · 유동 16.8% · 추가금지
 - ticker: ECPG
   role: hold
   grade: OK
   max_pct: 20
   shares: 3
   cost_approx: 93.99
-  mark_approx: 98.29
-  value_approx: 294.87
-  weight_approx: 0.1615
-  pnl_usd: 12.9
-  pnl_pct: 0.045
+  mark_approx: 94.0
+  value_approx: 282.0
+  weight_approx: 0.1591
+  pnl_usd: 0.03
+  pnl_pct: 0.0001
   stop: 80.0
   no_add: true
   earn_date: '2026-11-04'
-  note: 3주 · 평단 $93.99 · +4.5% · 유동 16.1% · 추가금지
+  note: 3주 · 평단 $93.99 · +0.0% · 유동 15.9% · 추가금지
   tp1: 105.0
   tp2: 110.0
 - ticker: APPS
@@ -114,91 +114,83 @@ holdings:
   max_pct: 20
   shares: 20
   cost_approx: 11.54
-  mark_approx: 12.2
-  value_approx: 244.0
-  weight_approx: 0.1336
-  pnl_usd: 13.29
-  pnl_pct: 0.057
+  mark_approx: 11.55
+  value_approx: 231.0
+  weight_approx: 0.1304
+  pnl_usd: 0.29
+  pnl_pct: 0.001
   stop: 10.0
   no_add: true
   earn_date: '2026-11-03'
-  note: 20주 · 평단 $11.54 · +5.7% · 유동 13.4% · Digital Turbine · stop $10 · 추가금지
-- ticker: DRH
-  role: hold
-  grade: OK
-  max_pct: 20
-  shares: 14
-  cost_approx: 12.54
-  mark_approx: 12.35
-  value_approx: 172.9
-  weight_approx: 0.0947
-  pnl_usd: -2.68
-  pnl_pct: -0.015
-  stop: 11.94
-  no_add: true
-  earn_date: '2026-07-30'
-  note: 14주 · 평단 $12.54 · −1.5% · 유동 9.5% · 호텔REIT · stop $11.94 · 추가금지
-- ticker: ANAB
-  role: hold
-  grade: OK
-  max_pct: 20
-  shares: 3
-  cost_approx: 57.43
-  mark_approx: 53.5
-  value_approx: 160.5
-  weight_approx: 0.0879
-  pnl_usd: -11.8
-  pnl_pct: -0.068
-  stop: 48.0
-  no_add: true
-  earn_date: '2026-08-19'
-  note: 3주(−1) · 평단 $57.43 · −6.8% · 유동 8.8% · AnaptysBio · stop $48 · 추가금지
+  note: 20주 · 평단 $11.54 · +0.1% · 유동 13.0% · Digital Turbine · stop $10 · 추가금지
 - ticker: ROKU
   role: hold
   grade: OK
   max_pct: 20
   shares: 1
   cost_approx: 154.98
-  mark_approx: 154.0
-  value_approx: 154.0
-  weight_approx: 0.0843
-  pnl_usd: -0.98
-  pnl_pct: -0.006
+  mark_approx: 152.46
+  value_approx: 152.46
+  weight_approx: 0.086
+  pnl_usd: -2.52
+  pnl_pct: -0.016
   stop: 140.0
   no_add: true
   earn_date: '2026-11-05'
-  note: 1주 · 평단 $154.98 · −0.6% · 유동 8.4% · stop $140 · 추가금지
+  note: 1주 · 평단 $154.98 · −1.6% · 유동 8.6% · stop $140 · 추가금지
+- ticker: ANAB
+  role: hold
+  grade: OK
+  max_pct: 20
+  shares: 3
+  cost_approx: 57.43
+  mark_approx: 50.77
+  value_approx: 152.31
+  weight_approx: 0.086
+  pnl_usd: -19.99
+  pnl_pct: -0.116
+  stop: 48.0
+  no_add: true
+  earn_date: '2026-08-19'
+  note: 3주 · 평단 $57.43 · −11.6% · 유동 8.6% · AnaptysBio · stop $48 · 추가금지
 - ticker: APA
   role: hold
   grade: OK
   max_pct: 20
   shares: 3
   cost_approx: 44.59
-  mark_approx: 42.98
-  value_approx: 128.94
-  weight_approx: 0.0706
-  pnl_usd: -4.83
-  pnl_pct: -0.036
+  mark_approx: 43.61
+  value_approx: 130.83
+  weight_approx: 0.0738
+  pnl_usd: -2.94
+  pnl_pct: -0.021
   stop: 40.0
   no_add: true
   earn_date: '2026-11-04'
-  note: 3주 · 평단 $44.59 · −3.6% · 유동 7.1% · stop $40 · 추가금지
+  note: 3주 · 평단 $44.59 · −2.1% · 유동 7.4% · stop $40 · 추가금지
 - ticker: ATRO
   role: hold
   grade: OK
   max_pct: 20
   shares: 1
   cost_approx: 75.3
-  mark_approx: 68.56
-  value_approx: 68.56
-  weight_approx: 0.0375
-  pnl_usd: -6.74
-  pnl_pct: -0.089
+  mark_approx: 69.14
+  value_approx: 69.14
+  weight_approx: 0.039
+  pnl_usd: -6.16
+  pnl_pct: -0.081
   stop: 68.0
   no_add: true
   earn_date: '2026-11-05'
-  note: 1주 · 평단 $75.30 · −8.9% · 유동 3.8% · stop $68 근처 · 추가금지
+  note: 1주 · 평단 $75.30 · −8.1% · 유동 3.9% · stop $68 근처 · 추가금지
 exited:
+- ticker: DRH
+  role: exited
+  shares: 0
+  exit_as_of: '2026-09-24'
+  exit_type: sell_exit
+  exit_shares: 14
+  note: 14주 전량청산 (09-24 스냅) · 대금→USD 현금 · 추격 재매수 금지
 - ticker: AMRX
   role: exited
   shares: 0
@@ -282,28 +274,28 @@ exited:
 watchlist:
 - ticker: TXG
   role: watch
-  note: 보유 · 유동 17.3% · NO_ADD
+  note: 보유 · 유동 16.8% · NO_ADD
 - ticker: ECPG
   role: watch
-  note: 3주 · 유동 16.1% · NO_ADD
+  note: 3주 · 유동 15.9% · NO_ADD
 - ticker: APPS
   role: watch
-  note: 20주 · +5.7% · stop $10 · NO_ADD
+  note: 20주 · +0.1% · stop $10 · NO_ADD
 - ticker: ANAB
   role: watch
-  note: 3주(−1) · −6.8% · stop $48 · NO_ADD
-- ticker: DRH
-  role: watch
-  note: 14주 · 유동 9.5% · stop $11.94 · NO_ADD
+  note: 3주 · −11.6% · stop $48 · NO_ADD
 - ticker: ROKU
   role: watch
-  note: 1주 · 유동 8.4% · stop $140 · NO_ADD
+  note: 1주 · 유동 8.6% · stop $140 · NO_ADD
 - ticker: ATRO
   role: watch
   note: 1주 · stop $68 근처 · NO_ADD
 - ticker: APA
   role: watch
-  note: 3주 · 유동 7.1% · stop $40 · NO_ADD
+  note: 3주 · 유동 7.4% · stop $40 · NO_ADD
+- ticker: DRH
+  role: watch
+  note: 09-24 전량청산 · 추격 재매수 금지
 - ticker: AMRX
   role: watch
   note: 09-16 청산 · 추격 재매수 금지
