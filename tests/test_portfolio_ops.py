@@ -14,15 +14,16 @@ from sepa.portfolio_ops import (
 )
 
 
-def test_load_book_snap_20260923():
+def test_load_book_snap_20260924():
     book = load_book("config/portfolio_watch.yaml")
-    assert book.as_of == date(2026, 9, 23)
-    assert abs(book.cash_usd - 286.08) < 1e-6
+    assert book.as_of == date(2026, 9, 24)
+    assert abs(book.cash_usd - 455.86) < 1e-6
     assert book.cash_krw is not None and abs(book.cash_krw - 3) < 1e-3
     assert book.cash_krw_usd >= 0
     assert book.target_krw == 100_000_000
     tickers = {h.ticker for h in book.holdings}
-    assert tickers == {"TXG", "ECPG", "APPS", "ANAB", "DRH", "ROKU", "ATRO", "APA"}
+    assert tickers == {"TXG", "ECPG", "APPS", "ANAB", "ROKU", "ATRO", "APA"}
+    assert "DRH" not in tickers
     assert "AMRX" not in tickers
     assert "ADPT" not in tickers
     assert "FTNT" not in tickers
@@ -45,8 +46,6 @@ def test_load_book_snap_20260923():
     assert apa.stop == 40.0
     apps = next(h for h in book.holdings if h.ticker == "APPS")
     assert apps.shares == 20
-    drh = next(h for h in book.holdings if h.ticker == "DRH")
-    assert drh.shares == 14
     assert "생존형 포트 OS" in book.identity
     assert "챌린저" in book.identity
 
@@ -54,11 +53,12 @@ def test_load_book_snap_20260923():
 def test_holding_grade_no_add_effective_ban():
     book = load_book("config/portfolio_watch.yaml")
     ecpg = next(h for h in book.holdings if h.ticker == "ECPG")
-    assert ecpg.quality_grade == "A"
+    assert ecpg.quality_max_pct == 0.20  # flat name cap (A/B/C removed)
     apply_holding_grade(ecpg)  # no_add True → 금지
     assert ecpg.grade == "금지"
     assert ecpg.max_pct == 0.0
-    assert ecpg.quality_grade == "A"
+    assert ecpg.quality_grade == "—"
+    assert ecpg.quality_max_pct == 0.20
 
 
 def test_earn_d5_window():
@@ -93,16 +93,16 @@ def test_stance_earn_d5_no_add():
         ticker="ECPG",
         shares=2,
         cost=92.32,
-        grade="A",
-        max_pct=0.18,
-        quality_grade="A",
-        quality_max_pct=0.18,
+        grade="OK",
+        max_pct=0.20,
+        quality_grade="—",
+        quality_max_pct=0.20,
         stop=80.0,
         no_add=True,
         earn_date=date(2026, 8, 5),
         px=94.08,
         value=188.16,
-        w_stock=0.21,
+        w_liquid=0.21,
     )
     apply_holding_grade(h)
     s = stance_for(h, date(2026, 8, 2))
@@ -125,10 +125,10 @@ def test_filter_buy_ideas_buckets():
                 "NESR",
                 4,
                 27.0,
-                grade="C",
-                max_pct=0.06,
-                quality_grade="C",
-                quality_max_pct=0.06,
+                grade="OK",
+                max_pct=0.20,
+                quality_grade="—",
+                quality_max_pct=0.20,
                 no_add=True,
                 earn_date=date(2026, 8, 18),
             ),

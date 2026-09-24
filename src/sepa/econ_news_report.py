@@ -316,7 +316,7 @@ def render_html(bundle: EconNewsBundle) -> str:
 </table>
 <div class="box">
 <b>배분과의 연결 (현행 룰)</b><br/>
-품질등급 A≤18%·B≤10%·C≤6% · 절대천장20% · Top3≤50% · 보유 NO_ADD ·
+종목천장 20%(유동=주식+현금) · Top3≤50%(유동) · 보유 NO_ADD ·
 매수=본선∩GO · 저녁창 지정가 · SCHD 청산(완충=현금) · 현금바닥 $150 ·
 확정 EARN_D5만 하드블록 · 갭추격 금지
 </div>
