@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""포폴() — Portfolio ops PDF (weights, events, buy filter, week plan)."""
+"""포폴() — Portfolio ops PDF (weights, events, buy filter, week plan).
+
+앱 캡처/잔고 저장과는 분리. 이 스크립트는 사용자가 포폴() / !포폴() /
+!sepa.portfolio() 를 직접 적은 경우에만 실행한다.
+스크린샷 업데이트는 YAML 변경 패치만 (reports/PORTFOLIO_OPS_PLAN.md §3.4).
+"""
 
 from __future__ import annotations
 

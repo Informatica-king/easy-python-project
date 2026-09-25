@@ -170,7 +170,11 @@ def _tool_econ_news(args: list, kwargs: dict) -> None:
 
 
 def _tool_portfolio(args: list, kwargs: dict) -> None:
-    """포폴() — portfolio ops brief PDF."""
+    """포폴() — portfolio ops brief PDF.
+
+    사용자가 포폴()/!포폴()/!sepa.portfolio() 를 직접 적었을 때만 호출.
+    앱 캡처 잔고 저장은 YAML 패치만 (PORTFOLIO_OPS_PLAN.md §3.4).
+    """
     import runpy
     from pathlib import Path
 
@@ -537,7 +541,7 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.portfolio",
         "!sepa.portfolio()  |  !포폴()  |  !sepa.포폴()",
-        "포폴() — 보유비중·이벤트·매수고려(필터)·차주/5영업일 운영브리프 PDF",
+        "포폴() — 보유비중·이벤트·매수고려(필터)·차주/5영업일 운영브리프 PDF. 앱 캡처 저장과 분리·명시 호출만",
         _tool_portfolio,
         aliases=("portfolio", "포폴", "sepa.포폴", "port"),
     ),

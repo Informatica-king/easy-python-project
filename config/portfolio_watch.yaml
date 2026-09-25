@@ -1,4 +1,5 @@
 # 보유 + 워치 + 익절/손절 시나리오
+# 앱 캡처 저장 = 바뀐 필드만 패치. 포폴() PDF/종가/매수고려는 사용자가 포폴()을 직접 적을 때만.
 # TA 훅: config/ta_watchlist.yaml 과 동기 · sepa.ta_hooks 가 둘 다 병합
 #
 # role: hold | watch | exited

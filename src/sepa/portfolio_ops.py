@@ -4,6 +4,9 @@ Buy filter (2026-08): pick_pool (Chase) x timing_gate (GO) -> 실행후보.
 See ``reports/BUY_SIGNAL_REDESIGN.md``.
 
 Consumes ``config/portfolio_watch.yaml`` (SSOT) + latest deep-analysis artifacts.
+
+앱 캡처 업데이트는 이 모듈의 종가/필터/브리프 연산을 돌리지 않는다.
+명시적 포폴() 호출에서만 generate_portfolio_ops 가 여기를 쓴다.
 """
 
 from __future__ import annotations
