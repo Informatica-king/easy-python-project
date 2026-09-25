@@ -58,6 +58,22 @@
 - (있으면) `reports/ta_YYYYMMDD.csv`
 - freshness: 심층 as_of가 N일(기본 5영업일) 이상이면 매수고려에 **신뢰↓ 경고**
 
+### 3.4 앱 캡처 업데이트 ≠ `포폴()` (2026-09-25 확정)
+
+사용자가 앱 화면·잔고를 주고 **저장/업데이트**만 요청하면 변경사항 패치만 한다.
+
+**한다**
+- 바뀐 필드만: 수량 · 평단 · 평가 · 손익 · 현금 · `as_of` · 신규/청산
+- `config/portfolio_watch.yaml` · `config/ta_watchlist.yaml` · `config/earn_confirmed.yaml`
+- 스냅 파싱 테스트(`test_load_book_snap_*`)의 날짜·수량·현금만 맞춤
+
+**하지 않는다** (`포폴()`을 메시지에 직접 적지 않는 한)
+- `reports/generate_portfolio_ops.py` · yfinance 종가/벤치 재조회
+- 파이·NAV·vs-QQQ 차트 · 매수고려/3레이어 · 운영브리프 PDF · GitHub Release
+- 안 바뀐 종목의 실적일·stop·규칙을 다시 계산하거나 YAML 전체 재작성
+
+`포폴()` / `!포폴()` / `!sepa.portfolio()` / `!sepa.포폴()` 을 **직접 적은 경우만** 운영브리프 PDF를 생성한다.
+
 ---
 
 ## 4. 리포트 구성 (페이지 순서)
@@ -167,6 +183,7 @@
 - 앱 자동 동기화 / 브로커 API  
 - 완전정확한 TWR·입출금 반영  
 - 심층분석·TA 재실행 (포폴은 **기존 산출물 소비**)  
+- 앱 캡처/잔고 저장 시 `포폴()` 자동 실행 (명시 호출만)  
 - 자동 주문
 
 ---

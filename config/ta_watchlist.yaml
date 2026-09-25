@@ -1,5 +1,5 @@
 # TA 워치리스트 + 포트 훅 메타 (≤20)
-# 2026-09-24: APA3 · ATRO1 · ECPG3 · ANAB3 · ROKU1 · APPS20 · TXG4 · 7종 NO_ADD · DRH 청산 · 현금 $456
+# 2026-09-25: APA4 · ATRO2 · MU 0.095 · ECPG3 · ANAB3 · ROKU1 · APPS20 · TXG4 · 8종 NO_ADD · 현금 $243
 
 tickers:
   - symbol: ECPG
@@ -38,6 +38,11 @@ tickers:
     earn_date: "2026-11-04"
     stop: 40.0
     no_add: true
+
+  - symbol: MU
+    earn_date: "2026-09-30"
+    no_add: true
+    note: "re-entry 2026-09-25 · 0.094721sh"
 
   - symbol: DRH
     earn_date: "2026-07-30"
