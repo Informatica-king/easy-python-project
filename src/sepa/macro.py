@@ -699,7 +699,7 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.ecg",
         '!sepa.ecg()  |  !sepa.ecg("reports/fundamental_20261005.csv")',
-        "초입 확인 성장(ECG) 렌즈 — Confirmed×Early 점수 (Fund 식 미변경, D34 A1)",
+        "초입 확인 성장(ECG) 렌즈 — Confirmed(G3c)×Early 점수 (Fund 식 미변경, D34 A1)",
         _tool_ecg,
         aliases=("ecg", "sepa.early"),
     ),

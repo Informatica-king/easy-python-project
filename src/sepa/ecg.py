@@ -3,9 +3,16 @@
 Fund formula is NOT modified. Reads existing fundamental (+ optional price cache)
 and emits ECG scores for "confirmed + early" growth candidates.
 
-Confirmed (AND):
+Confirmed (G3c, user 2026-10-05):
   Stage-2 pool (input already Stage2-filtered) AND
-  (fund_score >= pool median OR S/B/D positive contribution)
+  (
+    fund_score >= pool median
+    OR (
+      shallow B/D acceleration (B>0 or D>0 with accel_n <= 2)
+      AND fund_score >= PATH_B_FUND_FLOOR (30)
+    )
+  )
+  Surprise-only (S>0 with B<=0 and D<=0) does NOT open Path B.
 
 Early factors (weights sum 100; E5 VCP deferred):
   E1 RS band 25 · E3 accel turn-up/earliness 30 · E2 52w proximity 20 · E4 SMA200 turn 25
@@ -38,6 +45,10 @@ RS_EARLY_LO = 70.0
 RS_EARLY_HI = 90.0
 RS_MID_HI = 95.0
 
+# G3c Path B: shallow B/D accel + minimum Fund floor (Confirmed calibration)
+PATH_B_ACCEL_MAX_N = 2
+PATH_B_FUND_FLOOR = 30.0
+
 
 def pool_fund_median(fund_score: pd.Series) -> float:
     s = pd.to_numeric(fund_score, errors="coerce").dropna()
@@ -46,16 +57,22 @@ def pool_fund_median(fund_score: pd.Series) -> float:
     return float(s.median())
 
 
+def shallow_bd_accel(df: pd.DataFrame) -> pd.Series:
+    """True when B>0 or D>0 with that leg's accel_n <= PATH_B_ACCEL_MAX_N."""
+    b = pd.to_numeric(df.get("b_raw"), errors="coerce").fillna(0.0)
+    d = pd.to_numeric(df.get("d_raw"), errors="coerce").fillna(0.0)
+    nb = pd.to_numeric(df.get("eps_accel_n"), errors="coerce").fillna(0.0)
+    nd = pd.to_numeric(df.get("sales_accel_n"), errors="coerce").fillna(0.0)
+    return ((b > 0) & (nb <= PATH_B_ACCEL_MAX_N)) | ((d > 0) & (nd <= PATH_B_ACCEL_MAX_N))
+
+
 def confirmed_mask(df: pd.DataFrame, median: float | None = None) -> pd.Series:
-    """Stage2 assumed for input rows. Realized growth confirmation gate."""
+    """Stage2 assumed for input rows. G3c realized-growth confirmation gate."""
     fund = pd.to_numeric(df.get("fund_score"), errors="coerce")
     if median is None or (isinstance(median, float) and np.isnan(median)):
         median = pool_fund_median(fund)
-    s = pd.to_numeric(df.get("s_surprise"), errors="coerce").fillna(0.0)
-    b = pd.to_numeric(df.get("b_raw"), errors="coerce").fillna(0.0)
-    d = pd.to_numeric(df.get("d_raw"), errors="coerce").fillna(0.0)
     path_a = fund >= median
-    path_b = (s > 0) | (b > 0) | (d > 0)
+    path_b = shallow_bd_accel(df) & (fund >= PATH_B_FUND_FLOOR)
     return (path_a | path_b).fillna(False)
 
 

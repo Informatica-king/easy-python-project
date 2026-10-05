@@ -79,7 +79,7 @@
 | 축 | 최소 조건 (초안 · 튜닝 대상) | 데이터 |
 |---|---|---|
 | **C1 가격 확인** | Stage 2 통과 + RS≥70 (현행 live와 동일) | screener |
-| **C2 실적 확인** | Fund 구성 중 **가속·서프라이즈 중 ≥1개가 양수 기여** 또는 Fund≥풀 중앙값 | 현행 `fundamental_*.csv` (식 변경 없음) |
+| **C2 실적 확인 (G3c)** | Fund≥풀 중앙값 **또는** (얕은 B\|D 가속 `accel_n≤2` **그리고** Fund≥30). Surprise 단독은 Path B 불가 | 현행 `fundamental_*.csv` (식 변경 없음) |
 
 > Fund **공식을 바꾸지 않고** 컬럼·플래그만 읽는다.
 
@@ -245,10 +245,11 @@ Phase A/B 결과가 나온 뒤에만 착수.
 
 ## 10. A0 승인 기록값 (2026-10-05 사용자 동의)
 
-1. **Confirmed:** Stage2 ∧ (Fund≥중앙값 ∨ S/B/D 양수 기여) — **승인**
+1. **Confirmed (A0 초안):** Stage2 ∧ (Fund≥중앙값 ∨ S/B/D 양수 기여) — **승인 후 A1 스모크에서 과다통과(91/92) 확인**
 2. **Early 가중:** E3=30, E1=25, E2=20, E4=25 (E5 VCP 보류) — **승인**
 3. **CSS 초기 가중:** S1=20, S2=20, S3=15, S4=15, S5=10, S6=10, S7=5, S8=5 — **승인** (A2에서 구현)
 4. **Phase A에서 Fund 코드 미수정** — **승인**
+5. **Confirmed 재보정 G3c (2026-10-05):** Stage2 ∧ (Fund≥중앙값 ∨ (얕은 B\|D `accel_n≤2` ∧ Fund≥30)). S-only Path B 제거 — **승인**
 
 ---
 
@@ -256,6 +257,7 @@ Phase A/B 결과가 나온 뒤에만 착수.
 
 - 모듈: `sepa.ecg` / `!sepa.ecg()`
 - 산출: `reports/ecg_YYYYMMDD.csv`
+- Confirmed = **G3c** (`PATH_B_FUND_FLOOR=30`, `PATH_B_ACCEL_MAX_N=2`)
 - E3는 prior-분기 턴업 대신 **양수 B/D + accel_n 깊이** 프록시 (한계 명시)
 - E2/E4는 가격 캐시 enrich (없으면 NaN → early 가중 재정규화)
 
