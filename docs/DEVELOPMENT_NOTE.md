@@ -300,6 +300,7 @@ sepa-bot/
 | 2026-10-05 | D34: 초입 확인 성장 + 다팩터 성공점수 계획 | 목표=확인된 성장의 **초입**에 올라타기. ECG 렌즈·CSS 성적표 먼저, **Fund 식 수정은 이후**. 문서: `docs/early_confirmed_growth_plan.md` |
 | 2026-10-05 | D34-A1 Confirmed G3c | Path B = 얕은 B|D(`accel_n≤2`) ∧ Fund≥30. S-only 제외. 20261005 스모크 ~60/92 |
 | 2026-10-05 | D34-A2 CSS 모듈 | `sepa.css_score` / `!sepa.css` — S1–S8 가중 성적표, sepaTop·median+ as-of 롤업 |
+| 2026-10-05 | D34-A3 ECG vs CSS | ecg_top vs sepaTop/median+ · ΔCSS≈+2.5 · S2/S4↑ · 파일럿 `docs/ecg_css_pilot_20261005.md` |
 
 ## 6. 진행 현황
 

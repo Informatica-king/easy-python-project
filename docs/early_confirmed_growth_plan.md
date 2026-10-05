@@ -277,6 +277,23 @@ Phase A/B 결과가 나온 뒤에만 착수.
 | median_plus | 11 | 48.9 | 58.4 | 29.8 | 43.6 | 57.2 | 55.1 | 36.5 | 40.3 | 100 |
 
 해석 한 줄: 두 기준선 CSS는 거의 같고, **S2(중앙값 초과)가 공통 약점**. ΔCSS는 A3에서 ECG와 비교.
----
+
+## 13. Phase A3 구현 메모
+
+- `ecg_top` 규칙: G3c Confirmed 상위 25% (10–30종)
+- `!sepa.css()` 기본 rules = sepaTop,median_plus,ecg_top
+- 산출: `css_delta.csv`, `css_compare_bars.png`, `css_delta_ecg.png`
+- 파일럿 요약: `docs/ecg_css_pilot_20261005.md`
+
+### A3 스모크 (2026-10-05 · n=11 · 확증 아님)
+
+| | sepaTop | median+ | **ecg_top** |
+|--|--------:|--------:|------------:|
+| CSS | 48.3 | 48.9 | **50.8** |
+| ΔCSS vs sepaTop | 0 | +0.7 | **+2.5** |
+| S2 | 26.9 | 29.8 | **39.1** |
+| S4 | 62.0 | 57.2 | **67.1** |
+
+예비: ΔCSS·S2·S4 플러스 방향. S3/S7 약화. **B 보류**.---
 
 *본 문서는 승인·파일럿 결과에 따라 갱신한다. Fund 스펙(`fundamental_spec.md`) 변경은 Phase C 전용.*
