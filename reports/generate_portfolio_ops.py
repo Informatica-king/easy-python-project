@@ -198,17 +198,21 @@ def chart_vs_bench(
     prop_b,
     *,
     series: dict | None = None,
+    lookback_days: int = 30,
+    title: str | None = None,
+    outfile: str = "vs_bench.png",
+    figsize: tuple[float, float] = (9.2, 3.8),
 ) -> tuple[Path | None, BenchSummary | None]:
-    start = book.as_of - timedelta(days=90)
+    start = book.as_of - timedelta(days=max(lookback_days, 14) + 10)
     if series is None:
         tickers = [h.ticker for h in book.holdings] + list(BENCH)
         series = fetch_bench_series(tickers, start)
-    pidx = portfolio_index(book, series)
-    summary = bench_summary_from_series(book, series)
+    pidx = portfolio_index(book, series, lookback_days=lookback_days)
+    summary = bench_summary_from_series(book, series, lookback_days=lookback_days)
     if not pidx:
         return None, summary
     start_norm = pidx[0][0]
-    fig, ax = plt.subplots(figsize=(9.2, 3.8), facecolor=PAPER)
+    fig, ax = plt.subplots(figsize=figsize, facecolor=PAPER)
     ax.set_facecolor(PLOT_BG)
     ax.grid(True, which="major", linestyle=":", linewidth=0.8, color=GRID)
     # navy / teal / coral — Style B line identities
@@ -237,7 +241,7 @@ def chart_vs_bench(
         )
     ax.axhline(100, color=MUTED, lw=1.0, ls="--")
     ax.set_title(
-        "포폴 바스켓 vs QQQ·SPY (시작=100)",
+        title or f"포폴 바스켓 vs QQQ·SPY · 최근 {lookback_days}일 (시작=100)",
         fontproperties=prop_b,
         fontsize=11,
         color=INK,
@@ -253,7 +257,8 @@ def chart_vs_bench(
     for spine in ax.spines.values():
         spine.set_color(GRID)
     fig.tight_layout()
-    out = CHART_DIR / "vs_bench.png"
+    out = CHART_DIR / outfile
+    out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=160, bbox_inches="tight", facecolor=PAPER)
     plt.close(fig)
     return out, summary
@@ -471,7 +476,7 @@ def bench_cards_html(summary: BenchSummary | None) -> str:
     vs = ""
     if summary.vs_qqq_pct is not None:
         vs = f"QQQ대비 {_fmt_signed_pct(summary.vs_qqq_pct)}"
-    period = f"{summary.start.isoformat()} → {summary.end.isoformat()} · 시작=100"
+    period = f"{summary.start.isoformat()} → {summary.end.isoformat()} · 최근 1개월 · 시작=100"
     return (
         f"<p class='small'>{esc(period)} · 현금·중간매매 미반영 가상 성적</p>"
         "<div class='growth-grid'>"
@@ -494,6 +499,7 @@ def build_html(
     *,
     goal: GoalProgress | None = None,
     bench_sum: BenchSummary | None = None,
+    bench_2w: Path | None = None,
     nav_chart: Path | None = None,
     nav_blurb: str | None = None,
 ) -> str:
@@ -505,11 +511,15 @@ def build_html(
     plan_html = "".join(f"<li>{esc(l)}</li>" for l in plan_lines)
     bench_block = ""
     if bench and bench.exists():
+        img_2w = ""
+        if bench_2w and bench_2w.exists():
+            img_2w = f"<img class='wide' src='data:image/png;base64,{img_b64(bench_2w)}'/>"
         bench_block = (
             f"<h2>0-B. 포폴 vs QQQ·SPY</h2>"
             f"<img class='wide' src='data:image/png;base64,{img_b64(bench)}'/>"
             f"{bench_cards_html(bench_sum)}"
-            f"<p class='small'>현금·중간매매 미반영 근사 · 수량 고정 바스켓 · 투자권유 아님</p>"
+            f"{img_2w}"
+            f"<p class='small'>위=최근 1개월 · 아래=최근 2주 · 각 창 시작=100 · 현금·중간매매 미반영 근사 · 수량 고정 바스켓 · 투자권유 아님</p>"
         )
     elif bench_sum is not None:
         bench_block = f"<h2>0-B. 포폴 vs QQQ·SPY</h2>{bench_cards_html(bench_sum)}"
@@ -591,11 +601,29 @@ def main(argv: list[str] | None = None) -> int:
     prop, prop_b = _fonts()
     pie_s, pie_l = chart_pies(book, prop, prop_b)
 
-    # Growth P1: one yfinance pull for bench chart + cards
-    start = book.as_of - timedelta(days=90)
+    # Growth P1: one yfinance pull for 1m + 2w bench charts + cards
+    start = book.as_of - timedelta(days=40)
     tickers = [h.ticker for h in book.holdings] + list(BENCH)
     series = fetch_bench_series(tickers, start)
-    bench, bench_sum = chart_vs_bench(book, prop, prop_b, series=series)
+    bench, bench_sum = chart_vs_bench(
+        book,
+        prop,
+        prop_b,
+        series=series,
+        lookback_days=30,
+        title="포폴 바스켓 vs QQQ·SPY · 최근 1개월 (시작=100)",
+        outfile="vs_bench.png",
+    )
+    bench_2w, _ = chart_vs_bench(
+        book,
+        prop,
+        prop_b,
+        series=series,
+        lookback_days=14,
+        title="포폴 바스켓 vs QQQ·SPY · 최근 2주 (시작=100)",
+        outfile="vs_bench_2w.png",
+        figsize=(9.2, 3.2),
+    )
 
     nav_points = load_nav_history("reports", book=book)
     nav_blurb = nav_delta_summary(nav_points)
@@ -627,6 +655,7 @@ def main(argv: list[str] | None = None) -> int:
         scen_path,
         goal=goal,
         bench_sum=bench_sum,
+        bench_2w=bench_2w,
         nav_chart=nav_chart,
         nav_blurb=nav_blurb,
     )
@@ -659,7 +688,7 @@ def main(argv: list[str] | None = None) -> int:
             f"## 포폴() 운영브리프 ({tag}) · 성장 P1\n\n"
             f"스냅 {book.as_of.isoformat()} · 주식 ${book.equity_usd:.2f} · "
             f"현금 ${book.cash_total_usd:.2f} · 유동 ${book.liquid_usd:.2f}\n"
-            f"- 1억 게이지 · vs QQQ/SPY 카드 · 통장 추세\n"
+            f"- 1억 게이지 · vs QQQ/SPY 1개월+2주 · 통장 추세\n"
         )
         rel = publish_portfolio_pdf_release(pdf_main, as_of=tag, notes=notes)
         print_release_result(rel, label="포폴 PDF")

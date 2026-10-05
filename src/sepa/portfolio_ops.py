@@ -838,22 +838,24 @@ def fetch_bench_series(
 def portfolio_index(
     book: PortfolioBook,
     series: dict[str, list[tuple[date, float]]],
+    *,
+    lookback_days: int = 30,
 ) -> list[tuple[date, float]]:
     """Buy&hold quantity-weighted index, start=100 at first common date ≥ as_of-lookback.
     Uses current shares; cash excluded.
     """
-    # Use last ~60 trading days ending today; normalize at first date where all held names exist
     held = [h for h in book.holdings if h.ticker in series and h.shares > 0]
     if not held:
         return []
-    # align dates
     date_sets = [set(d for d, _ in series[h.ticker]) for h in held]
     common = set.intersection(*date_sets) if date_sets else set()
     if not common:
         return []
-    days = sorted(d for d in common if d >= (book.as_of - timedelta(days=90)))
+    lookback_days = max(int(lookback_days or 30), 1)
+    days = sorted(d for d in common if d >= (book.as_of - timedelta(days=lookback_days)))
     if len(days) < 2:
-        days = sorted(common)[-60:]
+        n = max(int(lookback_days * 5 / 7), 5)
+        days = sorted(common)[-n:]
     if not days:
         return []
     px0 = {h.ticker: dict(series[h.ticker])[days[0]] for h in held}
@@ -966,9 +968,11 @@ def nav_delta_summary(points: list[NavPoint]) -> str | None:
 def bench_summary_from_series(
     book: PortfolioBook,
     series: dict[str, list[tuple[date, float]]],
+    *,
+    lookback_days: int = 30,
 ) -> BenchSummary | None:
     """Compute end index levels for port / QQQ / SPY (start=100)."""
-    pidx = portfolio_index(book, series)
+    pidx = portfolio_index(book, series, lookback_days=lookback_days)
     if not pidx:
         return None
     start_d, _ = pidx[0]
