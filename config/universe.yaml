@@ -1,0 +1,14 @@
+# 파일럿 유니버스: 나스닥 시가총액 상위 10개 (2026-07 기준)
+# Phase 4에서 Nasdaq Trader 심볼 파일 기반 전 종목으로 확장 예정.
+# 주의: RS 순위는 유니버스 내 상대 순위이므로, 소수 종목에서는 해상도가 낮음.
+tickers:
+  - NVDA
+  - MSFT
+  - AAPL
+  - AMZN
+  - GOOGL
+  - META
+  - AVGO
+  - TSLA
+  - NFLX
+  - COST
