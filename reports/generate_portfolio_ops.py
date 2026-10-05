@@ -18,6 +18,7 @@ from pathlib import Path
 import matplotlib
 
 matplotlib.use("Agg")
+import matplotlib.dates as mdates
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 from weasyprint import HTML
@@ -246,6 +247,11 @@ def chart_vs_bench(
         fontsize=11,
         color=INK,
     )
+    if lookback_days <= 16:
+        ax.xaxis.set_major_locator(mdates.DayLocator(interval=2))
+    else:
+        ax.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday=mdates.MO))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%m-%d"))
     leg = ax.legend(prop=prop, fontsize=8, frameon=True, fancybox=False, edgecolor=GRID, facecolor=PAPER)
     for t in leg.get_texts():
         t.set_color(INK)
