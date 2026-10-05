@@ -75,6 +75,16 @@ def test_nesr_profile_exists():
     assert abs(p["mix_rows"][0]["mix"]["Production Services"] - 60.0) < 0.1
 
 
+def test_chef_profile_exists():
+    p = get_profile("CHEF")
+    assert p is not None
+    assert any(r.get("subject") for r in p["mix_rows"])
+    assert p["share_rows"][3][0] == "Chefs' Warehouse (CHEF)"
+    assert "Specialty" in p["mix_buckets"]
+    assert abs(p["mix_rows"][0]["mix"]["Specialty"] - 60.8) < 0.1
+    assert abs(p["mix_rows"][0]["mix"]["Center-of-Plate"] - 39.2) < 0.1
+
+
 def test_load_bundle_offline_share(monkeypatch):
     monkeypatch.setattr("sepa.rev_compete._ttm_revenue", lambda _t: None)
     b = load_compete_bundle("RELY")
@@ -106,3 +116,8 @@ def test_load_bundle_offline_share(monkeypatch):
     assert b6 is not None
     assert b6.share_rows[3].name == "NESR"
     assert abs(b6.share_rows[3].delta_pp - 1.5) < 1e-9
+
+    b7 = load_compete_bundle("CHEF")
+    assert b7 is not None
+    assert b7.share_rows[3].name == "Chefs' Warehouse (CHEF)"
+    assert abs(b7.share_rows[3].delta_pp - 0.3) < 1e-9
