@@ -147,6 +147,7 @@ S1 극대화나 매 구간 승률 극대화와는 **부분적으로 긴장**.
 | `reports/asof_forward_bt/css_delta.csv` | ΔCSS·팩터 차이 |
 | `reports/asof_forward_bt/css_compare_bars.png` | S1–S8 막대 비교 |
 | `reports/asof_forward_bt/css_delta_ecg.png` | ECG Δ 막대 |
+| `reports/charts/css_ecg_vs_sepatop_factors.png` | **ECG vs sepaTop 인자 한눈 비교** (상단 점수·하단 Δ) |
 | **본 문서** | A4 공식 판정 |
 
 ---
