@@ -45,7 +45,9 @@ def test_clmt_profile_exists():
     assert any(r.get("subject") for r in p["mix_rows"])
     assert p["share_rows"][2][0] == "Calumet"
     assert "Specialty Products" in p["mix_buckets"]
-    assert abs(p["mix_rows"][0]["mix"]["Specialty Products"] - 68.5) < 0.1
+    assert abs(p["mix_rows"][0]["mix"]["Specialty Products"] - 70.1) < 0.1
+    assert abs(p["mix_rows"][0]["mix"]["Montana/Renewables"] - 22.8) < 0.1
+    assert abs(p["mix_rows"][0]["mix"]["Performance Brands"] - 7.1) < 0.1
 
 
 def test_txg_profile_exists():
