@@ -60,18 +60,40 @@ def test_e4_recent_trough_scores_high():
     assert score >= 80.0
 
 
-def test_confirmed_median_or_positive_sbd():
+def test_confirmed_g3c_median_or_shallow_bd_with_floor():
+    """G3c: path A = Fund≥med; path B = shallow B|D + Fund≥30. S-only does not pass."""
     df = pd.DataFrame(
         {
-            "fund_score": [60.0, 30.0, 20.0, 10.0],
-            "s_surprise": [0.0, 0.0, 40.0, 0.0],
-            "b_raw": [0.0, 10.0, 0.0, 0.0],
-            "d_raw": [0.0, 0.0, 0.0, 0.0],
+            # median = (35+32)/2 = 33.5
+            "fund_score": [70.0, 40.0, 35.0, 32.0, 20.0, 15.0],
+            "s_surprise": [0.0, 0.0, 0.0, 40.0, 0.0, 50.0],
+            "b_raw": [0.0, 10.0, 10.0, 0.0, 10.0, 0.0],
+            "d_raw": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            "eps_accel_n": [0, 1, 1, 0, 1, 0],
+            "sales_accel_n": [0, 0, 0, 0, 0, 0],
         }
     )
-    med = pool_fund_median(df["fund_score"])  # 25
+    med = pool_fund_median(df["fund_score"])
+    assert abs(med - 33.5) < 1e-9
     m = confirmed_mask(df, med)
-    assert list(m) == [True, True, True, False]
+    # path A (70), path B shallow+floor (40), path B (35), S-only@32 fail,
+    # shallow but Fund 20 < floor fail, S-only@15 fail
+    assert list(m) == [True, True, True, False, False, False]
+
+
+def test_confirmed_g3c_rejects_deep_accel_below_median():
+    df = pd.DataFrame(
+        {
+            "fund_score": [60.0, 35.0],
+            "s_surprise": [0.0, 0.0],
+            "b_raw": [0.0, 12.0],
+            "d_raw": [0.0, 0.0],
+            "eps_accel_n": [0, 4],  # deep accel → not shallow
+            "sales_accel_n": [0, 0],
+        }
+    )
+    m = confirmed_mask(df, median=50.0)
+    assert list(m) == [True, False]
 
 
 def test_compute_ecg_zero_when_not_confirmed():
