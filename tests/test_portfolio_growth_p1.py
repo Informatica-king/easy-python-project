@@ -156,8 +156,9 @@ def test_build_html_stacks_1m_then_2w_bench_charts(tmp_path: Path):
     pie = tmp_path / "pie.png"
     one_m = tmp_path / "vs_bench.png"
     two_w = tmp_path / "vs_bench_2w.png"
-    for p in (pie, one_m, two_w):
-        p.write_bytes(png)
+    pie.write_bytes(png)
+    one_m.write_bytes(png + b"1m")
+    two_w.write_bytes(png + b"2w")
 
     book = PortfolioBook(
         as_of=date(2026, 10, 5),
