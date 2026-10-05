@@ -301,6 +301,7 @@ sepa-bot/
 | 2026-10-05 | D34-A1 Confirmed G3c | Path B = 얕은 B|D(`accel_n≤2`) ∧ Fund≥30. S-only 제외. 20261005 스모크 ~60/92 |
 | 2026-10-05 | D34-A2 CSS 모듈 | `sepa.css_score` / `!sepa.css` — S1–S8 가중 성적표, sepaTop·median+ as-of 롤업 |
 | 2026-10-05 | D34-A3 ECG vs CSS | ecg_top vs sepaTop/median+ · ΔCSS≈+2.5 · S2/S4↑ · 파일럿 `docs/ecg_css_pilot_20261005.md` |
+| 2026-10-05 | D34-A4 판정 | **자료 부족**(플러스 신호). B 본선 보류. C 미착수. 문서 동 파일 A4 섹션 |
 
 ## 6. 진행 현황
 
