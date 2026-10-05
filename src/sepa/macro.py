@@ -318,6 +318,52 @@ def _tool_ecg(args: list, kwargs: dict) -> None:
     ecg.main(argv)
 
 
+def _tool_css(args: list, kwargs: dict) -> None:
+    from sepa import css_score
+
+    argv: list[str] = []
+    known = {
+        "sepaTop",
+        "sepatop",
+        "median_plus",
+        "median+",
+        "median",
+        "ecg_top",
+        "ecg",
+        "ecgtop",
+    }
+    for a in args:
+        a = str(a)
+        if a in known:
+            continue
+        raise MacroError(
+            f"알 수 없는 인자: {a!r} — !sepa.css() 또는 "
+            f"!sepa.css(rules=sepaTop,median_plus,ecg_top)"
+        )
+    if kwargs.get("no_skip") or kwargs.get("rebuild"):
+        argv.append("--no-skip-existing")
+    if kwargs.get("rules"):
+        argv += ["--rules", str(kwargs["rules"])]
+    elif args:
+        mapped = []
+        for a in args:
+            a = str(a)
+            if a in {"median+", "median"}:
+                mapped.append("median_plus")
+            elif a.lower() == "sepatop":
+                mapped.append("sepaTop")
+            elif a.lower() in {"ecg", "ecgtop", "ecg_top"}:
+                mapped.append("ecg_top")
+            else:
+                mapped.append(a)
+        argv += ["--rules", ",".join(mapped)]
+    if kwargs.get("freq"):
+        argv += ["--freq", str(kwargs["freq"])]
+    if kwargs.get("horizon"):
+        argv += ["--horizon", str(kwargs["horizon"])]
+    css_score.main(argv)
+
+
 def _tool_analyze(args: list, kwargs: dict) -> None:
     from sepa import analyze
 
@@ -349,6 +395,8 @@ def _tool_analyze(args: list, kwargs: dict) -> None:
         argv.append("--skip-pdf")
     if kwargs.get("skip_github_release"):
         argv.append("--skip-github-release")
+    if kwargs.get("skip_ecg"):
+        argv.append("--skip-ecg")
     analyze.main(argv)
 
 
@@ -578,6 +626,13 @@ def _tool_go(args: list, kwargs: dict) -> None:
     print(f"  stage2 : {stage2}")
     print(f"  fund   : {fund_csv}")
     print(f"  median+: {median_export}")
+    ecg_rec = Path(f"reports/ecg_recommend_tickers_{stamp}.txt")
+    if not ecg_rec.exists():
+        found = _latest_report("ecg_recommend_tickers_*.txt")
+        if found is not None:
+            ecg_rec = found
+    if ecg_rec.exists():
+        print(f"  ecgRec : {ecg_rec}")
     scatter = Path(f"reports/charts/analyze_scatter_{stamp}.png")
     sectors = Path(f"reports/charts/analyze_sectors_{stamp}.png")
     if not scatter.exists():
@@ -598,6 +653,23 @@ def _tool_go(args: list, kwargs: dict) -> None:
     print("=" * 64)
     print(median_line if median_line else "(해당 없음)")
     print("=" * 64 + "\n")
+    # B1: reprint ECG recommend copy line (full) when present
+    if ecg_rec.exists():
+        ecg_line = ecg_rec.read_text(encoding="utf-8").strip()
+        n_ecg = len([t for t in ecg_line.split(",") if t.strip()]) if ecg_line else 0
+        print("=" * 64)
+        print(f"  [ECG 추천 · B1] 복사용 전체 문자열 — {n_ecg}종 (생략 없음)")
+        print("  (본선 sepaTop/soft/median+ 유지 · 참고 필터 레이어)")
+        print("=" * 64)
+        print(ecg_line if ecg_line else "(해당 없음)")
+        print("=" * 64 + "\n")
+    # B2: one-line ECG/CSS status (reads artifacts; no CSS recompute)
+    try:
+        from sepa.ecg_status import print_ecg_b2_summary
+
+        print_ecg_b2_summary("reports", stamp=stamp)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[경고] ECG/CSS B2 요약 실패: {exc}")
 
 
 @dataclass(frozen=True)
@@ -665,14 +737,21 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.ecg",
         '!sepa.ecg()  |  !sepa.ecg("reports/fundamental_20261005.csv")',
-        "초입 확인 성장(ECG) 렌즈 — Confirmed×Early 점수 (Fund 식 미변경, D34 A1)",
+        "초입 확인 성장(ECG) 렌즈 — Confirmed(G3c)×Early 점수 (Fund 식 미변경, D34 A1)",
         _tool_ecg,
         aliases=("ecg", "sepa.early"),
     ),
     MacroSpec(
+        "sepa.css",
+        "!sepa.css()  |  !sepa.css(rules=sepaTop,median_plus,ecg_top)",
+        "다팩터 성공점수(CSS) — as-of sepaTop·median+·ECG top S1–S8 롤업·Δ비교 (D34 A2/A3)",
+        _tool_css,
+        aliases=("css", "sepa.css_score", "css_score"),
+    ),
+    MacroSpec(
         "sepa.analyze",
         '!sepa.anal()  |  !sepa.anal("reports/fundamental_20260716.csv")  |  !sepa.analyze()',
-        "섹터/테마·Fund·시가총액 + RS×Fund + 섹터점유율(전체/Fund≥40 꺾은선) + sepaTop + PDF 묶음",
+        "섹터/테마·Fund·시가총액 + RS×Fund + 섹터점유율 + sepaTop + ECG추천(B1) + PDF 묶음",
         _tool_analyze,
         aliases=("analyze", "sepa.anal", "anal"),
     ),
@@ -693,7 +772,7 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.go",
         "!sepa.go()  |  !sepa.go(fill_gaps=1)  |  !go(1)",
-        "일일 파이프라인 — scan(full) → fund → anal(+sectorShare+sepaTop+perf ledger). fill_gaps=1 또는 !go(1) 이면 어제까지 분석 CSV 구멍만 경량 채움",
+        "일일 파이프라인 — scan(full) → fund → anal(+sectorShare+sepaTop+ECG B1+perf). fill_gaps=1 또는 !go(1) 이면 어제까지 분석 CSV 구멍만 경량 채움",
         _tool_go,
         aliases=("go",),
     ),
