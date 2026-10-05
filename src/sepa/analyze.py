@@ -519,6 +519,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Skip uploading PDF to GitHub Release (no public download link)",
     )
+    parser.add_argument(
+        "--skip-ecg",
+        action="store_true",
+        help="Skip ECG live recommend layer (D34 B1; default: run when ecg.live_enabled)",
+    )
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
@@ -617,6 +622,38 @@ def main(argv: list[str] | None = None) -> int:
     all_chart_paths: list[Path] = list(core_charts)
     sepatop_result: dict = {}
     release_extras: list[Path] = [csv_path, median_export]
+    ecg_live: dict = {}
+
+    # D34 B1 — ECG recommend layer (does not replace sepaTop / soft / median+)
+    ecg_cfg = getattr(params, "ecg", None)
+    if (not args.skip_ecg) and ecg_cfg is not None and bool(getattr(ecg_cfg, "live_enabled", True)):
+        from sepa.ecg import run_ecg_live_layer
+
+        as_of_iso = None
+        if len(stamp) == 8 and stamp.isdigit():
+            as_of_iso = f"{stamp[:4]}-{stamp[4:6]}-{stamp[6:8]}"
+        try:
+            ecg_live = run_ecg_live_layer(
+                fund_path=src,
+                cache_dir=params.data.cache_dir,
+                report_dir=params.report_dir,
+                as_of=as_of_iso,
+                lookback_years=int(params.data.lookback_years),
+                enrich_prices=bool(getattr(ecg_cfg, "enrich_prices", True)),
+                top_frac=float(getattr(ecg_cfg, "top_frac", 0.25)),
+                top_min=int(getattr(ecg_cfg, "top_min", 10)),
+                top_max=int(getattr(ecg_cfg, "top_max", 30)),
+            )
+            for key in ("ecg_csv", "recommend_csv", "recommend_txt"):
+                p = ecg_live.get(key)
+                if p:
+                    release_extras.append(Path(p))
+            publish_many(
+                [Path(ecg_live[k]) for k in ("ecg_csv", "recommend_csv", "recommend_txt") if ecg_live.get(k)]
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("ECG live layer failed")
+            print(f"[경고] ECG 추천 레이어 실패: {exc}")
 
     # Fund score 10-pt bucket 1y equal-weight trend vs S&P500 (PDF 본편)
     if not args.skip_fund_trend:

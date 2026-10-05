@@ -104,12 +104,27 @@ class FundamentalParams:
 
 
 @dataclass(frozen=True)
+class EcgParams:
+    """Live Early-Confirmed Growth recommend layer (D34 Phase B1).
+
+    Does NOT replace sepaTop / soft ceiling / median+. Fund formula unchanged.
+    """
+
+    live_enabled: bool = True
+    top_frac: float = 0.25
+    top_min: int = 10
+    top_max: int = 30
+    enrich_prices: bool = True
+
+
+@dataclass(frozen=True)
 class Params:
     data: DataParams
     trend_template: TrendTemplateParams
     vcp: VCPParams
     universe_filter: UniverseFilterParams = UniverseFilterParams()
     fundamental: FundamentalParams = FundamentalParams()
+    ecg: EcgParams = EcgParams()
     report_dir: str = "reports"
 
 
@@ -121,6 +136,7 @@ def load_params(path: str | Path) -> Params:
         vcp=VCPParams(**raw.get("vcp", {})),
         universe_filter=UniverseFilterParams(**raw.get("universe_filter", {})),
         fundamental=FundamentalParams(**raw.get("fundamental", {})),
+        ecg=EcgParams(**raw.get("ecg", {})),
         report_dir=raw.get("report", {}).get("output_dir", "reports"),
     )
 
