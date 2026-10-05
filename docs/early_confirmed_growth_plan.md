@@ -304,6 +304,20 @@ Phase A/B 결과가 나온 뒤에만 착수.
 - **Phase C:** 미착수
 - 허용 예외(별도 승인): B1 **표시 전용** 레이어
 
+## 15. Phase B1 구현 메모 (2026-10-05)
+
+**선택 절차:** 사용자 목적=ECG 필터를 모델에 반영 → Phase **B** 순서 **B1 → B2 → B3**.  
+이번 구현은 **B1만**.
+
+| 항목 | 내용 |
+|------|------|
+| 정책 | Confirmed **G3c** ∩ ECG 상위 25% (min10/max30) = A3 `ecg_top` |
+| 훅 | `!sepa.anal()` / `!sepa.go()` 자동 (`ecg.live_enabled`) |
+| 산출 | `ecg_YYYYMMDD.csv`, `ecg_recommend_YYYYMMDD.csv`, `ecg_recommend_tickers_YYYYMMDD.txt` |
+| 본선 | sepaTop · soft ceiling · median+ **유지** (삭제/교체 없음) |
+| Fund | 미수정 |
+| 다음 | B2(go/검증 요약 한 줄), B3(우선순위 문서) |
+
 ---
 
 *본 문서는 승인·파일럿 결과에 따라 갱신한다. Fund 스펙(`fundamental_spec.md`) 변경은 Phase C 전용.*

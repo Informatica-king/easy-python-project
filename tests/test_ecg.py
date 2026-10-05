@@ -152,3 +152,37 @@ def test_compute_ecg_ranks_confirmed_higher():
     assert bool(out.loc[out.ticker == "HOT", "confirmed"].iloc[0])
     assert out.iloc[0]["ticker"] == "HOT"
     assert out.loc[out.ticker == "HOT", "ecg_score"].iloc[0] > 0
+
+
+def test_select_ecg_recommend_top_frac():
+    from sepa.ecg import select_ecg_recommend
+
+    rows = []
+    for i in range(20):
+        rows.append(
+            {
+                "ticker": f"T{i:02d}",
+                "confirmed": True,
+                "ecg_score": 100.0 - i,
+                "fund_score": 60.0,
+                "rs_rank": 80.0,
+            }
+        )
+    rows.append(
+        {"ticker": "XX", "confirmed": False, "ecg_score": 99.0, "fund_score": 70.0, "rs_rank": 90.0}
+    )
+    table = pd.DataFrame(rows)
+    rec = select_ecg_recommend(table, top_frac=0.25, top_min=10, top_max=30)
+    assert len(rec) == 10
+    assert rec.iloc[0]["ticker"] == "T00"
+    assert "XX" not in set(rec["ticker"])
+
+
+def test_ecg_params_load_defaults():
+    from sepa.config import load_params
+
+    p = load_params("config/params.yaml")
+    assert p.ecg.live_enabled is True
+    assert abs(p.ecg.top_frac - 0.25) < 1e-9
+    assert p.ecg.top_min == 10
+    assert p.ecg.top_max == 30

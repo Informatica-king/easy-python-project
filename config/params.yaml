@@ -64,5 +64,12 @@ fundamental:                 # docs/fundamental_spec.md — v2.1 production (202
   surprise_winsor: 1.0       # clip |surprise| to this fraction before curve
   fund_quality_min: 0.0      # optional: drop if mean(b,d,e quality) < this (0=off)
 
+ecg:                         # D34 B1 — live ECG recommend layer (not sepaTop replacement)
+  live_enabled: true         # !anal / !go 에서 ECG 추천 레이어 자동 산출
+  top_frac: 0.25             # Confirmed(G3c) 중 ECG 상위 비율 (A3 ecg_top과 동일)
+  top_min: 10
+  top_max: 30
+  enrich_prices: true        # E2/E4 가격 캐시 enrich
+
 report:
   output_dir: reports

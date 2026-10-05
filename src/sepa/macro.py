@@ -395,6 +395,8 @@ def _tool_analyze(args: list, kwargs: dict) -> None:
         argv.append("--skip-pdf")
     if kwargs.get("skip_github_release"):
         argv.append("--skip-github-release")
+    if kwargs.get("skip_ecg"):
+        argv.append("--skip-ecg")
     analyze.main(argv)
 
 
@@ -624,6 +626,13 @@ def _tool_go(args: list, kwargs: dict) -> None:
     print(f"  stage2 : {stage2}")
     print(f"  fund   : {fund_csv}")
     print(f"  median+: {median_export}")
+    ecg_rec = Path(f"reports/ecg_recommend_tickers_{stamp}.txt")
+    if not ecg_rec.exists():
+        found = _latest_report("ecg_recommend_tickers_*.txt")
+        if found is not None:
+            ecg_rec = found
+    if ecg_rec.exists():
+        print(f"  ecgRec : {ecg_rec}")
     scatter = Path(f"reports/charts/analyze_scatter_{stamp}.png")
     sectors = Path(f"reports/charts/analyze_sectors_{stamp}.png")
     if not scatter.exists():
@@ -644,6 +653,16 @@ def _tool_go(args: list, kwargs: dict) -> None:
     print("=" * 64)
     print(median_line if median_line else "(해당 없음)")
     print("=" * 64 + "\n")
+    # B1: reprint ECG recommend copy line (full) when present
+    if ecg_rec.exists():
+        ecg_line = ecg_rec.read_text(encoding="utf-8").strip()
+        n_ecg = len([t for t in ecg_line.split(",") if t.strip()]) if ecg_line else 0
+        print("=" * 64)
+        print(f"  [ECG 추천 · B1] 복사용 전체 문자열 — {n_ecg}종 (생략 없음)")
+        print("  (본선 sepaTop/soft/median+ 유지 · 참고 필터 레이어)")
+        print("=" * 64)
+        print(ecg_line if ecg_line else "(해당 없음)")
+        print("=" * 64 + "\n")
 
 
 @dataclass(frozen=True)

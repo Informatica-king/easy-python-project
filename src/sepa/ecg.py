@@ -368,6 +368,119 @@ def run_ecg(
     return table, out
 
 
+def select_ecg_recommend(
+    table: pd.DataFrame,
+    *,
+    top_frac: float = 0.25,
+    top_min: int = 10,
+    top_max: int = 30,
+) -> pd.DataFrame:
+    """Live recommend set = G3c Confirmed ∩ ECG top fraction (A3 ecg_top policy)."""
+    if table is None or table.empty:
+        return pd.DataFrame()
+    work = table.copy()
+    if "confirmed" not in work.columns or "ecg_score" not in work.columns:
+        return pd.DataFrame()
+    conf = work.loc[
+        work["confirmed"].fillna(False)
+        & (pd.to_numeric(work["ecg_score"], errors="coerce").fillna(0.0) > 0)
+    ].sort_values(["ecg_score", "fund_score", "rs_rank"], ascending=False)
+    if conf.empty:
+        return conf.reset_index(drop=True)
+    n = len(conf)
+    k = int(round(n * float(top_frac)))
+    k = max(int(top_min), min(int(top_max), k))
+    k = min(k, n)
+    out = conf.head(k).reset_index(drop=True)
+    out["ecg_recommend"] = True
+    out["ecg_recommend_rank"] = range(1, len(out) + 1)
+    return out
+
+
+def print_ecg_recommend_copy_list(
+    recommend: pd.DataFrame,
+    *,
+    out_path: Path | None = None,
+    banner: bool = True,
+) -> tuple[list[str], str]:
+    """Print/export ECG recommend tickers as one comma-separated line (full, no truncation)."""
+    tickers = (
+        recommend["ticker"].astype(str).str.upper().tolist() if not recommend.empty else []
+    )
+    line = ",".join(tickers)
+    if banner:
+        print("\n" + "=" * 64)
+        print(
+            f"  [ECG 추천 레이어 · B1] Confirmed(G3c) ECG 상위 "
+            f"— {len(tickers)}종 (복사용, 생략 없음)"
+        )
+        print("  (sepaTop / soft ceiling / median+ 본선은 유지 · Fund 식 미변경)")
+        print("=" * 64)
+        print(line if line else "(해당 없음)")
+        print("=" * 64 + "\n")
+    if out_path is not None:
+        Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+        Path(out_path).write_text(line + ("\n" if line else ""), encoding="utf-8")
+        print(f"export: {out_path}")
+    return tickers, line
+
+
+def run_ecg_live_layer(
+    *,
+    fund_path: Path,
+    cache_dir: str | Path,
+    report_dir: str | Path,
+    as_of: str | None = None,
+    lookback_years: int = 3,
+    enrich_prices: bool = True,
+    top_frac: float = 0.25,
+    top_min: int = 10,
+    top_max: int = 30,
+    top_print: int = 25,
+) -> dict:
+    """Compute full ECG table + recommend subset; write CSV/TXT; print summaries."""
+    table, ecg_csv = run_ecg(
+        fund_path=fund_path,
+        cache_dir=cache_dir,
+        report_dir=report_dir,
+        as_of=as_of,
+        lookback_years=lookback_years,
+        enrich_prices=enrich_prices,
+    )
+    recommend = select_ecg_recommend(
+        table, top_frac=top_frac, top_min=top_min, top_max=top_max
+    )
+    stamp = stamp_from_fundamental_path(Path(fund_path))
+    if as_of:
+        stamp = as_of.replace("-", "")
+    report_dir_p = Path(report_dir)
+    rec_csv = report_dir_p / f"ecg_recommend_{stamp}.csv"
+    rec_txt = report_dir_p / f"ecg_recommend_tickers_{stamp}.txt"
+    if not recommend.empty:
+        recommend.to_csv(rec_csv, index=False)
+    else:
+        pd.DataFrame(columns=list(table.columns) + ["ecg_recommend", "ecg_recommend_rank"]).to_csv(
+            rec_csv, index=False
+        )
+
+    print("\n" + "=" * 64)
+    print("  ECG 라이브 추천 레이어 (Phase B1)")
+    print("=" * 64)
+    print_ecg_summary(table, top_n=top_print)
+    tickers, line = print_ecg_recommend_copy_list(recommend, out_path=rec_txt, banner=True)
+    print(f"ecg table: {ecg_csv}")
+    print(f"ecg recommend csv: {rec_csv}")
+    return {
+        "table": table,
+        "recommend": recommend,
+        "ecg_csv": ecg_csv,
+        "recommend_csv": rec_csv,
+        "recommend_txt": rec_txt,
+        "tickers": tickers,
+        "copy_line": line,
+    }
+
+
 def print_ecg_summary(table: pd.DataFrame, *, top_n: int = 25) -> None:
     n = len(table)
     n_conf = int(table["confirmed"].sum()) if "confirmed" in table.columns else 0
