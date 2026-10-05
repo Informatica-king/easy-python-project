@@ -296,6 +296,28 @@ def _tool_fundamental(args: list, kwargs: dict) -> None:
     fundamental.main(argv)
 
 
+def _tool_ecg(args: list, kwargs: dict) -> None:
+    from sepa import ecg
+
+    argv: list[str] = []
+    for a in args:
+        a = str(a)
+        if a.endswith(".csv"):
+            argv += ["--from-fundamental", a]
+        else:
+            raise MacroError(
+                f"알 수 없는 인자: {a!r} — !sepa.ecg() 또는 "
+                f'!sepa.ecg("reports/fundamental_20261005.csv")'
+            )
+    if kwargs.get("as_of"):
+        argv += ["--as-of", str(kwargs["as_of"])]
+    if kwargs.get("no_price") or kwargs.get("no_update"):
+        argv.append("--no-price")
+    if kwargs.get("top"):
+        argv += ["--top", str(kwargs["top"])]
+    ecg.main(argv)
+
+
 def _tool_analyze(args: list, kwargs: dict) -> None:
     from sepa import analyze
 
@@ -639,6 +661,13 @@ REGISTRY: list[MacroSpec] = [
         "Stage 2·RS≥70 정량 펀더멘털 점수 — fund_score 내림차순, RS 병기",
         _tool_fundamental,
         aliases=("fundamental", "sepa.fund", "fund"),
+    ),
+    MacroSpec(
+        "sepa.ecg",
+        '!sepa.ecg()  |  !sepa.ecg("reports/fundamental_20261005.csv")',
+        "초입 확인 성장(ECG) 렌즈 — Confirmed×Early 점수 (Fund 식 미변경, D34 A1)",
+        _tool_ecg,
+        aliases=("ecg", "sepa.early"),
     ),
     MacroSpec(
         "sepa.analyze",

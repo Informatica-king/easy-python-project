@@ -1,7 +1,7 @@
 # 모델 개선 계획 — 확인된 초입 성장 선별 + 다팩터 성공 점수
 
-> **상태**: 설계안 (구현 전 · 사용자 방향 확정 2026-10-05)  
-> **결정 로그**: **D34** (예정)  
+> **상태**: Phase A0 **승인 완료** (2026-10-05) · Phase A1 **구현** · A2 대기  
+> **결정 로그**: **D34**  
 > **관련**: `docs/strategy_spec.md`, `docs/fundamental_spec.md`, `docs/asof_forward_bt.md`, `docs/perf_study_framework.md`
 
 ---
@@ -243,16 +243,21 @@ Phase A/B 결과가 나온 뒤에만 착수.
 
 ---
 
-## 10. 다음 액션 (승인 요청)
+## 10. A0 승인 기록값 (2026-10-05 사용자 동의)
 
-사용자 확인이 필요한 초안 기본값:
+1. **Confirmed:** Stage2 ∧ (Fund≥중앙값 ∨ S/B/D 양수 기여) — **승인**
+2. **Early 가중:** E3=30, E1=25, E2=20, E4=25 (E5 VCP 보류) — **승인**
+3. **CSS 초기 가중:** S1=20, S2=20, S3=15, S4=15, S5=10, S6=10, S7=5, S8=5 — **승인** (A2에서 구현)
+4. **Phase A에서 Fund 코드 미수정** — **승인**
 
-1. **Confirmed:** Stage2 ∧ (Fund≥중앙값 **또는** B/D/S 양수 기여) — OK?  
-2. **Early 강조:** E1(RS 70–90)·E3(가속 턴업)을 ECG에서 더 높게 — OK?  
-3. **CSS 초기 가중:** S1=S2=20, S3=S4=15, … (표 §5.2) — OK?  
-4. **Phase A에서 Fund 코드 손대지 않음** — 재확인 OK?
+---
 
-승인 후 구현 순서: `sepa.ecg` → `sepa.css_score` → as-of 비교 리포트.
+## 11. Phase A1 구현 메모
+
+- 모듈: `sepa.ecg` / `!sepa.ecg()`
+- 산출: `reports/ecg_YYYYMMDD.csv`
+- E3는 prior-분기 턴업 대신 **양수 B/D + accel_n 깊이** 프록시 (한계 명시)
+- E2/E4는 가격 캐시 enrich (없으면 NaN → early 가중 재정규화)
 
 ---
 
