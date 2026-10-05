@@ -8,11 +8,11 @@
 # band: 추가매수 허용 구간 (BAND)
 # max_pct: 종목천장(기본 20 = 유동자산 대비). 품질등급 A/B/C 폐기 · 하드게이트 시 유효=금지(ADD 0%)
 
-as_of: '2026-09-25'
-as_of_note: 앱 캡처 · 평가 $1,570.74(+8.2%·+$119.08) · USD$242.88 + ₩3 · 8종 · APA+1(3→4) · ATRO+1(1→2) · MU 소수주 신규
+as_of: '2026-10-05'
+as_of_note: 앱 캡처 · 평가 $1,629.79(+6.9%·+$105.51) · USD$201.05 + ₩0 · 7종 · ATRO 청산 · TXG 4→3 · ROKU 1→2 · MU 0.095→0.196
 fx_krw_per_usd: 1402.5
-cost_basis_source: 앱 USD 손익역산 평단 2026-09-25
-source: app_screenshot_2026-09-25
+cost_basis_source: 앱 USD 손익역산 평단 2026-10-05
+source: app_screenshot_2026-10-05
 strategy:
   identity: 짧~중기 모멘텀을 실적·비중·손절로 걸러, 비대장주 챌린저를 규칙으로만 운영하는 생존형 포트 OS
   identity_short: 규칙형 챌린저 모멘텀 생존 OS
@@ -25,22 +25,22 @@ strategy:
     target_krw: 100000000
     note: 1억 · 군적금 27.2(+2000만) · 청년미래적금 29.8(만기 2138만) 주식 재투자
   book:
-    equity_usd: 1570.74
-    equity_pnl_usd: 119.08
-    equity_pnl_pct: 0.082
-    cash_usd: 242.88
-    cash_krw: 3
+    equity_usd: 1629.79
+    equity_pnl_usd: 105.51
+    equity_pnl_pct: 0.069
+    cash_usd: 201.05
+    cash_krw: 0
     cash_krw_usd: 0.0
-    liquid_usd: 1813.62
+    liquid_usd: 1830.84
     cash_floor_usd: 150
-    cash_deployable_usd: 92.88
-    cash_pct_of_liquid: 0.1339
-    pending_orders_note: 8종 전원 NO_ADD · Top3≈46.8%(유동) · TXG≈18.5% 천장근접 · APA4 · ATRO2 · MU 0.095주 신규 · 전개가능≈$93
+    cash_deployable_usd: 51.05
+    cash_pct_of_liquid: 0.1098
+    pending_orders_note: 7종 전원 NO_ADD · Top3≈47.9%(유동) · ROKU 16.6% · TXG 3주 · ATRO 청산 · MU 0.196주 · 전개가능≈$51
 cash:
-  usd: 242.88
-  krw: 3
+  usd: 201.05
+  krw: 0
   floor_usd: 150
-  note: USD$242.88 + ₩3(≈$0) · 합 ≈$243 · 바닥 $150 · 전개가능 ≈$93
+  note: USD$201.05 + ₩0 · 합 $201.05 · 바닥 $150 · 전개가능 ≈$51
 contribution:
   payday: 매월 10일
   monthly_krw: 300000
@@ -52,8 +52,8 @@ allocation:
   top3_sum_max_pct: 50
   schd_target_pct: 0
   schd_role: 폐기 · 완충은 현금바닥+$150
-  note: '2026-09-25 (유동 $1,813.62): TXG 18.5% · ECPG 16.1% · APPS 12.2% · APA 9.5% · ANAB 8.5% · ROKU 8.4%
-    · ATRO 7.6% · MU 5.7%. 현금합 ≈$243 (유동 ~13.4%). Top3≈46.8% ≤50% · 전원 유효금지(NO_ADD)·TXG 천장근접. APA+1 · ATRO+1 · MU 재진입.'
+  note: '2026-10-05 (유동 $1,830.84): ROKU 16.6% · ECPG 15.7% · TXG 15.5% · APPS 12.2% · MU 11.5% · APA 9.5%
+    · ANAB 7.9%. 현금합 $201 (유동 ~11.0%). Top3≈47.9% ≤50% · 전원 유효금지(NO_ADD). ATRO 청산 · TXG −1 · ROKU +1 · MU 추가.'
 rules:
 - 물타기 금지
 - 확정 실적 D-5만 분할 차단 (추정 실적일은 주의, 하드블록 아님)
@@ -68,138 +68,130 @@ rules:
 - FTNT 청산 완료 — 추격 재매수 금지
 - AMRX 청산 완료 — 추격 재매수 금지
 - DRH 전량청산 완료 (09-24) — 추격 재매수 금지
-- TXG 4주 · +76.9% · 유동 18.5% 천장근접 · stop $42 · 추가금지
-- ECPG 3주 · 평단 $94.00 · 유동 16.1% · stop $80 · 추가금지
-- APPS 20주 · 평단 $11.54 · −4.2% · stop $10 · 추가금지
-- APA 4주(+1) · 평단 $44.58 · −3.6% · stop $40 · 추가금지
-- ANAB 3주 · 평단 $57.43 · −10.3% · stop $48 · 추가금지
-- ROKU 1주 · 평단 $154.98 · −1.2% · stop $140 · 추가금지
-- ATRO 2주(+1) · 평단 $71.83 · −3.7% · stop $68 근처 · 추가금지
-- MU 0.094721주 재진입 · 유동 5.7% · 추가금지
+- ATRO 전량청산 완료 (10-05) — 추격 재매수 금지
+- ROKU 2주(+1) · 평단 $153.92 · −1.1% · 유동 16.6% · stop $140 · 추가금지
+- ECPG 3주 · 평단 $94.00 · 유동 15.7% · stop $80 · 추가금지
+- TXG 3주(−1) · +99.5% · 유동 15.5% · stop $42 · 추가금지
+- APPS 20주 · 평단 $11.54 · −3.1% · stop $10 · 추가금지
+- MU 0.196316주 · 평단 ~$1,074 · −0.2% · 유동 11.5% · 추가금지
+- APA 4주 · 평단 $44.58 · −2.0% · stop $40 · 추가금지
+- ANAB 3주 · 평단 $57.43 · −15.7% · stop $48 근처 · 추가금지
 - 동일종목 중복 주문 금지
 holdings:
-- ticker: TXG
+- ticker: ROKU
   role: hold
   grade: OK
   max_pct: 20
-  shares: 4
-  cost_approx: 47.46
-  mark_approx: 84.0
-  value_approx: 336.0
-  weight_approx: 0.1853
-  pnl_usd: 146.16
-  pnl_pct: 0.769
-  stop: 42.0
+  shares: 2
+  cost_approx: 153.92
+  mark_approx: 152.15
+  value_approx: 304.30
+  weight_approx: 0.1662
+  pnl_usd: -3.54
+  pnl_pct: -0.011
+  stop: 140.0
   no_add: true
   earn_date: '2026-11-05'
-  note: 4주 · 평단 $47.46 · +76.9% · 유동 18.5% 천장근접 · 추가금지
+  note: 2주(+1) · 평단 $153.92 · −1.1% · 유동 16.6% · stop $140 · 추가금지
 - ticker: ECPG
   role: hold
   grade: OK
   max_pct: 20
   shares: 3
   cost_approx: 94.0
-  mark_approx: 97.59
-  value_approx: 292.77
-  weight_approx: 0.1614
-  pnl_usd: 10.77
-  pnl_pct: 0.038
+  mark_approx: 95.92
+  value_approx: 287.76
+  weight_approx: 0.1572
+  pnl_usd: 5.79
+  pnl_pct: 0.020
   stop: 80.0
   no_add: true
   earn_date: '2026-11-04'
-  note: 3주 · 평단 $94.00 · +3.8% · 유동 16.1% · 추가금지
+  note: 3주 · 평단 $94.00 · +2.0% · 유동 15.7% · 추가금지
   tp1: 105.0
   tp2: 110.0
+- ticker: TXG
+  role: hold
+  grade: OK
+  max_pct: 20
+  shares: 3
+  cost_approx: 47.46
+  mark_approx: 94.72
+  value_approx: 284.16
+  weight_approx: 0.1552
+  pnl_usd: 141.78
+  pnl_pct: 0.995
+  stop: 42.0
+  no_add: true
+  earn_date: '2026-11-05'
+  note: 3주(−1) · 평단 $47.46 · +99.5% · 유동 15.5% · 추가금지
 - ticker: APPS
   role: hold
   grade: OK
   max_pct: 20
   shares: 20
   cost_approx: 11.54
-  mark_approx: 11.04
-  value_approx: 220.8
-  weight_approx: 0.1217
-  pnl_usd: -9.9
-  pnl_pct: -0.042
+  mark_approx: 11.17
+  value_approx: 223.40
+  weight_approx: 0.1220
+  pnl_usd: -7.30
+  pnl_pct: -0.031
   stop: 10.0
   no_add: true
   earn_date: '2026-11-03'
-  note: 20주 · 평단 $11.54 · −4.2% · 유동 12.2% · Digital Turbine · stop $10 · 추가금지
+  note: 20주 · 평단 $11.54 · −3.1% · 유동 12.2% · Digital Turbine · stop $10 · 추가금지
+- ticker: MU
+  role: hold
+  grade: OK
+  max_pct: 20
+  shares: 0.196316
+  cost_approx: 1073.63
+  mark_approx: 1070.98
+  value_approx: 210.25
+  weight_approx: 0.1148
+  pnl_usd: -0.52
+  pnl_pct: -0.002
+  no_add: true
+  earn_date: '2026-09-30'
+  note: 0.196316주(+0.102) · 평단 ~$1,074 · −0.2% · 유동 11.5% · 실적 09-30 경과 · 추가금지
 - ticker: APA
   role: hold
   grade: OK
   max_pct: 20
   shares: 4
   cost_approx: 44.58
-  mark_approx: 42.93
-  value_approx: 171.72
-  weight_approx: 0.0947
-  pnl_usd: -6.58
-  pnl_pct: -0.036
+  mark_approx: 43.68
+  value_approx: 174.72
+  weight_approx: 0.0954
+  pnl_usd: -3.58
+  pnl_pct: -0.020
   stop: 40.0
   no_add: true
   earn_date: '2026-11-04'
-  note: 4주(+1) · 평단 $44.58 · −3.6% · 유동 9.5% · stop $40 · 추가금지
+  note: 4주 · 평단 $44.58 · −2.0% · 유동 9.5% · stop $40 · 추가금지
 - ticker: ANAB
   role: hold
   grade: OK
   max_pct: 20
   shares: 3
   cost_approx: 57.43
-  mark_approx: 51.51
-  value_approx: 154.53
-  weight_approx: 0.0852
-  pnl_usd: -17.77
-  pnl_pct: -0.103
+  mark_approx: 48.40
+  value_approx: 145.20
+  weight_approx: 0.0793
+  pnl_usd: -27.10
+  pnl_pct: -0.157
   stop: 48.0
   no_add: true
   earn_date: '2026-08-19'
-  note: 3주 · 평단 $57.43 · −10.3% · 유동 8.5% · AnaptysBio · stop $48 · 추가금지
-- ticker: ROKU
-  role: hold
-  grade: OK
-  max_pct: 20
-  shares: 1
-  cost_approx: 154.98
-  mark_approx: 153.06
-  value_approx: 153.06
-  weight_approx: 0.0844
-  pnl_usd: -1.92
-  pnl_pct: -0.012
-  stop: 140.0
-  no_add: true
-  earn_date: '2026-11-05'
-  note: 1주 · 평단 $154.98 · −1.2% · 유동 8.4% · stop $140 · 추가금지
-- ticker: ATRO
-  role: hold
-  grade: OK
-  max_pct: 20
-  shares: 2
-  cost_approx: 71.83
-  mark_approx: 69.15
-  value_approx: 138.3
-  weight_approx: 0.0763
-  pnl_usd: -5.35
-  pnl_pct: -0.037
-  stop: 68.0
-  no_add: true
-  earn_date: '2026-11-05'
-  note: 2주(+1) · 평단 $71.83 · −3.7% · 유동 7.6% · stop $68 근처 · 추가금지
-- ticker: MU
-  role: hold
-  grade: OK
-  max_pct: 20
-  shares: 0.094721
-  cost_approx: 1054.68
-  mark_approx: 1093.63
-  value_approx: 103.59
-  weight_approx: 0.0571
-  pnl_usd: 3.69
-  pnl_pct: 0.036
-  no_add: true
-  earn_date: '2026-09-30'
-  note: 0.094721주 재진입 · 평단 ~$1,055 · +3.6% · 유동 5.7% · 추가금지
+  note: 3주 · 평단 $57.43 · −15.7% · 유동 7.9% · AnaptysBio · stop $48 근처 · 추가금지
 exited:
+- ticker: ATRO
+  role: exited
+  shares: 0
+  exit_as_of: '2026-10-05'
+  exit_type: sell_exit
+  exit_shares: 2
+  note: 2주 전량청산 (10-05 스냅) · 추격 재매수 금지
 - ticker: DRH
   role: exited
   shares: 0
@@ -282,30 +274,30 @@ exited:
   exit_type: label_correction
   note: SSOT 라벨 정정 · 실보유는 AnaptysBio(ANAB)
 watchlist:
-- ticker: TXG
-  role: watch
-  note: 보유 · 유동 18.5% 천장근접 · NO_ADD
-- ticker: ECPG
-  role: watch
-  note: 3주 · 유동 16.1% · NO_ADD
-- ticker: APPS
-  role: watch
-  note: 20주 · −4.2% · stop $10 · NO_ADD
-- ticker: APA
-  role: watch
-  note: 4주(+1) · 유동 9.5% · stop $40 · NO_ADD
-- ticker: ANAB
-  role: watch
-  note: 3주 · −10.3% · stop $48 · NO_ADD
 - ticker: ROKU
   role: watch
-  note: 1주 · 유동 8.4% · stop $140 · NO_ADD
-- ticker: ATRO
+  note: 2주(+1) · 유동 16.6% · stop $140 · NO_ADD
+- ticker: ECPG
   role: watch
-  note: 2주(+1) · stop $68 근처 · NO_ADD
+  note: 3주 · 유동 15.7% · NO_ADD
+- ticker: TXG
+  role: watch
+  note: 3주(−1) · 유동 15.5% · NO_ADD
+- ticker: APPS
+  role: watch
+  note: 20주 · −3.1% · stop $10 · NO_ADD
 - ticker: MU
   role: watch
-  note: 0.094721주 재진입 · 유동 5.7% · NO_ADD
+  note: 0.196316주 · 유동 11.5% · NO_ADD
+- ticker: APA
+  role: watch
+  note: 4주 · 유동 9.5% · stop $40 · NO_ADD
+- ticker: ANAB
+  role: watch
+  note: 3주 · −15.7% · stop $48 근처 · NO_ADD
+- ticker: ATRO
+  role: watch
+  note: 10-05 전량청산 · 추격 재매수 금지
 - ticker: DRH
   role: watch
   note: 09-24 전량청산 · 추격 재매수 금지
