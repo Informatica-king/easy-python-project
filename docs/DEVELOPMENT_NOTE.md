@@ -298,6 +298,9 @@ sepa-bot/
 | 2026-08-25 | D32: Fund 구간 1년 추세 차트 | anal에 Fund 10점 반열림 구간 등가 종가 추세 vs S&P500 (기준 1000). PDF 본편. `sepa.fund_score_trend` |
 | 2026-08-25 | D33: `!검증`에 Fund 추세 해석 레이어 | 검증 PDF 9쪽. A–D 본심판 유지, Fund 1년 구간 추세는 맥락만. `summarize_fund_trend_context` |
 | 2026-10-05 | D34: 초입 확인 성장 + 다팩터 성공점수 계획 | 목표=확인된 성장의 **초입**에 올라타기. ECG 렌즈·CSS 성적표 먼저, **Fund 식 수정은 이후**. 문서: `docs/early_confirmed_growth_plan.md` |
+| 2026-10-05 | D34-A1 Confirmed G3c | Path B = 얕은 B|D(`accel_n≤2`) ∧ Fund≥30. S-only 제외. 20261005 스모크 ~60/92 |
+| 2026-10-05 | D34-A2 CSS 모듈 | `sepa.css_score` / `!sepa.css` — S1–S8 가중 성적표, sepaTop·median+ as-of 롤업 |
+| 2026-10-05 | D34-A3 ECG vs CSS | ecg_top vs sepaTop/median+ · ΔCSS≈+2.5 · S2/S4↑ · 파일럿 `docs/ecg_css_pilot_20261005.md` |
 
 ## 6. 진행 현황
 
