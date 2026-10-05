@@ -419,11 +419,12 @@ def build_html(charts: dict[str, Path], *, compete_html: str = "") -> str:
     .gloss .term {{ font-weight:700; color:#c2410c; }}
     .box {{ background:#fffbeb; border:1px solid #d69e2e; padding:10px; margin:10px 0; }}
     .small {{ font-size:8pt; color:#555; }}
-    .kpi {{ display:inline-block; background:#fff; border:1px solid #cbd5e1; border-radius:6px;
-      padding:8px 12px; margin:6px; min-width:105px; text-align:center; }}
-    .kpi .l {{ font-size:7.5pt; color:#64748b; }}
-    .kpi .v {{ font-size:12pt; font-weight:700; color:#7c2d12; }}
-    .kpi .s {{ font-size:7.5pt; color:#c2410c; }}
+    .kpis {{ width:92%; margin:18px auto 0; border-collapse:separate; border-spacing:8px; }}
+    .kpis td {{ background:#fff; border:1px solid #cbd5e1; padding:8px 10px; width:25%;
+      text-align:center; vertical-align:middle; }}
+    .kpis .l {{ font-size:7.5pt; color:#64748b; }}
+    .kpis .v {{ font-size:12pt; font-weight:700; color:#7c2d12; }}
+    .kpis .s {{ font-size:7.5pt; color:#c2410c; }}
     """
 
     return f"""<!DOCTYPE html>
@@ -433,12 +434,14 @@ def build_html(charts: dict[str, Path], *, compete_html: str = "") -> str:
   <h1>CLMT 수익구조분석</h1>
   <p style="font-size:12pt;color:#444;margin-top:10px">Calumet · 특수석유제품 + 재생연료(RD/SAF) · Performance Brands</p>
   <p style="margin-top:18px;color:#555">기준일 {ASOF} · Q2'26 10-Q · 다음 실적 {EARN} · 시총 ~$4.90B</p>
-  <p style="margin-top:16px">
-    <span class="kpi"><div class="l">현재가</div><div class="v">${PX:.2f}</div><div class="s">52주고 ${H52:.2f}</div></span>
-    <span class="kpi"><div class="l">PT 평균</div><div class="v">${PT:.1f}</div><div class="s">업사이드 {UPSIDE*100:+.1f}%</div></span>
-    <span class="kpi"><div class="l">Q2 매출</div><div class="v">$1.45B</div><div class="s">+40.8% YoY</div></span>
-    <span class="kpi"><div class="l">Adj EBITDA*</div><div class="v">$175.2M</div><div class="s">*Tax Attributes</div></span>
-  </p>
+  <table class="kpis">
+    <tr>
+      <td><div class="l">현재가</div><div class="v">${PX:.2f}</div><div class="s">52주고 ${H52:.2f}</div></td>
+      <td><div class="l">PT 평균</div><div class="v">${PT:.1f}</div><div class="s">업사이드 {UPSIDE*100:+.1f}%</div></td>
+      <td><div class="l">Q2 매출</div><div class="v">$1.45B</div><div class="s">+40.8% YoY</div></td>
+      <td><div class="l">Adj EBITDA*</div><div class="v">$175.2M</div><div class="s">*Tax Attributes</div></td>
+    </tr>
+  </table>
   <p style="margin-top:18px">
     <span class="tag bad">Chase 하·과열</span>
     <span class="tag warn">PT 프리미엄 · 고점권</span>
@@ -530,7 +533,7 @@ MaxSAF 완료 후 <b>앞으로의 스토리</b>다.</div>
 {fig_block(charts['09'], '포지션 맵')}
 <div class="box">
 <b>OS 메모 (10-05 포폴 · Qual)</b><br/>
-<b>미보유</b> · Chase <b>하·과열</b> · 타이밍 GO_A 이나 라벨이 과열이라 <b>본선∩GO = 0</b>.<br/>
+<b>미보유</b> · Chase <b>하·과열</b> · 타이밍 GO_A 이나 라벨이 과열이라 <b>본선 AND GO = 0</b>.<br/>
 현재 ${PX:.2f} · 컨센서스 PT ${PT:.1f} (업사이드 {UPSIDE*100:+.1f}%) · 52주 ${L52:.2f}-${H52:.2f} (고점 -7.0%).<br/>
 실행: <b>추격 금지</b> · 눌림만 관찰. 다음 실적 <b>2026-11-06</b>.<br/>
 게이트: SPS 마진 지속 · MaxSAF 가동률 · RIN 의무 · 부채/부의자본.
