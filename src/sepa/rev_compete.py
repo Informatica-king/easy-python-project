@@ -281,15 +281,15 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
         ],
         "share_source": "Directional share of selected US-listed specialty/renewables-adjacent peers (est.)",
         "mix_buckets": ["Specialty Products", "Montana/Renewables", "Performance Brands"],
-        "mix_as_of": "Q1'26 sales mix (SPS disclosed; PB/MR approx)",
+        "mix_as_of": "Q2'26 10-Q segment sales",
         "mix_rows": [
             {
                 "key": "CLMT",
                 "name": "CLMT",
                 "subject": True,
                 "yf": "CLMT",
-                "mix": {"Specialty Products": 68.5, "Montana/Renewables": 25.0, "Performance Brands": 6.5},
-                "note": "SPS sales $705M / total $1.03B · Adj EBITDA+TaxAttr $50.1M",
+                "mix": {"Specialty Products": 70.1, "Montana/Renewables": 22.8, "Performance Brands": 7.1},
+                "note": "SPS $1,012.5M / MR $329.0M / PB $103.6M · Adj EBITDA+Tax $175.2M",
             },
             {
                 "key": "PBF",
