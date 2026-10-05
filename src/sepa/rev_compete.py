@@ -889,6 +889,64 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "제품 믹스(별도): Oil ~90% / NGL ~8% / Gas ~2% of hydrocarbon revenues."
         ),
     },
+    "CHEF": {
+        "sector_ko": "필수소비 · 특화 푸드서비스 유통 (독립 셰프·파인다이닝)",
+        "share_title": "상장 푸드서비스 유통 피어셋 스케일 점유 (추정)",
+        "share_as_of": "TTM'26 · 총매출 스케일 근사 vs 전년",
+        "share_note": (
+            "상장 브로드라인(SYY·PFGC·USFD) + 특화 순수극(CHEF) 피어셋 총매출 상대 스케일. "
+            "절대 미국 푸드서비스 시장점유가 아니라 피어셋 방향 비교용. "
+            "CHEF는 스케일은 작지만 독립 레스토랑 특화 믹스가 다름."
+        ),
+        "share_rows": [
+            ("Sysco (SYY)", 45.0, 45.4),
+            ("Performance Food (PFGC)", 32.0, 31.6),
+            ("US Foods (USFD)", 20.5, 20.8),
+            ("Chefs' Warehouse (CHEF)", 2.5, 2.2),
+        ],
+        "share_source": "Directional share of selected US-listed foodservice distributors by TTM revenue scale (est.)",
+        "mix_buckets": ["Specialty", "Center-of-Plate", "Broadline/Other"],
+        "mix_as_of": "Q2'26 net sales mix · 피어는 업태 전형 근사",
+        "mix_rows": [
+            {
+                "key": "CHEF",
+                "name": "CHEF",
+                "subject": True,
+                "yf": "CHEF",
+                "mix": {"Specialty": 60.8, "Center-of-Plate": 39.2, "Broadline/Other": 0.0},
+                "note": "Q2'26 · Specialty $711M / CoP $458M · 브로드라인 없음",
+            },
+            {
+                "key": "SYY",
+                "name": "SYY",
+                "subject": False,
+                "yf": "SYY",
+                "mix": {"Specialty": 18.0, "Center-of-Plate": 22.0, "Broadline/Other": 60.0},
+                "note": "브로드라인 본체 · 특화·단백질 혼재 근사",
+            },
+            {
+                "key": "USFD",
+                "name": "USFD",
+                "subject": False,
+                "yf": "USFD",
+                "mix": {"Specialty": 15.0, "Center-of-Plate": 25.0, "Broadline/Other": 60.0},
+                "note": "미국 브로드라인 중심 근사",
+            },
+            {
+                "key": "PFGC",
+                "name": "PFGC",
+                "subject": False,
+                "yf": "PFGC",
+                "mix": {"Specialty": 12.0, "Center-of-Plate": 20.0, "Broadline/Other": 68.0},
+                "note": "푸드서비스+편의점(Vistar) 혼재 → Broadline/Other 크게",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Specialty(특화 식자재) / Center-of-Plate(단백질) / Broadline·Other로 정규화. "
+            "CHEF는 Q2'26 공시 믹스, 피어는 업태 전형 — 방향 비교용. "
+            "CHEF만 브로드라인 0 · 독립 셰프 특화가 본체."
+        ),
+    },
 
 }
 
@@ -941,6 +999,7 @@ SUBJECT_SHARE_ALIASES: dict[str, tuple[str, ...]] = {
     "CMPR": ("cimpress", "vistaprint", "vista"),
     "APPS": ("digital turbine",),
     "APA": ("apa corporation", "apache"),
+    "CHEF": ("chefs' warehouse", "chefs warehouse"),
 }
 
 
