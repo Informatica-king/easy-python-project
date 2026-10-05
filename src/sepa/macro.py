@@ -663,6 +663,13 @@ def _tool_go(args: list, kwargs: dict) -> None:
         print("=" * 64)
         print(ecg_line if ecg_line else "(해당 없음)")
         print("=" * 64 + "\n")
+    # B2: one-line ECG/CSS status (reads artifacts; no CSS recompute)
+    try:
+        from sepa.ecg_status import print_ecg_b2_summary
+
+        print_ecg_b2_summary("reports", stamp=stamp)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[경고] ECG/CSS B2 요약 실패: {exc}")
 
 
 @dataclass(frozen=True)
@@ -744,7 +751,7 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.analyze",
         '!sepa.anal()  |  !sepa.anal("reports/fundamental_20260716.csv")  |  !sepa.analyze()',
-        "섹터/테마·Fund·시가총액 + RS×Fund + 섹터점유율(전체/Fund≥40 꺾은선) + sepaTop + PDF 묶음",
+        "섹터/테마·Fund·시가총액 + RS×Fund + 섹터점유율 + sepaTop + ECG추천(B1) + PDF 묶음",
         _tool_analyze,
         aliases=("analyze", "sepa.anal", "anal"),
     ),
@@ -765,7 +772,7 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.go",
         "!sepa.go()  |  !sepa.go(fill_gaps=1)  |  !go(1)",
-        "일일 파이프라인 — scan(full) → fund → anal(+sectorShare+sepaTop+perf ledger). fill_gaps=1 또는 !go(1) 이면 어제까지 분석 CSV 구멍만 경량 채움",
+        "일일 파이프라인 — scan(full) → fund → anal(+sectorShare+sepaTop+ECG B1+perf). fill_gaps=1 또는 !go(1) 이면 어제까지 분석 CSV 구멍만 경량 채움",
         _tool_go,
         aliases=("go",),
     ),

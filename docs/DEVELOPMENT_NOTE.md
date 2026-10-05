@@ -303,6 +303,7 @@ sepa-bot/
 | 2026-10-05 | D34-A3 ECG vs CSS | ecg_top vs sepaTop/median+ · ΔCSS≈+2.5 · S2/S4↑ · 파일럿 `docs/ecg_css_pilot_20261005.md` |
 | 2026-10-05 | D34-A4 판정 | **자료 부족**(플러스 신호). B 본선 보류. C 미착수. 문서 동 파일 A4 섹션 |
 | 2026-10-05 | D34-B1 ECG 라이브 레이어 | `!anal`/`!go`에 G3c·ECG 상위 추천 필터. sepaTop/soft/median+ 본선 유지 |
+| 2026-10-05 | D34-B2 ECG/CSS 한 줄 | go·`!검증` 요약에 ECG추천 n + 마지막 CSS Δ (재계산 없음) |
 
 ## 6. 진행 현황
 
