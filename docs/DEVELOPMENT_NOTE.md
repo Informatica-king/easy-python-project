@@ -297,6 +297,7 @@ sepa-bot/
 | 2026-08-14 | D31: `!검증` PDF 보고서 | 8쪽 한글 성적 PDF + Release `sepa-검증-YYYYMMDD` 다운로드 링크. 산출물 PDF만. `sepa.verify_report` · `docs/verify_report_design.md` |
 | 2026-08-25 | D32: Fund 구간 1년 추세 차트 | anal에 Fund 10점 반열림 구간 등가 종가 추세 vs S&P500 (기준 1000). PDF 본편. `sepa.fund_score_trend` |
 | 2026-08-25 | D33: `!검증`에 Fund 추세 해석 레이어 | 검증 PDF 9쪽. A–D 본심판 유지, Fund 1년 구간 추세는 맥락만. `summarize_fund_trend_context` |
+| 2026-10-05 | D34: 초입 확인 성장 + 다팩터 성공점수 계획 | 목표=확인된 성장의 **초입**에 올라타기. ECG 렌즈·CSS 성적표 먼저, **Fund 식 수정은 이후**. 문서: `docs/early_confirmed_growth_plan.md` |
 
 ## 6. 진행 현황
 
@@ -320,8 +321,10 @@ sepa-bot/
 
 ## 7. 다음 액션
 
-1. Phase 5: 백테스트 엔진 구축 (T+1 체결, 손절/청산 규칙, 워크포워드 파라미터 탐색)
-2. 운용 편의: 셋업 종목 차트 이미지 자동 생성, 일일 실행 자동화
+1. **D34 Phase A**: ECG(초입 확인 성장) 파생 + CSS(다팩터 성공 점수) + as-of 비교 — Fund 본문 동결 (`docs/early_confirmed_growth_plan.md`)
+2. D34 Phase B: 라이브 추천 레이어·검증 요약 연결 (A 결과 플러스일 때만)
+3. D34 Phase C: Fund 함수 수정 (A·B 이후)
+4. (보류) Phase 5: 백테스트 엔진·자동매매
 
 ---
 
