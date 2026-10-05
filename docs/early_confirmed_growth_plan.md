@@ -259,6 +259,22 @@ Phase A/B 결과가 나온 뒤에만 착수.
 - E3는 prior-분기 턴업 대신 **양수 B/D + accel_n 깊이** 프록시 (한계 명시)
 - E2/E4는 가격 캐시 enrich (없으면 NaN → early 가중 재정규화)
 
+## 12. Phase A2 구현 메모
+
+- 모듈: `sepa.css_score` / `!sepa.css()`
+- 산출: `reports/asof_forward_bt/css_rollup.csv` (+ `forward_summary_{rule}.csv`)
+- 규칙: **sepaTop**, **median_plus** (ECG 비교는 A3)
+- 표본 n_asof < 10 → `sample_note=자료 부족`
+- Fund 본문 미수정
+
+### A2 스모크 롤업 (2026-10-05 실행 · 월말 11 as-of · 확증 아님)
+
+| rule | n | CSS | S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8 |
+|------|--:|----:|---:|---:|---:|---:|---:|---:|---:|---:|
+| sepaTop | 11 | 48.3 | 53.5 | 26.9 | 43.3 | 62.0 | 53.7 | 40.7 | 38.5 | 100 |
+| median_plus | 11 | 48.9 | 58.4 | 29.8 | 43.6 | 57.2 | 55.1 | 36.5 | 40.3 | 100 |
+
+해석 한 줄: 두 기준선 CSS는 거의 같고, **S2(중앙값 초과)가 공통 약점**. ΔCSS는 A3에서 ECG와 비교.
 ---
 
 *본 문서는 승인·파일럿 결과에 따라 갱신한다. Fund 스펙(`fundamental_spec.md`) 변경은 Phase C 전용.*

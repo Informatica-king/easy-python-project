@@ -318,6 +318,40 @@ def _tool_ecg(args: list, kwargs: dict) -> None:
     ecg.main(argv)
 
 
+def _tool_css(args: list, kwargs: dict) -> None:
+    from sepa import css_score
+
+    argv: list[str] = []
+    for a in args:
+        a = str(a)
+        if a in {"sepaTop", "sepatop", "median_plus", "median+", "median"}:
+            continue  # handled via kwargs/rules below
+        raise MacroError(
+            f"알 수 없는 인자: {a!r} — !sepa.css() 또는 !sepa.css(rules=sepaTop,median_plus)"
+        )
+    if kwargs.get("no_skip") or kwargs.get("rebuild"):
+        argv.append("--no-skip-existing")
+    if kwargs.get("rules"):
+        argv += ["--rules", str(kwargs["rules"])]
+    elif args:
+        # positional rule names
+        mapped = []
+        for a in args:
+            a = str(a)
+            if a in {"median+", "median"}:
+                mapped.append("median_plus")
+            elif a.lower() == "sepatop":
+                mapped.append("sepaTop")
+            else:
+                mapped.append(a)
+        argv += ["--rules", ",".join(mapped)]
+    if kwargs.get("freq"):
+        argv += ["--freq", str(kwargs["freq"])]
+    if kwargs.get("horizon"):
+        argv += ["--horizon", str(kwargs["horizon"])]
+    css_score.main(argv)
+
+
 def _tool_analyze(args: list, kwargs: dict) -> None:
     from sepa import analyze
 
@@ -668,6 +702,13 @@ REGISTRY: list[MacroSpec] = [
         "초입 확인 성장(ECG) 렌즈 — Confirmed×Early 점수 (Fund 식 미변경, D34 A1)",
         _tool_ecg,
         aliases=("ecg", "sepa.early"),
+    ),
+    MacroSpec(
+        "sepa.css",
+        "!sepa.css()  |  !sepa.css(rules=sepaTop,median_plus)",
+        "다팩터 성공점수(CSS) — as-of sepaTop·median+ S1–S8 롤업 (Fund 식 미변경, D34 A2)",
+        _tool_css,
+        aliases=("css", "sepa.css_score", "css_score"),
     ),
     MacroSpec(
         "sepa.analyze",
