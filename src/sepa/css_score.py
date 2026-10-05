@@ -50,6 +50,12 @@ SAMPLE_GATE_MIN_ASOF = 10
 
 RULE_SEPATOP = "sepaTop"
 RULE_MEDIAN_PLUS = "median_plus"
+RULE_ECG_TOP = "ecg_top"
+
+# ECG top basket: top fraction of Confirmed (G3c), clamped
+ECG_TOP_FRAC = 0.25
+ECG_TOP_MIN = 10
+ECG_TOP_MAX = 30
 
 
 def clamp01(x: float) -> float:
@@ -314,6 +320,39 @@ def basket_median_plus(fund: pd.DataFrame) -> pd.DataFrame:
     return pool.loc[fund_s >= med].reset_index(drop=True)
 
 
+def basket_ecg_top(
+    fund: pd.DataFrame,
+    *,
+    cache_dir: str | Path,
+    as_of: str,
+    lookback_years: int = 3,
+    top_frac: float = ECG_TOP_FRAC,
+    top_min: int = ECG_TOP_MIN,
+    top_max: int = ECG_TOP_MAX,
+) -> pd.DataFrame:
+    """Confirmed (G3c) names ranked by ECG; take top fraction (clamped)."""
+    from sepa.ecg import compute_ecg_table, enrich_price_features
+
+    pool, _ = apply_candidate_filters(fund)
+    if pool.empty:
+        return pool.reset_index(drop=True)
+    tickers = pool["ticker"].astype(str).str.upper().tolist()
+    px = enrich_price_features(
+        tickers, cache_dir, as_of=as_of, lookback_years=lookback_years
+    )
+    table = compute_ecg_table(pool, price_features=px)
+    conf = table.loc[
+        table["confirmed"].fillna(False) & (pd.to_numeric(table["ecg_score"], errors="coerce") > 0)
+    ].copy()
+    if conf.empty:
+        return conf.reset_index(drop=True)
+    n = len(conf)
+    k = int(round(n * float(top_frac)))
+    k = max(int(top_min), min(int(top_max), k))
+    k = min(k, n)
+    return conf.head(k).reset_index(drop=True)
+
+
 BASKET_BUILDERS = {
     RULE_SEPATOP: basket_sepa_top,
     RULE_MEDIAN_PLUS: basket_median_plus,
@@ -340,7 +379,6 @@ def evaluate_rule_grid(
     lookback_years: int,
 ) -> tuple[pd.DataFrame, list[set[str]], list[float]]:
     """Build forward summary + membership sets + top-sector shares for one rule."""
-    builder = BASKET_BUILDERS[rule]
     benches = load_benches(asofs[0], asofs[-1] + pd.DateOffset(years=1))
     all_rows: list[dict] = []
     memberships: list[set[str]] = []
@@ -359,7 +397,14 @@ def evaluate_rule_grid(
             fund.get("market_cap"), errors="coerce"
         ).isna().all():
             fund = enrich_with_sectors(fund, cache_dir, refresh=False)
-        cons = builder(fund)
+        if rule == RULE_ECG_TOP:
+            cons = basket_ecg_top(
+                fund, cache_dir=cache_dir, as_of=iso, lookback_years=lookback_years
+            )
+        elif rule in BASKET_BUILDERS:
+            cons = BASKET_BUILDERS[rule](fund)
+        else:
+            raise ValueError(f"unknown CSS rule: {rule}")
         tickers = cons["ticker"].astype(str).str.upper().tolist()
         memberships.append(set(tickers))
         sector_shares.append(_top_sector_share(cons))
@@ -373,6 +418,142 @@ def evaluate_rule_grid(
         all_rows.extend(rows)
 
     return pd.DataFrame(all_rows), memberships, sector_shares
+
+
+def delta_css_table(roll: pd.DataFrame, *, baseline: str = RULE_SEPATOP) -> pd.DataFrame:
+    """Per-rule CSS and Δ vs baseline (and vs median_plus when present)."""
+    if roll is None or roll.empty or "rule" not in roll.columns:
+        return pd.DataFrame()
+    base = roll.loc[roll["rule"] == baseline]
+    if base.empty:
+        return roll.copy()
+    b_css = float(base.iloc[0]["CSS"])
+    med = roll.loc[roll["rule"] == RULE_MEDIAN_PLUS]
+    m_css = float(med.iloc[0]["CSS"]) if not med.empty else float("nan")
+    rows = []
+    factor_cols = [
+        "S1_ew_excess",
+        "S2_median_excess",
+        "S3_win_rate",
+        "S4_tail_penalty",
+        "S5_stability",
+        "S6_downside",
+        "S7_turnover",
+        "S8_sector",
+    ]
+    for _, r in roll.iterrows():
+        row = {
+            "rule": r["rule"],
+            "n_asof": r.get("n_asof"),
+            "sample_note": r.get("sample_note"),
+            "CSS": r["CSS"],
+            "delta_css_vs_sepaTop": float(r["CSS"]) - b_css if r["CSS"] == r["CSS"] else float("nan"),
+            "delta_css_vs_median_plus": (
+                float(r["CSS"]) - m_css if r["CSS"] == r["CSS"] and m_css == m_css else float("nan")
+            ),
+        }
+        for c in factor_cols:
+            row[c] = r.get(c)
+            if c in base.columns:
+                bv = base.iloc[0].get(c)
+                row[f"d_{c}"] = (
+                    float(r[c]) - float(bv)
+                    if r.get(c) == r.get(c) and bv == bv
+                    else float("nan")
+                )
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def plot_css_compare(roll: pd.DataFrame, out_path: Path) -> None:
+    """Bar chart of CSS + S1–S8 by rule."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    from sepa.fonts import savefig_korean, setup_korean_matplotlib
+
+    setup_korean_matplotlib(allow_install=True)
+    factors = [
+        ("CSS", "CSS"),
+        ("S1_ew_excess", "S1"),
+        ("S2_median_excess", "S2"),
+        ("S3_win_rate", "S3"),
+        ("S4_tail_penalty", "S4"),
+        ("S5_stability", "S5"),
+        ("S6_downside", "S6"),
+        ("S7_turnover", "S7"),
+        ("S8_sector", "S8"),
+    ]
+    rules = roll["rule"].tolist()
+    x = np.arange(len(factors))
+    width = 0.8 / max(len(rules), 1)
+    fig, ax = plt.subplots(figsize=(12, 5.5), constrained_layout=True)
+    colors = {"sepaTop": "#2980b9", "median_plus": "#27ae60", "ecg_top": "#c0392b"}
+    for i, rule in enumerate(rules):
+        row = roll.loc[roll["rule"] == rule].iloc[0]
+        vals = [float(row[c]) if row.get(c) == row.get(c) else 0.0 for c, _ in factors]
+        ax.bar(
+            x + (i - (len(rules) - 1) / 2) * width,
+            vals,
+            width,
+            label=rule,
+            color=colors.get(rule, None),
+        )
+    ax.set_xticks(x)
+    ax.set_xticklabels([lab for _, lab in factors])
+    ax.set_ylim(0, 105)
+    ax.axhline(50, color="gray", ls="--", lw=0.8, alpha=0.7)
+    ax.set_ylabel("점수 (0–100)")
+    ax.set_title(
+        "CSS 비교 — sepaTop / median+ / ECG top\n"
+        "as-of 월말 격자 · 룩어헤드 멤버십 제거 · 생존편향 잔존 · 표본 작음(확증 아님)",
+        fontsize=11,
+    )
+    ax.legend()
+    ax.grid(axis="y", alpha=0.3)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    savefig_korean(fig, out_path, dpi=140)
+    plt.close(fig)
+
+
+def plot_delta_vs_baseline(delta: pd.DataFrame, out_path: Path) -> None:
+    """ΔCSS and key factor deltas for ecg_top vs baselines."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    from sepa.fonts import savefig_korean, setup_korean_matplotlib
+
+    setup_korean_matplotlib(allow_install=True)
+    ecg = delta.loc[delta["rule"] == RULE_ECG_TOP]
+    if ecg.empty:
+        return
+    r = ecg.iloc[0]
+    labels = ["ΔCSS vs sepaTop", "ΔCSS vs median+", "ΔS2", "ΔS4", "ΔS1", "ΔS3"]
+    vals = [
+        float(r["delta_css_vs_sepaTop"]),
+        float(r["delta_css_vs_median_plus"]),
+        float(r.get("d_S2_median_excess", float("nan"))),
+        float(r.get("d_S4_tail_penalty", float("nan"))),
+        float(r.get("d_S1_ew_excess", float("nan"))),
+        float(r.get("d_S3_win_rate", float("nan"))),
+    ]
+    fig, ax = plt.subplots(figsize=(9, 4.5), constrained_layout=True)
+    colors = ["#1e8449" if (v == v and v >= 0) else "#c0392b" for v in vals]
+    ax.bar(labels, [0 if v != v else v for v in vals], color=colors)
+    ax.axhline(0, color="black", lw=0.8)
+    ax.set_ylabel("점수 차이")
+    ax.set_title(
+        "ECG top Δ vs 기준선 (양수 = ECG 우세)\n생존편향 잔존 · n_asof 소표본",
+        fontsize=11,
+    )
+    ax.grid(axis="y", alpha=0.3)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    savefig_korean(fig, out_path, dpi=140)
+    plt.close(fig)
 
 
 def run(
@@ -401,7 +582,7 @@ def run(
     for d in asofs:
         print(f"  - {d.date()}")
 
-    rules = rules or [RULE_SEPATOP, RULE_MEDIAN_PLUS]
+    rules = rules or [RULE_SEPATOP, RULE_MEDIAN_PLUS, RULE_ECG_TOP]
     roll_rows: list[dict] = []
     detail_frames: list[pd.DataFrame] = []
 
@@ -440,6 +621,18 @@ def run(
             out_dir / "forward_summary_css_rules.csv", index=False
         )
 
+    delta = delta_css_table(roll)
+    delta_path = out_dir / "css_delta.csv"
+    if not delta.empty:
+        delta.to_csv(delta_path, index=False)
+
+    chart1 = out_dir / "css_compare_bars.png"
+    chart2 = out_dir / "css_delta_ecg.png"
+    if not roll.empty:
+        plot_css_compare(roll, chart1)
+    if not delta.empty and RULE_ECG_TOP in set(delta["rule"]):
+        plot_delta_vs_baseline(delta, chart2)
+
     print("\n=== CSS ROLLUP ===")
     cols = [
         "rule",
@@ -458,12 +651,32 @@ def run(
     show = [c for c in cols if c in roll.columns]
     if not roll.empty:
         print(roll[show].to_string(index=False))
+    if not delta.empty:
+        print("\n=== ΔCSS (vs sepaTop / median+) ===")
+        dshow = [
+            c
+            for c in [
+                "rule",
+                "CSS",
+                "delta_css_vs_sepaTop",
+                "delta_css_vs_median_plus",
+                "d_S2_median_excess",
+                "d_S4_tail_penalty",
+            ]
+            if c in delta.columns
+        ]
+        print(delta[dshow].to_string(index=False))
     print(f"\nrollup: {roll_path}")
+    if not delta.empty:
+        print(f"delta:  {delta_path}")
+    print(f"charts: {chart1}")
+    if chart2.exists():
+        print(f"        {chart2}")
     return roll
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Composite Success Score (CSS) A2")
+    parser = argparse.ArgumentParser(description="Composite Success Score (CSS) A2/A3")
     parser.add_argument("--config", default="config/params.yaml")
     parser.add_argument("--freq", choices=["month", "week"], default="month")
     parser.add_argument("--horizon", choices=["1m", "3m", "6m", "1y"], default="1y")
@@ -474,8 +687,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--rules",
-        default="sepaTop,median_plus",
-        help="comma-separated rules: sepaTop,median_plus",
+        default="sepaTop,median_plus,ecg_top",
+        help="comma-separated rules: sepaTop,median_plus,ecg_top",
     )
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")

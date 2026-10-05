@@ -322,19 +322,29 @@ def _tool_css(args: list, kwargs: dict) -> None:
     from sepa import css_score
 
     argv: list[str] = []
+    known = {
+        "sepaTop",
+        "sepatop",
+        "median_plus",
+        "median+",
+        "median",
+        "ecg_top",
+        "ecg",
+        "ecgtop",
+    }
     for a in args:
         a = str(a)
-        if a in {"sepaTop", "sepatop", "median_plus", "median+", "median"}:
-            continue  # handled via kwargs/rules below
+        if a in known:
+            continue
         raise MacroError(
-            f"알 수 없는 인자: {a!r} — !sepa.css() 또는 !sepa.css(rules=sepaTop,median_plus)"
+            f"알 수 없는 인자: {a!r} — !sepa.css() 또는 "
+            f"!sepa.css(rules=sepaTop,median_plus,ecg_top)"
         )
     if kwargs.get("no_skip") or kwargs.get("rebuild"):
         argv.append("--no-skip-existing")
     if kwargs.get("rules"):
         argv += ["--rules", str(kwargs["rules"])]
     elif args:
-        # positional rule names
         mapped = []
         for a in args:
             a = str(a)
@@ -342,6 +352,8 @@ def _tool_css(args: list, kwargs: dict) -> None:
                 mapped.append("median_plus")
             elif a.lower() == "sepatop":
                 mapped.append("sepaTop")
+            elif a.lower() in {"ecg", "ecgtop", "ecg_top"}:
+                mapped.append("ecg_top")
             else:
                 mapped.append(a)
         argv += ["--rules", ",".join(mapped)]
@@ -705,8 +717,8 @@ REGISTRY: list[MacroSpec] = [
     ),
     MacroSpec(
         "sepa.css",
-        "!sepa.css()  |  !sepa.css(rules=sepaTop,median_plus)",
-        "다팩터 성공점수(CSS) — as-of sepaTop·median+ S1–S8 롤업 (Fund 식 미변경, D34 A2)",
+        "!sepa.css()  |  !sepa.css(rules=sepaTop,median_plus,ecg_top)",
+        "다팩터 성공점수(CSS) — as-of sepaTop·median+·ECG top S1–S8 롤업·Δ비교 (D34 A2/A3)",
         _tool_css,
         aliases=("css", "sepa.css_score", "css_score"),
     ),

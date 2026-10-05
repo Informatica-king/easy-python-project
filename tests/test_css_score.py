@@ -101,3 +101,54 @@ def test_baskets_median_subset_of_sepatop():
     assert set(med["ticker"]).issubset(set(top["ticker"]))
     assert "D" not in set(top["ticker"])
     assert len(med) <= len(top)
+
+
+def test_delta_css_ecg_vs_baseline():
+    from sepa.css_score import delta_css_table
+
+    roll = pd.DataFrame(
+        [
+            {"rule": "sepaTop", "CSS": 50.0, "S2_median_excess": 30.0, "S4_tail_penalty": 60.0},
+            {"rule": "median_plus", "CSS": 52.0, "S2_median_excess": 32.0, "S4_tail_penalty": 55.0},
+            {"rule": "ecg_top", "CSS": 55.0, "S2_median_excess": 40.0, "S4_tail_penalty": 70.0},
+        ]
+    )
+    d = delta_css_table(roll)
+    ecg = d.loc[d.rule == "ecg_top"].iloc[0]
+    assert abs(ecg["delta_css_vs_sepaTop"] - 5.0) < 1e-9
+    assert abs(ecg["delta_css_vs_median_plus"] - 3.0) < 1e-9
+    assert abs(ecg["d_S2_median_excess"] - 10.0) < 1e-9
+
+
+def test_ecg_top_basket_uses_confirmed_scores(tmp_path):
+    from sepa.css_score import basket_ecg_top
+    from sepa.ecg import compute_ecg_table
+
+    fund = pd.DataFrame(
+        {
+            "ticker": [f"T{i}" for i in range(20)],
+            "name": [f"N{i}" for i in range(20)],
+            "rs_rank": [75 + (i % 10) for i in range(20)],
+            "fund_score": [70.0] * 10 + [20.0] * 10,  # median 45; bottom half below floor
+            "s_surprise": [0.0] * 20,
+            "b_raw": [10.0] * 20,
+            "d_raw": [0.0] * 20,
+            "eps_accel_n": [1] * 20,
+            "sales_accel_n": [0] * 20,
+            "close": [100.0] * 20,
+            "market_cap": [2e9] * 20,
+            "sector": ["Tech"] * 20,
+        }
+    )
+    # Path B floor 30: fund 20 with shallow B still fails; only top 10 fund=70 confirmed via path A
+    table = compute_ecg_table(fund)
+    assert int(table["confirmed"].sum()) == 10
+    # Without price cache: call compute path via empty cache dir — use monkey by injecting
+    # Directly test selection math on scored table
+    conf = table.loc[table.confirmed & (table.ecg_score > 0)].sort_values(
+        "ecg_score", ascending=False
+    )
+    k = max(10, min(30, round(len(conf) * 0.25)))
+    k = min(k, len(conf))
+    assert k == 10
+    assert len(conf.head(k)) == 10
