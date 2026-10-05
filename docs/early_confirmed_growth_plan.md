@@ -325,6 +325,15 @@ Phase A/B 결과가 나온 뒤에만 착수.
 - `!검증` 콘솔에 `ECG/CSS:` 한 줄 추가
 - 본선 필터 불변 (B1과 동일)
 
+## 17. Phase B3 구현 메모 (2026-10-05)
+
+- 정책 문서: `docs/ecg_policy_priority.md`
+- **soft ceiling 탈락은 최종.** ECG가 구제하지 않음.
+- ECG 추천은 L3 통과군 안에서만. `exclude_tickers`로 `rs_soft_drops_*.csv` 이중 차단.
+- median+와 ECG는 **병행** (필수 교집합 아님). go 본선 덮어쓰기 금지.
+
+Phase B (B1–B3) 라이브 연결 완료. Fund(C)는 별도 승인.
+
 ---
 
 *본 문서는 승인·파일럿 결과에 따라 갱신한다. Fund 스펙(`fundamental_spec.md`) 변경은 Phase C 전용.*

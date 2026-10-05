@@ -368,19 +368,45 @@ def run_ecg(
     return table, out
 
 
+def load_soft_drop_tickers(report_dir: str | Path, stamp: str | None = None) -> set[str]:
+    """Tickers dropped by RS soft ceiling (must never re-enter ECG recommend)."""
+    report_dir = Path(report_dir)
+    path: Path | None = None
+    if stamp:
+        cand = report_dir / f"rs_soft_drops_{stamp}.csv"
+        if cand.exists():
+            path = cand
+    if path is None:
+        paths = sorted(report_dir.glob("rs_soft_drops_*.csv"))
+        path = paths[-1] if paths else None
+    if path is None or not path.exists():
+        return set()
+    df = pd.read_csv(path)
+    if df.empty or "ticker" not in df.columns:
+        return set()
+    return set(df["ticker"].astype(str).str.upper())
+
+
 def select_ecg_recommend(
     table: pd.DataFrame,
     *,
     top_frac: float = 0.25,
     top_min: int = 10,
     top_max: int = 30,
+    exclude_tickers: set[str] | None = None,
 ) -> pd.DataFrame:
-    """Live recommend set = G3c Confirmed ∩ ECG top fraction (A3 ecg_top policy)."""
+    """Live recommend set = G3c Confirmed ∩ ECG top fraction (A3 ecg_top policy).
+
+    B3: ``exclude_tickers`` (soft-ceiling drops) never re-enter the recommend set.
+    """
     if table is None or table.empty:
         return pd.DataFrame()
     work = table.copy()
     if "confirmed" not in work.columns or "ecg_score" not in work.columns:
         return pd.DataFrame()
+    blocked = {str(t).upper() for t in (exclude_tickers or set())}
+    if blocked and "ticker" in work.columns:
+        work = work.loc[~work["ticker"].astype(str).str.upper().isin(blocked)].copy()
     conf = work.loc[
         work["confirmed"].fillna(False)
         & (pd.to_numeric(work["ecg_score"], errors="coerce").fillna(0.0) > 0)
@@ -447,12 +473,17 @@ def run_ecg_live_layer(
         lookback_years=lookback_years,
         enrich_prices=enrich_prices,
     )
-    recommend = select_ecg_recommend(
-        table, top_frac=top_frac, top_min=top_min, top_max=top_max
-    )
     stamp = stamp_from_fundamental_path(Path(fund_path))
     if as_of:
         stamp = as_of.replace("-", "")
+    soft_blocked = load_soft_drop_tickers(report_dir, stamp=stamp)
+    recommend = select_ecg_recommend(
+        table,
+        top_frac=top_frac,
+        top_min=top_min,
+        top_max=top_max,
+        exclude_tickers=soft_blocked,
+    )
     report_dir_p = Path(report_dir)
     rec_csv = report_dir_p / f"ecg_recommend_{stamp}.csv"
     rec_txt = report_dir_p / f"ecg_recommend_tickers_{stamp}.txt"

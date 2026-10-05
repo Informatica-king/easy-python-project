@@ -186,3 +186,36 @@ def test_ecg_params_load_defaults():
     assert abs(p.ecg.top_frac - 0.25) < 1e-9
     assert p.ecg.top_min == 10
     assert p.ecg.top_max == 30
+
+
+def test_select_ecg_recommend_excludes_soft_drops():
+    from sepa.ecg import select_ecg_recommend
+
+    rows = []
+    for i in range(20):
+        rows.append(
+            {
+                "ticker": f"T{i:02d}",
+                "confirmed": True,
+                "ecg_score": 100.0 - i,
+                "fund_score": 60.0,
+                "rs_rank": 80.0,
+            }
+        )
+    table = pd.DataFrame(rows)
+    rec = select_ecg_recommend(
+        table, top_frac=0.25, top_min=10, top_max=30, exclude_tickers={"T00", "T01"}
+    )
+    assert "T00" not in set(rec["ticker"])
+    assert "T01" not in set(rec["ticker"])
+    assert rec.iloc[0]["ticker"] == "T02"
+    assert len(rec) == 10
+
+
+def test_load_soft_drop_tickers(tmp_path):
+    from sepa.ecg import load_soft_drop_tickers
+
+    df = pd.DataFrame({"ticker": ["aaa", "BBB"]})
+    df.to_csv(tmp_path / "rs_soft_drops_20261005.csv", index=False)
+    got = load_soft_drop_tickers(tmp_path, stamp="20261005")
+    assert got == {"AAA", "BBB"}

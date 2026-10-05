@@ -304,6 +304,7 @@ sepa-bot/
 | 2026-10-05 | D34-A4 판정 | **자료 부족**(플러스 신호). B 본선 보류. C 미착수. 문서 동 파일 A4 섹션 |
 | 2026-10-05 | D34-B1 ECG 라이브 레이어 | `!anal`/`!go`에 G3c·ECG 상위 추천 필터. sepaTop/soft/median+ 본선 유지 |
 | 2026-10-05 | D34-B2 ECG/CSS 한 줄 | go·`!검증` 요약에 ECG추천 n + 마지막 CSS Δ (재계산 없음) |
+| 2026-10-05 | D34-B3 우선순위 | soft drop 최종 · ECG는 L3 통과군만. `docs/ecg_policy_priority.md` |
 
 ## 6. 진행 현황
 

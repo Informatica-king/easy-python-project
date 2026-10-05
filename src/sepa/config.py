@@ -105,9 +105,10 @@ class FundamentalParams:
 
 @dataclass(frozen=True)
 class EcgParams:
-    """Live Early-Confirmed Growth recommend layer (D34 Phase B1).
+    """Live Early-Confirmed Growth recommend layer (D34 Phase B1–B3).
 
     Does NOT replace sepaTop / soft ceiling / median+. Fund formula unchanged.
+    Soft-ceiling drops never re-enter ECG recommend (docs/ecg_policy_priority.md).
     """
 
     live_enabled: bool = True
