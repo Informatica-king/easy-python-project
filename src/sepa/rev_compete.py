@@ -1005,6 +1005,64 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "ENTG는 Q2'26 공시 세그먼트, 피어는 업태 전형 — 방향 비교용."
         ),
     },
+    "RDVT": {
+        "sector_ko": "IT·신원정보 인텔리전스 / 조사·사기방지 분석 (심층: IDI + FOREWARN)",
+        "share_title": "상장 신원조사·리스크인텔 오버레이 피어셋 스케일 점유 (추정)",
+        "share_as_of": "2026 · TTM/스케일 근사 vs 전년",
+        "share_note": (
+            "상장 신원조사·공공기록 오버레이(IDI/Accurint/TLOxp 성격) 피어 대비 상대 스케일. "
+            "신용평가 전체 시장점유가 아님 — 피어셋 방향 비교용. "
+            "RDVT는 순수 신원인텔 SaaS, EFX·TRU·FICO는 뷰로·스코어 거인."
+        ),
+        "share_rows": [
+            ("Red Violet (RDVT)", 18.0, 16.5),
+            ("TransUnion overlay (TRU)", 32.0, 32.5),
+            ("LexisNexis Risk (RELX)", 28.0, 28.5),
+            ("Equifax ID/Workforce (EFX)", 14.0, 14.5),
+            ("Others (listed)", 8.0, 8.0),
+        ],
+        "share_source": "Directional share of selected identity-intel / investigative overlay peers (est.)",
+        "mix_buckets": ["Contractual", "Transactional", "Other"],
+        "mix_as_of": "Q2'26 contractual vs transactional (RDVT 10-Q); peers typical mix approx",
+        "mix_rows": [
+            {
+                "key": "RDVT",
+                "name": "RDVT",
+                "subject": True,
+                "yf": "RDVT",
+                "mix": {"Contractual": 77.0, "Transactional": 23.0, "Other": 0.0},
+                "note": "Q2'26 계약 77% / 거래 23% · GRR 95%",
+            },
+            {
+                "key": "EFX",
+                "name": "EFX",
+                "subject": False,
+                "yf": "EFX",
+                "mix": {"Contractual": 65.0, "Transactional": 30.0, "Other": 5.0},
+                "note": "워크포스+USIS 구독 비중 근사",
+            },
+            {
+                "key": "TRU",
+                "name": "TRU",
+                "subject": False,
+                "yf": "TRU",
+                "mix": {"Contractual": 70.0, "Transactional": 25.0, "Other": 5.0},
+                "note": "뷰로 구독 + 배치/조회 근사",
+            },
+            {
+                "key": "FICO",
+                "name": "FICO",
+                "subject": False,
+                "yf": "FICO",
+                "mix": {"Contractual": 40.0, "Transactional": 55.0, "Other": 5.0},
+                "note": "Scores 조회 비중 큼 · Software 구독",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Contractual(월정액·약정) / Transactional(건별 조회) / Other로 정규화. "
+            "RDVT는 Q2'26 10-Q 공시 77/23, 피어는 업태 전형 — 방향 비교용."
+        ),
+    },
 
 }
 
@@ -1059,6 +1117,7 @@ SUBJECT_SHARE_ALIASES: dict[str, tuple[str, ...]] = {
     "APA": ("apa corporation", "apache"),
     "CHEF": ("chefs' warehouse", "chefs warehouse"),
     "ENTG": ("entegris",),
+    "RDVT": ("red violet",),
 }
 
 

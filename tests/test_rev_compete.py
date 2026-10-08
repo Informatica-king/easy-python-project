@@ -98,6 +98,17 @@ def test_entg_profile_exists():
     assert abs(p["share_rows"][0][1] - p["share_rows"][0][2] - 1.5) < 1e-9
 
 
+def test_rdvt_profile_exists():
+    p = get_profile("RDVT")
+    assert p is not None
+    assert any(r.get("subject") for r in p["mix_rows"])
+    assert p["share_rows"][0][0] == "Red Violet (RDVT)"
+    assert "Contractual" in p["mix_buckets"]
+    assert abs(p["mix_rows"][0]["mix"]["Contractual"] - 77.0) < 0.1
+    assert abs(p["mix_rows"][0]["mix"]["Transactional"] - 23.0) < 0.1
+    assert abs(p["share_rows"][0][1] - p["share_rows"][0][2] - 1.5) < 1e-9
+
+
 def test_load_bundle_offline_share(monkeypatch):
     monkeypatch.setattr("sepa.rev_compete._ttm_revenue", lambda _t: None)
     b = load_compete_bundle("RELY")
@@ -139,3 +150,8 @@ def test_load_bundle_offline_share(monkeypatch):
     assert b8 is not None
     assert b8.share_rows[0].name == "Entegris (ENTG)"
     assert abs(b8.share_rows[0].delta_pp - 1.5) < 1e-9
+
+    b9 = load_compete_bundle("RDVT")
+    assert b9 is not None
+    assert b9.share_rows[0].name == "Red Violet (RDVT)"
+    assert abs(b9.share_rows[0].delta_pp - 1.5) < 1e-9
