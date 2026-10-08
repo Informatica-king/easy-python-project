@@ -29,6 +29,7 @@ def test_rising_tickers_get_bonus():
         ("CLMT", 2.0),
         ("LASR", 1.5),
         ("RELY", 0.4),
+        ("ENTG", 1.5),
     ]:
         a = assess_share_gain(t)
         assert abs(a.delta_pp - expected_delta) < 1e-9

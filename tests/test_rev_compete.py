@@ -87,6 +87,17 @@ def test_chef_profile_exists():
     assert abs(p["mix_rows"][0]["mix"]["Center-of-Plate"] - 39.2) < 0.1
 
 
+def test_entg_profile_exists():
+    p = get_profile("ENTG")
+    assert p is not None
+    assert any(r.get("subject") for r in p["mix_rows"])
+    assert p["share_rows"][0][0] == "Entegris (ENTG)"
+    assert "Materials Solutions" in p["mix_buckets"]
+    assert abs(p["mix_rows"][0]["mix"]["Materials Solutions"] - 42.0) < 0.1
+    assert abs(p["mix_rows"][0]["mix"]["Advanced Purity"] - 58.0) < 0.1
+    assert abs(p["share_rows"][0][1] - p["share_rows"][0][2] - 1.5) < 1e-9
+
+
 def test_load_bundle_offline_share(monkeypatch):
     monkeypatch.setattr("sepa.rev_compete._ttm_revenue", lambda _t: None)
     b = load_compete_bundle("RELY")
@@ -123,3 +134,8 @@ def test_load_bundle_offline_share(monkeypatch):
     assert b7 is not None
     assert b7.share_rows[3].name == "Chefs' Warehouse (CHEF)"
     assert abs(b7.share_rows[3].delta_pp - 0.3) < 1e-9
+
+    b8 = load_compete_bundle("ENTG")
+    assert b8 is not None
+    assert b8.share_rows[0].name == "Entegris (ENTG)"
+    assert abs(b8.share_rows[0].delta_pp - 1.5) < 1e-9
