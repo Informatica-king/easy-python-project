@@ -470,7 +470,7 @@ Q2'26: 매출 $883.2M(+11.5%) · GP 47.6% · Adj EBITDA $250.7M(28.4%) · Non-GA
 ])}
 
 <h2>1. 어디서 돈이 오나</h2>
-{fig_block(charts['mix'], '세그먼트 · 엔드마켓')}
+{fig_block(charts['segmix'], '세그먼트 · 엔드마켓')}
 {fig_block(charts['growth'], '성장 브리지')}
 <table>
   <tr><th>항목</th><th>Q2'26</th><th>YoY / 메모</th><th>의미</th></tr>
@@ -551,7 +551,7 @@ earnings call · yfinance 가격·PT ({ASOF}). 피어 믹스·점유는 추정(�
 def main() -> int:
     charts: dict[str, Path] = {
         "flow": chart_business_flow(),
-        "mix": chart_segment_mix(),
+        "segmix": chart_segment_mix(),
         "growth": chart_growth_bridge(),
         "pnl": chart_pnl(),
         "leverage": chart_leverage(),
