@@ -457,7 +457,15 @@ def _page_basket(pdf: PdfPages, agg: pd.DataFrame) -> None:
     if not agg.empty:
         g = agg.loc[agg["horizon"].astype(str) == "5d"].copy()
     labels, values, ns, colors = [], [], [], []
-    prefer = ["fund_pool", "median_plus", "fund_q4", "rs90_ok", "soft_drop"]
+    prefer = [
+        "fund_pool",
+        "median_plus",
+        "fund_q4",
+        "rs90_ok",
+        "ecg_recommend",
+        "ecg_confirmed",
+        "soft_drop",
+    ]
     if not g.empty:
         order = {b: i for i, b in enumerate(prefer)}
         g["_ord"] = g["basket"].astype(str).map(lambda x: order.get(x, 99))
@@ -465,7 +473,10 @@ def _page_basket(pdf: PdfPages, agg: pd.DataFrame) -> None:
         labels = g["basket"].astype(str).tolist()
         values = [float(x) for x in g["mean_excess"].tolist()]
         ns = [int(x) for x in g["n_ready"].tolist()]
-        colors = ["#8b4513" if b == "soft_drop" else "#2c5f7c" for b in labels]
+        colors = [
+            "#8b4513" if b == "soft_drop" else "#2e7d32" if b == "ecg_recommend" else "#2c5f7c"
+            for b in labels
+        ]
     med_row = None
     if not g.empty:
         m = g.loc[g["basket"].astype(str) == "median_plus"]
@@ -736,6 +747,8 @@ def _page_pool(pdf: PdfPages, pool_log: pd.DataFrame) -> None:
             ax.plot(x, g["n_fund_pool"], "o-", label="Fund 풀", color="#2c5f7c")
         if "n_median_plus" in g.columns:
             ax.plot(x, g["n_median_plus"], "s-", label="중앙값 이상", color="#8b4513")
+        if "n_ecg_recommend" in g.columns:
+            ax.plot(x, g["n_ecg_recommend"], "^-", label="ECG 추천", color="#2e7d32")
         ax.set_xticks(x)
         ax.set_xticklabels(stamps, rotation=45, ha="right", fontproperties=_fp(size=7))
         ax.set_ylabel("종목 수", fontproperties=_fp(size=9))

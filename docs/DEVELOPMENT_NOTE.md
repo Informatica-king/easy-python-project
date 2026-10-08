@@ -298,6 +298,14 @@ sepa-bot/
 | 2026-08-25 | D32: Fund 구간 1년 추세 차트 | anal에 Fund 10점 반열림 구간 등가 종가 추세 vs S&P500 (기준 1000). PDF 본편. `sepa.fund_score_trend` |
 | 2026-08-25 | D33: `!검증`에 Fund 추세 해석 레이어 | 검증 PDF 9쪽. A–D 본심판 유지, Fund 1년 구간 추세는 맥락만. `summarize_fund_trend_context` |
 | 2026-10-05 | D34: 초입 확인 성장 + 다팩터 성공점수 계획 | 목표=확인된 성장의 **초입**에 올라타기. ECG 렌즈·CSS 성적표 먼저, **Fund 식 수정은 이후**. 문서: `docs/early_confirmed_growth_plan.md` |
+| 2026-10-05 | D34-A1 Confirmed G3c | Path B = 얕은 B|D(`accel_n≤2`) ∧ Fund≥30. S-only 제외. 20261005 스모크 ~60/92 |
+| 2026-10-05 | D34-A2 CSS 모듈 | `sepa.css_score` / `!sepa.css` — S1–S8 가중 성적표, sepaTop·median+ as-of 롤업 |
+| 2026-10-05 | D34-A3 ECG vs CSS | ecg_top vs sepaTop/median+ · ΔCSS≈+2.5 · S2/S4↑ · 파일럿 `docs/ecg_css_pilot_20261005.md` |
+| 2026-10-05 | D34-A4 판정 | **자료 부족**(플러스 신호). B 본선 보류. C 미착수. 문서 동 파일 A4 섹션 |
+| 2026-10-05 | D34-B1 ECG 라이브 레이어 | `!anal`/`!go`에 G3c·ECG 상위 추천 필터. sepaTop/soft/median+ 본선 유지 |
+| 2026-10-05 | D34-B2 ECG/CSS 한 줄 | go·`!검증` 요약에 ECG추천 n + 마지막 CSS Δ (재계산 없음) |
+| 2026-10-05 | D34-B3 우선순위 | soft drop 최종 · ECG는 L3 통과군만. `docs/ecg_policy_priority.md` |
+| 2026-10-08 | D34-B4 ECG perf 바스켓 | `ecg_recommend`/`ecg_confirmed`를 `reports/perf/`에 go마다 축적. 본선 덮어쓰기 없음. `!검증` 온디맨드 |
 
 ## 6. 진행 현황
 
@@ -321,9 +329,9 @@ sepa-bot/
 
 ## 7. 다음 액션
 
-1. **D34 Phase A**: ECG(초입 확인 성장) 파생 + CSS(다팩터 성공 점수) + as-of 비교 — Fund 본문 동결 (`docs/early_confirmed_growth_plan.md`)
-2. D34 Phase B: 라이브 추천 레이어·검증 요약 연결 (A 결과 플러스일 때만)
-3. D34 Phase C: Fund 함수 수정 (A·B 이후)
+1. **D34 Phase B4**: ECG 추천 바스켓을 `perf_ledger`에 축적 — `!go`마다 쌓고 `!검증`은 온디맨드
+2. D34 표본 게이트: n_asof≥20 전에는 ECG로 go 본선 덮어쓰기 금지 · Phase C(Fund 식) 미착수
+3. (보류) D34 Phase C: Fund 함수 수정 (A·B 이후, CSS 게이트 통과 시)
 4. (보류) Phase 5: 백테스트 엔진·자동매매
 
 ---

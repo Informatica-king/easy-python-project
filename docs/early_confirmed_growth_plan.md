@@ -79,7 +79,7 @@
 | 축 | 최소 조건 (초안 · 튜닝 대상) | 데이터 |
 |---|---|---|
 | **C1 가격 확인** | Stage 2 통과 + RS≥70 (현행 live와 동일) | screener |
-| **C2 실적 확인** | Fund 구성 중 **가속·서프라이즈 중 ≥1개가 양수 기여** 또는 Fund≥풀 중앙값 | 현행 `fundamental_*.csv` (식 변경 없음) |
+| **C2 실적 확인 (G3c)** | Fund≥풀 중앙값 **또는** (얕은 B\|D 가속 `accel_n≤2` **그리고** Fund≥30). Surprise 단독은 Path B 불가 | 현행 `fundamental_*.csv` (식 변경 없음) |
 
 > Fund **공식을 바꾸지 않고** 컬럼·플래그만 읽는다.
 
@@ -191,6 +191,7 @@ ECG = wC·ConfirmedGate(0|1) × (w1·E1 + w2·E2 + w3·E3 + w4·E4 + w5·E5)
 | **B1** | live 정책 후보: `median+` ∩ `ECG≥τ` 또는 ECG 상위 K를 **추천 레이어**로 표시 | A3에서 ΔCSS 안정적 플러스 |
 | **B2** | `!검증` 또는 go 요약에 CSS 한 줄·ECG 복사용 문자열 | 사용자 UX 승인 |
 | **B3** | soft ceiling과 ECG 충돌 시 우선순위 문서화 | 예: soft drop은 유지, ECG는 통과군 안에서만 |
+| **B4** | `ecg_recommend` / `ecg_confirmed`를 `perf_ledger` 바스켓으로 축적 | go/anal마다 멤버십·forward 백필. `!검증`은 온디맨드 |
 
 ### Phase C — Fund 함수 수정 (사용자 요구: **A·B 이후**)
 
@@ -245,10 +246,11 @@ Phase A/B 결과가 나온 뒤에만 착수.
 
 ## 10. A0 승인 기록값 (2026-10-05 사용자 동의)
 
-1. **Confirmed:** Stage2 ∧ (Fund≥중앙값 ∨ S/B/D 양수 기여) — **승인**
+1. **Confirmed (A0 초안):** Stage2 ∧ (Fund≥중앙값 ∨ S/B/D 양수 기여) — **승인 후 A1 스모크에서 과다통과(91/92) 확인**
 2. **Early 가중:** E3=30, E1=25, E2=20, E4=25 (E5 VCP 보류) — **승인**
 3. **CSS 초기 가중:** S1=20, S2=20, S3=15, S4=15, S5=10, S6=10, S7=5, S8=5 — **승인** (A2에서 구현)
 4. **Phase A에서 Fund 코드 미수정** — **승인**
+5. **Confirmed 재보정 G3c (2026-10-05):** Stage2 ∧ (Fund≥중앙값 ∨ (얕은 B\|D `accel_n≤2` ∧ Fund≥30)). S-only Path B 제거 — **승인**
 
 ---
 
@@ -256,8 +258,91 @@ Phase A/B 결과가 나온 뒤에만 착수.
 
 - 모듈: `sepa.ecg` / `!sepa.ecg()`
 - 산출: `reports/ecg_YYYYMMDD.csv`
+- Confirmed = **G3c** (`PATH_B_FUND_FLOOR=30`, `PATH_B_ACCEL_MAX_N=2`)
 - E3는 prior-분기 턴업 대신 **양수 B/D + accel_n 깊이** 프록시 (한계 명시)
 - E2/E4는 가격 캐시 enrich (없으면 NaN → early 가중 재정규화)
+
+## 12. Phase A2 구현 메모
+
+- 모듈: `sepa.css_score` / `!sepa.css()`
+- 산출: `reports/asof_forward_bt/css_rollup.csv` (+ `forward_summary_{rule}.csv`)
+- 규칙: **sepaTop**, **median_plus** (ECG 비교는 A3)
+- 표본 n_asof < 10 → `sample_note=자료 부족`
+- Fund 본문 미수정
+
+### A2 스모크 롤업 (2026-10-05 실행 · 월말 11 as-of · 확증 아님)
+
+| rule | n | CSS | S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8 |
+|------|--:|----:|---:|---:|---:|---:|---:|---:|---:|---:|
+| sepaTop | 11 | 48.3 | 53.5 | 26.9 | 43.3 | 62.0 | 53.7 | 40.7 | 38.5 | 100 |
+| median_plus | 11 | 48.9 | 58.4 | 29.8 | 43.6 | 57.2 | 55.1 | 36.5 | 40.3 | 100 |
+
+해석 한 줄: 두 기준선 CSS는 거의 같고, **S2(중앙값 초과)가 공통 약점**. ΔCSS는 A3에서 ECG와 비교.
+
+## 13. Phase A3 구현 메모
+
+- `ecg_top` 규칙: G3c Confirmed 상위 25% (10–30종)
+- `!sepa.css()` 기본 rules = sepaTop,median_plus,ecg_top
+- 산출: `css_delta.csv`, `css_compare_bars.png`, `css_delta_ecg.png`
+- 파일럿 요약: `docs/ecg_css_pilot_20261005.md`
+
+### A3 스모크 (2026-10-05 · n=11 · 확증 아님)
+
+| | sepaTop | median+ | **ecg_top** |
+|--|--------:|--------:|------------:|
+| CSS | 48.3 | 48.9 | **50.8** |
+| ΔCSS vs sepaTop | 0 | +0.7 | **+2.5** |
+| S2 | 26.9 | 29.8 | **39.1** |
+| S4 | 62.0 | 57.2 | **67.1** |
+
+예비: ΔCSS·S2·S4 플러스 방향. S3/S7 약화. **B 보류**.
+
+## 14. Phase A4 공식 판정 (2026-10-05)
+
+- 문서: `docs/ecg_css_pilot_20261005.md` (A4 판정본)
+- **핵심 답:** ECG가 현행 풀보다 나은가? → **자료 부족** (ΔCSS·S2·S4는 플러스 방향)
+- **Phase B 본선:** 보류 (n_asof=11 · G-B3 미달)
+- **Phase C:** 미착수
+- 허용 예외(별도 승인): B1 **표시 전용** 레이어
+
+## 15. Phase B1 구현 메모 (2026-10-05)
+
+**선택 절차:** 사용자 목적=ECG 필터를 모델에 반영 → Phase **B** 순서 **B1 → B2 → B3**.  
+이번 구현은 **B1만**.
+
+| 항목 | 내용 |
+|------|------|
+| 정책 | Confirmed **G3c** ∩ ECG 상위 25% (min10/max30) = A3 `ecg_top` |
+| 훅 | `!sepa.anal()` / `!sepa.go()` 자동 (`ecg.live_enabled`) |
+| 산출 | `ecg_YYYYMMDD.csv`, `ecg_recommend_YYYYMMDD.csv`, `ecg_recommend_tickers_YYYYMMDD.txt` |
+| 본선 | sepaTop · soft ceiling · median+ **유지** (삭제/교체 없음) |
+| Fund | 미수정 |
+| 다음 | B2(go/검증 요약 한 줄), B3(우선순위 문서) |
+
+## 16. Phase B2 구현 메모 (2026-10-05)
+
+- 모듈: `sepa.ecg_status` — 기존 산출물만 읽어 한 줄 요약 (CSS 격자 재계산 없음)
+- `!sepa.go()` 종료 시 `[B2] ECG/CSS 한 줄 요약` 출력
+- `!검증` 콘솔에 `ECG/CSS:` 한 줄 추가
+- 본선 필터 불변 (B1과 동일)
+
+## 17. Phase B3 구현 메모 (2026-10-05)
+
+- 정책 문서: `docs/ecg_policy_priority.md`
+- **soft ceiling 탈락은 최종.** ECG가 구제하지 않음.
+- ECG 추천은 L3 통과군 안에서만. `exclude_tickers`로 `rs_soft_drops_*.csv` 이중 차단.
+- median+와 ECG는 **병행** (필수 교집합 아님). go 본선 덮어쓰기 금지.
+
+Phase B (B1–B3) 라이브 연결 완료. Fund(C)는 별도 승인.
+
+## 18. Phase B4 구현 메모 (2026-10-08)
+
+- `sepa.perf_ledger` 바스켓 `ecg_recommend` / `ecg_confirmed`
+- 소스: `ecg_recommend_YYYYMMDD.csv` + `ecg_YYYYMMDD.csv` (B1이 anal에서 먼저 기록)
+- soft drop 티커는 멤버십에서 재차단 (B3)
+- `daily_pool_log`에 `n_ecg_recommend` / `n_ecg_confirmed`
+- `!검증` 바구니 막대·풀 추이에 ECG 추천 표시. 표본 부족이면 게이트가 그대로 막음
+- go 본선(sepaTop/median+) 불변. Phase C 미착수
 
 ---
 
