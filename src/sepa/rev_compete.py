@@ -947,6 +947,64 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "CHEF만 브로드라인 0 · 독립 셰프 특화가 본체."
         ),
     },
+    "ENTG": {
+        "sector_ko": "IT·반도체 소재 / 순도·오염제어 (심층: Materials + APS)",
+        "share_title": "상장 순도·소재·프로세스유체 피어셋 스케일 점유 (추정)",
+        "share_as_of": "2026 · TTM 매출/스케일 근사 vs 전년",
+        "share_note": (
+            "상장 순도·오염제어·프로세스유체 인접 피어 대비 상대 스케일. "
+            "절대 반도체 소재 시장점유가 아님 — 피어셋 방향 비교용. "
+            "ENTG는 필터·소재 순수극, MKSI·UCTT·ICHR는 진공·서브시스템 성격."
+        ),
+        "share_rows": [
+            ("Entegris (ENTG)", 36.0, 34.5),
+            ("MKS (MKSI)", 28.0, 28.5),
+            ("Ultra Clean (UCTT)", 14.0, 14.5),
+            ("Ichor (ICHR)", 10.0, 10.5),
+            ("Others (listed)", 12.0, 12.0),
+        ],
+        "share_source": "Directional share of selected US-listed purity/materials/process-fluid peers (est.)",
+        "mix_buckets": ["Materials Solutions", "Advanced Purity", "Equipment/Other"],
+        "mix_as_of": "Q2'26 segment sales (ENTG 10-Q); peers typical mix approx",
+        "mix_rows": [
+            {
+                "key": "ENTG",
+                "name": "ENTG",
+                "subject": True,
+                "yf": "ENTG",
+                "mix": {"Materials Solutions": 42.0, "Advanced Purity": 58.0, "Equipment/Other": 0.0},
+                "note": "Q2'26 MS $371.3M / APS $514.6M · 장비 0",
+            },
+            {
+                "key": "MKSI",
+                "name": "MKSI",
+                "subject": False,
+                "yf": "MKSI",
+                "mix": {"Materials Solutions": 25.0, "Advanced Purity": 50.0, "Equipment/Other": 25.0},
+                "note": "진공·프로세스 + 포토닉스 근사",
+            },
+            {
+                "key": "AMAT",
+                "name": "AMAT",
+                "subject": False,
+                "yf": "AMAT",
+                "mix": {"Materials Solutions": 8.0, "Advanced Purity": 7.0, "Equipment/Other": 85.0},
+                "note": "WFE 거인 · 소재는 소수",
+            },
+            {
+                "key": "UCTT",
+                "name": "UCTT",
+                "subject": False,
+                "yf": "UCTT",
+                "mix": {"Materials Solutions": 10.0, "Advanced Purity": 70.0, "Equipment/Other": 20.0},
+                "note": "서브시스템·유체 전달 근사",
+            },
+        ],
+        "mix_note": (
+            "버킷은 Materials Solutions / Advanced Purity / Equipment·Other로 정규화. "
+            "ENTG는 Q2'26 공시 세그먼트, 피어는 업태 전형 — 방향 비교용."
+        ),
+    },
 
 }
 
@@ -1000,6 +1058,7 @@ SUBJECT_SHARE_ALIASES: dict[str, tuple[str, ...]] = {
     "APPS": ("digital turbine",),
     "APA": ("apa corporation", "apache"),
     "CHEF": ("chefs' warehouse", "chefs warehouse"),
+    "ENTG": ("entegris",),
 }
 
 
