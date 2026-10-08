@@ -191,6 +191,7 @@ ECG = wC·ConfirmedGate(0|1) × (w1·E1 + w2·E2 + w3·E3 + w4·E4 + w5·E5)
 | **B1** | live 정책 후보: `median+` ∩ `ECG≥τ` 또는 ECG 상위 K를 **추천 레이어**로 표시 | A3에서 ΔCSS 안정적 플러스 |
 | **B2** | `!검증` 또는 go 요약에 CSS 한 줄·ECG 복사용 문자열 | 사용자 UX 승인 |
 | **B3** | soft ceiling과 ECG 충돌 시 우선순위 문서화 | 예: soft drop은 유지, ECG는 통과군 안에서만 |
+| **B4** | `ecg_recommend` / `ecg_confirmed`를 `perf_ledger` 바스켓으로 축적 | go/anal마다 멤버십·forward 백필. `!검증`은 온디맨드 |
 
 ### Phase C — Fund 함수 수정 (사용자 요구: **A·B 이후**)
 
@@ -333,6 +334,15 @@ Phase A/B 결과가 나온 뒤에만 착수.
 - median+와 ECG는 **병행** (필수 교집합 아님). go 본선 덮어쓰기 금지.
 
 Phase B (B1–B3) 라이브 연결 완료. Fund(C)는 별도 승인.
+
+## 18. Phase B4 구현 메모 (2026-10-08)
+
+- `sepa.perf_ledger` 바스켓 `ecg_recommend` / `ecg_confirmed`
+- 소스: `ecg_recommend_YYYYMMDD.csv` + `ecg_YYYYMMDD.csv` (B1이 anal에서 먼저 기록)
+- soft drop 티커는 멤버십에서 재차단 (B3)
+- `daily_pool_log`에 `n_ecg_recommend` / `n_ecg_confirmed`
+- `!검증` 바구니 막대·풀 추이에 ECG 추천 표시. 표본 부족이면 게이트가 그대로 막음
+- go 본선(sepaTop/median+) 불변. Phase C 미착수
 
 ---
 

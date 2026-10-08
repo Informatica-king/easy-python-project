@@ -78,3 +78,4 @@
 | `select_ecg_recommend(..., exclude_tickers=)` | L6 + B3 차단 |
 | `load_soft_drop_tickers` | `rs_soft_drops_*.csv` |
 | `print_fund_median_copy_list` | L5 필수 한 줄 |
+| `perf_ledger` `ecg_recommend`/`ecg_confirmed` | B4 — go마다 멤버십·forward 축적. 본선 아님 |

@@ -81,10 +81,35 @@ def load_css_ecg_vs_sepatop(report_dir: str | Path) -> dict[str, float | str]:
     return out
 
 
+def load_ecg_ledger_counts(report_dir: str | Path) -> dict:
+    """How many go stamps have an ecg_recommend basket in ``reports/perf/``."""
+    path = Path(report_dir) / "perf" / "daily_pool_log.csv"
+    out: dict = {"ok": False, "n_stamps": 0, "last_n": 0, "n_rows": 0}
+    if not path.exists():
+        return out
+    try:
+        df = pd.read_csv(path)
+    except Exception:  # noqa: BLE001
+        return out
+    if df.empty or "n_ecg_recommend" not in df.columns:
+        return out
+    series = pd.to_numeric(df["n_ecg_recommend"], errors="coerce").fillna(0)
+    out.update(
+        {
+            "ok": True,
+            "n_stamps": int((series > 0).sum()),
+            "last_n": int(series.iloc[-1]) if len(series) else 0,
+            "n_rows": int(len(df)),
+        }
+    )
+    return out
+
+
 def format_ecg_b2_summary_line(report_dir: str | Path, *, stamp: str | None = None) -> str:
     """Single Korean status line for go / !검증 footers."""
     n, _line, _path = load_ecg_recommend_line(report_dir, stamp=stamp)
     css = load_css_ecg_vs_sepatop(report_dir)
+    ledger = load_ecg_ledger_counts(report_dir)
     parts = [
         "ECG추천 레이어(B1) · 본선(sepaTop/soft/median+) 유지",
     ]
@@ -92,6 +117,10 @@ def format_ecg_b2_summary_line(report_dir: str | Path, *, stamp: str | None = No
         parts.append(f"오늘 추천 {n}종")
     else:
         parts.append("오늘 추천 파일 없음(!anal/!go 후 생성)")
+    if ledger.get("ok"):
+        parts.append(f"ledger 추천 스냅샷 {int(ledger['n_stamps'])}일")
+    else:
+        parts.append("ledger ECG 바스켓 대기(B4 · go마다 축적)")
     if css.get("ok"):
         d = float(css["delta_css"])
         parts.append(

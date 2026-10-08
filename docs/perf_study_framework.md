@@ -42,8 +42,10 @@ go/anal이 이미 쌓는 원본(`fundamental_*`, `membership_*`, `presence_*`, `
 | `fund_q4` | Fund 상위 25% (동점 포함 qcut) |
 | `rs90_ok` | 풀 안 RS≥90 |
 | `soft_drop` | 당일 RS soft ceiling 탈락 |
+| `ecg_recommend` | B1 라이브 추천 (G3c ∩ ECG 상위, soft drop 제외) — 파일이 있는 stamp만 |
+| `ecg_confirmed` | G3c Confirmed 전체 (soft drop 제외) |
 
-나중에 바스켓을 추가해도 패널은 long-format이라 **행만 늘어난다**.
+나중에 바스켓을 추가해도 패널은 long-format이라 **행만 늘어난다**. ECG 바스켓은 D34-B4. go 본선(sepaTop/median+)을 바꾸지 않는다.
 
 ---
 

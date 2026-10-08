@@ -564,13 +564,14 @@ def write_study_md(
     else:
         tail = pool_log.sort_values("stamp").tail(10)
         lines += [
-            "| stamp | n_fund | n_median+ | n_q4 | fund_median |",
-            "|---|---:|---:|---:|---:|",
+            "| stamp | n_fund | n_median+ | n_q4 | n_ecg_rec | fund_median |",
+            "|---|---:|---:|---:|---:|---:|",
         ]
         for r in tail.itertuples():
             lines.append(
                 f"| {r.stamp} | {getattr(r, 'n_fund_pool', 'n/a')} | "
                 f"{getattr(r, 'n_median_plus', 'n/a')} | {getattr(r, 'n_fund_q4', 'n/a')} | "
+                f"{getattr(r, 'n_ecg_recommend', 'n/a')} | "
                 f"{getattr(r, 'fund_median', float('nan'))} |"
             )
 

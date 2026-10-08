@@ -305,6 +305,7 @@ sepa-bot/
 | 2026-10-05 | D34-B1 ECG 라이브 레이어 | `!anal`/`!go`에 G3c·ECG 상위 추천 필터. sepaTop/soft/median+ 본선 유지 |
 | 2026-10-05 | D34-B2 ECG/CSS 한 줄 | go·`!검증` 요약에 ECG추천 n + 마지막 CSS Δ (재계산 없음) |
 | 2026-10-05 | D34-B3 우선순위 | soft drop 최종 · ECG는 L3 통과군만. `docs/ecg_policy_priority.md` |
+| 2026-10-08 | D34-B4 ECG perf 바스켓 | `ecg_recommend`/`ecg_confirmed`를 `reports/perf/`에 go마다 축적. 본선 덮어쓰기 없음. `!검증` 온디맨드 |
 
 ## 6. 진행 현황
 
@@ -328,9 +329,9 @@ sepa-bot/
 
 ## 7. 다음 액션
 
-1. **D34 Phase A**: ECG(초입 확인 성장) 파생 + CSS(다팩터 성공 점수) + as-of 비교 — Fund 본문 동결 (`docs/early_confirmed_growth_plan.md`)
-2. D34 Phase B: 라이브 추천 레이어·검증 요약 연결 (A 결과 플러스일 때만)
-3. D34 Phase C: Fund 함수 수정 (A·B 이후)
+1. **D34 Phase B4**: ECG 추천 바스켓을 `perf_ledger`에 축적 — `!go`마다 쌓고 `!검증`은 온디맨드
+2. D34 표본 게이트: n_asof≥20 전에는 ECG로 go 본선 덮어쓰기 금지 · Phase C(Fund 식) 미착수
+3. (보류) D34 Phase C: Fund 함수 수정 (A·B 이후, CSS 게이트 통과 시)
 4. (보류) Phase 5: 백테스트 엔진·자동매매
 
 ---

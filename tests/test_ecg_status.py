@@ -9,6 +9,7 @@ import pandas as pd
 from sepa.ecg_status import (
     format_ecg_b2_summary_line,
     load_css_ecg_vs_sepatop,
+    load_ecg_ledger_counts,
     load_ecg_recommend_line,
 )
 
@@ -53,3 +54,21 @@ def test_format_line_without_artifacts(tmp_path: Path):
     line = format_ecg_b2_summary_line(tmp_path)
     assert "본선" in line
     assert "CSS 롤업 없음" in line
+    assert "ledger ECG 바스켓 대기" in line
+
+
+def test_load_ecg_ledger_counts(tmp_path: Path):
+    perf = tmp_path / "perf"
+    perf.mkdir()
+    pd.DataFrame(
+        [
+            {"stamp": "20261005", "n_ecg_recommend": 17},
+            {"stamp": "20261008", "n_ecg_recommend": 0},
+        ]
+    ).to_csv(perf / "daily_pool_log.csv", index=False)
+    counts = load_ecg_ledger_counts(tmp_path)
+    assert counts["ok"] is True
+    assert counts["n_stamps"] == 1
+    assert counts["n_rows"] == 2
+    line = format_ecg_b2_summary_line(tmp_path, stamp="20261005")
+    assert "ledger 추천 스냅샷 1일" in line

@@ -31,6 +31,8 @@ BASKET_MEDIAN_PLUS = "median_plus"
 BASKET_FUND_Q4 = "fund_q4"
 BASKET_RS90_OK = "rs90_ok"
 BASKET_SOFT_DROP = "soft_drop"
+BASKET_ECG_RECOMMEND = "ecg_recommend"
+BASKET_ECG_CONFIRMED = "ecg_confirmed"
 
 
 def perf_dir(report_dir: str | Path) -> Path:
@@ -74,7 +76,79 @@ def _upsert_panel(path: Path, new_rows: pd.DataFrame, *, key_cols: list[str]) ->
     return out
 
 
-def assign_baskets(fund_df: pd.DataFrame, soft_drops: pd.DataFrame | None = None) -> dict[str, pd.DataFrame]:
+def _truthy_mask(series: pd.Series) -> pd.Series:
+    if series.dtype == bool:
+        return series.fillna(False)
+    if pd.api.types.is_numeric_dtype(series):
+        return pd.to_numeric(series, errors="coerce").fillna(0) != 0
+    return series.astype(str).str.strip().str.lower().isin({"true", "1", "yes", "y"})
+
+
+def _ticker_subset(
+    work: pd.DataFrame,
+    src: pd.DataFrame | None,
+    *,
+    blocked: set[str],
+) -> pd.DataFrame:
+    empty = work.iloc[0:0].copy()
+    if src is None or src.empty or "ticker" not in src.columns:
+        return empty
+    tickers = set(src["ticker"].astype(str).str.upper()) - {t.upper() for t in blocked}
+    if not tickers:
+        return empty
+    return work.loc[work["ticker"].isin(tickers)].copy()
+
+
+def load_ecg_basket_frames(
+    report_dir: str | Path,
+    stamp: str,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Load ECG recommend / confirmed member frames written by the live layer (B1).
+
+    Missing files → empty frames (gap-fill dates without ECG CSVs stay empty).
+    """
+    report_dir = Path(report_dir)
+    rec = pd.DataFrame()
+    rec_csv = report_dir / f"ecg_recommend_{stamp}.csv"
+    if rec_csv.exists():
+        try:
+            rec = pd.read_csv(rec_csv)
+        except Exception:  # noqa: BLE001
+            rec = pd.DataFrame()
+    if rec.empty:
+        rec_txt = report_dir / f"ecg_recommend_tickers_{stamp}.txt"
+        if rec_txt.exists():
+            try:
+                line = rec_txt.read_text(encoding="utf-8").strip()
+                tickers = [t.strip().upper() for t in line.split(",") if t.strip()]
+                if tickers:
+                    rec = pd.DataFrame({"ticker": tickers})
+            except Exception:  # noqa: BLE001
+                rec = pd.DataFrame()
+
+    confirmed = pd.DataFrame()
+    table_csv = report_dir / f"ecg_{stamp}.csv"
+    if table_csv.exists():
+        try:
+            table = pd.read_csv(table_csv)
+        except Exception:  # noqa: BLE001
+            table = pd.DataFrame()
+        if not table.empty and "confirmed" in table.columns:
+            confirmed = table.loc[_truthy_mask(table["confirmed"])].copy()
+        elif not table.empty and "ecg_score" in table.columns:
+            confirmed = table.loc[
+                pd.to_numeric(table["ecg_score"], errors="coerce").fillna(0) > 0
+            ].copy()
+    return rec, confirmed
+
+
+def assign_baskets(
+    fund_df: pd.DataFrame,
+    soft_drops: pd.DataFrame | None = None,
+    *,
+    ecg_recommend: pd.DataFrame | None = None,
+    ecg_confirmed: pd.DataFrame | None = None,
+) -> dict[str, pd.DataFrame]:
     """Return mapping basket_name → member frame (subset of fund_df or soft_drops)."""
     out: dict[str, pd.DataFrame] = {}
     if fund_df is None or fund_df.empty:
@@ -107,12 +181,18 @@ def assign_baskets(fund_df: pd.DataFrame, soft_drops: pd.DataFrame | None = None
 
     out[BASKET_RS90_OK] = work.loc[work["rs_rank"] >= 90].copy()
 
+    blocked: set[str] = set()
     if soft_drops is not None and not soft_drops.empty:
         sd = soft_drops.copy()
         sd["ticker"] = sd["ticker"].astype(str).str.upper()
         out[BASKET_SOFT_DROP] = sd
+        blocked = set(sd["ticker"].astype(str).str.upper())
     else:
         out[BASKET_SOFT_DROP] = work.iloc[0:0].copy()
+
+    # B4: ECG live layer baskets. Soft-drop tickers never re-enter (B3).
+    out[BASKET_ECG_RECOMMEND] = _ticker_subset(work, ecg_recommend, blocked=blocked)
+    out[BASKET_ECG_CONFIRMED] = _ticker_subset(work, ecg_confirmed, blocked=blocked)
 
     return out
 
@@ -170,6 +250,8 @@ def daily_pool_row(
         "n_fund_q4": int(len(baskets.get(BASKET_FUND_Q4, []))),
         "n_rs90_ok": int(len(baskets.get(BASKET_RS90_OK, []))),
         "n_soft_drop": int(len(baskets.get(BASKET_SOFT_DROP, []))),
+        "n_ecg_recommend": int(len(baskets.get(BASKET_ECG_RECOMMEND, []))),
+        "n_ecg_confirmed": int(len(baskets.get(BASKET_ECG_CONFIRMED, []))),
         "fund_median": med,
         "fund_mean": float(fund.mean()) if len(fund) else np.nan,
         "rs_median": float(rs.median()) if len(rs) else np.nan,
@@ -317,13 +399,26 @@ def update_perf_ledger(
     params_sha: str | None = None,
     publish: bool = True,
     backfill_all_history: bool = True,
+    ecg_recommend: pd.DataFrame | None = None,
+    ecg_confirmed: pd.DataFrame | None = None,
 ) -> dict:
     """Append today's baskets and backfill forward panels. Safe for small N."""
     report_dir = Path(report_dir)
     out = perf_dir(report_dir)
     as_of = _stamp_as_of(stamp)
 
-    baskets = assign_baskets(fund_df, soft_drops)
+    disk_rec, disk_conf = load_ecg_basket_frames(report_dir, stamp)
+    if ecg_recommend is None:
+        ecg_recommend = disk_rec
+    if ecg_confirmed is None:
+        ecg_confirmed = disk_conf
+
+    baskets = assign_baskets(
+        fund_df,
+        soft_drops,
+        ecg_recommend=ecg_recommend,
+        ecg_confirmed=ecg_confirmed,
+    )
     members = basket_members_rows(baskets, stamp=stamp, as_of=as_of)
     members_path = out / "basket_members_panel.csv"
     _upsert_panel(members_path, members, key_cols=["stamp", "basket", "ticker"])
