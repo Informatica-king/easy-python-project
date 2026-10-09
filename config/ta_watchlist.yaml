@@ -1,7 +1,12 @@
 # TA 워치리스트 + 포트 훅 메타 (≤20)
-# 2026-10-05: ROKU2 · ECPG3 · TXG3 · APPS20 · MU 0.196 · APA4 · ANAB3 · 7종 NO_ADD · ATRO 청산 · 현금 $201
+# 2026-10-08: TXG5 · ECPG3 · INTC2 · APPS20 · MU 0.196 · APA4 · CLMT2 · 7종 NO_ADD · ROKU·ANAB 청산 · 현금 $255
 
 tickers:
+  - symbol: TXG
+    earn_date: "2026-11-05"
+    stop: 42.0
+    no_add: true
+
   - symbol: ECPG
     earn_date: "2026-11-04"
     stop: 80.0
@@ -9,14 +14,8 @@ tickers:
     tp2: 110.0
     no_add: true
 
-  - symbol: TXG
-    earn_date: "2026-11-05"
-    stop: 42.0
-    no_add: true
-
-  - symbol: ANAB
-    earn_date: "2026-08-19"
-    stop: 48.0
+  - symbol: INTC
+    earn_date: "2026-10-29"
     no_add: true
 
   - symbol: APPS
@@ -24,26 +23,37 @@ tickers:
     stop: 10.0
     no_add: true
 
-  - symbol: ROKU
-    earn_date: "2026-11-05"
-    stop: 140.0
+  - symbol: MU
+    earn_date: "2026-09-30"
     no_add: true
-
-  - symbol: ATRO
-    earn_date: "2026-11-05"
-    stop: 68.0
-    no_add: true
-    note: "exited 2026-10-05"
+    note: "hold 0.196316sh"
 
   - symbol: APA
     earn_date: "2026-11-04"
     stop: 40.0
     no_add: true
 
-  - symbol: MU
-    earn_date: "2026-09-30"
+  - symbol: CLMT
+    earn_date: "2026-11-06"
     no_add: true
-    note: "hold 0.196316sh"
+
+  - symbol: ANAB
+    earn_date: "2026-08-19"
+    stop: 48.0
+    no_add: true
+    note: "exited 2026-10-08"
+
+  - symbol: ROKU
+    earn_date: "2026-11-05"
+    stop: 140.0
+    no_add: true
+    note: "exited 2026-10-08"
+
+  - symbol: ATRO
+    earn_date: "2026-11-05"
+    stop: 68.0
+    no_add: true
+    note: "exited 2026-10-05"
 
   - symbol: DRH
     earn_date: "2026-07-30"
