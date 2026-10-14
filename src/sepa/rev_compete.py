@@ -1063,6 +1063,64 @@ PEER_PROFILES: dict[str, dict[str, Any]] = {
             "RDVT는 Q2'26 10-Q 공시 77/23, 피어는 업태 전형 — 방향 비교용."
         ),
     },
+    "VRNS": {
+        "sector_ko": "IT·데이터보안 / DSPM·데이터접근거버넌스 (심층: Varonis Data Security Platform)",
+        "share_title": "상장 데이터보안·DSPM 오버레이 피어셋 스케일 점유 (추정)",
+        "share_as_of": "2026 · TTM/스케일 근사 vs 전년",
+        "share_note": (
+            "데이터 중심 보안(DSPM·접근권한·분류) 상장 피어 대비 상대 스케일. "
+            "사이버보안 전체 TAM 점유가 아님 — 피어셋 방향 비교용. "
+            "MSFT Purview는 복합기업 사업부, Cyera·BigID는 비상장."
+        ),
+        "share_rows": [
+            ("Microsoft Purview (MSFT)", 30.0, 26.5),
+            ("Varonis (VRNS)", 18.0, 16.5),
+            ("Okta (OKTA)", 20.0, 21.0),
+            ("SailPoint (SAIL)", 14.0, 14.5),
+            ("Others (Cyera/BigID/Netwrix)", 18.0, 21.5),
+        ],
+        "share_source": "Directional share of selected data-security / DSPM overlay peers (est.)",
+        "mix_buckets": ["SaaS/Subscription", "Maintenance/Term", "Services"],
+        "mix_as_of": "Q2'26 TTM 근사 · 피어는 최근 공시 전형 믹스",
+        "mix_rows": [
+            {
+                "key": "VRNS",
+                "name": "VRNS",
+                "subject": True,
+                "yf": "VRNS",
+                "mix": {"SaaS/Subscription": 94.0, "Maintenance/Term": 2.0, "Services": 4.0},
+                "note": "SaaS 전환 완료권 · 구독 본체 근사",
+            },
+            {
+                "key": "OKTA",
+                "name": "OKTA",
+                "subject": False,
+                "yf": "OKTA",
+                "mix": {"SaaS/Subscription": 82.0, "Maintenance/Term": 10.0, "Services": 8.0},
+                "note": "아이덴티티 구독 · 인접 피어",
+            },
+            {
+                "key": "TENB",
+                "name": "TENB",
+                "subject": False,
+                "yf": "TENB",
+                "mix": {"SaaS/Subscription": 88.0, "Maintenance/Term": 5.0, "Services": 7.0},
+                "note": "노출관리·취약점 SaaS 근사",
+            },
+            {
+                "key": "CRWD",
+                "name": "CRWD",
+                "subject": False,
+                "yf": "CRWD",
+                "mix": {"SaaS/Subscription": 94.0, "Maintenance/Term": 0.0, "Services": 6.0},
+                "note": "엔드포인트 플랫폼 구독 · 규모 거인",
+            },
+        ],
+        "mix_note": (
+            "버킷은 SaaS/Subscription / Maintenance·Term / Services로 정규화. "
+            "VRNS는 SaaS 전환 이후 구독 비중 공시 근사, 피어는 업태 전형 — 방향 비교용."
+        ),
+    },
 
 }
 
@@ -1118,6 +1176,7 @@ SUBJECT_SHARE_ALIASES: dict[str, tuple[str, ...]] = {
     "CHEF": ("chefs' warehouse", "chefs warehouse"),
     "ENTG": ("entegris",),
     "RDVT": ("red violet",),
+    "VRNS": ("varonis",),
 }
 
 
