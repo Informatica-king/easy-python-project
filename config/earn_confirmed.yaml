@@ -1,5 +1,5 @@
-as_of: '2026-10-08'
-note: portfolio sync · TXG5 · ECPG3 · INTC2 · APPS20 · MU 0.196 · APA4 · CLMT2 · 7 holds NO_ADD · ROKU·ANAB exited · estimate 자동승격 금지
+as_of: '2026-10-14'
+note: portfolio sync · ECPG3 · INTC3 · TXG4 · APPS21 · MU 0.196 · CLMT2 · 6 holds NO_ADD · APA·ROKU·ANAB exited · estimate 자동승격 금지
 entries:
   ECPG:
     earn_date: '2026-11-04'
@@ -7,15 +7,15 @@ entries:
     confirmed_on: '2026-08-12'
   TXG:
     earn_date: '2026-11-05'
-    note: portfolio SSOT · hold 5sh
+    note: portfolio SSOT · hold 4sh
     confirmed_on: '2026-08-12'
   APPS:
     earn_date: '2026-11-03'
-    note: portfolio SSOT · hold 20sh
+    note: portfolio SSOT · hold 21sh
     confirmed_on: '2026-08-18'
   APA:
     earn_date: '2026-11-04'
-    note: portfolio SSOT · hold 4sh
+    note: exited 2026-10-14 · historical
     confirmed_on: '2026-09-16'
   MU:
     earn_date: '2026-09-30'
