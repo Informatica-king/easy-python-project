@@ -59,7 +59,7 @@
   생성 시 검사하고, 없으면 apt 설치를 시도한다. 깨진 PDF를 릴리즈하지 말 것.
 - **성능 검증 장기 프레임**: `!sepa.go`마다 `reports/perf/` 패널 자동 갱신
   (`sepa.perf_ledger`). 요약·검증은 `!검증` (= `!sepa.perf_study()`) →
-  **한글 9쪽 PDF** `verify_report_YYYYMMDD.pdf` + Release `sepa-검증-YYYYMMDD`
+  **한글 10쪽 PDF** `verify_report_YYYYMMDD.pdf` + Release `sepa-검증-YYYYMMDD`
   다운로드 링크 (에셋 파일명은 ASCII — `gh`가 한글 파일명을 깨뜨림). 스키마:
   `docs/perf_study_framework.md` · 양식: `docs/verify_report_design.md`.
   표본이 작을 때는 확증이 아님을 명시할 것. Fund 구간 1년 추세는 **해석 레이어**

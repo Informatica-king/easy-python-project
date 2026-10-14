@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from sepa.perf_ledger import BASKET_RS90_OK, BASKET_SOFT_DROP
+from sepa.perf_ledger import BASKET_ECG_RECOMMEND, BASKET_FUND_POOL, BASKET_RS90_OK, BASKET_SOFT_DROP
 from sepa.perf_study import (
     GATE_INSUFFICIENT,
     GATE_INTERPRET,
@@ -16,6 +16,7 @@ from sepa.perf_study import (
     run_perf_study,
     sample_gate,
     streak_excess_frame,
+    study_ecg_vs_sepatop,
     study_event_forward,
     study_soft_vs_rs90,
     study_streak_buckets,
@@ -47,6 +48,34 @@ def _fwd_frame() -> pd.DataFrame:
                 "ticker": t,
                 "ready_5d": True,
                 "excess_5d": 0.03 + 0.01 * i,
+                "ready_10d": False,
+                "excess_10d": np.nan,
+                "ready_21d": False,
+                "excess_21d": np.nan,
+            }
+        )
+    for i, t in enumerate(["E1", "E2"]):
+        rows.append(
+            {
+                "stamp": "20260801",
+                "basket": BASKET_ECG_RECOMMEND,
+                "ticker": t,
+                "ready_5d": True,
+                "excess_5d": 0.04 + 0.01 * i,
+                "ready_10d": False,
+                "excess_10d": np.nan,
+                "ready_21d": False,
+                "excess_21d": np.nan,
+            }
+        )
+    for i, t in enumerate(["P1", "P2", "P3"]):
+        rows.append(
+            {
+                "stamp": "20260801",
+                "basket": BASKET_FUND_POOL,
+                "ticker": t,
+                "ready_5d": True,
+                "excess_5d": 0.01 * i,
                 "ready_10d": False,
                 "excess_10d": np.nan,
                 "ready_21d": False,
@@ -93,6 +122,18 @@ def test_aggregate_and_soft_vs():
     assert row5["n_rs90_ok"] == 4
     assert row5["mean_soft_drop"] < row5["mean_rs90_ok"]
     assert row5["delta_soft_minus_rs90"] < 0
+
+
+def test_ecg_vs_sepatop():
+    fwd = _fwd_frame()
+    cmp_ = study_ecg_vs_sepatop(fwd)
+    assert not cmp_.empty
+    row5 = cmp_.loc[cmp_["horizon"] == "5d"].iloc[0]
+    assert int(row5["n_ecg_recommend"]) == 2
+    assert int(row5["n_fund_pool"]) == 3
+    assert row5["mean_ecg_recommend"] > row5["mean_fund_pool"]
+    assert row5["delta_ecg_minus_pool"] > 0
+    assert row5["sample_gate"] == GATE_INSUFFICIENT
 
 
 def test_event_forward_agg():
@@ -174,6 +215,7 @@ def test_run_perf_study_with_fwd(tmp_path: Path):
     )
     assert pack["ok"]
     assert not pack["soft_cmp"].empty
+    assert not pack["ecg_cmp"].empty
     assert Path(pack["pdf"]).exists()
     assert pack["pdf"].name == "verify_report_20260814.pdf"
     assert not (perf / "study_20260814.md").exists()
@@ -183,6 +225,8 @@ def test_run_perf_study_with_fwd(tmp_path: Path):
 def test_verify_helpers():
     from sepa.verify_report import (
         GATE_INSUFFICIENT,
+        TOTAL_PAGES,
+        interpret_ecg_delta,
         interpret_soft_delta,
         verify_direct_download_url,
         verify_pdf_name,
@@ -197,3 +241,8 @@ def test_verify_helpers():
     assert "판단 보류" in interpret_soft_delta(-0.01, GATE_INSUFFICIENT)
     assert "도움이 되는" in interpret_soft_delta(-0.01, "interpret")
     assert "잘못 잘랐" in interpret_soft_delta(0.02, "monitor")
+    assert TOTAL_PAGES == 10
+    assert "자료 부족" in interpret_ecg_delta(0.02, GATE_INSUFFICIENT)
+    assert "본선" in interpret_ecg_delta(0.02, GATE_INSUFFICIENT)
+    assert "높습니다" in interpret_ecg_delta(0.02, "monitor")
+    assert "낮습니다" in interpret_ecg_delta(-0.01, "interpret")

@@ -57,6 +57,7 @@ go/anal이 이미 쌓는 원본(`fundamental_*`, `membership_*`, `presence_*`, `
 4. **D** soft_drop 사후 성과 vs rs90_ok  
 5. **E** 풀·필터 안정성 (`daily_pool_log`)  
 6. **F** (향후) 섹터 편중·IR·분위 예측력 확장  
+7. **ECG vs sepaTop** 같은 날 5/10/21d excess 비교 (`ecg_recommend` − `fund_pool`) — 비교 레이어, 본선 아님  
 
 구현 범위·쉬운 설명: **`docs/perf_study_dev_plan.md`** (D29).  
 **Phase 1 구현됨** — A~D + sample_gate (`!검증` / `!sepa.perf_study`).
@@ -67,8 +68,8 @@ go/anal이 이미 쌓는 원본(`fundamental_*`, `membership_*`, `presence_*`, `
 
 ```text
 !sepa.go()          → 자동으로 reports/perf/* 갱신 + 아티팩트/릴리즈 첨부
-!검증               → 9쪽 한글 PDF + sepa-검증-YYYYMMDD 다운로드 링크
-                      (A–D 본심판 + Fund 구간 1년 추세 해석 레이어)
+!검증               → 10쪽 한글 PDF + sepa-검증-YYYYMMDD 다운로드 링크
+                      (A–D 본심판 + ECG vs sepaTop 비교 레이어 + Fund 구간 1년 추세)
 !sepa.perf_study()  → 위와 동일
 !sepa.perf_study(refresh=1)  → 당일 패널 갱신 후 보고서
 !sepa.perf_study(skip_github_release=1)  → PDF만 (업로드 생략)

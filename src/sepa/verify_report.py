@@ -1,4 +1,4 @@
-"""SEPA ``!검증`` — plain-language 8-page Hangul PDF + GitHub download link.
+"""SEPA ``!검증`` — plain-language Hangul PDF + GitHub download link.
 
 User-facing deliverable is **PDF only** (no MD/ZIP in V1).
 Release tag: ``sepa-검증-YYYYMMDD``.
@@ -31,6 +31,7 @@ from sepa.perf_ledger import LEDGER_VERSION
 logger = logging.getLogger(__name__)
 
 PAGE_W, PAGE_H = 11.0, 8.5
+TOTAL_PAGES = 10
 FOOTER_NOTE = "시장 = S&P500(^GSPC) 대비 초과수익 · look-ahead 없음 · 매매 권유 아님"
 
 GATE_INSUFFICIENT = "insufficient"
@@ -85,7 +86,7 @@ def _wrap(text: str, width: int = 54) -> str:
     return "\n".join(lines)
 
 
-def _footer(fig, page: int, total: int = 9) -> None:
+def _footer(fig, page: int, total: int = TOTAL_PAGES) -> None:
     fig.text(
         0.5, 0.025,
         f"{FOOTER_NOTE}  ·  {page}/{total}",
@@ -222,6 +223,39 @@ def _answer_soft(soft_cmp: pd.DataFrame) -> str:
     return "yes" if delta < 0 else "no"
 
 
+def _answer_ecg(ecg_cmp: pd.DataFrame) -> str:
+    row = _row_horizon(ecg_cmp, "5d")
+    if row is None or int(row.get("n_ecg_recommend", 0) or 0) == 0 or int(row.get("n_fund_pool", 0) or 0) == 0:
+        return "unknown"
+    if str(row.get("sample_gate")) == GATE_INSUFFICIENT:
+        return "unknown"
+    delta = float(row["delta_ecg_minus_pool"])
+    if delta != delta:
+        return "unknown"
+    return "yes" if delta > 0 else "no"
+
+
+def interpret_ecg_delta(delta: float | None, gate: str) -> str:
+    if gate == GATE_INSUFFICIENT:
+        return (
+            "ECG vs sepaTop 비교는 아직 자료 부족입니다. "
+            "본선(sepaTop / median+)을 바꾸지 않습니다."
+        )
+    if delta is None or (isinstance(delta, float) and delta != delta):
+        return "차이를 계산할 수 없습니다. 본선은 sepaTop입니다."
+    if delta > 0:
+        return (
+            f"지금 신호는 ECG 추천 5일이 sepaTop보다 {_pct(delta)} 높습니다"
+            f"(게이트 {gate_ko(gate)}). 비교 레이어이며 본선을 바꾸지 않습니다."
+        )
+    if delta < 0:
+        return (
+            f"지금 신호는 ECG 추천 5일이 sepaTop보다 {_pct(delta)} 낮습니다"
+            f"(게이트 {gate_ko(gate)}). 비교 레이어이며 본선을 바꾸지 않습니다."
+        )
+    return "두 바구니 5일 평균이 거의 같습니다. 본선은 sepaTop입니다."
+
+
 def one_line_summary(
     *,
     n_pool_days: int,
@@ -325,11 +359,12 @@ def _page_cover(
         ("리스트에 넣고 뺀 타이밍이 괜찮았나?", answers.get("timing", "unknown")),
         ("오래 남은 종목이 더 나았나?", answers.get("streak", "unknown")),
         ("soft ceiling으로 뺀 종목이 정말 못했나?", answers.get("soft", "unknown")),
+        ("ECG 추천이 sepaTop보다 나았나? (비교 · 본선 아님)", answers.get("ecg", "unknown")),
     ]
-    y0 = 0.48
-    fig.text(0.08, y0 + 0.06, "오늘 질문 네 가지", ha="left", va="top", fontproperties=_fp(bold=True, size=12))
+    y0 = 0.50
+    fig.text(0.08, y0 + 0.05, "오늘 질문", ha="left", va="top", fontproperties=_fp(bold=True, size=12))
     for i, (q, ans) in enumerate(questions):
-        y = y0 - i * 0.07
+        y = y0 - i * 0.058
         fig.text(0.10, y, f"{i + 1}. {q}", ha="left", va="top", fontproperties=_fp(size=10.5))
         fig.text(
             0.88, y, ANSWER_KO.get(ans, ans),
@@ -366,7 +401,8 @@ def _page_scope(pdf: PdfPages) -> None:
         _wrap(
             "· 스크리너 규칙으로 이미 뽑힌 종목의 사후 성적 (A–D 본심판)\n"
             "· 시장(S&P500) 대비 초과수익 (5·10·21거래일)\n"
-            "· soft ceiling 등 우리 규칙이 도움이 됐는지의힌트\n"
+            "· soft ceiling 등 우리 규칙이 도움이 됐는지의 힌트\n"
+            "· ECG 추천 vs sepaTop 같은 날 초과 비교 (비교 레이어 · 본선 아님)\n"
             "· (맥락) 오늘 Fund 구간의 최근 1년 종가 경로 — 예측 아님",
             58,
         ),
@@ -383,20 +419,21 @@ def _page_scope(pdf: PdfPages) -> None:
         ),
         ha="left", va="top", fontproperties=_fp(size=10.5), linespacing=1.45,
     )
-    fig.text(0.08, 0.20, "용어 미니 사전", ha="left", va="top", fontproperties=_fp(bold=True, size=12))
+    fig.text(0.08, 0.22, "용어 미니 사전", ha="left", va="top", fontproperties=_fp(bold=True, size=12))
     glossary = [
         ("바구니", "그날 규칙으로 뽑힌 종목 묶음"),
         ("시장보다 잘함", "S&P500보다 수익률이 높음(초과)"),
         ("중앙값 이상", "Fund 점수가 그날 후보 중위 이상(median+)"),
         ("soft ceiling", "RS는 높지만 Fund가 약해서 일부러 뺀 종목"),
         ("들어옴/나감", "sepaTop 편입(enter) / 편출(exit)"),
+        ("ECG 추천", "Confirmed(G3c) 중 ECG 상위 — sepaTop을 대체하지 않음"),
         ("Fund 구간 추세", "오늘 점수 버킷의 과거 1년 등가 종가 경로(맥락)"),
     ]
-    y = 0.155
+    y = 0.185
     for term, meaning in glossary:
         fig.text(0.10, y, term, ha="left", va="top", fontproperties=_fp(bold=True, size=9))
         fig.text(0.32, y, meaning, ha="left", va="top", fontproperties=_fp(size=9), color="#333")
-        y -= 0.028
+        y -= 0.022
     _footer(fig, 2)
     pdf.savefig(fig)
     plt.close(fig)
@@ -505,6 +542,62 @@ def _page_basket(pdf: PdfPages, agg: pd.DataFrame) -> None:
     )
 
 
+def _page_ecg_vs(pdf: PdfPages, ecg_cmp: pd.DataFrame) -> None:
+    row = _row_horizon(ecg_cmp, "5d")
+    if row is None:
+        labels, values, ns, colors = [], [], [], []
+        gate = GATE_INSUFFICIENT
+        delta = None
+    else:
+        gate = str(row["sample_gate"])
+        delta = float(row["delta_ecg_minus_pool"])
+        labels = ["sepaTop\n(fund_pool)", "중앙값 이상\n(median+)", "ECG 추천"]
+        values = [
+            float(row["mean_fund_pool"]),
+            float(row["mean_median_plus"]),
+            float(row["mean_ecg_recommend"]),
+        ]
+        ns = [
+            int(row["n_fund_pool"]),
+            int(row["n_median_plus"]),
+            int(row["n_ecg_recommend"]),
+        ]
+        colors = ["#2c5f7c", "#8b4513", "#2e7d32"]
+    interp = interpret_ecg_delta(delta, gate)
+    n_ecg = int(row["n_ecg_recommend"]) if row is not None else 0
+    n_pool = int(row["n_fund_pool"]) if row is not None else 0
+    n_st = int(row["n_stamps_ecg"]) if row is not None else 0
+    extra = ""
+    if not ecg_cmp.empty:
+        bits = []
+        for r in ecg_cmp.itertuples():
+            if int(r.n_ecg_recommend) == 0 and int(r.n_fund_pool) == 0:
+                continue
+            bits.append(
+                f"{r.horizon} Δ {_pct(r.delta_ecg_minus_pool)} "
+                f"(n={int(r.n_ecg_recommend)}/{int(r.n_fund_pool)})"
+            )
+        extra = "  ·  ".join(bits)
+    body = (
+        f"【자료 {gate_ko(gate)}】 같은 날 5일 초과를 비교합니다. "
+        f"ECG n={n_ecg} · sepaTop n={n_pool} · stamp {n_st}일. {interp}"
+    )
+    if extra:
+        body = body + "  " + extra
+    _embed_bar_page(
+        pdf,
+        page=4,
+        title="ECG 추천 vs sepaTop — 비교 레이어 (본선 아님)",
+        subtitle=f"5일 평균 초과수익  ·  게이트 {gate_ko(gate)}  ·  Fund 식 미변경",
+        body=body,
+        labels=labels,
+        values=values,
+        ns=ns,
+        colors=colors,
+        empty_note="ECG 추천·sepaTop 5일 성적이 아직 없습니다. fill_gaps / go 후 다시 !검증.",
+    )
+
+
 def _page_soft(pdf: PdfPages, soft_cmp: pd.DataFrame) -> None:
     row = _row_horizon(soft_cmp, "5d")
     if row is None:
@@ -565,7 +658,7 @@ def _page_soft(pdf: PdfPages, soft_cmp: pd.DataFrame) -> None:
         for i, (y, n) in enumerate(zip(ys, ns)):
             ax.text(i, y, f"n={n}", ha="center", va="bottom", fontsize=8)
         ax.grid(axis="y", alpha=0.3)
-    _footer(fig, 4)
+    _footer(fig, 5)
     pdf.savefig(fig)
     plt.close(fig)
 
@@ -595,7 +688,7 @@ def _page_events(pdf: PdfPages, event_agg: pd.DataFrame) -> None:
             )
     _embed_bar_page(
         pdf,
-        page=5,
+        page=6,
         title="B. 넣고 뺀 직후 성적은?",
         subtitle="sepaTop enter / exit · 5일 초과수익",
         body=body,
@@ -631,7 +724,7 @@ def _page_streak(pdf: PdfPages, streak_buckets: pd.DataFrame) -> None:
             ns.append(int(r["n_ready"]))
     _embed_bar_page(
         pdf,
-        page=6,
+        page=7,
         title="C. 오래 붙어 있는 종목이 더 좋았나?",
         subtitle="median+ 체류 구간 × 21일 초과수익",
         body=body,
@@ -716,7 +809,7 @@ def _page_fund_trend(
             ha="left", va="top", fontproperties=_fp(size=8.5), color="#333",
         )
         y -= 0.028
-    _footer(fig, 7)
+    _footer(fig, 8)
     pdf.savefig(fig)
     plt.close(fig)
 
@@ -764,7 +857,7 @@ def _page_pool(pdf: PdfPages, pool_log: pd.DataFrame) -> None:
                 jump_stamp = str(g.loc[idx, "stamp"])
                 note += f" 급변 후보일: {jump_stamp}."
     fig.text(0.08, 0.12, _wrap(note, 72), ha="left", va="top", fontproperties=_fp(size=10), color="#333")
-    _footer(fig, 8)
+    _footer(fig, 9)
     pdf.savefig(fig)
     plt.close(fig)
 
@@ -777,6 +870,7 @@ def _page_appendix(
     event_agg: pd.DataFrame,
     soft_cmp: pd.DataFrame,
     streak_buckets: pd.DataFrame,
+    ecg_cmp: pd.DataFrame | None = None,
 ) -> None:
     _setup()
     lines: list[str] = []
@@ -817,6 +911,16 @@ def _page_appendix(
                 f"  {r.horizon}: soft {_pct(r.mean_soft_drop)}  ok {_pct(r.mean_rs90_ok)}  "
                 f"Δ {_pct(r.delta_soft_minus_rs90)}  [{r.sample_gate}]"
             )
+    lines.append("[ECG] vs sepaTop")
+    if ecg_cmp is None or ecg_cmp.empty:
+        lines.append("  (없음)")
+    else:
+        for r in ecg_cmp.itertuples():
+            lines.append(
+                f"  {r.horizon}: ECG {_pct(r.mean_ecg_recommend)}  sepaTop {_pct(r.mean_fund_pool)}  "
+                f"Δ {_pct(r.delta_ecg_minus_pool)}  n={int(r.n_ecg_recommend)}/{int(r.n_fund_pool)}  "
+                f"[{r.sample_gate}]"
+            )
 
     fig = plt.figure(figsize=(PAGE_W, PAGE_H))
     fig.text(0.08, 0.93, "부록 · 숫자 원표", ha="left", va="top", fontproperties=_fp(bold=True, size=15))
@@ -826,15 +930,15 @@ def _page_appendix(
         ha="left", va="top", fontproperties=_fp(size=9), color="#666",
     )
     y = 0.82
-    for line in lines[:30]:
-        fig.text(0.08, y, line, ha="left", va="top", fontproperties=_fp(size=8.5), color="#222")
-        y -= 0.024
+    for line in lines[:36]:
+        fig.text(0.08, y, line, ha="left", va="top", fontproperties=_fp(size=8), color="#222")
+        y -= 0.020
     fig.text(
         0.08, 0.10,
         "사용자 산출물은 이 PDF 하나입니다.",
         ha="left", va="bottom", fontproperties=_fp(size=9), color="#666",
     )
-    _footer(fig, 9)
+    _footer(fig, 10)
     pdf.savefig(fig)
     plt.close(fig)
 
@@ -853,8 +957,9 @@ def build_verify_pdf(
     fund_trend_combined: pd.DataFrame | None = None,
     fund_trend_counts: dict[str, int] | None = None,
     fund_trend_context: dict | None = None,
+    ecg_cmp: pd.DataFrame | None = None,
 ) -> Path:
-    """Write the 9-page Hangul verify PDF. Raises KoreanFontError if no Hangul font."""
+    """Write the 10-page Hangul verify PDF. Raises KoreanFontError if no Hangul font."""
     assert_korean_font_ready(context="검증 PDF")
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -895,11 +1000,14 @@ def build_verify_pdf(
     if fund_trend_context and fund_trend_context.get("tip"):
         summary = summary + "  " + str(fund_trend_context["tip"])
 
+    if ecg_cmp is None:
+        ecg_cmp = pd.DataFrame()
     answers = {
         "basket": _answer_basket(agg),
         "timing": _answer_timing(event_agg),
         "streak": _answer_streak(streak_buckets),
         "soft": _answer_soft(soft_cmp),
+        "ecg": _answer_ecg(ecg_cmp),
     }
 
     with PdfPages(out_path) as pdf:
@@ -916,6 +1024,7 @@ def build_verify_pdf(
         )
         _page_scope(pdf)
         _page_basket(pdf, agg)
+        _page_ecg_vs(pdf, ecg_cmp)
         _page_soft(pdf, soft_cmp)
         _page_events(pdf, event_agg)
         _page_streak(pdf, streak_buckets)
@@ -933,6 +1042,7 @@ def build_verify_pdf(
             event_agg=event_agg,
             soft_cmp=soft_cmp,
             streak_buckets=streak_buckets,
+            ecg_cmp=ecg_cmp,
         )
 
     published = publish(out_path)

@@ -793,7 +793,7 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.perf_study",
         "!검증  |  !sepa.perf_study()  |  !sepa.perf_study(refresh=1)",
-        "비전공자용 9쪽 한글 검증 PDF + GitHub 다운로드 링크 (sepa-검증-YYYYMMDD; A–D 본심판 + Fund 추세 맥락; 확증 아님)",
+        "비전공자용 10쪽 한글 검증 PDF + GitHub 다운로드 링크 (sepa-검증-YYYYMMDD; A–D 본심판 + ECG vs sepaTop 비교 + Fund 추세 맥락; 확증 아님)",
         _tool_perf_study,
         aliases=("perf_study", "sepa.perf", "perf", "검증"),
     ),
