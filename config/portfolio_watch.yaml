@@ -8,11 +8,11 @@
 # band: 추가매수 허용 구간 (BAND)
 # max_pct: 종목천장(기본 20 = 유동자산 대비). 품질등급 A/B/C 폐기 · 하드게이트 시 유효=금지(ADD 0%)
 
-as_of: '2026-10-08'
-as_of_note: 앱 캡처 · 평가 $1,637.58(+5.7%·+$89.62) · USD$254.64 + ₩14 · 7종 · ROKU·ANAB 청산 · TXG 3→5 · INTC 2 · CLMT 2
+as_of: '2026-10-14'
+as_of_note: 앱 캡처 · 평가 $1,425.18(+0.5%·+$7.83) · USD$418.62 + ₩14 · 6종 · APA 청산 · TXG 5→4 · INTC 2→3 · APPS 20→21
 fx_krw_per_usd: 1402.5
-cost_basis_source: 앱 USD 손익역산 평단 2026-10-08
-source: app_screenshot_2026-10-08
+cost_basis_source: 앱 USD 손익역산 평단 2026-10-14
+source: app_screenshot_2026-10-14
 strategy:
   identity: 짧~중기 모멘텀을 실적·비중·손절로 걸러, 비대장주 챌린저를 규칙으로만 운영하는 생존형 포트 OS
   identity_short: 규칙형 챌린저 모멘텀 생존 OS
@@ -25,22 +25,22 @@ strategy:
     target_krw: 100000000
     note: 1억 · 군적금 27.2(+2000만) · 청년미래적금 29.8(만기 2138만) 주식 재투자
   book:
-    equity_usd: 1637.58
-    equity_pnl_usd: 89.62
-    equity_pnl_pct: 0.057
-    cash_usd: 254.64
+    equity_usd: 1425.18
+    equity_pnl_usd: 7.83
+    equity_pnl_pct: 0.005
+    cash_usd: 418.62
     cash_krw: 14
     cash_krw_usd: 0.01
-    liquid_usd: 1892.23
+    liquid_usd: 1843.81
     cash_floor_usd: 150
-    cash_deployable_usd: 104.65
-    cash_pct_of_liquid: 0.1346
-    pending_orders_note: 7종 전원 NO_ADD · TXG 21.1% 천장OVER · Top3≈48.6%(유동) · ROKU·ANAB 청산 · INTC·CLMT 신규 · TXG 5주 · 전개가능≈$105
+    cash_deployable_usd: 268.63
+    cash_pct_of_liquid: 0.2270
+    pending_orders_note: 6종 전원 NO_ADD · TXG 천장OVER 해제(15.5%) · Top3≈49.2%(유동) · APA 청산 · INTC 3주 · APPS 21주 · TXG 4주 · ECPG tp1 $105 터치 · 전개가능≈$269
 cash:
-  usd: 254.64
+  usd: 418.62
   krw: 14
   floor_usd: 150
-  note: USD$254.64 + ₩14 · 합 $254.65 · 바닥 $150 · 전개가능 ≈$105
+  note: USD$418.62 + ₩14 · 합 $418.63 · 바닥 $150 · 전개가능 ≈$269
 contribution:
   payday: 매월 10일
   monthly_krw: 300000
@@ -52,8 +52,8 @@ allocation:
   top3_sum_max_pct: 50
   schd_target_pct: 0
   schd_role: 폐기 · 완충은 현금바닥+$150
-  note: '2026-10-08 (유동 $1,892.23): TXG 21.1% 천장OVER · ECPG 15.9% · INTC 11.6% · APPS 11.4% · MU 11.0% · APA 9.5%
-    · CLMT 6.1%. 현금합 $254.65 (유동 ~13.5%). Top3≈48.6% ≤50% · 전원 유효금지(NO_ADD). ROKU·ANAB 청산 · TXG +2 · INTC·CLMT 신규.'
+  note: '2026-10-14 (유동 $1,843.81): ECPG 17.2% · INTC 16.4% · TXG 15.5% · APPS 11.8% · MU 10.0% · CLMT 6.4%.
+    현금합 $418.63 (유동 ~22.7%). Top3≈49.2% ≤50% · 전원 유효금지(NO_ADD). APA 청산 · TXG −1 · INTC +1 · APPS +1.'
 rules:
 - 물타기 금지
 - 확정 실적 D-5만 분할 차단 (추정 실적일은 주의, 하드블록 아님)
@@ -71,120 +71,112 @@ rules:
 - ATRO 전량청산 완료 (10-05) — 추격 재매수 금지
 - ROKU 전량청산 완료 (10-08) — 추격 재매수 금지
 - ANAB 전량청산 완료 (10-08) — 추격 재매수 금지
-- TXG 5주(+2) · 평단 $62.57 · +27.8% · 유동 21.1% 천장OVER · stop $42 · 추가금지
-- ECPG 3주 · 평단 $94.00 · +6.4% · 유동 15.9% · stop $80 · 추가금지
-- INTC 2주(신규) · 평단 $109.37 · −0.02% · 유동 11.6% · 실적 10-29 · 추가금지
-- APPS 20주 · 평단 $11.54 · −6.5% · stop $10 · 추가금지
-- MU 0.196316주 · 평단 ~$1,074 · −1.3% · 유동 11.0% · 추가금지
-- APA 4주 · 평단 $44.58 · +0.7% · stop $40 · 추가금지
-- CLMT 2주(신규) · 평단 $57.31 · +0.7% · 유동 6.1% · 실적 11-06 · 10-08 심층 하·과열 · 추가금지
+- APA 전량청산 완료 (10-14) — 추격 재매수 금지
+- ECPG 3주 · 평단 $94.00 · +12.3% · 유동 17.2% · stop $80 · tp1 $105 터치 · 추가금지
+- INTC 3주(+1) · 평단 $106.13 · −4.8% · 유동 16.4% · 실적 10-29 · D-5 10-25 · 추가금지
+- TXG 4주(−1) · 평단 $62.57 · +14.4% · 유동 15.5% · stop $42 · 천장OVER 해제 · 추가금지
+- APPS 21주(+1) · 평단 $11.49 · −9.8% · 유동 11.8% · stop $10 · 추가금지
+- MU 0.196316주 · 평단 ~$1,074 · −12.6% · 유동 10.0% · 추가금지
+- CLMT 2주 · 평단 $57.31 · +2.2% · 유동 6.4% · 실적 11-06 · 하·과열 · 추가금지
 - 동일종목 중복 주문 금지
 holdings:
-- ticker: TXG
-  role: hold
-  grade: OK
-  max_pct: 20
-  shares: 5
-  cost_approx: 62.57
-  mark_approx: 80.00
-  value_approx: 400.00
-  weight_approx: 0.2114
-  pnl_usd: 87.14
-  pnl_pct: 0.278
-  stop: 42.0
-  no_add: true
-  earn_date: '2026-11-05'
-  note: 5주(+2) · 평단 $62.57 · +27.8% · 유동 21.1% 천장OVER · stop $42 · 추가금지
 - ticker: ECPG
   role: hold
   grade: OK
   max_pct: 20
   shares: 3
   cost_approx: 94.0
-  mark_approx: 100.06
-  value_approx: 300.18
-  weight_approx: 0.1586
-  pnl_usd: 18.21
-  pnl_pct: 0.064
+  mark_approx: 105.60
+  value_approx: 316.80
+  weight_approx: 0.1718
+  pnl_usd: 34.83
+  pnl_pct: 0.123
   stop: 80.0
   no_add: true
   earn_date: '2026-11-04'
-  note: 3주 · 평단 $94.00 · +6.4% · 유동 15.9% · 추가금지
+  note: 3주 · 평단 $94.00 · +12.3% · 유동 17.2% · tp1 $105 터치 · 추가금지
   tp1: 105.0
   tp2: 110.0
 - ticker: INTC
   role: hold
   grade: OK
   max_pct: 20
-  shares: 2
-  cost_approx: 109.37
-  mark_approx: 109.34
-  value_approx: 218.68
-  weight_approx: 0.1156
-  pnl_usd: -0.05
-  pnl_pct: -0.0002
+  shares: 3
+  cost_approx: 106.13
+  mark_approx: 101.01
+  value_approx: 303.03
+  weight_approx: 0.1643
+  pnl_usd: -15.36
+  pnl_pct: -0.048
   no_add: true
   earn_date: '2026-10-29'
-  note: 2주(신규) · 평단 $109.37 · −0.02% · 유동 11.6% · Intel · 실적 10-29 · 추가금지
+  note: 3주(+1) · 평단 $106.13 · −4.8% · 유동 16.4% · Intel · 실적 10-29 · D-5 10-25 · 추가금지
+- ticker: TXG
+  role: hold
+  grade: OK
+  max_pct: 20
+  shares: 4
+  cost_approx: 62.57
+  mark_approx: 71.62
+  value_approx: 286.48
+  weight_approx: 0.1554
+  pnl_usd: 36.19
+  pnl_pct: 0.144
+  stop: 42.0
+  no_add: true
+  earn_date: '2026-11-05'
+  note: 4주(−1) · 평단 $62.57 · +14.4% · 유동 15.5% · stop $42 · 천장OVER 해제 · 추가금지
 - ticker: APPS
   role: hold
   grade: OK
   max_pct: 20
-  shares: 20
-  cost_approx: 11.54
-  mark_approx: 10.78
-  value_approx: 215.60
-  weight_approx: 0.1139
-  pnl_usd: -15.10
-  pnl_pct: -0.065
+  shares: 21
+  cost_approx: 11.49
+  mark_approx: 10.36
+  value_approx: 217.56
+  weight_approx: 0.1180
+  pnl_usd: -23.75
+  pnl_pct: -0.098
   stop: 10.0
   no_add: true
   earn_date: '2026-11-03'
-  note: 20주 · 평단 $11.54 · −6.5% · 유동 11.4% · Digital Turbine · stop $10 · 추가금지
+  note: 21주(+1) · 평단 $11.49 · −9.8% · 유동 11.8% · Digital Turbine · stop $10 · 추가금지
 - ticker: MU
   role: hold
   grade: OK
   max_pct: 20
   shares: 0.196316
   cost_approx: 1073.63
-  mark_approx: 1059.01
-  value_approx: 207.90
-  weight_approx: 0.1099
-  pnl_usd: -2.87
-  pnl_pct: -0.013
+  mark_approx: 937.82
+  value_approx: 184.11
+  weight_approx: 0.0999
+  pnl_usd: -26.66
+  pnl_pct: -0.126
   no_add: true
   earn_date: '2026-09-30'
-  note: 0.196316주 · 평단 ~$1,074 · −1.3% · 유동 11.0% · 실적 09-30 경과 · 추가금지
-- ticker: APA
-  role: hold
-  grade: OK
-  max_pct: 20
-  shares: 4
-  cost_approx: 44.58
-  mark_approx: 44.93
-  value_approx: 179.72
-  weight_approx: 0.0950
-  pnl_usd: 1.41
-  pnl_pct: 0.007
-  stop: 40.0
-  no_add: true
-  earn_date: '2026-11-04'
-  note: 4주 · 평단 $44.58 · +0.7% · 유동 9.5% · stop $40 · 추가금지
+  note: 0.196316주 · 평단 ~$1,074 · −12.6% · 유동 10.0% · 실적 09-30 경과 · 추가금지
 - ticker: CLMT
   role: hold
   grade: OK
   max_pct: 20
   shares: 2
   cost_approx: 57.31
-  mark_approx: 57.75
-  value_approx: 115.50
-  weight_approx: 0.0610
-  pnl_usd: 0.89
-  pnl_pct: 0.007
+  mark_approx: 58.60
+  value_approx: 117.20
+  weight_approx: 0.0636
+  pnl_usd: 2.59
+  pnl_pct: 0.022
   no_add: true
   earn_date: '2026-11-06'
-  note: 2주(신규) · 평단 $57.31 · +0.7% · 유동 6.1% · Calumet · 실적 11-06 · 10-08 심층 하·과열 · 추가금지
+  note: 2주 · 평단 $57.31 · +2.2% · 유동 6.4% · Calumet · 실적 11-06 · 하·과열 · 추가금지
 exited:
+- ticker: APA
+  role: exited
+  shares: 0
+  exit_as_of: '2026-10-14'
+  exit_type: sell_exit
+  exit_shares: 4
+  note: 4주 전량청산 (10-14 스냅) · 추격 재매수 금지
 - ticker: ANAB
   role: exited
   shares: 0
@@ -288,27 +280,27 @@ exited:
   exit_type: label_correction
   note: SSOT 라벨 정정 · 실보유는 AnaptysBio(ANAB)
 watchlist:
-- ticker: TXG
-  role: watch
-  note: 5주(+2) · 유동 21.1% 천장OVER · stop $42 · NO_ADD
 - ticker: ECPG
   role: watch
-  note: 3주 · 유동 15.9% · NO_ADD
+  note: 3주 · 유동 17.2% · tp1 $105 터치 · NO_ADD
 - ticker: INTC
   role: watch
-  note: 2주(신규) · 유동 11.6% · 실적 10-29 · NO_ADD
+  note: 3주(+1) · 유동 16.4% · 실적 10-29 · NO_ADD
+- ticker: TXG
+  role: watch
+  note: 4주(−1) · 유동 15.5% · stop $42 · NO_ADD
 - ticker: APPS
   role: watch
-  note: 20주 · −6.5% · stop $10 · NO_ADD
+  note: 21주(+1) · −9.8% · stop $10 · NO_ADD
 - ticker: MU
   role: watch
-  note: 0.196316주 · 유동 11.0% · NO_ADD
-- ticker: APA
-  role: watch
-  note: 4주 · 유동 9.5% · stop $40 · NO_ADD
+  note: 0.196316주 · 유동 10.0% · NO_ADD
 - ticker: CLMT
   role: watch
-  note: 2주(신규) · 유동 6.1% · 하·과열 · NO_ADD
+  note: 2주 · 유동 6.4% · 하·과열 · NO_ADD
+- ticker: APA
+  role: watch
+  note: 10-14 전량청산 · 추격 재매수 금지
 - ticker: ANAB
   role: watch
   note: 10-08 전량청산 · 추격 재매수 금지
