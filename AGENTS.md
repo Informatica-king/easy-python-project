@@ -50,6 +50,10 @@
   생략·말줄임(`…`)·샘플링·상위 N개 절단 금지. 파일
   `reports/fund_median_tickers_YYYYMMDD.txt`와 채팅/콘솔 모두 동일 전체 문자열.
   에이전트 요약에서도 이 한 줄은 **반드시 전문을 그대로** 제시할 것.
+- **`!sepa.go()` ECG 추천 복사용 문자열 — 필수**:
+  go/anal은 ECG 추천 레이어를 **항상** 계산한다 (`ecg_recommend_tickers_YYYYMMDD.txt`).
+  끝날 때 Confirmed(G3c) ECG 상위 티커를 **쉼표 한 줄로 전부** 출력할 것.
+  생략 금지. sepaTop/median+ 본선은 유지(덮어쓰기 아님). 에이전트 요약에도 전문 제시.
 - **analyze PDF 한글 폰트 — 필수**: `fonts-nanum`(또는 WQY/Noto CJK) 없으면
   PDF 한글이 □로 깨진다. `sepa.fonts.assert_korean_font_ready`가 go 시작·PDF
   생성 시 검사하고, 없으면 apt 설치를 시도한다. 깨진 PDF를 릴리즈하지 말 것.

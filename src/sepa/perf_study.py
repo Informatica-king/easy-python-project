@@ -564,13 +564,14 @@ def write_study_md(
     else:
         tail = pool_log.sort_values("stamp").tail(10)
         lines += [
-            "| stamp | n_fund | n_median+ | n_q4 | fund_median |",
-            "|---|---:|---:|---:|---:|",
+            "| stamp | n_fund | n_median+ | n_q4 | n_ecg_rec | fund_median |",
+            "|---|---:|---:|---:|---:|---:|",
         ]
         for r in tail.itertuples():
             lines.append(
                 f"| {r.stamp} | {getattr(r, 'n_fund_pool', 'n/a')} | "
                 f"{getattr(r, 'n_median_plus', 'n/a')} | {getattr(r, 'n_fund_q4', 'n/a')} | "
+                f"{getattr(r, 'n_ecg_recommend', 'n/a')} | "
                 f"{getattr(r, 'fund_median', float('nan'))} |"
             )
 
@@ -716,6 +717,13 @@ def run_perf_study(
     print(f"\n=== SEPA 검증 보고서 ({stamp}) ===")
     print(f"신뢰: {gate_ko(trust)} (관측 {n_pool_days}일 · 5일 성적 stamp {n_5d_stamps}일)")
     print(f"한줄: {summary}")
+    try:
+        from sepa.ecg_status import format_ecg_b2_summary_line
+
+        ecg_line = format_ecg_b2_summary_line(report_dir, stamp=stamp)
+        print(f"ECG/CSS: {ecg_line}")
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("ECG/CSS B2 line failed: %s", exc)
     if fund_trend_context.get("ok") and fund_trend_context.get("tip"):
         print(fund_trend_context["tip"])
     if pdf_path is not None and pdf_path.exists():
