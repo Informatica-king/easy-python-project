@@ -522,7 +522,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--skip-ecg",
         action="store_true",
-        help="Skip ECG live recommend layer (D34 B1; default: run when ecg.live_enabled)",
+        help="Test-only: skip ECG recommend. !go never passes this (ECG is required).",
     )
     args = parser.parse_args(argv)
 
@@ -624,14 +624,17 @@ def main(argv: list[str] | None = None) -> int:
     release_extras: list[Path] = [csv_path, median_export]
     ecg_live: dict = {}
 
-    # D34 B1 — ECG recommend layer (does not replace sepaTop / soft / median+)
-    ecg_cfg = getattr(params, "ecg", None)
-    if (not args.skip_ecg) and ecg_cfg is not None and bool(getattr(ecg_cfg, "live_enabled", True)):
-        from sepa.ecg import run_ecg_live_layer
+    # D34 — ECG recommend is required on anal/go (does not replace sepaTop / median+)
+    if not args.skip_ecg:
+        from sepa.config import EcgParams
+        from sepa.ecg import print_ecg_recommend_copy_list, run_ecg_live_layer
 
+        ecg_cfg = getattr(params, "ecg", None) or EcgParams()
         as_of_iso = None
         if len(stamp) == 8 and stamp.isdigit():
             as_of_iso = f"{stamp[:4]}-{stamp[4:6]}-{stamp[6:8]}"
+        rec_txt = Path(params.report_dir) / f"ecg_recommend_tickers_{stamp}.txt"
+        rec_csv = Path(params.report_dir) / f"ecg_recommend_{stamp}.csv"
         try:
             ecg_live = run_ecg_live_layer(
                 fund_path=src,
@@ -653,7 +656,11 @@ def main(argv: list[str] | None = None) -> int:
             )
         except Exception as exc:  # noqa: BLE001
             logger.exception("ECG live layer failed")
-            print(f"[경고] ECG 추천 레이어 실패: {exc}")
+            print(f"[오류] ECG 추천 레이어 실패 (!go 필수 산출): {exc}")
+            rec_csv.parent.mkdir(parents=True, exist_ok=True)
+            pd.DataFrame().to_csv(rec_csv, index=False)
+            print_ecg_recommend_copy_list(pd.DataFrame(), out_path=rec_txt, banner=True)
+            release_extras.extend([p for p in (rec_csv, rec_txt) if p.exists()])
 
     # Fund score 10-pt bucket 1y equal-weight trend vs S&P500 (PDF 본편)
     if not args.skip_fund_trend:

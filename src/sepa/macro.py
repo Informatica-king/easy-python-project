@@ -400,6 +400,25 @@ def _tool_analyze(args: list, kwargs: dict) -> None:
     analyze.main(argv)
 
 
+def print_go_ecg_required_copy(stamp: str, *, report_dir: str | Path = "reports") -> tuple[int, str]:
+    """Always print the ECG recommend copy line at the end of !go (required)."""
+    report_dir = Path(report_dir)
+    path = report_dir / f"ecg_recommend_tickers_{stamp}.txt"
+    if path.exists():
+        line = path.read_text(encoding="utf-8").strip()
+    else:
+        print(f"[오류] ECG 추천 파일이 없습니다: {path}  (!go 필수 산출)")
+        line = ""
+    n = len([t for t in line.split(",") if t.strip()]) if line else 0
+    print("=" * 64)
+    print(f"  [필수] ECG 추천 복사용 전체 문자열 — {n}종")
+    print("  (생략 없음 · 본선 sepaTop/soft/median+ 유지 · 참고 필터 레이어)")
+    print("=" * 64)
+    print(line if line else "(해당 없음)")
+    print("=" * 64 + "\n")
+    return n, line
+
+
 def _tool_sector_share(args: list, kwargs: dict) -> None:
     """On-demand sector share (+ optional forced week/month views)."""
     from sepa import sector_share
@@ -613,8 +632,10 @@ def _tool_go(args: list, kwargs: dict) -> None:
         print(f"\ngo mid-pack artifacts: {len(published)} files "
               f"({', '.join(p.name for p in published)})")
 
-    # 3) Sector + RS×Fund analysis
+    # 3) Sector + RS×Fund analysis (ECG recommend is required; never skip)
     banner(3, 3, "!sepa.anal()")
+    if kwargs.get("skip_ecg"):
+        print("[경고] !go 는 ECG 추천이 필수라 skip_ecg 를 무시합니다")
     anal_argv = ["--from-fundamental", str(fund_csv)]
     if kwargs.get("refresh"):
         anal_argv.append("--refresh-sectors")
@@ -627,12 +648,7 @@ def _tool_go(args: list, kwargs: dict) -> None:
     print(f"  fund   : {fund_csv}")
     print(f"  median+: {median_export}")
     ecg_rec = Path(f"reports/ecg_recommend_tickers_{stamp}.txt")
-    if not ecg_rec.exists():
-        found = _latest_report("ecg_recommend_tickers_*.txt")
-        if found is not None:
-            ecg_rec = found
-    if ecg_rec.exists():
-        print(f"  ecgRec : {ecg_rec}")
+    print(f"  ecgRec : {ecg_rec}")
     scatter = Path(f"reports/charts/analyze_scatter_{stamp}.png")
     sectors = Path(f"reports/charts/analyze_sectors_{stamp}.png")
     if not scatter.exists():
@@ -653,16 +669,7 @@ def _tool_go(args: list, kwargs: dict) -> None:
     print("=" * 64)
     print(median_line if median_line else "(해당 없음)")
     print("=" * 64 + "\n")
-    # B1: reprint ECG recommend copy line (full) when present
-    if ecg_rec.exists():
-        ecg_line = ecg_rec.read_text(encoding="utf-8").strip()
-        n_ecg = len([t for t in ecg_line.split(",") if t.strip()]) if ecg_line else 0
-        print("=" * 64)
-        print(f"  [ECG 추천 · B1] 복사용 전체 문자열 — {n_ecg}종 (생략 없음)")
-        print("  (본선 sepaTop/soft/median+ 유지 · 참고 필터 레이어)")
-        print("=" * 64)
-        print(ecg_line if ecg_line else "(해당 없음)")
-        print("=" * 64 + "\n")
+    print_go_ecg_required_copy(stamp)
     # B2: one-line ECG/CSS status (reads artifacts; no CSS recompute)
     try:
         from sepa.ecg_status import print_ecg_b2_summary
@@ -772,7 +779,7 @@ REGISTRY: list[MacroSpec] = [
     MacroSpec(
         "sepa.go",
         "!sepa.go()  |  !sepa.go(fill_gaps=1)  |  !go(1)",
-        "일일 파이프라인 — scan(full) → fund → anal(+sectorShare+sepaTop+ECG B1+perf). fill_gaps=1 또는 !go(1) 이면 어제까지 분석 CSV 구멍만 경량 채움",
+        "일일 파이프라인 — scan(full) → fund → anal(+sectorShare+sepaTop+ECG추천 필수+perf). fill_gaps=1 또는 !go(1) 이면 어제까지 분석 CSV 구멍만 경량 채움",
         _tool_go,
         aliases=("go",),
     ),

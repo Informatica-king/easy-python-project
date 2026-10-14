@@ -105,10 +105,11 @@ class FundamentalParams:
 
 @dataclass(frozen=True)
 class EcgParams:
-    """Live Early-Confirmed Growth recommend layer (D34 Phase B1–B3).
+    """Early-Confirmed Growth recommend layer — required on ``!sepa.go`` / ``!anal``.
 
     Does NOT replace sepaTop / soft ceiling / median+. Fund formula unchanged.
     Soft-ceiling drops never re-enter ECG recommend (docs/ecg_policy_priority.md).
+    ``live_enabled`` is kept for YAML compat; ``!go`` always runs the layer.
     """
 
     live_enabled: bool = True
