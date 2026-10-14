@@ -10,6 +10,7 @@ import pandas as pd
 from sepa.gap_fill import (
     SOURCE_REBUILD,
     date_to_stamp,
+    ensure_ecg_asof_layer,
     local_fundamental_stamps,
     parse_stamp,
     rebuild_panels,
@@ -96,6 +97,76 @@ def test_source_meta(tmp_path: Path):
     path = _write_source_meta(report, "20260810", SOURCE_REBUILD)
     text = path.read_text(encoding="utf-8")
     assert "asof_rebuild" in text
+
+
+def _synthetic_fund(n: int = 12) -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "ticker": [f"T{i:02d}" for i in range(n)],
+            "name": [f"n{i}" for i in range(n)],
+            "rs_rank": [80.0] * n,
+            "fund_score": [60.0] * n,
+            "s_surprise": [0.0] * n,
+            "b_raw": [10.0] * n,
+            "d_raw": [0.0] * n,
+            "eps_accel_n": [1] * n,
+            "sales_accel_n": [0] * n,
+            "close": [100.0] * n,
+            "market_cap": [2e9] * n,
+        }
+    )
+
+
+def test_ensure_ecg_asof_writes_recommend(tmp_path: Path):
+    report = tmp_path / "reports"
+    cache = tmp_path / "cache"
+    report.mkdir()
+    cache.mkdir()
+    stamp = "20261006"
+    _synthetic_fund().to_csv(report / f"fundamental_{stamp}.csv", index=False)
+    ok = ensure_ecg_asof_layer(
+        report_dir=report,
+        cache_dir=cache,
+        stamp=stamp,
+        as_of="2026-10-06",
+        force=False,
+        quiet=True,
+    )
+    assert ok
+    rec = report / f"ecg_recommend_{stamp}.csv"
+    txt = report / f"ecg_recommend_tickers_{stamp}.txt"
+    table = report / f"ecg_{stamp}.csv"
+    assert rec.exists() and txt.exists() and table.exists()
+    line = txt.read_text(encoding="utf-8").strip()
+    assert line
+    assert len(pd.read_csv(rec)) >= 10
+
+    # second call skips recompute when file exists
+    mtime = rec.stat().st_mtime
+    ok2 = ensure_ecg_asof_layer(
+        report_dir=report,
+        cache_dir=cache,
+        stamp=stamp,
+        as_of="2026-10-06",
+        force=False,
+        quiet=True,
+    )
+    assert ok2
+    assert rec.stat().st_mtime == mtime
+
+
+def test_ensure_ecg_asof_missing_fundamental(tmp_path: Path):
+    report = tmp_path / "reports"
+    cache = tmp_path / "cache"
+    report.mkdir()
+    cache.mkdir()
+    assert not ensure_ecg_asof_layer(
+        report_dir=report,
+        cache_dir=cache,
+        stamp="20261006",
+        as_of="2026-10-06",
+        quiet=True,
+    )
 
 
 def test_macro_aliases_and_parse_fill_gaps():

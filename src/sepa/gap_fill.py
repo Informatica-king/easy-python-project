@@ -55,6 +55,9 @@ _ROOT_PATTERNS = (
     "diagnostics_summary_{stamp}.csv",
     "params_{stamp}.yaml",
     "params_meta_{stamp}.csv",
+    "ecg_{stamp}.csv",
+    "ecg_recommend_{stamp}.csv",
+    "ecg_recommend_tickers_{stamp}.txt",
 )
 _SEPATOP_PATTERNS = (
     "membership_{stamp}.csv",
@@ -73,6 +76,7 @@ class GapFillResult:
     skipped_local: list[str] = field(default_factory=list)
     skipped_weekend: list[str] = field(default_factory=list)
     failed: list[str] = field(default_factory=list)
+    ecg_filled: list[str] = field(default_factory=list)
     dry_run_gaps: list[str] = field(default_factory=list)
     truncated: bool = False
     max_days: int = DEFAULT_MAX_DAYS
@@ -221,6 +225,76 @@ def restore_stamp_from_release(
         _write_source_meta(report_dir, stamp, SOURCE_RESTORED)
         logger.info("restored stamp %s (%d files)", stamp, moved)
         return True
+
+
+def ensure_ecg_asof_layer(
+    *,
+    report_dir: str | Path,
+    cache_dir: str | Path,
+    stamp: str,
+    as_of: str,
+    config: str = "config/params.yaml",
+    force: bool = False,
+    quiet: bool = True,
+) -> bool:
+    """Write ECG table + recommend CSVs for one as-of stamp (gap-fill / rebuild).
+
+    Skips if ``ecg_recommend_{stamp}.csv`` already exists unless ``force``.
+    """
+    from sepa.ecg import run_ecg_live_layer
+
+    report_dir = Path(report_dir)
+    rec_csv = report_dir / f"ecg_recommend_{stamp}.csv"
+    if rec_csv.exists() and not force:
+        return True
+    fund_path = report_dir / f"fundamental_{stamp}.csv"
+    if not fund_path.exists():
+        logger.warning("ECG as-of skip %s: fundamental missing", stamp)
+        return False
+    params = load_params(config)
+    ecg_cfg = getattr(params, "ecg", None)
+    try:
+        run_ecg_live_layer(
+            fund_path=fund_path,
+            cache_dir=cache_dir,
+            report_dir=report_dir,
+            as_of=as_of,
+            lookback_years=int(params.data.lookback_years),
+            enrich_prices=bool(getattr(ecg_cfg, "enrich_prices", True)) if ecg_cfg else True,
+            top_frac=float(getattr(ecg_cfg, "top_frac", 0.25)) if ecg_cfg else 0.25,
+            top_min=int(getattr(ecg_cfg, "top_min", 10)) if ecg_cfg else 10,
+            top_max=int(getattr(ecg_cfg, "top_max", 30)) if ecg_cfg else 30,
+            quiet=quiet,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("ECG as-of layer failed %s: %s", stamp, exc)
+        return False
+    return rec_csv.exists()
+
+
+def _upsert_perf_stamp(
+    report_dir: Path,
+    cache_dir: Path,
+    stamp: str,
+) -> None:
+    fund_path = report_dir / f"fundamental_{stamp}.csv"
+    if not fund_path.exists():
+        return
+    fund_df = pd.read_csv(fund_path)
+    soft_path = report_dir / f"rs_soft_drops_{stamp}.csv"
+    soft = pd.read_csv(soft_path) if soft_path.exists() else None
+    stage2 = report_dir / f"stage2_{stamp}.csv"
+    n_stage2 = len(pd.read_csv(stage2)) if stage2.exists() else None
+    update_perf_ledger(
+        report_dir=report_dir,
+        cache_dir=cache_dir,
+        stamp=stamp,
+        fund_df=fund_df,
+        soft_drops=soft,
+        n_stage2=n_stage2,
+        publish=False,
+        backfill_all_history=True,
+    )
 
 
 def save_light_membership(
@@ -384,6 +458,15 @@ def rebuild_day_asof(
         as_of=as_of_iso,
     )
     n_stage2 = len(pd.read_csv(stage2))
+    ensure_ecg_asof_layer(
+        report_dir=report_dir,
+        cache_dir=cache_dir,
+        stamp=stamp,
+        as_of=as_of_iso,
+        config=config,
+        force=True,
+        quiet=True,
+    )
     update_perf_ledger(
         report_dir=report_dir,
         cache_dir=cache_dir,
@@ -460,6 +543,21 @@ def fill_gaps(
         result.dry_run_gaps = [date_to_stamp(d) for d in gaps]
         return result
 
+    for stamp in result.skipped_local:
+        rec = report_dir / f"ecg_recommend_{stamp}.csv"
+        had = rec.exists()
+        if ensure_ecg_asof_layer(
+            report_dir=report_dir,
+            cache_dir=cache_dir,
+            stamp=stamp,
+            as_of=stamp_to_as_of(stamp),
+            config=config,
+            force=False,
+            quiet=True,
+        ) and (not had):
+            result.ecg_filled.append(stamp)
+            _upsert_perf_stamp(report_dir, cache_dir, stamp)
+
     for d in gaps:
         stamp = date_to_stamp(d)
         as_of = d.isoformat()
@@ -473,6 +571,19 @@ def fill_gaps(
                 force=force,
             )
             if ok:
+                rec = report_dir / f"ecg_recommend_{stamp}.csv"
+                had = rec.exists()
+                if ensure_ecg_asof_layer(
+                    report_dir=report_dir,
+                    cache_dir=cache_dir,
+                    stamp=stamp,
+                    as_of=as_of,
+                    config=config,
+                    force=False,
+                    quiet=True,
+                ) and (not had):
+                    result.ecg_filled.append(stamp)
+                    _upsert_perf_stamp(report_dir, cache_dir, stamp)
                 result.restored.append(stamp)
                 local.add(stamp)
                 continue
@@ -493,7 +604,7 @@ def fill_gaps(
                 continue
         result.failed.append(stamp)
 
-    if result.restored or result.rebuilt:
+    if result.restored or result.rebuilt or result.ecg_filled:
         rebuild_panels(report_dir, cache_dir)
 
     return result
@@ -508,6 +619,8 @@ def print_gap_fill_summary(result: GapFillResult) -> None:
     print(f"  restored : {len(result.restored)}  {', '.join(result.restored) or '-'}")
     print(f"  rebuilt  : {len(result.rebuilt)}  {', '.join(result.rebuilt) or '-'}")
     print(f"  skip local: {len(result.skipped_local)}")
+    if result.ecg_filled:
+        print(f"  ecg filled: {len(result.ecg_filled)}  {', '.join(result.ecg_filled)}")
     print(f"  skip weekend: {len(result.skipped_weekend)}")
     if result.failed:
         print(f"  failed  : {', '.join(result.failed)}")
