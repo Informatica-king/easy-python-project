@@ -17,6 +17,7 @@ def test_subject_aliases():
     assert is_subject_share_name("ECPG", "Encore (ECPG)")
     assert is_subject_share_name("TXG", "10x Genomics")
     assert is_subject_share_name("RDVT", "Red Violet (RDVT)")
+    assert is_subject_share_name("VRNS", "Varonis (VRNS)")
     assert not is_subject_share_name("AMRX", "Teva")
 
 
@@ -32,6 +33,7 @@ def test_rising_tickers_get_bonus():
         ("RELY", 0.4),
         ("ENTG", 1.5),
         ("RDVT", 1.5),
+        ("VRNS", 1.5),
     ]:
         a = assess_share_gain(t)
         assert abs(a.delta_pp - expected_delta) < 1e-9

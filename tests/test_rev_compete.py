@@ -109,6 +109,17 @@ def test_rdvt_profile_exists():
     assert abs(p["share_rows"][0][1] - p["share_rows"][0][2] - 1.5) < 1e-9
 
 
+def test_vrns_profile_exists():
+    p = get_profile("VRNS")
+    assert p is not None
+    assert any(r.get("subject") for r in p["mix_rows"])
+    assert p["share_rows"][1][0] == "Varonis (VRNS)"
+    assert "SaaS/Subscription" in p["mix_buckets"]
+    assert abs(p["mix_rows"][0]["mix"]["SaaS/Subscription"] - 94.0) < 0.1
+    assert abs(p["mix_rows"][0]["mix"]["Services"] - 4.0) < 0.1
+    assert abs(p["share_rows"][1][1] - p["share_rows"][1][2] - 1.5) < 1e-9
+
+
 def test_load_bundle_offline_share(monkeypatch):
     monkeypatch.setattr("sepa.rev_compete._ttm_revenue", lambda _t: None)
     b = load_compete_bundle("RELY")
@@ -155,3 +166,8 @@ def test_load_bundle_offline_share(monkeypatch):
     assert b9 is not None
     assert b9.share_rows[0].name == "Red Violet (RDVT)"
     assert abs(b9.share_rows[0].delta_pp - 1.5) < 1e-9
+
+    b10 = load_compete_bundle("VRNS")
+    assert b10 is not None
+    assert b10.share_rows[1].name == "Varonis (VRNS)"
+    assert abs(b10.share_rows[1].delta_pp - 1.5) < 1e-9
