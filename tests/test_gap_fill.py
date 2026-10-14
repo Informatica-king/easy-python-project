@@ -11,7 +11,9 @@ from sepa.gap_fill import (
     SOURCE_REBUILD,
     date_to_stamp,
     ensure_ecg_asof_layer,
+    is_us_equity_holiday,
     local_fundamental_stamps,
+    nyse_full_close_dates,
     parse_stamp,
     rebuild_panels,
     save_light_membership,
@@ -27,6 +29,40 @@ def test_trading_days_skips_weekend():
         "20260807",
         "20260810",
         "20260811",
+    ]
+
+
+def test_nyse_holidays_2026_match_nasdaq_calendar():
+    expected = {
+        date(2026, 1, 1),
+        date(2026, 1, 19),
+        date(2026, 2, 16),
+        date(2026, 4, 3),
+        date(2026, 5, 25),
+        date(2026, 6, 19),
+        date(2026, 7, 3),
+        date(2026, 9, 7),
+        date(2026, 11, 26),
+        date(2026, 12, 25),
+    }
+    assert nyse_full_close_dates(2026) == expected
+    assert not is_us_equity_holiday(date(2026, 10, 12))
+    assert not is_us_equity_holiday(date(2026, 11, 11))
+
+
+def test_trading_days_skips_labor_day_keeps_columbus_day():
+    labor_week = trading_days(date(2026, 9, 4), date(2026, 9, 8))
+    assert [date_to_stamp(d) for d in labor_week] == ["20260904", "20260908"]
+    oct_window = trading_days(date(2026, 10, 5), date(2026, 10, 14))
+    assert [date_to_stamp(d) for d in oct_window] == [
+        "20261005",
+        "20261006",
+        "20261007",
+        "20261008",
+        "20261009",
+        "20261012",
+        "20261013",
+        "20261014",
     ]
 
 

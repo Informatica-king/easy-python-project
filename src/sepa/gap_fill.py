@@ -75,6 +75,7 @@ class GapFillResult:
     rebuilt: list[str] = field(default_factory=list)
     skipped_local: list[str] = field(default_factory=list)
     skipped_weekend: list[str] = field(default_factory=list)
+    skipped_holiday: list[str] = field(default_factory=list)
     failed: list[str] = field(default_factory=list)
     ecg_filled: list[str] = field(default_factory=list)
     dry_run_gaps: list[str] = field(default_factory=list)
@@ -97,14 +98,85 @@ def stamp_to_as_of(stamp: str) -> str:
     return _stamp_as_of(str(stamp).replace("-", ""))
 
 
+def _nth_weekday(year: int, month: int, weekday: int, n: int) -> date:
+    """weekday: Mon=0 … Sun=6. n>0 from start of month; n<0 from end."""
+    if n > 0:
+        d = date(year, month, 1)
+        offset = (weekday - d.weekday()) % 7
+        return d + timedelta(days=offset + 7 * (n - 1))
+    if month == 12:
+        d = date(year, 12, 31)
+    else:
+        d = date(year, month + 1, 1) - timedelta(days=1)
+    offset = (d.weekday() - weekday) % 7
+    return d - timedelta(days=offset)
+
+
+def _observed_weekday(d: date) -> date:
+    """NYSE weekend observation: Saturday → Friday, Sunday → Monday."""
+    if d.weekday() == 5:
+        return d - timedelta(days=1)
+    if d.weekday() == 6:
+        return d + timedelta(days=1)
+    return d
+
+
+def _easter_sunday(year: int) -> date:
+    """Anonymous Gregorian algorithm (Western Easter)."""
+    a = year % 19
+    b = year // 100
+    c = year % 100
+    d = b // 4
+    e = b % 4
+    f = (b + 8) // 25
+    g = (b - f + 1) // 3
+    h = (19 * a + b - d - g + 15) % 30
+    i = c // 4
+    k = c % 4
+    l = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * l) // 451
+    month = (h + l - 7 * m + 114) // 31
+    day = ((h + l - 7 * m + 114) % 31) + 1
+    return date(year, month, day)
+
+
+def nyse_full_close_dates(year: int) -> set[date]:
+    """Full-close dates for NYSE/Nasdaq (not bond/federal-only holidays).
+
+    Columbus Day and Veterans Day are **not** included — equities trade.
+    Early-close sessions (day after Thanksgiving, Christmas Eve) stay in
+    the trading calendar.
+    """
+    out = {
+        _observed_weekday(date(year, 1, 1)),
+        _nth_weekday(year, 1, 0, 3),
+        _nth_weekday(year, 2, 0, 3),
+        _easter_sunday(year) - timedelta(days=2),
+        _nth_weekday(year, 5, 0, -1),
+        _observed_weekday(date(year, 6, 19)),
+        _observed_weekday(date(year, 7, 4)),
+        _nth_weekday(year, 9, 0, 1),
+        _nth_weekday(year, 11, 3, 4),
+        _observed_weekday(date(year, 12, 25)),
+    }
+    ny_next = _observed_weekday(date(year + 1, 1, 1))
+    if ny_next.year == year:
+        out.add(ny_next)
+    return out
+
+
+def is_us_equity_holiday(d: date) -> bool:
+    return d in nyse_full_close_dates(d.year) or d in nyse_full_close_dates(d.year - 1)
+
+
 def trading_days(start: date, end: date) -> list[date]:
-    """Weekdays only (v1 — no US holiday calendar)."""
+    """NYSE/Nasdaq sessions: weekdays minus full-close holidays."""
     if end < start:
         return []
     out: list[date] = []
     cur = start
     while cur <= end:
-        if cur.weekday() < 5:
+        if cur.weekday() < 5 and not is_us_equity_holiday(cur):
             out.append(cur)
         cur += timedelta(days=1)
     return out
@@ -524,6 +596,8 @@ def fill_gaps(
     while cur <= end_d:
         if cur.weekday() >= 5:
             result.skipped_weekend.append(date_to_stamp(cur))
+        elif is_us_equity_holiday(cur):
+            result.skipped_holiday.append(date_to_stamp(cur))
         cur += timedelta(days=1)
 
     release_stamps = list_anal_release_stamps(repo=repo) if restore else set()
@@ -622,6 +696,8 @@ def print_gap_fill_summary(result: GapFillResult) -> None:
     if result.ecg_filled:
         print(f"  ecg filled: {len(result.ecg_filled)}  {', '.join(result.ecg_filled)}")
     print(f"  skip weekend: {len(result.skipped_weekend)}")
+    if result.skipped_holiday:
+        print(f"  skip holiday: {len(result.skipped_holiday)}  {', '.join(result.skipped_holiday)}")
     if result.failed:
         print(f"  failed  : {', '.join(result.failed)}")
     if result.truncated:

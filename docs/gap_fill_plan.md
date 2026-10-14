@@ -103,6 +103,7 @@ PDF/ZIP은 받지 않음.
 | 가드 | 기본 |
 |---|---|
 | 주말 스킵 | ON |
+| NYSE/Nasdaq 전일 휴장 스킵 | ON (Columbus Day·Veterans Day는 주식 개장이라 채움) |
 | 이미 로컬에 `fundamental_*` 있으면 스킵 | ON |
 | 한 번 실행 max 일수 | 10 (초과 시 경고 후 자름) |
 | `--dry-run` | 구멍만 보여주고 계산 안 함 |

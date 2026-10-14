@@ -308,6 +308,7 @@ sepa-bot/
 | 2026-10-08 | D34-B4 ECG perf 바스켓 | `ecg_recommend`/`ecg_confirmed`를 `reports/perf/`에 go마다 축적. 본선 덮어쓰기 없음. `!검증` 온디맨드 |
 | 2026-10-14 | D34 ECG go 필수 | `!go`/`!anal`은 ECG 추천을 항상 계산·한 줄 출력. `--skip-ecg`는 테스트 전용. 본선 유지 |
 | 2026-10-14 | D34 gap fill ECG | `!sepa.fill_gaps` as-of/복원 경로에 ECG 추천 CSV 기록. 로컬 fund만 있는 날도 구멍 채움 |
+| 2026-10-14 | D34 gap fill 휴장 | NYSE/Nasdaq 전일 휴장만 스킵. Columbus Day(2026-10-12)는 개장이라 채움 |
 
 ## 6. 진행 현황
 
