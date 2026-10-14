@@ -26,6 +26,8 @@ import pandas as pd
 from sepa.config import load_params
 from sepa.fonts import KoreanFontError, savefig_korean, setup_korean_matplotlib
 from sepa.perf_ledger import (
+    BASKET_ECG_RECOMMEND,
+    BASKET_FUND_POOL,
     BASKET_MEDIAN_PLUS,
     BASKET_RS90_OK,
     BASKET_SOFT_DROP,
@@ -345,6 +347,77 @@ def study_soft_vs_rs90(fwd: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values("horizon").reset_index(drop=True)
 
 
+def study_ecg_vs_sepatop(fwd: pd.DataFrame) -> pd.DataFrame:
+    """Compare ECG recommend vs sepaTop (fund_pool) and median+ by horizon.
+
+    Comparison layer only — does not change the sepaTop / median+ mainline.
+    """
+    if fwd.empty or "basket" not in fwd.columns:
+        return pd.DataFrame()
+    names = {
+        "ecg": BASKET_ECG_RECOMMEND,
+        "pool": BASKET_FUND_POOL,
+        "median": BASKET_MEDIAN_PLUS,
+    }
+    rows = []
+    for lab, _ in EVENT_FWD_HORIZONS:
+        ready_col, exc_col = f"ready_{lab}", f"excess_{lab}"
+        if ready_col not in fwd.columns or exc_col not in fwd.columns:
+            continue
+        sides: dict[str, dict] = {}
+        for key, basket in names.items():
+            g = fwd.loc[
+                (fwd["basket"].astype(str) == basket) & _as_bool_series(fwd[ready_col])
+            ]
+            n = len(g)
+            sides[key] = {
+                "n_ready": n,
+                "n_stamps": int(g["stamp"].nunique()) if n and "stamp" in g.columns else 0,
+                "mean_excess": float(g[exc_col].mean()) if n else np.nan,
+                "median_excess": float(g[exc_col].median()) if n else np.nan,
+                "win_rate": float((g[exc_col] > 0).mean()) if n else np.nan,
+            }
+        ecg, pool, med = sides["ecg"], sides["pool"], sides["median"]
+        min_n = min(ecg["n_ready"], pool["n_ready"]) if ecg["n_ready"] and pool["n_ready"] else 0
+        min_stamps = (
+            min(ecg["n_stamps"], pool["n_stamps"]) if ecg["n_stamps"] and pool["n_stamps"] else 0
+        )
+        d_pool = (
+            float(ecg["mean_excess"] - pool["mean_excess"])
+            if ecg["n_ready"] and pool["n_ready"]
+            else float("nan")
+        )
+        d_med = (
+            float(ecg["mean_excess"] - med["mean_excess"])
+            if ecg["n_ready"] and med["n_ready"]
+            else float("nan")
+        )
+
+        rows.append(
+            {
+                "horizon": lab,
+                "n_ecg_recommend": ecg["n_ready"],
+                "n_fund_pool": pool["n_ready"],
+                "n_median_plus": med["n_ready"],
+                "n_stamps_ecg": ecg["n_stamps"],
+                "n_stamps_pool": pool["n_stamps"],
+                "n_stamps_median": med["n_stamps"],
+                "mean_ecg_recommend": ecg["mean_excess"],
+                "mean_fund_pool": pool["mean_excess"],
+                "mean_median_plus": med["mean_excess"],
+                "delta_ecg_minus_pool": d_pool,
+                "delta_ecg_minus_median": d_med,
+                "win_ecg_recommend": ecg["win_rate"],
+                "win_fund_pool": pool["win_rate"],
+                "win_median_plus": med["win_rate"],
+                "sample_gate": sample_gate(n_ready=min_n, n_stamps=min_stamps, kind="soft_vs"),
+            }
+        )
+    if not rows:
+        return pd.DataFrame()
+    return pd.DataFrame(rows).sort_values("horizon").reset_index(drop=True)
+
+
 # ── Charts ────────────────────────────────────────────────────────
 
 
@@ -455,7 +528,10 @@ def write_study_md(
     streak_buckets: pd.DataFrame,
     soft_cmp: pd.DataFrame,
     pool_log: pd.DataFrame,
+    ecg_cmp: pd.DataFrame | None = None,
 ) -> Path:
+    if ecg_cmp is None:
+        ecg_cmp = pd.DataFrame()
     lines = [
         f"# SEPA performance study — {stamp}",
         "",
@@ -558,6 +634,34 @@ def write_study_md(
                 f"{_pct(r.delta_soft_minus_rs90)} | {r.sample_gate} |"
             )
 
+    lines += ["", "## ECG recommend vs sepaTop (비교 레이어 · 본선 아님)", ""]
+    lines.append(
+        "> sepaTop = `fund_pool`. Δ = mean(ECG 추천) − mean(sepaTop). "
+        "양수면 ECG 쪽이 평균 초과가 높음. 본선(sepaTop/median+)을 바꾸지 않는다."
+    )
+    lines.append("")
+    if ecg_cmp.empty:
+        lines.append("_ecg_recommend / fund_pool ready 표본 없음_")
+    else:
+        best_gate = GATE_INSUFFICIENT
+        if (ecg_cmp["sample_gate"] == GATE_INTERPRET).any():
+            best_gate = GATE_INTERPRET
+        elif (ecg_cmp["sample_gate"] == GATE_MONITOR).any():
+            best_gate = GATE_MONITOR
+        lines.append(f"- section gate (best min-n row): {gate_badge(best_gate)}")
+        lines += [
+            "",
+            "| horizon | n_ecg | n_pool | n_median+ | mean ECG | mean sepaTop | Δ ECG−sepaTop | gate |",
+            "|---|---:|---:|---:|---:|---:|---:|---|",
+        ]
+        for r in ecg_cmp.itertuples():
+            lines.append(
+                f"| {r.horizon} | {int(r.n_ecg_recommend)} | {int(r.n_fund_pool)} | "
+                f"{int(r.n_median_plus)} | {_pct(r.mean_ecg_recommend)} | "
+                f"{_pct(r.mean_fund_pool)} | {_pct(r.delta_ecg_minus_pool)} | "
+                f"{r.sample_gate} |"
+            )
+
     lines += ["", "## Pool size trail (recent)", ""]
     if pool_log.empty:
         lines.append("_daily_pool_log 없음_")
@@ -632,6 +736,7 @@ def run_perf_study(
     streak = streak_excess_frame(presence, fwd)
     streak_buckets = study_streak_buckets(streak, horizon="21d")
     soft_cmp = study_soft_vs_rs90(fwd)
+    ecg_cmp = study_ecg_vs_sepatop(fwd)
 
     # Fund-bucket 1y path — interpretation layer for verify PDF (not a verdict)
     fund_trend_combined = pd.DataFrame()
@@ -702,6 +807,7 @@ def run_perf_study(
             fund_trend_combined=fund_trend_combined,
             fund_trend_counts=fund_trend_counts,
             fund_trend_context=fund_trend_context,
+            ecg_cmp=ecg_cmp,
         )
     except KoreanFontError as exc:
         pdf_path = None  # type: ignore[assignment]
@@ -724,6 +830,17 @@ def run_perf_study(
         print(f"ECG/CSS: {ecg_line}")
     except Exception as exc:  # noqa: BLE001
         logger.warning("ECG/CSS B2 line failed: %s", exc)
+    if not ecg_cmp.empty:
+        row5 = ecg_cmp.loc[ecg_cmp["horizon"].astype(str) == "5d"]
+        if not row5.empty:
+            r = row5.iloc[0]
+            print(
+                "ECG vs sepaTop 5d: "
+                f"ECG {_pct(r.mean_ecg_recommend)}  sepaTop {_pct(r.mean_fund_pool)}  "
+                f"Δ {_pct(r.delta_ecg_minus_pool)}  "
+                f"n={int(r.n_ecg_recommend)}/{int(r.n_fund_pool)}  "
+                f"[{gate_ko(str(r.sample_gate))}]  (본선 아님)"
+            )
     if fund_trend_context.get("ok") and fund_trend_context.get("tip"):
         print(fund_trend_context["tip"])
     if pdf_path is not None and pdf_path.exists():
@@ -748,6 +865,7 @@ def run_perf_study(
         "event_agg": event_agg,
         "streak_buckets": streak_buckets,
         "soft_cmp": soft_cmp,
+        "ecg_cmp": ecg_cmp,
         "n_pool_days": n_pool_days,
     }
 

@@ -39,6 +39,7 @@
 | `fund_median_tickers_YYYYMMDD.txt` | median+ 목록 |
 | `sepatop/membership_YYYYMMDD.csv` | 편입 집합·presence 연속 |
 | `reports/perf/` upsert | daily_pool / basket_members / forward 백필 |
+| `ecg_*.csv` / `ecg_recommend_*` | ECG 추천 vs sepaTop 비교용 (D34 · as-of live layer) |
 | (선택) params hash 1줄 | 레짐 구분 |
 
 **복원(①)일 때:** 릴리즈에 위 CSV가 있으면 **다운로드만** (계산 0).
@@ -82,7 +83,8 @@ PDF/ZIP은 받지 않음.
 → scan(full, as_of=D, no_update)
 → fund(from stage2, as_of=D, no_update)  # soft ceiling·median+ 포함
 → membership CSV만 저장 (차트 없음)
-→ perf_ledger upsert + forward 백필
+→ ECG as-of 추천 레이어 (`ecg_*` / `ecg_recommend_*`, quiet)
+→ perf_ledger upsert + forward 백필 (ECG 바스켓 포함)
 → source=asof_rebuild 표시
 ```
 
@@ -101,6 +103,7 @@ PDF/ZIP은 받지 않음.
 | 가드 | 기본 |
 |---|---|
 | 주말 스킵 | ON |
+| NYSE/Nasdaq 전일 휴장 스킵 | ON (Columbus Day·Veterans Day는 주식 개장이라 채움) |
 | 이미 로컬에 `fundamental_*` 있으면 스킵 | ON |
 | 한 번 실행 max 일수 | 10 (초과 시 경고 후 자름) |
 | `--dry-run` | 구멍만 보여주고 계산 안 함 |

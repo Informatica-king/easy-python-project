@@ -447,7 +447,8 @@ def print_ecg_recommend_copy_list(
     if out_path is not None:
         Path(out_path).parent.mkdir(parents=True, exist_ok=True)
         Path(out_path).write_text(line + ("\n" if line else ""), encoding="utf-8")
-        print(f"export: {out_path}")
+        if banner:
+            print(f"export: {out_path}")
     return tickers, line
 
 
@@ -463,6 +464,7 @@ def run_ecg_live_layer(
     top_min: int = 10,
     top_max: int = 30,
     top_print: int = 25,
+    quiet: bool = False,
 ) -> dict:
     """Compute full ECG table + recommend subset; write CSV/TXT; print summaries."""
     table, ecg_csv = run_ecg(
@@ -494,13 +496,17 @@ def run_ecg_live_layer(
             rec_csv, index=False
         )
 
-    print("\n" + "=" * 64)
-    print("  ECG 라이브 추천 레이어 (Phase B1)")
-    print("=" * 64)
-    print_ecg_summary(table, top_n=top_print)
-    tickers, line = print_ecg_recommend_copy_list(recommend, out_path=rec_txt, banner=True)
-    print(f"ecg table: {ecg_csv}")
-    print(f"ecg recommend csv: {rec_csv}")
+    if not quiet:
+        print("\n" + "=" * 64)
+        print("  ECG 라이브 추천 레이어 (Phase B1)")
+        print("=" * 64)
+        print_ecg_summary(table, top_n=top_print)
+    tickers, line = print_ecg_recommend_copy_list(
+        recommend, out_path=rec_txt, banner=not quiet
+    )
+    if not quiet:
+        print(f"ecg table: {ecg_csv}")
+        print(f"ecg recommend csv: {rec_csv}")
     return {
         "table": table,
         "recommend": recommend,

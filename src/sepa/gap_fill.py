@@ -55,6 +55,9 @@ _ROOT_PATTERNS = (
     "diagnostics_summary_{stamp}.csv",
     "params_{stamp}.yaml",
     "params_meta_{stamp}.csv",
+    "ecg_{stamp}.csv",
+    "ecg_recommend_{stamp}.csv",
+    "ecg_recommend_tickers_{stamp}.txt",
 )
 _SEPATOP_PATTERNS = (
     "membership_{stamp}.csv",
@@ -72,7 +75,9 @@ class GapFillResult:
     rebuilt: list[str] = field(default_factory=list)
     skipped_local: list[str] = field(default_factory=list)
     skipped_weekend: list[str] = field(default_factory=list)
+    skipped_holiday: list[str] = field(default_factory=list)
     failed: list[str] = field(default_factory=list)
+    ecg_filled: list[str] = field(default_factory=list)
     dry_run_gaps: list[str] = field(default_factory=list)
     truncated: bool = False
     max_days: int = DEFAULT_MAX_DAYS
@@ -93,14 +98,85 @@ def stamp_to_as_of(stamp: str) -> str:
     return _stamp_as_of(str(stamp).replace("-", ""))
 
 
+def _nth_weekday(year: int, month: int, weekday: int, n: int) -> date:
+    """weekday: Mon=0 … Sun=6. n>0 from start of month; n<0 from end."""
+    if n > 0:
+        d = date(year, month, 1)
+        offset = (weekday - d.weekday()) % 7
+        return d + timedelta(days=offset + 7 * (n - 1))
+    if month == 12:
+        d = date(year, 12, 31)
+    else:
+        d = date(year, month + 1, 1) - timedelta(days=1)
+    offset = (d.weekday() - weekday) % 7
+    return d - timedelta(days=offset)
+
+
+def _observed_weekday(d: date) -> date:
+    """NYSE weekend observation: Saturday → Friday, Sunday → Monday."""
+    if d.weekday() == 5:
+        return d - timedelta(days=1)
+    if d.weekday() == 6:
+        return d + timedelta(days=1)
+    return d
+
+
+def _easter_sunday(year: int) -> date:
+    """Anonymous Gregorian algorithm (Western Easter)."""
+    a = year % 19
+    b = year // 100
+    c = year % 100
+    d = b // 4
+    e = b % 4
+    f = (b + 8) // 25
+    g = (b - f + 1) // 3
+    h = (19 * a + b - d - g + 15) % 30
+    i = c // 4
+    k = c % 4
+    l = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * l) // 451
+    month = (h + l - 7 * m + 114) // 31
+    day = ((h + l - 7 * m + 114) % 31) + 1
+    return date(year, month, day)
+
+
+def nyse_full_close_dates(year: int) -> set[date]:
+    """Full-close dates for NYSE/Nasdaq (not bond/federal-only holidays).
+
+    Columbus Day and Veterans Day are **not** included — equities trade.
+    Early-close sessions (day after Thanksgiving, Christmas Eve) stay in
+    the trading calendar.
+    """
+    out = {
+        _observed_weekday(date(year, 1, 1)),
+        _nth_weekday(year, 1, 0, 3),
+        _nth_weekday(year, 2, 0, 3),
+        _easter_sunday(year) - timedelta(days=2),
+        _nth_weekday(year, 5, 0, -1),
+        _observed_weekday(date(year, 6, 19)),
+        _observed_weekday(date(year, 7, 4)),
+        _nth_weekday(year, 9, 0, 1),
+        _nth_weekday(year, 11, 3, 4),
+        _observed_weekday(date(year, 12, 25)),
+    }
+    ny_next = _observed_weekday(date(year + 1, 1, 1))
+    if ny_next.year == year:
+        out.add(ny_next)
+    return out
+
+
+def is_us_equity_holiday(d: date) -> bool:
+    return d in nyse_full_close_dates(d.year) or d in nyse_full_close_dates(d.year - 1)
+
+
 def trading_days(start: date, end: date) -> list[date]:
-    """Weekdays only (v1 — no US holiday calendar)."""
+    """NYSE/Nasdaq sessions: weekdays minus full-close holidays."""
     if end < start:
         return []
     out: list[date] = []
     cur = start
     while cur <= end:
-        if cur.weekday() < 5:
+        if cur.weekday() < 5 and not is_us_equity_holiday(cur):
             out.append(cur)
         cur += timedelta(days=1)
     return out
@@ -221,6 +297,76 @@ def restore_stamp_from_release(
         _write_source_meta(report_dir, stamp, SOURCE_RESTORED)
         logger.info("restored stamp %s (%d files)", stamp, moved)
         return True
+
+
+def ensure_ecg_asof_layer(
+    *,
+    report_dir: str | Path,
+    cache_dir: str | Path,
+    stamp: str,
+    as_of: str,
+    config: str = "config/params.yaml",
+    force: bool = False,
+    quiet: bool = True,
+) -> bool:
+    """Write ECG table + recommend CSVs for one as-of stamp (gap-fill / rebuild).
+
+    Skips if ``ecg_recommend_{stamp}.csv`` already exists unless ``force``.
+    """
+    from sepa.ecg import run_ecg_live_layer
+
+    report_dir = Path(report_dir)
+    rec_csv = report_dir / f"ecg_recommend_{stamp}.csv"
+    if rec_csv.exists() and not force:
+        return True
+    fund_path = report_dir / f"fundamental_{stamp}.csv"
+    if not fund_path.exists():
+        logger.warning("ECG as-of skip %s: fundamental missing", stamp)
+        return False
+    params = load_params(config)
+    ecg_cfg = getattr(params, "ecg", None)
+    try:
+        run_ecg_live_layer(
+            fund_path=fund_path,
+            cache_dir=cache_dir,
+            report_dir=report_dir,
+            as_of=as_of,
+            lookback_years=int(params.data.lookback_years),
+            enrich_prices=bool(getattr(ecg_cfg, "enrich_prices", True)) if ecg_cfg else True,
+            top_frac=float(getattr(ecg_cfg, "top_frac", 0.25)) if ecg_cfg else 0.25,
+            top_min=int(getattr(ecg_cfg, "top_min", 10)) if ecg_cfg else 10,
+            top_max=int(getattr(ecg_cfg, "top_max", 30)) if ecg_cfg else 30,
+            quiet=quiet,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("ECG as-of layer failed %s: %s", stamp, exc)
+        return False
+    return rec_csv.exists()
+
+
+def _upsert_perf_stamp(
+    report_dir: Path,
+    cache_dir: Path,
+    stamp: str,
+) -> None:
+    fund_path = report_dir / f"fundamental_{stamp}.csv"
+    if not fund_path.exists():
+        return
+    fund_df = pd.read_csv(fund_path)
+    soft_path = report_dir / f"rs_soft_drops_{stamp}.csv"
+    soft = pd.read_csv(soft_path) if soft_path.exists() else None
+    stage2 = report_dir / f"stage2_{stamp}.csv"
+    n_stage2 = len(pd.read_csv(stage2)) if stage2.exists() else None
+    update_perf_ledger(
+        report_dir=report_dir,
+        cache_dir=cache_dir,
+        stamp=stamp,
+        fund_df=fund_df,
+        soft_drops=soft,
+        n_stage2=n_stage2,
+        publish=False,
+        backfill_all_history=True,
+    )
 
 
 def save_light_membership(
@@ -384,6 +530,15 @@ def rebuild_day_asof(
         as_of=as_of_iso,
     )
     n_stage2 = len(pd.read_csv(stage2))
+    ensure_ecg_asof_layer(
+        report_dir=report_dir,
+        cache_dir=cache_dir,
+        stamp=stamp,
+        as_of=as_of_iso,
+        config=config,
+        force=True,
+        quiet=True,
+    )
     update_perf_ledger(
         report_dir=report_dir,
         cache_dir=cache_dir,
@@ -441,6 +596,8 @@ def fill_gaps(
     while cur <= end_d:
         if cur.weekday() >= 5:
             result.skipped_weekend.append(date_to_stamp(cur))
+        elif is_us_equity_holiday(cur):
+            result.skipped_holiday.append(date_to_stamp(cur))
         cur += timedelta(days=1)
 
     release_stamps = list_anal_release_stamps(repo=repo) if restore else set()
@@ -460,6 +617,21 @@ def fill_gaps(
         result.dry_run_gaps = [date_to_stamp(d) for d in gaps]
         return result
 
+    for stamp in result.skipped_local:
+        rec = report_dir / f"ecg_recommend_{stamp}.csv"
+        had = rec.exists()
+        if ensure_ecg_asof_layer(
+            report_dir=report_dir,
+            cache_dir=cache_dir,
+            stamp=stamp,
+            as_of=stamp_to_as_of(stamp),
+            config=config,
+            force=False,
+            quiet=True,
+        ) and (not had):
+            result.ecg_filled.append(stamp)
+            _upsert_perf_stamp(report_dir, cache_dir, stamp)
+
     for d in gaps:
         stamp = date_to_stamp(d)
         as_of = d.isoformat()
@@ -473,6 +645,19 @@ def fill_gaps(
                 force=force,
             )
             if ok:
+                rec = report_dir / f"ecg_recommend_{stamp}.csv"
+                had = rec.exists()
+                if ensure_ecg_asof_layer(
+                    report_dir=report_dir,
+                    cache_dir=cache_dir,
+                    stamp=stamp,
+                    as_of=as_of,
+                    config=config,
+                    force=False,
+                    quiet=True,
+                ) and (not had):
+                    result.ecg_filled.append(stamp)
+                    _upsert_perf_stamp(report_dir, cache_dir, stamp)
                 result.restored.append(stamp)
                 local.add(stamp)
                 continue
@@ -493,7 +678,7 @@ def fill_gaps(
                 continue
         result.failed.append(stamp)
 
-    if result.restored or result.rebuilt:
+    if result.restored or result.rebuilt or result.ecg_filled:
         rebuild_panels(report_dir, cache_dir)
 
     return result
@@ -508,7 +693,11 @@ def print_gap_fill_summary(result: GapFillResult) -> None:
     print(f"  restored : {len(result.restored)}  {', '.join(result.restored) or '-'}")
     print(f"  rebuilt  : {len(result.rebuilt)}  {', '.join(result.rebuilt) or '-'}")
     print(f"  skip local: {len(result.skipped_local)}")
+    if result.ecg_filled:
+        print(f"  ecg filled: {len(result.ecg_filled)}  {', '.join(result.ecg_filled)}")
     print(f"  skip weekend: {len(result.skipped_weekend)}")
+    if result.skipped_holiday:
+        print(f"  skip holiday: {len(result.skipped_holiday)}  {', '.join(result.skipped_holiday)}")
     if result.failed:
         print(f"  failed  : {', '.join(result.failed)}")
     if result.truncated:
