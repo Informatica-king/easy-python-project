@@ -8,11 +8,11 @@
 # band: 추가매수 허용 구간 (BAND)
 # max_pct: 종목천장(기본 20 = 유동자산 대비). 품질등급 A/B/C 폐기 · 하드게이트 시 유효=금지(ADD 0%)
 
-as_of: '2026-10-14'
-as_of_note: 앱 캡처 · 평가 $1,425.18(+0.5%·+$7.83) · USD$418.62 + ₩14 · 6종 · APA 청산 · TXG 5→4 · INTC 2→3 · APPS 20→21
+as_of: '2026-10-15'
+as_of_note: 앱 캡처 · 평가 $1,370.79(−4.7%·−$68.31) · USD$399.06 + ₩14 · 8종 · ECPG 3→1 · APPS 21→11 · MU 0.196→0.277 · RDVT 2 · VRNS 2
 fx_krw_per_usd: 1402.5
-cost_basis_source: 앱 USD 손익역산 평단 2026-10-14
-source: app_screenshot_2026-10-14
+cost_basis_source: 앱 USD 손익역산 평단 2026-10-15
+source: app_screenshot_2026-10-15
 strategy:
   identity: 짧~중기 모멘텀을 실적·비중·손절로 걸러, 비대장주 챌린저를 규칙으로만 운영하는 생존형 포트 OS
   identity_short: 규칙형 챌린저 모멘텀 생존 OS
@@ -25,22 +25,22 @@ strategy:
     target_krw: 100000000
     note: 1억 · 군적금 27.2(+2000만) · 청년미래적금 29.8(만기 2138만) 주식 재투자
   book:
-    equity_usd: 1425.18
-    equity_pnl_usd: 7.83
-    equity_pnl_pct: 0.005
-    cash_usd: 418.62
+    equity_usd: 1370.79
+    equity_pnl_usd: -68.31
+    equity_pnl_pct: -0.047
+    cash_usd: 399.06
     cash_krw: 14
     cash_krw_usd: 0.01
-    liquid_usd: 1843.81
+    liquid_usd: 1769.86
     cash_floor_usd: 150
-    cash_deployable_usd: 268.63
-    cash_pct_of_liquid: 0.2270
-    pending_orders_note: 6종 전원 NO_ADD · TXG 천장OVER 해제(15.5%) · Top3≈49.2%(유동) · APA 청산 · INTC 3주 · APPS 21주 · TXG 4주 · ECPG tp1 $105 터치 · 전개가능≈$269
+    cash_deployable_usd: 249.07
+    cash_pct_of_liquid: 0.2255
+    pending_orders_note: 8종 전원 NO_ADD · Top3≈45.2%(유동)≤50% · ECPG −2 · APPS −10(stop $10 하회) · MU +0.081 · RDVT2 · VRNS2 · 전개가능≈$249
 cash:
-  usd: 418.62
+  usd: 399.06
   krw: 14
   floor_usd: 150
-  note: USD$418.62 + ₩14 · 합 $418.63 · 바닥 $150 · 전개가능 ≈$269
+  note: USD$399.06 + ₩14 · 합 $399.07 · 바닥 $150 · 전개가능 ≈$249
 contribution:
   payday: 매월 10일
   monthly_krw: 300000
@@ -52,8 +52,8 @@ allocation:
   top3_sum_max_pct: 50
   schd_target_pct: 0
   schd_role: 폐기 · 완충은 현금바닥+$150
-  note: '2026-10-14 (유동 $1,843.81): ECPG 17.2% · INTC 16.4% · TXG 15.5% · APPS 11.8% · MU 10.0% · CLMT 6.4%.
-    현금합 $418.63 (유동 ~22.7%). Top3≈49.2% ≤50% · 전원 유효금지(NO_ADD). APA 청산 · TXG −1 · INTC +1 · APPS +1.'
+  note: '2026-10-15 (유동 $1,769.86): INTC 16.1% · TXG 15.7% · MU 13.4% · RDVT 8.6% · CLMT 6.7% · APPS 5.9% · ECPG 5.8% · VRNS 5.3%.
+    현금합 $399.07 (유동 ~22.5%). Top3≈45.2% ≤50% · 천장 전원 OK · 8종 유효금지(NO_ADD). ECPG −2 · APPS −10 · MU 증액 · RDVT·VRNS 신규.'
 rules:
 - 물타기 금지
 - 확정 실적 D-5만 분할 차단 (추정 실적일은 주의, 하드블록 아님)
@@ -72,103 +72,133 @@ rules:
 - ROKU 전량청산 완료 (10-08) — 추격 재매수 금지
 - ANAB 전량청산 완료 (10-08) — 추격 재매수 금지
 - APA 전량청산 완료 (10-14) — 추격 재매수 금지
-- ECPG 3주 · 평단 $94.00 · +12.3% · 유동 17.2% · stop $80 · tp1 $105 터치 · 추가금지
-- INTC 3주(+1) · 평단 $106.13 · −4.8% · 유동 16.4% · 실적 10-29 · D-5 10-25 · 추가금지
-- TXG 4주(−1) · 평단 $62.57 · +14.4% · 유동 15.5% · stop $42 · 천장OVER 해제 · 추가금지
-- APPS 21주(+1) · 평단 $11.49 · −9.8% · 유동 11.8% · stop $10 · 추가금지
-- MU 0.196316주 · 평단 ~$1,074 · −12.6% · 유동 10.0% · 추가금지
-- CLMT 2주 · 평단 $57.31 · +2.2% · 유동 6.4% · 실적 11-06 · 하·과열 · 추가금지
+- ECPG 1주(−2) · 평단 $94.00 · +8.3% · 유동 5.8% · stop $80 · tp1 익절 후 잔여 · 추가금지
+- INTC 3주 · 평단 $106.13 · −10.7% · 유동 16.1% · 실적 10-29 · D-5 10-25 · 추가금지
+- TXG 4주 · 평단 $62.57 · +11.2% · 유동 15.7% · stop $42 · 추가금지
+- APPS 11주(−10) · 평단 $11.49 · −17.3% · 유동 5.9% · 마크 $9.50 < stop $10 · 추가금지
+- MU 0.2771109주(+0.081) · 평단 ~$1,013 · −15.4% · 유동 13.4% · 추가금지
+- CLMT 2주 · 평단 $57.31 · +4.0% · 유동 6.7% · 실적 11-06 · 추가금지
+- RDVT 2주 신규 · 평단 $78.79 · −3.5% · 유동 8.6% · 실적 11-04 · 추가금지
+- VRNS 2주 신규 · 평단 $48.57 · −4.0% · 유동 5.3% · 실적 10-27 · D-5 10-22 · 추가금지
 - 동일종목 중복 주문 금지
 holdings:
-- ticker: ECPG
-  role: hold
-  grade: OK
-  max_pct: 20
-  shares: 3
-  cost_approx: 94.0
-  mark_approx: 105.60
-  value_approx: 316.80
-  weight_approx: 0.1718
-  pnl_usd: 34.83
-  pnl_pct: 0.123
-  stop: 80.0
-  no_add: true
-  earn_date: '2026-11-04'
-  note: 3주 · 평단 $94.00 · +12.3% · 유동 17.2% · tp1 $105 터치 · 추가금지
-  tp1: 105.0
-  tp2: 110.0
 - ticker: INTC
   role: hold
   grade: OK
   max_pct: 20
   shares: 3
   cost_approx: 106.13
-  mark_approx: 101.01
-  value_approx: 303.03
-  weight_approx: 0.1643
-  pnl_usd: -15.36
-  pnl_pct: -0.048
+  mark_approx: 94.75
+  value_approx: 284.25
+  weight_approx: 0.1606
+  pnl_usd: -34.14
+  pnl_pct: -0.107
   no_add: true
   earn_date: '2026-10-29'
-  note: 3주(+1) · 평단 $106.13 · −4.8% · 유동 16.4% · Intel · 실적 10-29 · D-5 10-25 · 추가금지
+  note: 3주 · 평단 $106.13 · −10.7% · 유동 16.1% · Intel · 실적 10-29 · D-5 10-25 · 추가금지
 - ticker: TXG
   role: hold
   grade: OK
   max_pct: 20
   shares: 4
   cost_approx: 62.57
-  mark_approx: 71.62
-  value_approx: 286.48
-  weight_approx: 0.1554
-  pnl_usd: 36.19
-  pnl_pct: 0.144
+  mark_approx: 69.60
+  value_approx: 278.40
+  weight_approx: 0.1573
+  pnl_usd: 28.11
+  pnl_pct: 0.112
   stop: 42.0
   no_add: true
   earn_date: '2026-11-05'
-  note: 4주(−1) · 평단 $62.57 · +14.4% · 유동 15.5% · stop $42 · 천장OVER 해제 · 추가금지
-- ticker: APPS
-  role: hold
-  grade: OK
-  max_pct: 20
-  shares: 21
-  cost_approx: 11.49
-  mark_approx: 10.36
-  value_approx: 217.56
-  weight_approx: 0.1180
-  pnl_usd: -23.75
-  pnl_pct: -0.098
-  stop: 10.0
-  no_add: true
-  earn_date: '2026-11-03'
-  note: 21주(+1) · 평단 $11.49 · −9.8% · 유동 11.8% · Digital Turbine · stop $10 · 추가금지
+  note: 4주 · 평단 $62.57 · +11.2% · 유동 15.7% · stop $42 · 추가금지
 - ticker: MU
   role: hold
   grade: OK
   max_pct: 20
-  shares: 0.196316
-  cost_approx: 1073.63
-  mark_approx: 937.82
-  value_approx: 184.11
-  weight_approx: 0.0999
-  pnl_usd: -26.66
-  pnl_pct: -0.126
+  shares: 0.2771109
+  cost_approx: 1012.95
+  mark_approx: 856.81
+  value_approx: 237.43
+  weight_approx: 0.1342
+  pnl_usd: -43.27
+  pnl_pct: -0.154
   no_add: true
   earn_date: '2026-09-30'
-  note: 0.196316주 · 평단 ~$1,074 · −12.6% · 유동 10.0% · 실적 09-30 경과 · 추가금지
+  note: 0.2771109주(+0.081) · 평단 ~$1,013 · −15.4% · 유동 13.4% · 실적 09-30 경과 · 추가금지
+- ticker: RDVT
+  role: hold
+  grade: OK
+  max_pct: 20
+  shares: 2
+  cost_approx: 78.79
+  mark_approx: 75.96
+  value_approx: 151.92
+  weight_approx: 0.0858
+  pnl_usd: -5.66
+  pnl_pct: -0.035
+  no_add: true
+  earn_date: '2026-11-04'
+  note: 2주 신규 · 평단 $78.79 · −3.5% · 유동 8.6% · Red Violet · 실적 11-04 · 추가금지
 - ticker: CLMT
   role: hold
   grade: OK
   max_pct: 20
   shares: 2
   cost_approx: 57.31
-  mark_approx: 58.60
-  value_approx: 117.20
-  weight_approx: 0.0636
-  pnl_usd: 2.59
-  pnl_pct: 0.022
+  mark_approx: 59.63
+  value_approx: 119.26
+  weight_approx: 0.0674
+  pnl_usd: 4.65
+  pnl_pct: 0.040
   no_add: true
   earn_date: '2026-11-06'
-  note: 2주 · 평단 $57.31 · +2.2% · 유동 6.4% · Calumet · 실적 11-06 · 하·과열 · 추가금지
+  note: 2주 · 평단 $57.31 · +4.0% · 유동 6.7% · Calumet · 실적 11-06 · 추가금지
+- ticker: APPS
+  role: hold
+  grade: OK
+  max_pct: 20
+  shares: 11
+  cost_approx: 11.49
+  mark_approx: 9.50
+  value_approx: 104.50
+  weight_approx: 0.0590
+  pnl_usd: -21.90
+  pnl_pct: -0.173
+  stop: 10.0
+  no_add: true
+  earn_date: '2026-11-03'
+  note: 11주(−10) · 평단 $11.49 · −17.3% · 유동 5.9% · 마크 $9.50 < stop $10 · 추가금지
+- ticker: ECPG
+  role: hold
+  grade: OK
+  max_pct: 20
+  shares: 1
+  cost_approx: 94.0
+  mark_approx: 101.85
+  value_approx: 101.85
+  weight_approx: 0.0575
+  pnl_usd: 7.86
+  pnl_pct: 0.083
+  stop: 80.0
+  no_add: true
+  earn_date: '2026-11-04'
+  note: 1주(−2) · 평단 $94.00 · +8.3% · 유동 5.8% · tp1 익절 후 잔여 · 추가금지
+  tp1: 105.0
+  tp2: 110.0
+- ticker: VRNS
+  role: hold
+  grade: OK
+  max_pct: 20
+  shares: 2
+  cost_approx: 48.57
+  mark_approx: 46.59
+  value_approx: 93.18
+  weight_approx: 0.0526
+  pnl_usd: -3.96
+  pnl_pct: -0.040
+  no_add: true
+  earn_date: '2026-10-27'
+  note: 2주 신규 · 평단 $48.57 · −4.0% · 유동 5.3% · Varonis · 실적 10-27 · D-5 10-22 · 추가금지
 exited:
 - ticker: APA
   role: exited
@@ -280,24 +310,30 @@ exited:
   exit_type: label_correction
   note: SSOT 라벨 정정 · 실보유는 AnaptysBio(ANAB)
 watchlist:
-- ticker: ECPG
-  role: watch
-  note: 3주 · 유동 17.2% · tp1 $105 터치 · NO_ADD
 - ticker: INTC
   role: watch
-  note: 3주(+1) · 유동 16.4% · 실적 10-29 · NO_ADD
+  note: 3주 · 유동 16.1% · 실적 10-29 · NO_ADD
 - ticker: TXG
   role: watch
-  note: 4주(−1) · 유동 15.5% · stop $42 · NO_ADD
-- ticker: APPS
-  role: watch
-  note: 21주(+1) · −9.8% · stop $10 · NO_ADD
+  note: 4주 · 유동 15.7% · stop $42 · NO_ADD
 - ticker: MU
   role: watch
-  note: 0.196316주 · 유동 10.0% · NO_ADD
+  note: 0.2771109주 · 유동 13.4% · NO_ADD
+- ticker: RDVT
+  role: watch
+  note: 2주 신규 · 유동 8.6% · 실적 11-04 · NO_ADD
 - ticker: CLMT
   role: watch
-  note: 2주 · 유동 6.4% · 하·과열 · NO_ADD
+  note: 2주 · 유동 6.7% · NO_ADD
+- ticker: APPS
+  role: watch
+  note: 11주 · 마크 $9.50 < stop $10 · NO_ADD
+- ticker: ECPG
+  role: watch
+  note: 1주 · 유동 5.8% · tp1 익절 후 잔여 · NO_ADD
+- ticker: VRNS
+  role: watch
+  note: 2주 신규 · 유동 5.3% · 실적 10-27 · D-5 10-22 · NO_ADD
 - ticker: APA
   role: watch
   note: 10-14 전량청산 · 추격 재매수 금지

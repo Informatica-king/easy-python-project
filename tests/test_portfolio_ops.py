@@ -14,15 +14,15 @@ from sepa.portfolio_ops import (
 )
 
 
-def test_load_book_snap_20261014():
+def test_load_book_snap_20261015():
     book = load_book("config/portfolio_watch.yaml")
-    assert book.as_of == date(2026, 10, 14)
-    assert abs(book.cash_usd - 418.62) < 1e-6
+    assert book.as_of == date(2026, 10, 15)
+    assert abs(book.cash_usd - 399.06) < 1e-6
     assert book.cash_krw is not None and abs(book.cash_krw - 14) < 1e-3
     assert book.cash_krw_usd >= 0
     assert book.target_krw == 100_000_000
     tickers = {h.ticker for h in book.holdings}
-    assert tickers == {"TXG", "ECPG", "INTC", "APPS", "MU", "CLMT"}
+    assert tickers == {"INTC", "TXG", "MU", "RDVT", "CLMT", "APPS", "ECPG", "VRNS"}
     assert "APA" not in tickers
     assert "ROKU" not in tickers
     assert "ANAB" not in tickers
@@ -35,7 +35,7 @@ def test_load_book_snap_20261014():
     assert txg.shares == 4
     assert txg.no_add is True
     ecpg = next(h for h in book.holdings if h.ticker == "ECPG")
-    assert ecpg.shares == 3
+    assert ecpg.shares == 1
     intc = next(h for h in book.holdings if h.ticker == "INTC")
     assert intc.shares == 3
     assert intc.no_add is True
@@ -43,10 +43,16 @@ def test_load_book_snap_20261014():
     assert clmt.shares == 2
     assert clmt.no_add is True
     apps = next(h for h in book.holdings if h.ticker == "APPS")
-    assert apps.shares == 21
+    assert apps.shares == 11
     mu = next(h for h in book.holdings if h.ticker == "MU")
-    assert abs(mu.shares - 0.196316) < 1e-9
+    assert abs(mu.shares - 0.2771109) < 1e-9
     assert mu.no_add is True
+    rdvt = next(h for h in book.holdings if h.ticker == "RDVT")
+    assert rdvt.shares == 2
+    assert rdvt.no_add is True
+    vrns = next(h for h in book.holdings if h.ticker == "VRNS")
+    assert vrns.shares == 2
+    assert vrns.no_add is True
     assert "생존형 포트 OS" in book.identity
     assert "챌린저" in book.identity
 

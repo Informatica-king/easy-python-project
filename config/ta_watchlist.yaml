@@ -1,14 +1,7 @@
 # TA 워치리스트 + 포트 훅 메타 (≤20)
-# 2026-10-14: ECPG3 · INTC3 · TXG4 · APPS21 · MU 0.196 · CLMT2 · 6종 NO_ADD · APA 청산 · 현금 $419
+# 2026-10-15: INTC3 · TXG4 · MU 0.277 · RDVT2 · CLMT2 · APPS11 · ECPG1 · VRNS2 · 8종 NO_ADD · 현금 $399
 
 tickers:
-  - symbol: ECPG
-    earn_date: "2026-11-04"
-    stop: 80.0
-    tp1: 105.0
-    tp2: 110.0
-    no_add: true
-
   - symbol: INTC
     earn_date: "2026-10-29"
     no_add: true
@@ -18,19 +11,38 @@ tickers:
     stop: 42.0
     no_add: true
 
-  - symbol: APPS
-    earn_date: "2026-11-03"
-    stop: 10.0
-    no_add: true
-
   - symbol: MU
     earn_date: "2026-09-30"
     no_add: true
-    note: "hold 0.196316sh"
+    note: "hold 0.2771109sh"
+
+  - symbol: RDVT
+    earn_date: "2026-11-04"
+    no_add: true
+    note: "hold 2sh"
 
   - symbol: CLMT
     earn_date: "2026-11-06"
     no_add: true
+
+  - symbol: APPS
+    earn_date: "2026-11-03"
+    stop: 10.0
+    no_add: true
+    note: "hold 11sh · mark below stop"
+
+  - symbol: ECPG
+    earn_date: "2026-11-04"
+    stop: 80.0
+    tp1: 105.0
+    tp2: 110.0
+    no_add: true
+    note: "hold 1sh"
+
+  - symbol: VRNS
+    earn_date: "2026-10-27"
+    no_add: true
+    note: "hold 2sh · D-5 10-22"
 
   - symbol: APA
     earn_date: "2026-11-04"
@@ -94,7 +106,3 @@ tickers:
   - symbol: RELY
     no_add: true
     note: "exited"
-
-  - symbol: SCHD
-    no_add: true
-    note: "exited buffer ETF"
